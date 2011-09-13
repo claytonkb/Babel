@@ -1,3 +1,17 @@
+----- Compiling Babel
+
+My scripts are set up using Cygwin and I'm currently compiling for a Win32 target
+using the tcc C compiler (I have the compiler in the repo because I eventually plan
+to link to it). Babel might actually compile to *nix but I haven't tried it yet.
+
+To compile Babel, you'll need to make a 'bin' directory in the project directory,
+otherwise the make.pl script will crash. Once you've created the 'bin' directory,
+just run:
+
+perl make.pl
+
+This will build babel.exe in the bin directory. You are now ready to run Babel.
+
 ----- Compiling and running your own Babel code
 
 There are two basic ways to compile and run Babel code. The first (preferred)
@@ -16,6 +30,23 @@ perl proto_babel.pl my_proto_babel_program.pb pb/header.pb pb/opcodes.pb
 Then:
 
 bin/babel.exe my_proto_babel_program.pb.bbl
+
+----- Installing Graphviz on windows
+
+If you want to use the 'bbl2gv' (Babel-to-Graphviz) operator to provide visualization 
+of the Babel data-structure, you will need to install Graphviz dot (on Windows; it's
+installed by default in most Linux distros). In order to view the output, you will 
+need to redirect it to a file:
+
+perl babel eg/bbl2gv.pb > eg/bbl2gv.dot
+
+Download the Graphviz software for your version of Windows and install it. Then, run
+the following command:
+
+dot -Tsvg eg/bbl2gv.dot > eg/bbl2gv.svg
+
+Now, open the eg/bbl2gv.svg file in any web browser (Chrome and Firefox both work well
+for me).
 
 ----- Babel Overview
 
