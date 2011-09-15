@@ -8,6 +8,9 @@ next to the vertical bar '|' is TOS (Top-Of-Stack), the arrow separates
 before (LHS) and after (RHS) execution of the operator. Unless otherwise
 indicated, the rest of the stack is left as-is.
 
+Upper-case means "Array of size >= 1"
+Lower-case means "Array of size 1" or "single value"
+
 - Miscellaneous Operators
 
     - fnord
@@ -40,20 +43,19 @@ indicated, the rest of the stack is left as-is.
         the 'ci' arithmetic operators.
 
         Stack effect:
-            A B| -> (A+B)|
+            {a} {b}| -> {a+b}|
 
     - cusub
         C-style unsigned subtraction
-
-        A B| -> (A-B)
+        {a} {b}| -> {a-b}|
 
     - ciadd
         C-style integer addition
-        A B| -> (A+B)
+        A B| -> (A+B)|
 
     - cisub
         C-style integer subtraction
-        A B| -> (A-B)
+        A B| -> (A-B)|
 
     - ciabs
         C-style absolute-value
