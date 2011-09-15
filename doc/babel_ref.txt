@@ -1,0 +1,454 @@
+-- Babel Operator Reference
+
+Examples shown in "proto-Babel" for now. This will be updated at some point
+in the future when Bipedal is developed.
+
+Note: Stack diagrams are show under the "Stack effect" section. The item
+next to the vertical bar '|' is TOS (Top-Of-Stack), the arrow separates
+before (LHS) and after (RHS) execution of the operator. Unless otherwise
+indicated, the rest of the stack is left as-is.
+
+- Miscellaneous Operators
+
+    - fnord
+        Does nothing
+
+    - hash8
+        Hashes a sequence of bytes (hence the '8')
+
+        Stack effect:
+            "string"| -> {w x y z}|
+            A hash is 4 mwords in size
+
+- Arithmetic Operators
+
+    Note: The arithmetic operators are all prefixed with 'c' because
+    Babel will have its own native number format and arbitrary-precision
+    arithmetic at some point in the future.
+
+    - cuadd
+        C-style unsigned addition
+        Adds two mwords on TOS (Top-Of-Stack) 
+    
+        Example:
+            code: 
+            [ [{2}] [ [{3}] [ cuadd nil ]]]
+
+            Leaves 5 on TOS
+
+        Note: If you don't know what "unsigned" means then you shoud use 
+        the 'ci' arithmetic operators.
+
+        Stack effect:
+            A B| -> (A+B)|
+
+    - cusub
+        C-style unsigned subtraction
+
+        A B| -> (A-B)
+
+    - ciadd
+        C-style integer addition
+        A B| -> (A+B)
+
+    - cisub
+        C-style integer subtraction
+        A B| -> (A-B)
+
+    - ciabs
+        C-style absolute-value
+        A| -> abs(A)|
+
+    - cumul
+        C-style unsigned multiplication
+        A B| -> {lo(A*B) hi(A*B)}|
+
+        Note: The result of multiplication is two mwords, so it is stored
+        in a leaf array of size 2.
+
+    - cudiv
+        C-style unsigned division
+        A B| -> (A/B)|
+
+    - curem
+        C-style unsigned remainder (usually termed "mod")
+        A B| -> (A%B)|
+
+    - cimul
+        C-style integer multiplication
+        A B| -> {lo(A*B) hi(A*B)}|
+
+        See also: cumul
+
+    - cidiv
+        C-style integer division
+        A B| -> (A/B)|
+
+    - cirem
+        C-style integer remainder (usually termed "mod")
+        A B| -> (A%B)|
+
+- Shift Operators
+
+    - cushl
+        C-style unsigned shift-left
+        A B| -> (A<<B)|
+        
+    - cushr
+        C-style unsigned shift-right
+        A B| -> (A>>B)|
+        
+    - cashr
+        C-style arithmetic shift-right
+        A B| -> (A>>B)|
+
+        Performs an arithmetic shift-right which is suitable for dividing 
+        a signed (integer) value by a power of 2
+
+    - curol
+        C-style unsigned rotate-left
+        A B| -> (A rol B)|
+
+    - curor
+        C-style unsigned rotate-left
+        A B| -> (A ror B)|
+
+- Logic Operators
+    Babel's has 16 logic operators F0-Ff. Each one implements the Boolean
+    function of two bits whose numerical value when the truth-table is 
+    read vertically is the number of the operator. Since most people don't
+    know what this means, Babel also provides aliases for the ordinary 
+    Boolean operators.
+
+    - Fx
+        A B| -> (A Fx B)|
+
+    - cand
+        C-style bitwise AND
+        A B| -> (A & B)|
+        
+    - cnand
+        C-style bitwise NAND
+        A B| -> !(A & B)|
+
+    - cor
+        C-style bitwise OR
+        A B| -> (A | B)|
+
+    - cnor
+        C-style bitwise NOR
+        A B| -> !(A | B)|
+
+    - cxor
+        C-style bitwise XOR
+        A B| -> (A ^ B)|
+
+    - cxnor
+        C-style bitwise XNOR
+        A B| -> !(A ^ B)|
+
+    - cnot
+        C-style bitwise complement
+        A| -> ~A|
+
+- Comparison Operators
+
+    - cne
+        C-style not-equal
+        A B| -> (A != B)|
+        
+    - ceq
+        C-style equal
+        A B| -> (A == B)|
+        
+    - cult
+        C-style unsigned less-than
+        A B| -> (A < B)|
+
+    - cule
+        C-style unsigned less-than-or-equal
+        A B| -> (A <= B)|
+
+    - cugt
+        C-style unsigned greater-than
+        A B| -> (A > B)|
+
+    - cuge
+        C-style unsigned greater-than-or-equal
+        A B| -> (A >= B)|
+
+    - cilt
+        C-style integer less-than
+        A B| -> (A < B)|
+
+    - cile
+        C-style integer less-than-or-equal
+        A B| -> (A <= B)|
+
+    - cigt
+        C-style integer greater-than
+        A B| -> (A > B)|
+
+    - cige
+        C-style integer greater-than-or-equal
+        A B| -> (A >= B)|
+
+- I/O Operators
+
+    - cprintf
+        Permits printing of C-style (null-terminated) strings with a format
+        specifier.
+
+        {value} {"format-specifier"}| -> |
+
+        Prints A according to a standard printf() format specifier.
+
+        Prefer stdout
+
+    - cprints
+        Similar to cprintf but prints a plain-string
+
+        {"C-string"}| -> |
+
+        Prefer stdout
+
+    - slurp8
+        Slurps an entire file to an array8
+        {"filename"}| -> {file-contents}|
+
+    - spit8
+        Opposite of slurp. Writes an array8 to file. Overwrites existing 
+        file. Creates file if it does not exist.
+        {leaf-array} {"filename"}| -> |
+
+    - journal8
+        Same as spit8 but appends to existing file. Creates file if it does
+        not exist.
+        {leaf-array} {"filename"}| -> |
+
+    - stdout
+        Prints a string to STDOUT (standard output)
+        {"string"}| -> |
+
+    - stdinln
+        Reads from STDIN (standard input) until newline
+        | -> {"string"}|
+
+- Array Operators
+
+    - s
+        Reads the s-field and places it on TOS
+        {X}| -> s(X)|
+        [X]| -> s(X)|
+
+    - arlen
+        Puts the array length on TOS
+        {X}| -> len(X)|
+        [X]| -> len(X)|
+
+    - arlen
+        Puts the 8-bit array length on TOS
+        {X}| -> len8(X)|
+        [X]| -> len8(X)|
+
+    - islf
+        Tests if TOS is a leaf-array
+        {X}| -> {1}|
+        [X]| -> {0}|
+
+    - isin
+        Tests if TOS is an interior-array
+        {X}| -> {0}|
+        [X]| -> {1}|
+
+    - w
+        Writes array X into array Y at offset z. Leaves the result on TOS.
+        {X} {Y} {z}| -> {Y written with X at z}|
+        [X] [Y] {z}| -> [Y written with X at z]|
+
+    - slice
+        Puts a slice of an array on TOS
+        {X} {a} {b}| -> {X[a..b]}|
+        [X] {a} {b}| -> [X[a..b]]|
+
+    - mu
+        "Memory usage" - by analogy to Unix 'du'
+        Returns the total memory usage of the object on TOS measured in 
+        mwords.
+        {X}| -> mu(X)|        
+        [X]| -> mu(X)|        
+
+    - nlf
+        "Number of leaf-arrays"
+        Returns the total number of leaf-arrays in the object on TOS
+        {X}| -> {1}|
+        [X]| -> nlf(X)|
+
+    - nin
+        "Number of interior-arrays"
+        Returns the total number of interior-arrays in the object on TOS
+        {X}| -> {0}|
+        [X]| -> nin(X)|
+
+    - nva
+        "Number of values"
+        Returns the total number of values in the object on TOS
+        {X}| -> nva(X)|
+        [X]| -> nva(X)|
+
+    - npt
+        "Number of pointers"
+        Returns the total number of pointers in the object on TOS
+        {X}| -> 0|
+        [X]| -> npt(X)|
+
+    - newlf
+        Creates a new leaf-array of size x and leaves it on TOS
+        {x}| -> {leaf-array-of-size-x}|
+
+    - newin
+        Creates a new interior-array of size x and leaves it on TOS
+        {x}| -> {interior-array-of-size-x}|
+
+    case DEL:           \
+        del();          \
+        break;          \
+    case CP:            \
+        cp();           \
+        break;          \
+    case TRUNC:         \
+        trunc();        \
+        break;          \
+    case CXR:           \
+        cxr();          \
+        break;          \
+
+//    case B2C:           \
+//        b2c();          \
+//        break;          \
+
+
+#define string_ops                    \
+    case STR2AR:        \
+        str2ar();       \
+        break;          \
+    case AR2STR:        \
+        ar2str();       \
+        break;          \
+    case CATOI:         \
+        catoi();        \
+        break;          \
+    case CU2DEC:        \
+        cu2dec();       \
+        break;          \
+    case CI2DEC:        \
+        ci2dec();       \
+        break;          \
+    case HEX2CU:        \
+        hex2cu();       \
+        break;          \
+    case CU2HEX:        \
+        cu2hex();       \
+        break;          \
+    case DEC2CI:        \
+        dec2ci();       \
+        break;          \
+
+
+#define list_ops                    \
+    case CARINDEX:      \
+        carindex();     \
+        break;          \
+    case CDRINDEX:      \
+        cdrindex();     \
+        break;          \
+    case ISNIL:         \
+        isnil();        \
+        break;          \
+    case CONS:          \
+        consls();       \
+        break;          \
+    case UNCONS:        \
+        uncons();       \
+        break;          \
+    case PUSH:          \
+        push();         \
+        break;          \
+    case POP:           \
+        pop();          \
+        break;          \
+
+#define util_ops                   \
+    case RAND:          \
+        randop();       \
+        break;          \
+    case SLEEP:         \
+        sleepop();      \
+        break;          \
+    case ARGVOP:        \
+        argvop();       \
+        break;          \
+
+
+#define stack_ops                   \
+    case ZAP:           \
+        zap();          \
+        break;          \
+    case SEL:           \
+        sel();          \
+        break;          \
+    case DUP:           \
+        dup();          \
+        break;          \
+    case SWAP:           \
+        swap();          \
+        break;          \
+
+
+#define eval_ops                    \
+    case EVAL:          \
+        eval();         \
+        continue;       \
+    case GOTO:          \
+        gotoop();       \
+        continue;       \
+    case CALL:          \
+        call();         \
+        continue;       \
+    case RET:           \
+        ret();          \
+        continue;       \
+    case LOOP:          \
+        loop();         \
+        break;          \
+    case LAST:          \
+        last();         \
+        continue;       \
+    case NEXT:          \
+        next();         \
+        continue;       \
+    case WHILEOP:       \
+        whileop();      \
+        continue;       \
+
+#define bvm_ops                     \
+    case BVMROOT:       \
+        bvmroot();      \
+        break;          \
+    case BBL2GV:        \
+        bbl2gv();       \
+        break;          \
+    case INTERNAL_BVMROOT:      \
+        internal_bvmroot();     \
+        break;                  \
+
+#define debug_ops                           \
+    case TOGGLE_STACK_TRACE:    \
+        toggle_stack_trace();   \
+        break;                  \
+
+#endif // BVM_INTERP_H
+
+//Clayton Bauman 2011
+
+test
