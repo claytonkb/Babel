@@ -247,6 +247,7 @@
 #define SRAND       0x142
 #define ARGVOP      0x143
 #define CP          0x148
+#define SAVE          0x149
 #define ARCHR       0x14B
 #define ARMV8       0x14C
 #define ARMV        0x14F

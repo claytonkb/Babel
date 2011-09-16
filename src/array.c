@@ -165,6 +165,42 @@ void w(void){
 
 }
 
+// save
+// A kind of "staggered-w"
+void save(void){
+
+    // TOS_0 offset
+    // TOS_1 dest_operand
+    // TOS_2 src_operand
+
+//    //FIXME: There is no checking...
+//
+//    c((mword*)TOS_1,car(TOS_0)) = (mword)car(TOS_2);
+//
+//    zap();
+//    zap();
+//    zap();
+
+    mword offset    = car(TOS_0);
+    mword dest_size = size((mword*)car(TOS_1))-offset;
+    mword src_size  = size((mword*)TOS_2);
+
+    mword iter = (src_size < dest_size) ? src_size : dest_size;
+
+    mword i;
+    for(i=0;i<iter;i++){
+        c((mword*)car(TOS_1),i+offset) = c((mword*)TOS_2,i);
+    }    
+
+    zap();
+//    zap();
+    swap();
+    zap();
+    //TODO: leave dest on the stack?
+
+}
+
+
 void arlen8(void){
 
     mword *result    = new_atom();
