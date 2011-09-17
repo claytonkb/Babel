@@ -4,10 +4,28 @@
 #include "babel.h"
 #include "load.h"
 #include "except.h"
+#include "stack.h"
 
 //
 //
+//void load(void){
+//
+//    mword *tree = global_VM-1;
+//    load_tree(tree, 1*MWORD_SIZE);
+//    clean_tree(global_VM);
+//
+//}
+
 void load(void){
+
+    _load((mword*)TOS_0);
+
+//    zap();
+//    push_alloc(result, LOAD);
+
+}
+
+void _load(void){
 
     mword *tree = global_VM-1;
     load_tree(tree, 1*MWORD_SIZE);
@@ -18,6 +36,7 @@ void load(void){
 //load_tree
 //
 void load_tree(mword *tree, mword offset){
+//void _load(mword *tree, mword offset){
 
     int i;
     #define tree_base (mword)tree;
