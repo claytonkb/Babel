@@ -44,14 +44,25 @@ sub send_obj{
     my $obj_out = shift;
     my $sections = shift;
 
+    open C_FILE,   ">${proj_name}.c";
     open LST_FILE, ">${proj_name}.lst";
     open BBL_FILE, ">${proj_name}.bbl";
     binmode BBL_FILE;
 
+    printf C_FILE ("mword obj[%d] = {", $#{$obj_out} + 1);
+
+    my $i = 0;
     for(0..$#{$obj_out}){
-        printf LST_FILE ("%04x %08x\n", $_ * $MWORD_SIZE, $obj_out->[$_]);
+        if($i % 8 == 0){
+            print C_FILE "\n    ";
+        }
+        printf   C_FILE ("0x%08x, ",                      $obj_out->[$_] & 0xffffffff);
+        printf LST_FILE ("%04x %08x\n", $_ * $MWORD_SIZE, $obj_out->[$_] & 0xffffffff);
         print  BBL_FILE pack("V",  $obj_out->[$_]);
+        $i++;
     }
+
+    print C_FILE "\n};\n";
 
     for(keys %{$sections}){
         next if /^ANON_/;
