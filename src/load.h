@@ -5,8 +5,8 @@
 #define LOAD_H
 
 void load(void);
-//void load_tree(mword *tree, mword offset);
-void _load(mword *tree, mword offset);
+void load_tree(mword *tree, mword offset);
+void _load(mword *tree);//, mword offset);
 void clean_tree(mword *tree);
 void dump(void);
 void dump_tree(mword *tree);

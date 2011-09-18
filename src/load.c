@@ -25,11 +25,11 @@ void load(void){
 
 }
 
-void _load(void){
+void _load(mword *tree){//, mword offset){
 
-    mword *tree = global_VM-1;
+//    mword *tree = global_VM-1;
     load_tree(tree, 1*MWORD_SIZE);
-    clean_tree(global_VM);
+    clean_tree(tree+1);
 
 }
 

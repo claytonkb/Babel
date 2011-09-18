@@ -31,7 +31,7 @@ void bvm_init(void){
 
     bvm_check();
 
-    _load(global_VM-1,0);
+    _load(global_VM-1);
 
     internal_global_VM = global_VM; // A BVM is never permitted to access internal_global_VM
 //    d(car(car(internal_global_VM)))
