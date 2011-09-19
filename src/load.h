@@ -12,7 +12,8 @@ void dump(void);
 void dump_tree(mword *tree);
 void arser(void);
 void arser_tree(mword *tree);
-
+void unload(void);
+void unload_tree(mword base, mword* tree, mword* dest, mword offset);
 
 #endif //LOAD_H
 

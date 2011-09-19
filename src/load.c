@@ -5,6 +5,8 @@
 #include "load.h"
 #include "except.h"
 #include "stack.h"
+#include "count.h"
+#include "array.h"
 
 //
 //
@@ -164,6 +166,51 @@ void arser_tree(mword *tree){
     }
 
 }
+
+void unload(void){
+
+    mword* result = _newlf(_mu((mword*)TOS_0));
+
+    unload_tree(TOS_0, (mword*)TOS_0, result, 0);
+
+//    unload_tree((mword*)TOS_0);
+//    clean_tree(tree+1);
+
+}
+
+void unload_tree(mword base, mword* tree, mword* dest, mword offset){
+
+    int i;
+
+    if( s(tree) & (MWORD_SIZE-1) ){ //Already dumped
+        return;
+    }
+
+    int num_elem = size(tree);
+//    printf("-------- %08x\n", (mword)s(tree));
+    s(tree) |= 0x1; //Mark dumped
+
+//    printf("num_elem %08x\n", num_elem);
+
+    for(i=0; i<num_elem; i++){
+        if(is_inte(tree)){
+            printf("%08x %08x\n", (mword)(tree+i), (mword)((mword *)*(tree+i)));
+        }
+        else{
+            printf("%08x %08x\n", (mword)(tree+i), (mword *)*(tree+i));
+        }
+    }
+
+    for(i=0; i<num_elem; i++){
+        if(is_inte(tree)){
+            arser_tree((mword *)*(tree+i));
+        }
+    }
+
+}
+
+
+
 
 // Clayton Bauman 2011
 
