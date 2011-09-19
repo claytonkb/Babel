@@ -19,6 +19,9 @@
 void load(void){
 
     _load((mword*)TOS_0);
+//    d(TOS_0)
+//    die
+    TOS_0 = TOS_0 + MWORD_SIZE;
 
 //    zap();
 //    push_alloc(result, LOAD);

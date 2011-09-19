@@ -376,6 +376,9 @@
     case INTERNAL_BVMROOT:      \
         internal_bvmroot();     \
         break;                  \
+    case LOAD:          \
+        load();         \
+        break;          \
 
 #define debug_ops                           \
     case TOGGLE_STACK_TRACE:    \
