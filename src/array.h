@@ -28,6 +28,7 @@ mword dec_alignment_word8(mword alignment_word);
 void _trunc(mword *operand, mword new_size);
 void cxr(void);
 void save(void);
+void arcat(void);
 
 #endif //ARRAY_H
 

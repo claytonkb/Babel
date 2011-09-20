@@ -254,8 +254,11 @@
     case CXR:           \
         cxr();          \
         break;          \
-    case SAVE:           \
-        save();          \
+    case SAVE:          \
+        save();         \
+        break;          \
+    case ARCAT:         \
+        arcat();        \
         break;          \
 
 //    case B2C:           \
@@ -379,9 +382,10 @@
     case LOAD:          \
         load();         \
         break;          \
-    case UNLOAD:        \
-        unload();       \
-        break;          \
+
+//    case UNLOAD:        \
+//        unload();       \
+//        break;          \
 
 #define debug_ops                           \
     case TOGGLE_STACK_TRACE:    \

@@ -337,5 +337,46 @@ mword dec_alignment_word8(mword alignment_word){
 
 }
 
+// TOS_1 . TOS_0
+//
+void arcat(void){
+
+    mword *result;
+
+    if      ( is_leaf((mword*)TOS_0)  &&  is_leaf((mword*)TOS_1) ){
+        result = _newlf( size((mword*)TOS_0) + size((mword*)TOS_1) );
+    }
+    else if ( is_inte((mword*)TOS_0)  &&  is_inte((mword*)TOS_1) ){
+        result = _newin( size((mword*)TOS_0) + size((mword*)TOS_1) );
+    }
+    else{ //Throw an exception
+        except("arcat: cannot concatenate leaf array and interior array", __FILE__, __LINE__);
+    }
+
+    mword i,j;
+    for(    i=0;
+            i<size((mword*)TOS_1);
+            i++
+        ){
+
+        c(result,i) = c((mword*)TOS_1,i);
+
+    }    
+
+    for(    i=0,j=size((mword*)TOS_1);
+            i<size((mword*)TOS_0);
+            i++,j++
+        ){
+
+        c(result,j) = c((mword*)TOS_0,i);
+
+    }    
+
+    zap();
+    zap();
+    push_alloc(result, ARCAT);
+
+}
+
 // Clayton Bauman 2011
 
