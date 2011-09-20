@@ -379,6 +379,9 @@
     case LOAD:          \
         load();         \
         break;          \
+    case UNLOAD:        \
+        unload();       \
+        break;          \
 
 #define debug_ops                           \
     case TOGGLE_STACK_TRACE:    \

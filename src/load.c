@@ -7,6 +7,7 @@
 #include "stack.h"
 #include "count.h"
 #include "array.h"
+#include "bvm_opcodes.h"
 
 //
 //
@@ -167,14 +168,23 @@ void arser_tree(mword *tree){
 
 }
 
+// FIXME TOTALLY BROKEN!!!!!!!!!! FIXME
+//
+// unload() is going to be slightly more complex than load().
+// we're going to need two arrays big enough to fit the babel structure
+// being unloaded - one array will be a translation table between memory
+// addresses and the destination array offsets and the second array will
+// be the destination array.
 void unload(void){
 
     mword* result = _newlf(_mu((mword*)TOS_0));
+    clean_tree((mword*)TOS_0);
 
     unload_tree(TOS_0, (mword*)TOS_0, result, 0);
+    clean_tree((mword*)TOS_0);
 
 //    unload_tree((mword*)TOS_0);
-//    clean_tree(tree+1);
+    push_alloc(result, UNLOAD);
 
 }
 
@@ -182,28 +192,36 @@ void unload_tree(mword base, mword* tree, mword* dest, mword offset){
 
     int i;
 
+
     if( s(tree) & (MWORD_SIZE-1) ){ //Already dumped
         return;
     }
 
     int num_elem = size(tree);
+
 //    printf("-------- %08x\n", (mword)s(tree));
+    *(dest+offset) = s(tree);
+    offset++;
+
     s(tree) |= 0x1; //Mark dumped
 
 //    printf("num_elem %08x\n", num_elem);
 
     for(i=0; i<num_elem; i++){
         if(is_inte(tree)){
-            printf("%08x %08x\n", (mword)(tree+i), (mword)((mword *)*(tree+i)));
+//            printf("%08x %08x\n", (mword)(tree+i), (mword)((mword *)*(tree+i)));
+            *(dest+offset) = (mword)((mword *)*(tree+i)) - base;
         }
         else{
-            printf("%08x %08x\n", (mword)(tree+i), (mword *)*(tree+i));
+//            printf("%08x %08x\n", (mword)(tree+i), (mword *)*(tree+i));
+            *(dest+offset) = (mword)((mword *)*(tree+i));
         }
+        offset++;
     }
 
     for(i=0; i<num_elem; i++){
         if(is_inte(tree)){
-            arser_tree((mword *)*(tree+i));
+            unload_tree(base, (mword *)*(tree+i), dest, offset);
         }
     }
 
