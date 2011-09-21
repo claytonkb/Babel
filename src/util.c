@@ -40,7 +40,7 @@ void sleepop(void){
 
 void init_global_argv(int argc, char **argv){
 
-    #define NUM_BABEL_INTERP_ARGS 2
+    #define NUM_BABEL_INTERP_ARGS 1
     if(argc <= NUM_BABEL_INTERP_ARGS){
         global_argv = nil;
         return;
@@ -53,7 +53,7 @@ void init_global_argv(int argc, char **argv){
     //still finite to protect against overflow attacks
     #define MAX_ARG_SIZE (1<<16)
     int i;
-    for( i = 2; i < argc; i++ ){
+    for( i = NUM_BABEL_INTERP_ARGS; i < argc; i++ ){
 //        (mword*)c((mword*)global_argv, i-NUM_BABEL_INTERP_ARGS) = (mword*)argv[i];
         (mword*)c((mword*)global_argv, i-NUM_BABEL_INTERP_ARGS)
             = _c2b(argv[i], 100);
