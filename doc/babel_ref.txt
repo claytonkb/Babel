@@ -3,7 +3,7 @@
 Examples shown in "proto-Babel" for now. This will be updated at some point
 in the future when Bipedal is developed.
 
-Note: Stack diagrams are show under the "Stack effect" section. The item
+Note: Stack diagrams are shown under the "Stack effect" section. The item
 next to the vertical bar '|' is TOS (Top-Of-Stack), the arrow separates
 before (LHS) and after (RHS) execution of the operator. Unless otherwise
 indicated, the rest of the stack is left as-is.
@@ -369,7 +369,7 @@ Lower-case means "a single value"
         {Y} {x}| -> {Y[x]}|
         [Y] {x}| -> [Y[x]]|
 
--- String operators
+- String operators
 
     - str2ar
         "Convert string to array"
@@ -416,7 +416,7 @@ Lower-case means "a single value"
     - hex2cu
         Undoes cu2hex, see above
 
--- List Operators
+- List Operators
 
     - car
         Named after the venerable Lisp operator
@@ -470,10 +470,11 @@ Lower-case means "a single value"
         [cons(Y,X)]| -> [X] [Y]|
 
 
--- Utility Operators
+- Utility Operators
 
     - rand
-        Places an array of x random values on TOS. Uses the Mersenne Twister PRNG.
+        Places an array of x random values on TOS. Uses the Mersenne Twister
+        PRNG.
         {x}| -> {R}|
 
         len(R) = x, each value of R is pseudo-random
@@ -485,11 +486,11 @@ Lower-case means "a single value"
     - argv
         Named after the C identifier
 
-        Places a list of strings on the stack corresponding to the arguments passed to Babel on the
-        commandline.
+        Places a list of strings on the stack corresponding to the arguments 
+        passed to Babel on the commandline.
         | -> [args]|
 
--- Stack Operators
+- Stack Operators
 
     - zap
         Named after the Joy operator
@@ -518,7 +519,7 @@ Lower-case means "a single value"
         [X] {Y}| -> {Y} [X]|
         etc.
 
--- Eval Operators
+- Eval Operators
 
     - eval
         Named after the Perl function
@@ -530,27 +531,28 @@ Lower-case means "a single value"
         [X]| -> |
 
     - call
-        Saves the current place in code, the does a goto
+        Saves the current location in code, then does a goto
         [X]| -> |
 
     - ret
-        Returns to the last point saved by a call
+        Returns to the last location saved by a call
         | -> |
 
     - loop
-        Like eval but loops indefinitely. Use 'last' or 'next' to control loop behavior.
+        Like eval but loops indefinitely. Use 'last' or 'next' to control 
+        loop behavior.
         [X]| -> |
 
     - last
         Breaks out of current loop
 
     - next
-        Goes to next loop
+        Goes to next iteration of current loop
 
     - while
         Classic while
 
--- Babel Virtual Machine (BVM) Operators
+- Babel Virtual Machine (BVM) Operators
 
     - bvmroot
         Puts the root pointer to the entire virtual-machine on TOS
@@ -559,4 +561,9 @@ Lower-case means "a single value"
     - bbl2gv
         Prints TOS to STDOUT in Graphviz dot-language format
 
+    - load
+        Flattens a relative-offset Babel structure into its literal 
+        memory pointer footprint. This operator is applied by the 
+        interpreter to a Babel file when it is initially loaded from file 
+        into memory.
 
