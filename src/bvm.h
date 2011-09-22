@@ -8,9 +8,9 @@ void bvm_init(void);
 void bvm_check(void);
 void bvm_interp(void);
 void bvmroot(void);
-#ifdef DEBUG
-void internal_bvmroot(void);
-#endif
+//#ifdef DEBUG
+//void internal_bvmroot(void);
+//#endif
 void bbl2gv(void);
 mword tree_bbl2gv(mword *tree);
 

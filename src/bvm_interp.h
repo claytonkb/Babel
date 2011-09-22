@@ -23,7 +23,6 @@
         stack_ops           \
         eval_ops            \
         bvm_ops             \
-        debug_ops           \
         cmp_ops             \
         string_ops          \
         shift_ops           \
@@ -376,23 +375,23 @@
     case BBL2GV:        \
         bbl2gv();       \
         break;          \
-    case INTERNAL_BVMROOT:      \
-        internal_bvmroot();     \
-        break;                  \
     case LOAD:          \
         load();         \
         break;          \
 
+//    case INTERNAL_BVMROOT:      \
+//        internal_bvmroot();     \
+//        break;                  \
 //    case UNLOAD:        \
 //        unload();       \
 //        break;          \
 
-#define debug_ops                           \
-    case TOGGLE_STACK_TRACE:    \
-        toggle_stack_trace();   \
-        break;                  \
-
-#endif // BVM_INTERP_H
+//#define debug_ops                           \
+//    case TOGGLE_STACK_TRACE:    \
+//        toggle_stack_trace();   \
+//        break;                  \
+//
+//#endif // BVM_INTERP_H
 
 //Clayton Bauman 2011
 

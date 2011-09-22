@@ -30,11 +30,11 @@ void push_alloc(mword *operand, mword alloc_type){
 //
 void zap(void){
 
-#ifdef DEBUG
-    if(STACK_TRACE){
-        return;
-    }
-#endif
+//#ifdef DEBUG
+//    if(STACK_TRACE){
+//        return;
+//    }
+//#endif
 
     if(stack_ptr == nil){
         return;
@@ -171,13 +171,12 @@ void swap(void){
 }
 
 
-//FIXME: Get rid of this crap:
-#ifdef DEBUG
-void toggle_stack_trace(void){
-    STACK_TRACE = !STACK_TRACE;
-}
-#endif
-
+////FIXME: Get rid of this crap:
+//#ifdef DEBUG
+//void toggle_stack_trace(void){
+//    STACK_TRACE = !STACK_TRACE;
+//}
+//#endif
 
 // Clayton Bauman 2011
 

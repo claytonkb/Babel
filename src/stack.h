@@ -16,10 +16,10 @@ void _zap(mword **target);
 void dup(void);
 void swap(void);
 
-#ifdef DEBUG
-mword STACK_TRACE;
-void toggle_stack_trace(void);
-#endif
+//#ifdef DEBUG
+//mword STACK_TRACE;
+//void toggle_stack_trace(void);
+//#endif
 
 #endif //STACK_H
 

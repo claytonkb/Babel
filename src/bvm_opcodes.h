@@ -107,10 +107,10 @@
 
 //0060-006F  RSVD
 
-#ifdef DEBUG
-#define INTERNAL_BVMROOT 0x070 // DEBUG ONLY!!
-#define TOGGLE_STACK_TRACE  0x071
-#endif
+//#ifdef DEBUG
+//#define INTERNAL_BVMROOT 0x070 // DEBUG ONLY!!
+//#define TOGGLE_STACK_TRACE  0x071
+//#endif
 
 #define CATOI       0x080
 #define CATOF       0x081

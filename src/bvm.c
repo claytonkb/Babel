@@ -38,7 +38,7 @@ void bvm_init(void){
   //      die
     global_VM = (mword *)cdr(global_VM);
 
-    STACK_TRACE = 0; // FIXME: This needs to be removed at some point...
+//    STACK_TRACE = 0; // FIXME: This needs to be removed at some point...
 
 }
 
@@ -92,15 +92,15 @@ void bvmroot(void){
 
 }
 
-#ifdef DEBUG
-
-void internal_bvmroot(void){
-
-    push_alloc(internal_global_VM, INTERNAL_BVMROOT);
-
-}
-
-#endif
+//#ifdef DEBUG
+//
+//void internal_bvmroot(void){
+//
+//    push_alloc(internal_global_VM, INTERNAL_BVMROOT);
+//
+//}
+//
+//#endif
 
 
 void bbl2gv(void){
