@@ -4,6 +4,8 @@
 #ifndef BVM_H
 #define BVM_H
 
+void bvmexec(void);
+void _bvmexec(mword *bvm);
 void bvm_init(void);
 void bvm_check(void);
 void bvm_interp(void);

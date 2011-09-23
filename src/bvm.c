@@ -23,6 +23,24 @@
 #include "logic.h"
 #include "util.h"
 
+
+void bvmexec(void){
+
+    //TOS_0
+    //_bvmexec(TOS_0, argc?, argv?)
+
+}
+
+void _bvmexec(mword *bvm){
+
+//    bvm_init();
+//    bvm_switch(); //switches to the new global_VM and _global_VM,
+//                      //saves the old one
+//    bvm_interp();
+//    check exceptions?
+
+}
+
 //bvm_init
 //
 void bvm_init(void){

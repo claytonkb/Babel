@@ -53,5 +53,17 @@ int main(int argc, char **argv){
 
 }
 
+//// NEW main:
+//// #include "rt.c"
+//int main(int argc, char **argv){
+//
+//    global_VM = babelrt; // #define'd in rt.c
+//
+//    _bvmexec(global_VM,argc, argv);
+//
+//    return 0;
+//
+//}
+
 // Clayton Bauman 2011
 
