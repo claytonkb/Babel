@@ -11,6 +11,7 @@
 #include "array.h"
 #include "string.h"
 #include "util.h"
+#include "load.h"
 
 //main
 //
@@ -35,18 +36,28 @@ int main(int argc, char **argv){
 //    printf("%x", genrand_int32());
 //    die
 
-    global_VM = (_slurp(argv[1])+1);
-    global_machine_page_size = *(global_VM-2);
+    #include "rt.pb.c"
+//    printf("%08x", *(bbl+1));
+//    die
 
-    bvm_init();
+//    global_VM = (_slurp(argv[1])+1);
+//    global_machine_page_size = *(global_VM-2);
+//    bvm_init();
+//    setjmp(exception_env); // XXX for use by except() ONLY!! XXX
+//    bvm_interp();
 
-    setjmp(exception_env); // XXX for use by except() ONLY!! XXX
+    global_machine_page_size = BBL_SIZE;
+    _load((mword*)bbl);
+
+//    printf("%08x", *(bbl+1));
+//    die
+//    printf("OK");
+    internal_global_VM = bbl+1;
+    global_VM = (mword *)cdr(internal_global_VM);
 
     init_global_argv(argc, argv);
 
-    bvm_interp();
-
-//    tree_dot();
+    _bvmexec(internal_global_VM);
 
     printf("\n");
     return 0;

@@ -327,7 +327,7 @@
         break;          \
 
 
-#define stack_ops                   \
+#define stack_ops       \
     case ZAP:           \
         zap();          \
         break;          \
@@ -337,8 +337,8 @@
     case DUP:           \
         dup();          \
         break;          \
-    case SWAP:           \
-        swap();          \
+    case SWAP:          \
+        swap();         \
         break;          \
 
 
@@ -377,6 +377,9 @@
         break;          \
     case LOAD:          \
         load();         \
+        break;          \
+    case BVMEXEC:       \
+        bvmexec();      \
         break;          \
 
 //    case INTERNAL_BVMROOT:      \

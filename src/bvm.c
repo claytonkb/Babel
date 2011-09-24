@@ -26,18 +26,26 @@
 
 void bvmexec(void){
 
-    //TOS_0
-    //_bvmexec(TOS_0, argc?, argv?)
+    _bvmexec((mword*)TOS_0);
+
+    zap();
+
+//    zap();
+//    push_alloc(temp_cons, BVMEXEC);
 
 }
 
 void _bvmexec(mword *bvm){
 
-//    bvm_init();
-//    bvm_switch(); //switches to the new global_VM and _global_VM,
-//                      //saves the old one
-//    bvm_interp();
-//    check exceptions?
+    mword *saved_bvm = internal_global_VM;
+
+    internal_global_VM = bvm;
+    global_VM = (mword *)cdr(internal_global_VM);
+
+    bvm_interp();
+
+    internal_global_VM = saved_bvm;
+    global_VM = (mword *)cdr(internal_global_VM);
 
 }
 

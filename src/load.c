@@ -48,9 +48,9 @@ void load_tree(mword *tree, mword offset){
     #define tree_base (mword)tree;
     offset /= MWORD_SIZE ;
 
-    if(offset > global_machine_page_size){
-        except("load_tree: offset out of bounds", __FILE__, __LINE__);
-    }
+//    if(offset > global_machine_page_size){
+//        except("load_tree: offset out of bounds", __FILE__, __LINE__);
+//    }
 
     if( s(tree+offset) & (MWORD_SIZE-1) ){ //Already loaded
         return;
@@ -58,13 +58,13 @@ void load_tree(mword *tree, mword offset){
 
     int num_elem = size(tree+offset);
 
-    if( 
-            offset+num_elem > global_machine_page_size 
-            ||
-            num_elem == 0
-      ){
-        except("load_tree: array size is incorrect", __FILE__, __LINE__);
-    }
+//    if( 
+//            offset+num_elem > global_machine_page_size 
+//            ||
+//            num_elem == 0
+//      ){
+//        except("load_tree: array size is incorrect", __FILE__, __LINE__);
+//    }
     
     s(tree+offset) |= 0x1; //Mark visited
 

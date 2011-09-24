@@ -49,7 +49,7 @@ sub send_obj{
     open BBL_FILE, ">${proj_name}.bbl";
     binmode BBL_FILE;
 
-    printf C_FILE ("mword obj[%d] = {", $#{$obj_out} + 1);
+    printf C_FILE ("#define BBL_SIZE %d\nunsigned bbl[BBL_SIZE] = {", $#{$obj_out} + 1);
 
     my $i = 0;
     for(0..$#{$obj_out}){
