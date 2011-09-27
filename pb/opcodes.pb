@@ -704,6 +704,9 @@ lslen:
 lscat:
 {0x18c}
 
+bbl2str:
+{0x190}
+
 uncons:
 {0x198}
 

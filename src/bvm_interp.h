@@ -13,7 +13,7 @@
         case FNORD:         \
             NSA_BACKDOOR    \
             break;          \
-        case HASH8:     \
+        case HASH8:         \
             pearson16();    \
             break;          \
         arith_ops           \
@@ -368,12 +368,15 @@
         whileop();      \
         continue;       \
 
-#define bvm_ops                     \
+#define bvm_ops         \
     case BVMROOT:       \
         bvmroot();      \
         break;          \
     case BBL2GV:        \
-        bbl2gv();       \
+        _bbl2gv();      \
+        break;          \
+    case BBL2STR:       \
+        bbl2str();      \
         break;          \
     case LOAD:          \
         load();         \

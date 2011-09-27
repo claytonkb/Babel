@@ -299,6 +299,7 @@
 
 #define LSLEN       0x188
 #define LSCAT       0x18c
+#define BBL2STR     0x190
 #define UNCONS      0x198
 #define CDRINDEX    0x199
 #define POP         0x19a
