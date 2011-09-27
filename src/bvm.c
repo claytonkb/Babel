@@ -254,24 +254,38 @@ mword tree_bbl2gv(mword *tree){
 }
 
 
+void _bbl2gv(void){
 
-void _bbl2gv(mword *bstruct){
+    // Figure out buffer size
+    // Base size 2kb (size of minimal minimal.pb.bbl when converted to gv)
+    // 32 * _mu
+    mword initial_buf_size = (1<<11) + (32 * _mu((mword*)TOS_0));
+    char *buffer = malloc(initial_buf_size);
+    mword n;
 
-    //Figure out buffer size
-    
+    mword final_buf_size=0;
 
-    printf("digraph babel {\nnode [shape=record];\n");
-    printf("graph [rankdir = \"LR\"];\n");
+    n = sprintf(buffer, "digraph babel {\nnode [shape=record];\n");
+    buffer         += n;
+    final_buf_size += n;
+
+    n = sprintf(buffer, "graph [rankdir = \"LR\"];\n");
+    buffer         += n;
+    final_buf_size += n;
     
 //        d(global_VM)
 //        d(car(car(car(stack_ptr))))
 //        die
         _tree_bbl2gv((mword*)TOS_0);
 
-    printf("}\n");
+    n = sprintf(buffer, "}\n");
+    buffer         += n;
+    final_buf_size += n;
 
     clean_tree((mword*)TOS_0);
     zap();
+
+    push_alloc((mword*)buffer,BBL2GV);
 
 }
 
