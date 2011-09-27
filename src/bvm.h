@@ -16,6 +16,8 @@ void bvmroot(void);
 //#endif
 void bbl2gv(void);
 mword tree_bbl2gv(mword *tree);
+void _bbl2gv(mword *bstruct);
+mword _tree_bbl2gv(mword *tree);
 
 //minimal.pb.bbl
 #define SMALLEST_VALID_BVM 29
