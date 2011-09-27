@@ -19,7 +19,7 @@ typedef signed   smword;
 // GLOBALS
 mword*      internal_global_VM; //Interpreter-visible machine pointer
 mword*      global_VM;          //Machine pointer
-mword       global_machine_page_size;
+//mword       global_machine_page_size;
 jmp_buf     exception_env;
 int         exception_type;
 

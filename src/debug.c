@@ -14,13 +14,13 @@
 //
 void dump_obj(void){
 
-    mword *disp_VM = internal_global_VM-1;
-    int i;
-
-    for(i=0; i<global_machine_page_size; i++){
-        printf("%08x %08x\n", (mword)(disp_VM+i), disp_VM[i]);
-    }
-
+//    mword *disp_VM = internal_global_VM-1;
+//    int i;
+//
+//    for(i=0; i<global_machine_page_size; i++){
+//        printf("%08x %08x\n", (mword)(disp_VM+i), disp_VM[i]);
+//    }
+//
 }
 
 //void bbl2gv(void) {

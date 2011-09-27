@@ -22,7 +22,8 @@
 #include "shift.h"
 #include "logic.h"
 #include "util.h"
-
+#include <time.h>
+#include "mt19937ar.h"
 
 void bvmexec(void){
 
@@ -45,6 +46,29 @@ void _bvmexec(mword *bvm){
     bvm_interp();
 
     internal_global_VM = saved_bvm;
+    global_VM = (mword *)cdr(internal_global_VM);
+
+}
+
+void _bvm_init(mword *bvm){
+
+    pearson16_init();
+
+    time_t rawtime;
+    char time_string[30];
+    time( &rawtime );    
+    strcpy( time_string, ctime(&rawtime) );
+    mword *time_string_key = _c2b(time_string, 30);
+
+    // This needs to be enhanced to look in the hidden section for a 
+    // pre-defined seed, it should also save the value it used in the
+    // hidden section
+    mword *time_hash = new_hash();
+    mword *hash_init = new_hash();
+    time_hash = _pearson16(hash_init, time_string_key);
+    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
+
+    internal_global_VM = bvm+1;
     global_VM = (mword *)cdr(internal_global_VM);
 
 }
@@ -75,10 +99,10 @@ void bvm_init(void){
 void bvm_check(void){
    
     //Check size of BVM
-    if(global_machine_page_size < SMALLEST_VALID_BVM){
-        except("bvm_check: the loaded file is smaller than SMALLEST_VALID_BVM", __FILE__, __LINE__);
-    }
-
+//    if(global_machine_page_size < SMALLEST_VALID_BVM){
+//        except("bvm_check: the loaded file is smaller than SMALLEST_VALID_BVM", __FILE__, __LINE__);
+//    }
+//
 }
 
 //bvm_interp
