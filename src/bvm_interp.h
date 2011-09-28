@@ -259,6 +259,9 @@
     case ARCAT:         \
         arcat();        \
         break;          \
+    case ARCMP:         \
+        arcmp();        \
+        break;          \
 
 //    case B2C:           \
 //        b2c();          \

@@ -29,6 +29,8 @@ void _trunc(mword *operand, mword new_size);
 void cxr(void);
 void save(void);
 void arcat(void);
+void arcmp(void);
+int _arcmp(mword *left, mword *right);
 
 #endif //ARRAY_H
 

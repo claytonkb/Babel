@@ -378,5 +378,30 @@ void arcat(void){
 
 }
 
+void arcmp(void){
+
+    mword *result    = new_atom();
+
+    *result = (mword)_arcmp((mword*)TOS_1, (mword*)TOS_0);
+
+    zap();
+    zap();
+    push_alloc(result, ARCMP);
+
+}
+
+int _arcmp(mword *left, mword *right){
+
+    if(size(left) > size(right)){
+        return 1;
+    }
+    else if(size(left) < size(right)){
+        return -1;
+    }
+
+    return memcmp(left, right, size(left)*MWORD_SIZE);
+
+}
+
 // Clayton Bauman 2011
 
