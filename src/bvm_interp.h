@@ -22,6 +22,7 @@
         list_ops            \
         stack_ops           \
         eval_ops            \
+        hash_ops            \
         bvm_ops             \
         cmp_ops             \
         string_ops          \
@@ -370,6 +371,11 @@
     case WHILEOP:       \
         whileop();      \
         continue;       \
+
+#define hash_ops         \
+    case INSHA:       \
+        insha();      \
+        break;          \
 
 #define bvm_ops         \
     case BVMROOT:       \

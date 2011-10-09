@@ -24,6 +24,7 @@
 #include "util.h"
 #include <time.h>
 #include "mt19937ar.h"
+#include "hash.h"
 
 void bvmexec(void){
 
