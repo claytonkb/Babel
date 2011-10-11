@@ -10,7 +10,7 @@
 #include "array.h"
 #include "except.h"
 
-
+// init_hash key hash8
 void pearson16(void){
 
     mword* result = _pearson16((mword*)TOS_1, (mword*)TOS_0);

@@ -162,11 +162,11 @@ void bbl2gv(void){
 //        d(global_VM)
 //        d(car(car(car(stack_ptr))))
 //        die
-        tree_bbl2gv((mword*)TOS_0);
+        tree_bbl2gv((mword*)global_VM);
 
     printf("}\n");
 
-    clean_tree((mword*)TOS_0);
+    clean_tree((mword*)global_VM);
     zap();
 
 }
