@@ -9,6 +9,7 @@
 #include "stack.h"
 #include "pearson16.h"
 #include "bvm.h"
+#include "bvm_opcodes.h"
 
 //void push_alloc(mword *operand, mword alloc_type){
 
@@ -50,6 +51,23 @@ void insha(void){
 
 }
 
+// hash_table hash insha
+void luha(void){
+
+    mword *hash_table = (mword*)TOS_1;
+    mword *hash       = (mword*)TOS_0;
+
+//    val = new_hash_entry(val, hash);
+
+    mword *result = _luha(hash_table, (char *)hash, 0);
+
+//    cons(temp_cons, result, nil);
+
+    zap();
+    zap();
+    push_alloc(result, LUHA);
+
+}
 
 void _insha(mword *hash_table, char *hash, mword *val, mword level){
 
@@ -95,11 +113,9 @@ void _insha(mword *hash_table, char *hash, mword *val, mword level){
 
 }
 
-mword *_luha(mword *hash_table, char *hash, mword *val, mword level){
+mword *_luha(mword *hash_table, char *hash, mword level){
 
-
-
-    mword *new_hash_table_level;
+//    mword *new_hash_table_level;
     mword *next_level;
 
     if(level == HASH_SIZE*MWORD_SIZE){
@@ -112,24 +128,23 @@ mword *_luha(mword *hash_table, char *hash, mword *val, mword level){
 
     next_level = (mword*)c(hash_table,(unsigned char)hash[level]);
 
+    mword *a;
+    mword *b;
+
     if((mword)next_level == (mword)nil){ //nil
-        (mword*)c(hash_table,(unsigned char)hash[level]) = val;
-        return;
+        return (mword*)nil;
     }
     else if( is_inte((mword*)next_level) ){
         if( size((mword*)next_level) == 2 ){
-            if( _arcmp( (mword*)car(cdr(next_level)), (mword*)car(cdr(val))) ) {
-                new_hash_table_level = _newin(HASH_LEVEL_SIZE);
-                (mword*)c(hash_table,(unsigned char)hash[level]) = new_hash_table_level;
-                _insha((mword*)c(hash_table,(unsigned char)hash[level]), hash, val, level+1);
-                _insha((mword*)c(hash_table,(unsigned char)hash[level]), (char*)car(cdr(next_level)), next_level, level+1);
+            if( _arcmp( (mword*)car(cdr(next_level)), (mword*)hash ) ) {
+                return (mword*)nil;
             }
             else{ // no collision
-                (mword*)c(hash_table,(unsigned char)hash[level]) = val;
+                return (mword*)car((mword*)c(hash_table,(unsigned char)hash[level]));
             }
         }
         else if( size((mword*)next_level) == HASH_LEVEL_SIZE ){ //hash
-            _insha((mword*)c(hash_table,(unsigned char)hash[level]), hash, val, level+1);
+            _luha((mword*)c(hash_table,(unsigned char)hash[level]), hash, level+1);
         }
         else{
             except("_luha: Not a hash(2)", __FILE__, __LINE__);
@@ -137,30 +152,6 @@ mword *_luha(mword *hash_table, char *hash, mword *val, mword level){
     }
     else{
         except("_luha: Not a hash(3)", __FILE__, __LINE__);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-    if(hash_table == (mword*)nil){ //nil
-        return (mword*)nil;
-    }
-    else if( is_inte(hash_table) && (size(hash_table) == 2) ){ //list
-        return (mword*)car(hash_table);
-    }
-    else if( is_inte(hash_table) && (size(hash_table) == HASH_LEVEL_SIZE) ){ //hash
-        return _luha((mword*)hash_table+hash[level], hash, val, level+1);
-    }
-    else{
-        except("_luha: Not a hash", __FILE__, __LINE__);
     }
 
 }

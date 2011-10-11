@@ -372,9 +372,12 @@
         whileop();      \
         continue;       \
 
-#define hash_ops         \
-    case INSHA:       \
-        insha();      \
+#define hash_ops        \
+    case INSHA:         \
+        insha();        \
+        break;          \
+    case LUHA:          \
+        luha();         \
         break;          \
 
 #define bvm_ops         \
