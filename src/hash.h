@@ -12,10 +12,11 @@ mword *new_hash_entry(mword *val, mword *hash);
 mword *new_hash_key_entry(mword *val, mword *hash, mword *key);
 void  _insha(mword *hash_table, char *hash, mword *val, mword level);
 void  _inskha(mword *hash_table, mword *val, mword *key);
-mword _exha(mword *hash_table, char *hash, mword *val, mword level);
+mword _exha(mword *hash_table, char *hash, mword level);
 mword *_luha(mword *hash_table, char *hash, mword level);
 void insha(void);
 void luha(void);
+void exha(void);
 
 #endif //HASH_H
 

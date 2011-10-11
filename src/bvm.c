@@ -40,14 +40,16 @@ void bvmexec(void){
 void _bvmexec(mword *bvm){
 
     mword *saved_bvm = internal_global_VM;
+    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
 
     internal_global_VM = bvm;
     global_VM = (mword *)cdr(internal_global_VM);
+    (mword*)global_argv = saved_global_argv;  //FIXME
 
     bvm_interp();
 
     internal_global_VM = saved_bvm;
-    global_VM = (mword *)cdr(internal_global_VM);
+    global_VM = (mword*)cdr(internal_global_VM);
 
 }
 

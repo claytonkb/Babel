@@ -371,6 +371,12 @@
     case WHILEOP:       \
         whileop();      \
         continue;       \
+    case TIMES:         \
+        times();        \
+        continue;       \
+    case DIE:           \
+        dieop();        \
+        continue;       \
 
 #define hash_ops        \
     case INSHA:         \
@@ -378,6 +384,9 @@
         break;          \
     case LUHA:          \
         luha();         \
+        break;          \
+    case EXHA:          \
+        exha();         \
         break;          \
 
 #define bvm_ops         \
@@ -396,6 +405,8 @@
     case BVMEXEC:       \
         bvmexec();      \
         break;          \
+    case BVMBR:         \
+        return;         \
 
 //    case INTERNAL_BVMROOT:      \
 //        internal_bvmroot();     \

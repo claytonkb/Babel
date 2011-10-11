@@ -400,7 +400,7 @@ bvmexec:
 bvmkill:
 {0x103}
 
-bvmdb:
+break:
 {0x104}
 
 bvmsave:
@@ -537,6 +537,9 @@ exec:
 
 while:
 {0x135}
+
+times:
+{0x136}
 
 isin:
 {0x138}

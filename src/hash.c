@@ -69,6 +69,25 @@ void luha(void){
 
 }
 
+// hash_table hash insha
+void exha(void){
+
+    mword *hash_table = (mword*)TOS_1;
+    mword *hash       = (mword*)TOS_0;
+
+//    val = new_hash_entry(val, hash);
+
+    mword *result = new_atom();
+    *result = _exha(hash_table, (char *)hash, 0);
+
+//    cons(temp_cons, result, nil);
+
+    zap();
+    zap();
+    push_alloc(result, EXHA);
+
+}
+
 void _insha(mword *hash_table, char *hash, mword *val, mword level){
 
     mword *new_hash_table_level;
@@ -115,7 +134,6 @@ void _insha(mword *hash_table, char *hash, mword *val, mword level){
 
 mword *_luha(mword *hash_table, char *hash, mword level){
 
-//    mword *new_hash_table_level;
     mword *next_level;
 
     if(level == HASH_SIZE*MWORD_SIZE){
@@ -127,9 +145,6 @@ mword *_luha(mword *hash_table, char *hash, mword level){
     }
 
     next_level = (mword*)c(hash_table,(unsigned char)hash[level]);
-
-    mword *a;
-    mword *b;
 
     if((mword)next_level == (mword)nil){ //nil
         return (mword*)nil;
@@ -144,7 +159,7 @@ mword *_luha(mword *hash_table, char *hash, mword level){
             }
         }
         else if( size((mword*)next_level) == HASH_LEVEL_SIZE ){ //hash
-            _luha((mword*)c(hash_table,(unsigned char)hash[level]), hash, level+1);
+            return _luha((mword*)c(hash_table,(unsigned char)hash[level]), hash, level+1);
         }
         else{
             except("_luha: Not a hash(2)", __FILE__, __LINE__);
@@ -157,25 +172,41 @@ mword *_luha(mword *hash_table, char *hash, mword level){
 }
 
 
-mword _exha(mword *hash_table, char *hash, mword *val, mword level){
+mword _exha(mword *hash_table, char *hash, mword level){
 
-    if(hash_table == (mword*)nil){ //nil
+    mword *next_level;
+
+    if(level == HASH_SIZE*MWORD_SIZE){
+        except("_exha: Something went wrong", __FILE__, __LINE__);
+    }
+
+    if(!( is_inte(hash_table) && (size(hash_table) == HASH_LEVEL_SIZE) )){
+        except("_exha: Not a hash", __FILE__, __LINE__);
+    }
+
+    next_level = (mword*)c(hash_table,(unsigned char)hash[level]);
+
+    if((mword)next_level == (mword)nil){ //nil
         return 0;
     }
-    else if( is_inte(hash_table) && (size(hash_table) == 2) ){ //list
-        //Check for collision:
-        if( _arcmp( (mword*)car(cdr(hash_table)), (mword*)car(cdr(val))) ) {
-            return 1;
+    else if( is_inte((mword*)next_level) ){
+        if( size((mword*)next_level) == 2 ){
+            if( _arcmp( (mword*)car(cdr(next_level)), (mword*)hash ) ) {
+                return 0;
+            }
+            else{ // no collision
+                return 1;
+            }
         }
-        else{ // no collision
-            return 0;
+        else if( size((mword*)next_level) == HASH_LEVEL_SIZE ){ //hash
+            return _exha((mword*)c(hash_table,(unsigned char)hash[level]), hash, level+1);
         }
-    }
-    else if( is_inte(hash_table) && (size(hash_table) == HASH_LEVEL_SIZE) ){ //hash
-        return _exha((mword*)hash_table+hash[level], hash, val, level+1);
+        else{
+            except("_exha: Not a hash(2)", __FILE__, __LINE__);
+        }
     }
     else{
-        except("_exha: Not a hash", __FILE__, __LINE__);
+        except("_exha: Not a hash(3)", __FILE__, __LINE__);
     }
 
 }

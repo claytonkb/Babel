@@ -69,16 +69,38 @@ void next(void){
 void whileop(void){
 
     if(car(TOS_0)){
-        push_rstack((mword*)code_ptr);
-        code_ptr = cdr(code_ptr);
+        zap();
+        pop_rstack();
     }
     else{
+        zap();
         pop_rstack();
-        code_ptr = nil;
+        code_ptr = cdr(code_ptr);
     }
 
-//    pop_rstack();
-//    code_ptr = nil;
+}
+
+void times(void){
+
+    mword *save_code_ptr;
+
+    if(car(car(TOS_0))>1){
+        *((mword*)car(TOS_0)) = car(car(TOS_0)) - 1;
+        zap();
+        pop_rstack();
+    }
+    else{
+        zap();
+        save_code_ptr = (mword*)cdr(code_ptr);
+        pop_rstack();
+        (mword*)code_ptr = save_code_ptr;
+    }
+
+}
+
+void dieop(void){
+    printf("Died.\n");
+    exit(0);
 }
 
 // Clayton Bauman 2011

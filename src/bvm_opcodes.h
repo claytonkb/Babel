@@ -187,7 +187,7 @@
 #define BVMROOT     0x101
 #define BVMEXEC     0x102
 #define BVMKILL     0x103
-#define BVMDB       0x104
+#define BVMBR       0x104
 #define BVMSAVE     0x105
 #define BVMFORK     0x106
 #define ARLEN8      0x108
@@ -233,6 +233,7 @@
 #define MEVAL       0x133
 #define EXEC        0x134
 #define WHILEOP     0x135
+#define TIMES       0x136
 #define ISINTE      0x138
 #define IN2LF       0x139
 #define NEWIN       0x13a
@@ -247,7 +248,7 @@
 #define SRAND       0x142
 #define ARGVOP      0x143
 #define CP          0x148
-#define SAVE          0x149
+#define SAVE        0x149
 #define ARCHR       0x14B
 #define ARMV8       0x14C
 #define ARMV        0x14F

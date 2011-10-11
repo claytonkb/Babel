@@ -57,7 +57,7 @@ void init_global_argv(int argc, char **argv){
 //        (mword*)c((mword*)global_argv, i-NUM_BABEL_INTERP_ARGS) = (mword*)argv[i];
         (mword*)c((mword*)global_argv, i-NUM_BABEL_INTERP_ARGS)
             = _c2b(argv[i], 100);
-        
+
     }
 
 }

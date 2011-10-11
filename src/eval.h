@@ -12,6 +12,8 @@ void loop(void);
 void last(void);
 void next(void);
 void whileop(void);
+void times(void);
+void dieop(void);
 
 #endif //EVAL_H
 

@@ -11,6 +11,7 @@ void bvm_init(void);
 void bvm_check(void);
 void bvm_interp(void);
 void bvmroot(void);
+void bvmbr(void);
 //#ifdef DEBUG
 //void internal_bvmroot(void);
 //#endif

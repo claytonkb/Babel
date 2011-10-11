@@ -1,8 +1,18 @@
 code:
+    [ loop
+    [ [{"Hello, world.\n"}]
+    [ stdout
     [ x
-    [ bvmroot
-    [ bbl2gv
-    nil]]]
+    [ [{1}]
+    [ cusub
+    [ [x]
+    [ [{0}]
+    [ save
+    [ x
+    [ [{1}]
+    [ cugt
+    [ while
+    nil]]]]]]]]]]]]]
 
 x:
     [{10}]
