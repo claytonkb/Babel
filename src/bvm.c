@@ -32,9 +32,6 @@ void bvmexec(void){
 
     zap();
 
-//    zap();
-//    push_alloc(temp_cons, BVMEXEC);
-
 }
 
 void _bvmexec(mword *bvm){
