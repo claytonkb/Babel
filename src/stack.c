@@ -68,14 +68,7 @@ void _zap(mword **target){
 void push_rstack(mword *ret){
 
     mword *temp_cons = new_cons();
-//    mword *temp_consB = new_cons();
-//    mword *temp_consC = new_cons();
-//    mword *type       = new_atom();
 
-//    c(type,0) = alloc_type; // alloc_type = operand for auto-alloc
-
-//    cons(temp_consA,   type,         nil);
-//    cons(temp_consB,   operand,      temp_consA);
     cons(temp_cons,   ret,   rstack_ptr);
 
     (mword*)rstack_ptr = temp_cons;
@@ -90,6 +83,7 @@ void pop_rstack(void){
 
     mword *temp_rstack = (mword*)rstack_ptr;
     code_ptr = car(rstack_ptr);
+    
     (mword*)rstack_ptr = (mword*)cdr(rstack_ptr);
     free((mword*)(temp_rstack-1)); //FIXME: THERE'S NO CHECKING!!!
     //    mword *temp_cons = new_cons();

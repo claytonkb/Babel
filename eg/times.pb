@@ -1,7 +1,7 @@
 code:
-    [ loop
-    [ [{"Hello, world.\n"}]
-    [ stdout
+    [ [ [ [{"Hello, world.\n"}]
+        [ stdout
+        nil]]]
     [ [[{10}]]
     [ times
     [ bvmroot
@@ -9,5 +9,5 @@ code:
     [ die
     [ [{"times.dot"}]
     [ spit8
-    nil]]]]]]]]]]
+    nil]]]]]]]]
 
