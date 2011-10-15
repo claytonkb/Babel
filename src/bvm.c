@@ -109,11 +109,40 @@ void bvm_check(void){
 //
 void bvm_interp(void){
 
+    mword* discard;
+
     while(1){
 
         if(car(code_ptr) == (mword)nil){
+//                    printf("Here\n");
+//                        die
             if(!rstack_empty){
-                pop_rstack();
+                if(car(car(cdr(car(rstack_ptr)))) == TIMES){ //TODO: add a "RTOS_0" #define to babel.h ...
+                    if(car(car(car(car(cdr(cdr(rstack_ptr)))))) > 1){
+                        c((mword*)car(car(car(cdr(cdr(rstack_ptr))))),0) = car(car(car(car(cdr(cdr(rstack_ptr)))))) - 1;
+                        (mword*)code_ptr = (mword*)car(car(car(rstack_list)));
+                    }
+                    else{
+                        discard = pop_rstack();
+                        (mword*)code_ptr = (mword*)car(pop_rstack());
+                        discard = pop_rstack();
+                    }
+                }
+                else if(car(car(cdr(car(rstack_ptr)))) == WHILEOP){
+                    if(car(car(car(car(cdr(cdr(rstack_ptr)))))) != 0){
+                        //c((mword*)car(car(car(cdr(cdr(rstack_ptr))))),0) = car(car(car(car(cdr(cdr(rstack_ptr)))))) - 1;
+                        push_rstack(  (mword*)car(car(car(rstack_list))) );
+                        (mword*)code_ptr =  (mword*)car(car(cdr(car(rstack_list))));
+                    }
+                    else{
+                        discard = pop_rstack();
+                        (mword*)code_ptr = (mword*)car(pop_rstack());
+                        discard = pop_rstack();
+                    }
+                }
+                else{
+                    (mword*)code_ptr = (mword*)car(pop_rstack());
+                }
             }
             else{
                 break;

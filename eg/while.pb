@@ -1,18 +1,19 @@
 code:
-    [ loop
-    [ [{"Hello, world.\n"}]
-    [ stdout
-    [ x
-    [ [{1}]
-    [ cusub
-    [ [x]
-    [ [{0}]
-    [ save
-    [ x
-    [ [{1}]
-    [ cugt
+    [   [[{"Hello, world.\n"}]
+        [ stdout
+        nil]]
+    [   [[ x
+        [ [{1}]
+        [ cusub
+        [ [x]
+        [ [{0}]
+        [ save
+        [ x
+        [ [{1}]
+        [ cugt
+        nil]]]]]]]]]]
     [ while
-    nil]]]]]]]]]]]]]
+    nil]]]
 
 x:
     [{10}]

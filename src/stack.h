@@ -7,11 +7,12 @@
 #define SELF_ALLOC 0
 #define AUTO_ALLOC 1
 
+void push_alloc_rstack(mword *operand, mword alloc_type);
 void push_alloc(mword *operand, mword alloc_type);
 void zap(void);
 void push_rstack(mword *ret);
-void pop_rstack(void);
-//mword *pop_val_rstack(void);
+//void pop_rstack(void);
+mword *pop_rstack(void);
 void sel(void);
 void _zap(mword **target);
 void dup(void);

@@ -7,6 +7,7 @@
 #include "stack.h"
 #include "count.h"
 #include "debug.h"
+#include "bvm_opcodes.h"
 
 void eval(void){
 
@@ -16,7 +17,7 @@ void eval(void){
     mword temp_TOS_0 = TOS_0;
     zap();
 
-    push_rstack((mword*)cdr(code_ptr));
+    push_alloc_rstack((mword*)cdr(code_ptr), EVAL);
 
     code_ptr = temp_TOS_0;
 //    car(code_ptr) = TOS_0;
@@ -34,7 +35,7 @@ void gotoop(void){
 
 void call(void){
 
-    push_rstack((mword*)cdr(code_ptr));
+    push_alloc_rstack((mword*)cdr(code_ptr), CALL);
     code_ptr = car(car(stack_ptr)); // PRE STACK FIX
 //    code_ptr = car(stack_ptr);
     zap();
@@ -44,13 +45,13 @@ void call(void){
 void ret(void){
 
     // FIXME: CHECK FOR EMPTY RSTACK
-    pop_rstack();
+    code_ptr = car(pop_rstack());
 
 }
 
 void loop(void){
 
-    push_rstack((mword*)code_ptr);
+    push_alloc_rstack((mword*)code_ptr, LOOP);
 
 //    push_rstack((mword*)TOS_1);
 //    push_rstack((mword*)TOS_0);
@@ -62,105 +63,45 @@ void loop(void){
 }
 
 void last(void){
-    pop_rstack();
+    mword *discard = (mword*)car(pop_rstack());
     code_ptr = nil;
 }
 
 void next(void){
-    pop_rstack();
+    (mword*)code_ptr = (mword*)car(pop_rstack());
 //    code_ptr = nil;
 }
 
+// (body) cond while
 void whileop(void){
 
-    if(car(TOS_0)){
-        zap();
-        pop_rstack();
-    }
-    else{
-        zap();
-        pop_rstack();
-        code_ptr = cdr(code_ptr);
-    }
+    push_alloc_rstack((mword*)TOS_0, WHILEOP);
+    push_alloc_rstack((mword*)cdr(code_ptr), WHILEOP);
+
+    zap();
+    mword temp_TOS_0 = TOS_0;
+    zap();
+    code_ptr = temp_TOS_0;
+    push_alloc_rstack((mword*)code_ptr, WHILEOP); //cond_block_addr
 
 }
 
+// (body) x times
 void times(void){
 
-//    mword temp_TOS_0;
-//    mword *temp_code_ptr;
-//
-//    if(is_leaf((mword*)car(car(TOS_0)))){ //counter
-//        printf("is_leaf\n");
-//        if(car(car(TOS_0))>1){
-//            printf("is > 1\n");
-//            *((mword*)car(TOS_0)) = car(car(TOS_0)) - 1;
-//            zap();
-//            temp_code_ptr = (mword*)car(rstack_ptr);
-//            push_rstack((mword*)code_ptr);
-//            (mword*)code_ptr = temp_code_ptr;
-//        }
-//        else{
-//            printf("!is > 1\n");
-//            zap();
-//            pop_rstack(); //discard
-//            code_ptr = cdr(code_ptr);
-//        }
-//    }
-//    else{ //acts almost like eval
-//        printf("!is_leaf\n");
-//        die
-//        temp_TOS_0 = TOS_0;
-//        zap();
-//
-//        push_rstack((mword*)temp_TOS_0); //diff from eval
-//        push_rstack((mword*)code_ptr);
-//
-//        code_ptr = temp_TOS_0;
-//    }
-//
-//
-//
-//    mword temp_TOS_1 = TOS_1;
-//
-//    if(car(car(TOS_0))>1){
-//        *((mword*)car(TOS_0)) = car(car(TOS_0)) - 1;
-//        zap();
-//        zap();
-//        push_rstack((mword*)code_ptr);
-//        code_ptr = temp_TOS_1;
-//    }
-//    else{
-//        zap();
-//        zap();
-//        code_ptr = cdr(code_ptr); //go to the next instr
-//    }
+    if(car(car(TOS_0)) > 0){
+        push_alloc_rstack((mword*)TOS_0, TIMES);
+        push_alloc_rstack((mword*)cdr(code_ptr), TIMES);
 
-//    mword *save_code_ptr;
-//    if(car(car(TOS_0))>1){
-//        *((mword*)car(TOS_0)) = car(car(TOS_0)) - 1;
-//        zap();
-//        pop_rstack();
-//    }
-//    else{
-//        zap();
-//        save_code_ptr = (mword*)cdr(code_ptr);
-//        pop_rstack();
-//        (mword*)code_ptr = save_code_ptr;
-//    }
-
-//    mword *count     = pop_val_rstack();
-//    mword *loop_body = pop_val_rstack();
-//
-//    if(car(car(count))>1){
-//        *((mword*)car(count)) = car(car(count)) - 1;
-////        zap();
-////        pop_rstack();
-//        code_ptr = car(loop_body);
-//    }
-//    else{
-//        (mword*)code_ptr = (mword*)cdr(code_ptr);
-//    }
+        zap();
+        mword temp_TOS_0 = TOS_0;
+        zap();
+        code_ptr = temp_TOS_0;
+        push_alloc_rstack((mword*)code_ptr, TIMES);
+    }
+    else{
+        code_ptr = cdr(code_ptr);
+    }
 
 }
 

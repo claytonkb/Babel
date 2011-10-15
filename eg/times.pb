@@ -1,13 +1,20 @@
 code:
-    [ [ [ [{"Hello, world.\n"}]
+    [ argv
+    [ [{0}]
+    [ cxr
+    [ [x]
+    [ [{0}]
+    [ save
+    [ [ [ x
+        [ bbl2str
         [ stdout
-        nil]]]
-    [ [[{10}]]
+        nil]]]]
+    [ [x]
     [ times
-    [ bvmroot
-    [ bbl2gv
-    [ die
-    [ [{"times.dot"}]
-    [ spit8
-    nil]]]]]]]]
+    [ [{"Goodbye!\n"}]
+    [ stdout
+    nil]]]]]
+
+x:
+    [{0}]
 

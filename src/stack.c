@@ -9,6 +9,26 @@
 #include "bvm_opcodes.h"
 #include "array.h"
 
+void push_alloc_rstack(mword *operand, mword alloc_type){
+
+    mword *temp_consA = new_cons();
+    mword *temp_consB = new_cons();
+    mword *temp_consC = new_cons();
+    mword *type       = new_atom();
+
+    c(type,0) = alloc_type; // alloc_type = operand for auto-alloc
+
+    cons(temp_consA,   type,         nil);
+    cons(temp_consB,   operand,      temp_consA);
+    cons(temp_consC,   temp_consB,   rstack_ptr);
+
+    (mword*)rstack_ptr = temp_consC;
+
+//    d(car(car(cdr(car(rstack_ptr)))))
+//        die
+
+}
+
 void push_alloc(mword *operand, mword alloc_type){
 
     mword *temp_consA = new_cons();
@@ -77,16 +97,18 @@ void push_rstack(mword *ret){
 
 //
 //
-void pop_rstack(void){
+mword *pop_rstack(void){
 
     //If rstack is empty: except()
 
     mword *temp_rstack = (mword*)rstack_ptr;
-    code_ptr = car(rstack_ptr);
-    
+//    code_ptr = car(rstack_ptr);
+
     (mword*)rstack_ptr = (mword*)cdr(rstack_ptr);
-    free((mword*)(temp_rstack-1)); //FIXME: THERE'S NO CHECKING!!!
+    //free((mword*)(temp_rstack-1)); //FIXME: THERE'S NO CHECKING!!!
     //    mword *temp_cons = new_cons();
+
+    return (mword*)car(temp_rstack);
 
 }
 
