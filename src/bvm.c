@@ -130,7 +130,7 @@ void bvm_interp(void){
                     if(car(TOS_0) != 0){
                         zap();
                         (mword*)code_ptr = (mword*)car(RTOS_0);
-                        push_alloc_rstack( (mword*)car(RTOS_2), 0 );
+                        push_alloc_rstack( (mword*)car(RTOS_2), 0);
                     }
                     else{
                         zap();
