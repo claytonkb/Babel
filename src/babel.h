@@ -64,6 +64,11 @@ int         exception_type;
 #define TOS_1         car(car(cdr(stack_ptr)))
 #define TOS_2     car(car(cdr(cdr(stack_ptr))))
 
+#define RTOS_0         car(rstack_ptr)
+#define RTOS_1     car(cdr(rstack_ptr))
+#define RTOS_2 car(cdr(cdr(rstack_ptr)))
+#define alloc_type(x) car(car(cdr(x))) 
+
 #define global_argv car(internal_global_VM)
 
 #define code_list   global_VM

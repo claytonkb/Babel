@@ -10,6 +10,7 @@
 #include "bvm_opcodes.h"
 #include "except.h"
 #include "array.h"
+#include "bvm.h"
 
 //cuadd
 //#define CUADD      0x030
@@ -41,6 +42,8 @@ void cusub(void){
 
     // Detect underflow
     if((mword)car(TOS_1) < (mword)car(TOS_0)){
+//        bbl2gv();
+//        die;
         except("cusub: underflow", __FILE__, __LINE__);
     }
 

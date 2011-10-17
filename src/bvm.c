@@ -114,13 +114,11 @@ void bvm_interp(void){
     while(1){
 
         if(car(code_ptr) == (mword)nil){
-//                    printf("Here\n");
-//                        die
             if(!rstack_empty){
-                if(car(car(cdr(car(rstack_ptr)))) == TIMES){ //TODO: add a "RTOS_0" #define to babel.h ...
-                    if(car(car(car(car(cdr(cdr(rstack_ptr)))))) > 1){
-                        c((mword*)car(car(car(cdr(cdr(rstack_ptr))))),0) = car(car(car(car(cdr(cdr(rstack_ptr)))))) - 1;
-                        (mword*)code_ptr = (mword*)car(car(car(rstack_list)));
+                if(alloc_type(RTOS_0) == TIMES){
+                    if(car(car(car(RTOS_2))) > 1){
+                        c((mword*)car(car(RTOS_2)),0) = car(car(car(RTOS_2))) - 1;
+                        (mword*)code_ptr = (mword*)car(RTOS_0);
                     }
                     else{
                         discard = pop_rstack();
@@ -128,13 +126,14 @@ void bvm_interp(void){
                         discard = pop_rstack();
                     }
                 }
-                else if(car(car(cdr(car(rstack_ptr)))) == WHILEOP){
-                    if(car(car(car(car(cdr(cdr(rstack_ptr)))))) != 0){
-                        //c((mword*)car(car(car(cdr(cdr(rstack_ptr))))),0) = car(car(car(car(cdr(cdr(rstack_ptr)))))) - 1;
-                        push_rstack(  (mword*)car(car(car(rstack_list))) );
-                        (mword*)code_ptr =  (mword*)car(car(cdr(car(rstack_list))));
+                else if(alloc_type(RTOS_0) == WHILEOP){
+                    if(car(TOS_0) != 0){
+                        zap();
+                        (mword*)code_ptr = (mword*)car(RTOS_0);
+                        push_alloc_rstack( (mword*)car(RTOS_2), 0 );
                     }
                     else{
+                        zap();
                         discard = pop_rstack();
                         (mword*)code_ptr = (mword*)car(pop_rstack());
                         discard = pop_rstack();

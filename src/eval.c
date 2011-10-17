@@ -72,22 +72,33 @@ void next(void){
 //    code_ptr = nil;
 }
 
-// (body) cond while
+// (body) (cond) while
 void whileop(void){
 
-    push_alloc_rstack((mword*)TOS_0, WHILEOP);
+    //body   RTOS-0
+    //return RTOS-1
+    //cond   RTOS-2
+
+    mword *cond_block = (mword*)TOS_0;
+    push_alloc_rstack((mword*)cond_block,    WHILEOP);
     push_alloc_rstack((mword*)cdr(code_ptr), WHILEOP);
 
     zap();
-    mword temp_TOS_0 = TOS_0;
-    zap();
-    code_ptr = temp_TOS_0;
-    push_alloc_rstack((mword*)code_ptr, WHILEOP); //cond_block_addr
 
+    push_alloc_rstack((mword*)TOS_0, WHILEOP); //loop body
+
+    zap();
+
+    (mword*)code_ptr = cond_block;
+    
 }
 
-// (body) x times
+// (body) [x] times
 void times(void){
+
+    //times  RTOS-2
+    //return RTOS-1
+    //body   RTOS-0
 
     if(car(car(TOS_0)) > 0){
         push_alloc_rstack((mword*)TOS_0, TIMES);

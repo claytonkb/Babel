@@ -1,7 +1,8 @@
 code:
     [ argv
-    [ [{0}]
+    [ [{1}]
     [ cxr
+    [ dec2ci
     [ [x]
     [ [{0}]
     [ save
@@ -13,7 +14,7 @@ code:
     [ times
     [ [{"Goodbye!\n"}]
     [ stdout
-    nil]]]]]
+    nil]]]]]]]]]]]]
 
 x:
     [{0}]
