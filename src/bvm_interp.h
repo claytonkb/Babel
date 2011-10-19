@@ -14,7 +14,13 @@
             NSA_BACKDOOR    \
             break;          \
         case HASH8:         \
-            pearson16();    \
+            hash8();        \
+            break;          \
+        case HASH:          \
+            hash();         \
+            break;          \
+        case MWORD_SIZEOP:  \
+            mword_sizeop(); \
             break;          \
         arith_ops           \
         io_ops              \

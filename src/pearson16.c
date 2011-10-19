@@ -11,9 +11,9 @@
 #include "except.h"
 
 // init_hash key hash8
-void pearson16(void){
+void hash8(void){
 
-    mword* result = _pearson16((mword*)TOS_1, (mword*)TOS_0);
+    mword* result = _pearson16((mword*)TOS_1, (mword*)TOS_0, _arlen8((mword*)TOS_0));
 
     zap();
     zap();
@@ -21,17 +21,29 @@ void pearson16(void){
 
 }
 
+//
+void hash(void){
+
+    mword* result = _pearson16((mword*)TOS_1, (mword*)TOS_0, size((mword*)TOS_0)*MWORD_SIZE);
+
+    zap();
+    zap();
+    push_alloc((mword*)result, HASH);
+
+}
+
+
 // This is a 16-byte version of Pearson's hash
 // It does NOT follow Pearson's recommendation for building wider hashes from 
 // the paper on his 8-bit hash function.
-mword *_pearson16(mword* sinit, mword *skey){
+mword *_pearson16(mword* sinit, mword *skey, mword strlen){
 
     // sinit = TOS_1
     // skey = TOS_0
     char *init = (char*)(sinit); 
     char *key  = (char*)(skey);
 
-    mword strlen = _arlen8((mword*)skey);
+//    mword strlen = _arlen8((mword*)skey);
 
     char *result = (char*)new_hash();
 

@@ -409,6 +409,9 @@ bvmsave:
 bvmfork:
 {0x106}
 
+msize:
+{0x107}
+
 arlen8:
 {0x108}
 

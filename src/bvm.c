@@ -60,12 +60,13 @@ void _bvm_init(mword *bvm){
     strcpy( time_string, ctime(&rawtime) );
     mword *time_string_key = _c2b(time_string, 30);
 
+    // FIXME: strcpy and strlen... get rid
     // This needs to be enhanced to look in the hidden section for a 
     // pre-defined seed, it should also save the value it used in the
     // hidden section
     mword *time_hash = new_hash();
     mword *hash_init = new_hash();
-    time_hash = _pearson16(hash_init, time_string_key);
+    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
     init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
     internal_global_VM = bvm+1;

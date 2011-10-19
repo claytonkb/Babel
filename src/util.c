@@ -8,6 +8,7 @@
 #include "stack.h"
 #include "mt19937ar.h"
 #include "string.h"
+#include "list.h"
 #ifdef WINDOWS
 #include <windows.h>
 #endif
@@ -65,6 +66,16 @@ void init_global_argv(int argc, char **argv){
 void argvop(void){
 
     push_alloc((mword*)global_argv, ARGVOP);
+
+}
+
+void mword_sizeop(void){
+
+    mword *result    = new_atom();
+
+    *result = MWORD_SIZE;
+
+    push_alloc(result, MWORD_SIZEOP);
 
 }
 

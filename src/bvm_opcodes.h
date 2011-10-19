@@ -190,6 +190,7 @@
 #define BVMBR       0x104
 #define BVMSAVE     0x105
 #define BVMFORK     0x106
+#define MWORD_SIZEOP 0x107
 #define ARLEN8      0x108
 #define ARLEN16     0x109
 #define ARLEN32     0x10a
