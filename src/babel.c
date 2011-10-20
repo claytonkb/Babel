@@ -25,6 +25,7 @@ int main(int argc, char **argv){
     //Need to figure out what to do with this...
     init_global_argv(argc, argv);
 
+    global_steps = (mword) -1;
     _bvmexec(internal_global_VM);
 
     printf("\n");

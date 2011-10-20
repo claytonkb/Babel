@@ -296,8 +296,8 @@
 #define HEX2CU      0x195
 #define DEC2CI      0x196
 
-#define TAKE        0x199
-#define GIVE        0x19a
+#define TAKE        0x189
+#define GIVE        0x18a
 
 #define LSLEN       0x188
 #define LSCAT       0x18c

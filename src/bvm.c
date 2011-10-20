@@ -26,13 +26,46 @@
 #include "mt19937ar.h"
 #include "hash.h"
 
+void bvmstep(void){
+
+    global_steps = car(TOS_0);
+    zap();
+
+    mword *bvm = (mword*)TOS_0;
+    zap();
+
+    _bvmstep(bvm);
+
+}
+
 void bvmexec(void){
 
+    global_steps = (mword) -1;
     _bvmexec((mword*)TOS_0);
-
     zap();
 
 }
+
+void _bvmstep(mword *bvm){
+
+    mword *saved_bvm = internal_global_VM;
+    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
+
+    internal_global_VM = bvm;
+    global_VM = (mword *)cdr(internal_global_VM);
+    (mword*)global_argv = saved_global_argv;  //FIXME
+
+    bvm_interp();
+
+    mword *after_interp_global_VM = internal_global_VM;
+
+    internal_global_VM = saved_bvm;
+    global_VM = (mword*)cdr(internal_global_VM);
+
+    push_alloc(after_interp_global_VM, BVMKILL); //FIXME: Appropriating BVMKILL...
+
+}
+
 
 void _bvmexec(mword *bvm){
 
@@ -112,7 +145,7 @@ void bvm_interp(void){
 
     mword* discard;
 
-    while(1){
+    while(global_steps--){
 
         if(car(code_ptr) == (mword)nil){
             if(!rstack_empty){

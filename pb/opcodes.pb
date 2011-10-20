@@ -400,6 +400,9 @@ bvmexec:
 bvmkill:
 {0x103}
 
+bvmstep:
+{0x103}
+
 break:
 {0x104}
 
@@ -692,26 +695,29 @@ cu2hex:
 ci2dec:
 {0x186}
 
-hex2cu:
-{0x195}
-
-dec2ci:
-{0x196}
-
-take:
-{0x199}
-
-give:
-{0x19a}
 
 lslen:
 {0x188}
+
+take:
+{0x189}
+
+give:
+{0x18a}
 
 lscat:
 {0x18c}
 
 bbl2str:
 {0x190}
+
+hex2cu:
+{0x195}
+
+dec2ci:
+{0x196}
+
+
 
 uncons:
 {0x198}

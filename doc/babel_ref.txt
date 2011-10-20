@@ -117,7 +117,7 @@ Lower-case means "a single value"
         {a} {b}| -> {a ror b}|
 
 - Logic Operators
-    Babel's has 16 logic operators F0-Ff. Each one implements the Boolean
+    Babel has 16 logic operators F0-Ff. Each one implements the Boolean
     function of two bits whose numerical value when the truth-table is 
     read vertically is the number of the operator. Since most people don't
     know what this means, Babel also provides aliases for the ordinary 
@@ -127,11 +127,11 @@ Lower-case means "a single value"
         {a} {b}| -> {a Fx b}|
 
     - cand
-        C-style bitwise {a}ND
+        C-style bitwise AND
         {a} {b}| -> {a & b}|
         
     - cnand
-        C-style bitwise N{a}ND
+        C-style bitwise NAND
         {a} {b}| -> !{a & b}|
 
     - cor

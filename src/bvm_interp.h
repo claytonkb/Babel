@@ -10,18 +10,6 @@
 
 #define opcode_switch(x)    \
     switch(x){              \
-        case FNORD:         \
-            NSA_BACKDOOR    \
-            break;          \
-        case HASH8:         \
-            hash8();        \
-            break;          \
-        case HASH:          \
-            hash();         \
-            break;          \
-        case MWORD_SIZEOP:  \
-            mword_sizeop(); \
-            break;          \
         arith_ops           \
         io_ops              \
         array_ops           \
@@ -43,7 +31,7 @@
 
 //FIXME: SWITCH DEFAULT ABOVE SEEMS TO BE BROKEN...
 
-#define arith_ops                   \
+#define arith_ops       \
     case CUADD:         \
         cuadd();        \
         break;          \
@@ -78,7 +66,7 @@
         cirem();        \
         break;          \
 
-#define shift_ops                   \
+#define shift_ops       \
       case CUSHL:       \
         cushl();        \
         break;          \
@@ -95,7 +83,7 @@
         curor();        \
         break;          \
 
-#define logic_ops                   \
+#define logic_ops       \
       case F000:        \
         logicF0();      \
         break;          \
@@ -145,11 +133,11 @@
         logicFF();      \
         break;          \
       case CNOT:        \
-        cnot();      \
+        cnot();         \
         break;          \
 
 
-#define cmp_ops                   \
+#define cmp_ops         \
       case CNE:         \
         cne();          \
         break;          \
@@ -181,39 +169,39 @@
         cuge();         \
         break;          \
 
-#define io_ops                      \
+#define io_ops          \
     case CPRINTF:       \
         cprintf();      \
         break;          \
     case CPRINTS:       \
         cprints();      \
         break;          \
-    case SLURP8:         \
+    case SLURP8:        \
         slurp();        \
         break;          \
-    case SPIT8:          \
+    case SPIT8:         \
         spit();         \
         break;          \
-    case JOURNAL8:       \
+    case JOURNAL8:      \
         journal();      \
         break;          \
     case STDOUTOP:      \
         stdoutop();     \
         break;          \
-    case STDINLN:      \
-        stdinln();     \
+    case STDINLN:       \
+        stdinln();      \
         break;          \
 
 
-#define array_ops                   \
+#define array_ops       \
     case SFIELD:        \
         sfield();       \
         break;          \
     case ARLEN:         \
         arlen();        \
         break;          \
-    case ARLEN8:         \
-        arlen8();        \
+    case ARLEN8:        \
+        arlen8();       \
         break;          \
     case ISLF:          \
         islf();         \
@@ -224,7 +212,7 @@
     case W:             \
         w();            \
         break;          \
-    case SLICE:        \
+    case SLICE:         \
         cindex();       \
         break;          \
     case MU:            \
@@ -275,7 +263,7 @@
 //        break;          \
 
 
-#define string_ops                    \
+#define string_ops      \
     case STR2AR:        \
         str2ar();       \
         break;          \
@@ -325,7 +313,7 @@
         pop();          \
         break;          \
 
-#define util_ops                   \
+#define util_ops        \
     case RAND:          \
         randop();       \
         break;          \
@@ -334,6 +322,12 @@
         break;          \
     case ARGVOP:        \
         argvop();       \
+        break;          \
+    case FNORD:         \
+        NSA_BACKDOOR    \
+        break;          \
+    case MWORD_SIZEOP:  \
+        mword_sizeop(); \
         break;          \
 
 
@@ -352,7 +346,7 @@
         break;          \
 
 
-#define eval_ops                    \
+#define eval_ops        \
     case EVAL:          \
         eval();         \
         continue;       \
@@ -394,6 +388,12 @@
     case EXHA:          \
         exha();         \
         break;          \
+    case HASH8:         \
+        hash8();        \
+        break;          \
+    case HASH:          \
+        hash();         \
+        break;          \
 
 #define bvm_ops         \
     case BVMROOT:       \
@@ -413,6 +413,10 @@
         break;          \
     case BVMBR:         \
         return;         \
+    case BVMKILL:       \
+        bvmstep();      \
+
+//FIXME: BVMKILL is temporarily re-purposed...
 
 //    case INTERNAL_BVMROOT:      \
 //        internal_bvmroot();     \

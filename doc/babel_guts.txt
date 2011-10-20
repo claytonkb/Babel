@@ -1,0 +1,205 @@
+Babel guts
+
+This document describes the internals of the Babel interpreter.
+
+----- mword
+
+    mword is short for machine-word and stands for an unsigned int or 
+    pointer whose size is the native word size of the machine. In other words,
+    an mword is either a 32-bit or 64-bit unsigned int or unsigned int pointer
+    that is treated like a void pointer (to put it in C terminology).
+
+    MWORD_SIZE is the native word size (in bits) divided by 8 bits per byte.
+    On 32-bit machines, MWORD_SIZE is 4. On 64-bit machines, it is 8.
+
+----- bstruct
+
+    The data structure in which all data and code (and anything else) reside
+    is called a bstruct (which stands for Babel-struct... I'm very creative).
+    It is important to note that the Babel interpreter does not maintain any
+    state which is not stored in a bstruct. This means that the bstruct at
+    all times* contains a complete image of the running program. This makes
+    it trivial to load, save and restore Babel programs, even while they
+    are mid-stream.
+
+    *"at all times" means whenever an operator has finished executing
+
+    A bstruct consists of one or more arrays of mwords. There are three types
+    of arrays:
+
+        - leaf-array    : stores values
+        - interior-array: stores pointers
+        - terminal-array: stores unrestricted pointers
+
+    A bstruct may consist of:
+
+        - a single leaf-array OR
+        - an interior-array or terminal-array that may (recursively) point at 
+          one or more interior-arrays, terminal-arrays or leaf-arrays
+
+    A bstruct is (intentionally) defined in such a way that it may contain
+    any sort of data. There is nothing specific to Babel about a bstruct. For
+    example, a large bitmap can be stored as a leaf-array by simply prepending
+    it with the appropriate s-field in memory.
+
+----- s-field
+
+    To tell apart the three types of array, each array has an s-field.
+    The s-field is a single mword at position 0 in the allocated array. That
+    is, the array can be freed by passing a pointer to the s-field to the 
+    free() function. This permits clean destruction of a bstruct at any time.
+
+        if( X.s > 0 ) --> X is a leaf-array
+        else
+            if( X.s<<1 > 0 ) --> X is a terminal-array
+            if( X.s<<1 < 0 ) --> X is an interior-array
+
+    Aside from telling the array type, the s-field also tells the array size.
+
+        if( X.s > 0 ) --> X.size = X.s / MWORD_SIZE
+        else
+            X.size = ( -1 * (X.s | TYPE_MASK) ) / MWORD_SIZE
+
+    ... where TYPE_MASK is:
+
+        - 0xc0000000         if MWORD_SIZE == 4
+        - 0xc000000000000000 if MWORD_SIZE == 8
+
+    The size of every array in a bstruct is an even multiple of MWORD_SIZE.
+
+    The least-significant bit of the s-field is used during traversal of a
+    bstruct, see below.
+
+----- Entries
+
+    All other mwords in the array other than the s-field are called entries.
+    The zeroth entry is located at array index 1, immediately following the
+    s-field.
+
+----- leaf-array
+
+    A leaf-array contains one or more values stored in an array of mwords. The
+    contents of a leaf-array do not have to be accessed in mword-aligned 
+    fashion. For example, it is possible to access a particular byte in a 
+    leaf-array.
+
+    The defining feature of a leaf-array is that it cannot contain pointers to
+    any other arrays.
+
+----- interior-array
+
+    An interior-array contains one or more pointers, each mword-sized. 
+
+    The defining feature of an interior-array is that every mword in an 
+    interior-array must contain a pointer to the zeroth entry of an array.
+
+    A pointer in an interior-array may point at any other kind of array.
+
+----- terminal-array
+
+    A terminal array contains one or more unrestricted-pointers or uptrs
+    Unlike regular pointers, a uptr does not have to point only at the zeroth
+    entry of an array. 
+
+    A uptr may point only at leaf-arrays or interior-arrays. It may not point
+    at the s-field of any array. It may point at any byte-offset in a leaf-
+    array. It may point at any mword in an interior array.
+
+    Unlike a regular pointer, a uptr takes up two mwords.
+
+    There are two types of uptr - safe and unsafe. 
+
+    A safe uptr consists of a "base and offset" pair - the base must be a 
+    regular pointer (can only point at the zeroth entry of an array) and the
+    offset may not be larger than the size of the array.
+
+    An unsafe uptr can point at any valid location in an array. 
+    
+    This permits "C-style" pointer arithmetic and de-referencing. The 
+    functional behavior of safe and unsafe uptrs is exactly the same so that 
+    code which was originally written with unsafe uptrs can be executed in a 
+    "safe mode" by the interpreter without code modification.
+
+    A terminal-array is called terminal because, even though it is an 
+    interior node in the graph, any traversal must stop when it reaches a 
+    terminal-array. Correct traversal of a bstruct is impossible beyond a
+    terminal-array.
+
+    This property is used as a feature, however. If you want to fence a given 
+    data-structure so that the deep operators of Babel do not continue 
+    traversing into other data-structures that are pointed to by the given 
+    data-structure, use a terminal-array instead of an interior-array. Deep
+    operators (that is, built-in operators) will stop traversing once they
+    reach a terminal array.
+
+----- Traversing a bstruct
+
+    A bstruct is a graph, not a tree. Hence, it may contain cycles. Traversal
+    requires that each array be marked as it is visited. The least significant 
+    bit of the s-field is used for this. The bstruct is actually traversed
+    twice, once to set the LSB of each s-field in the bstruct and once to 
+    clear it again.
+
+    Future optimization should track the sense of the s-field LSB so that 
+    successive traversals alternate between setting and clearing the
+    s-field bit without the need to clean up afterwards.
+
+----- Lists
+
+    As a convention, the zeroth entry of an interior-array is also termed the 
+    'car' field and the first entry is also termed the 'cdr' field. This 
+    permits the construction of bstructs formally identical to lists in Lisp.
+
+    Babel borrows the 'cons' 'car' 'cdr' etc. terminology from Lisp for 
+    this purpose. "A list" always means the portion of a bstruct that conforms
+    to this convention.
+
+    nil behaves slightly differently in Babel than it does in Lisp. Since 
+    Babel does not have a notion of an atomic value, nil cannot be an atom and
+    never acts like one. Its primary use in Babel is to mark the end of a 
+    list. It also serves some special functions in the behavior of eval().
+
+----- Babel Virtual Machine (bvm)
+
+    A bvm is a bstruct with a particular structure to it. A bvm is a list 
+    consisting of the following fields:
+
+        (hidden code data stack rstack jmp_table sym_table nada)
+
+    The pointer to this list is called the internal_global_VM.
+
+    The hidden field points to a bstruct containing information which is not
+    visible to the currently executing bvm.
+
+    The code field points to the currently executing entry.
+
+    The data field points to data.
+    
+    The stack field points to "the" stack.
+
+    The rstack field points to the managed stack or "return stack". This name
+    is borrowed from Forth, h/t to Chuck Moore.
+
+    The jmp_table field points to the jump table.
+
+    The sym_table field points to the symbol table.
+
+    car(nada) = 0
+    cdr(nada) = nil
+
+----- BVM Code
+
+    Code is a list. Each element of the list is accessed in order. If the next
+    element of the list is a leaf-array, it is treated as an opcode and a
+    lookup is performed. If the next element of the list is an interior-array,
+    it is pushed onto the stack.
+
+----- BVM Stack
+
+    The stack is where all operations are performed in Babel. The Babel 
+    interpreter is a stack machine. Each operator operates on the stack and
+    returns its results on the stack. There are no registers in Babel. No 
+    internal state is maintained by the interpreter in C variables.
+
+    The stack is itself a list.
+
