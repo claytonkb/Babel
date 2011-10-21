@@ -6,24 +6,24 @@ code:
     [ [x]
     [ [{0}]
     [ save
-    [ loop
-    [ [consonant]
-    [ [{1}]
-    [ rand
-    [ [{20}]
-    [ curem
-    [ cxr
-    [ stdout
-    [ [vowel]
-    [ [{1}]
-    [ rand
-    [ [{6}]
-    [ curem
-    [ cxr
-    [ stdout
+    [   [[ [consonant]
+        [ [{1}]
+        [ rand
+        [ [{20}]
+        [ curem
+        [ cxr
+        [ stdout
+        [ [vowel]
+        [ [{1}]
+        [ rand
+        [ [{6}]
+        [ curem
+        [ cxr
+        [ stdout
+        nil]]]]]]]]]]]]]]]
     [ [x]
     [ times
-    nil]]]]]]]]]]]]]]]]]]]]]]]]
+    nil]]]]]]]]]]
 
 x:
     [{0}]

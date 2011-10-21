@@ -17,7 +17,7 @@ This document describes the internals of the Babel interpreter.
     The data structure in which all data and code (and anything else) reside
     is called a bstruct (which stands for Babel-struct... I'm very creative).
     It is important to note that the Babel interpreter does not maintain any
-    state which is not stored in a bstruct. This means that the bstruct at
+    state which is not stored in a bstruct. This means that a bstruct at
     all times* contains a complete image of the running program. This makes
     it trivial to load, save and restore Babel programs, even while they
     are mid-stream.
@@ -166,7 +166,8 @@ This document describes the internals of the Babel interpreter.
 
         (hidden code data stack rstack jmp_table sym_table nada)
 
-    The pointer to this list is called the internal_global_VM.
+    Once a bvm has begun executing, the pointer to this list is called the 
+    internal_global_VM.
 
     The hidden field points to a bstruct containing information which is not
     visible to the currently executing bvm.
@@ -202,4 +203,6 @@ This document describes the internals of the Babel interpreter.
     internal state is maintained by the interpreter in C variables.
 
     The stack is itself a list.
+
+
 

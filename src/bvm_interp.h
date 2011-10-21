@@ -408,13 +408,14 @@
     case LOAD:          \
         load();         \
         break;          \
+    case BVMBR:         \
+        return;         \
     case BVMEXEC:       \
         bvmexec();      \
         break;          \
-    case BVMBR:         \
-        return;         \
     case BVMKILL:       \
         bvmstep();      \
+        break;          \
 
 //FIXME: BVMKILL is temporarily re-purposed...
 

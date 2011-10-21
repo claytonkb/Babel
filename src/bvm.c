@@ -28,25 +28,46 @@
 
 void bvmstep(void){
 
+//    global_steps = car(TOS_0);
+//    zap();
+//
+//    mword *bvm = (mword*)TOS_0;
+//    zap();
+//
+//    _bvmstep(bvm);
+
     global_steps = car(TOS_0);
     zap();
 
-    mword *bvm = (mword*)TOS_0;
-    zap();
-
-    _bvmstep(bvm);
+    _bvmstep((mword*)TOS_0);
 
 }
 
 void bvmexec(void){
 
     global_steps = (mword) -1;
-    _bvmexec((mword*)TOS_0);
+    _bvmstep((mword*)TOS_0);
     zap();
 
 }
 
 void _bvmstep(mword *bvm){
+
+//    mword *saved_bvm = internal_global_VM;
+//    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
+//
+//    internal_global_VM = bvm;
+//    global_VM = (mword *)cdr(internal_global_VM);
+//    (mword*)global_argv = saved_global_argv;  //FIXME
+//
+//    bvm_interp();
+//
+////    mword *after_interp_global_VM = internal_global_VM;
+//
+//    internal_global_VM = saved_bvm;
+//    global_VM = (mword*)cdr(internal_global_VM);
+//
+////    push_alloc(after_interp_global_VM, BVMKILL); //FIXME: Appropriating BVMKILL...
 
     mword *saved_bvm = internal_global_VM;
     mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
@@ -57,12 +78,8 @@ void _bvmstep(mword *bvm){
 
     bvm_interp();
 
-    mword *after_interp_global_VM = internal_global_VM;
-
     internal_global_VM = saved_bvm;
     global_VM = (mword*)cdr(internal_global_VM);
-
-    push_alloc(after_interp_global_VM, BVMKILL); //FIXME: Appropriating BVMKILL...
 
 }
 
