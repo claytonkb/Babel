@@ -10,30 +10,6 @@ code:
     [ cxr
     [ slurp8
     [ load
-    [ dup
-    [ dup
-    [ dup
-    [ dup
-    [ dup
-    [ dup
-    [ dup
-    [ dup
-    [ dup
-    [ dup
-    [ dup
-    [   [[ [{"> "}] 
-        [ stdout
-        [ stdinln
-        [ dec2ci
-        [ bvmstep
-        [ bbl2gv
-        [ [{"snapshot.dot"}]
-        [ spit8
-        nil]]]]]]]]]
-    [ [[{-1}]]
-    [ times
-    nil]]]]]]]]]]]]]]]]]]]
-
-x:
-    [nil]
+    [ bvmexec
+    nil]]]]]]
 
