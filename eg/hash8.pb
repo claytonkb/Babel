@@ -1,13 +1,14 @@
 code:
     [ argv_check
     [ call
+    [ [{0 0 0 0}]
     [ argv
     [ [{1}]
     [ cxr
     [ hash8
     [ bbl2str
     [ stdout
-    nil]]]]]]]]
+    nil]]]]]]]]]
 
 argv_check:
     [[ argv
