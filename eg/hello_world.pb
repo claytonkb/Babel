@@ -1,5 +1,7 @@
 code:
     [ [{"Hello, world\n"}]
     [ stdout
-    nil]]
+    [ [{"Hello, world\n"}]
+    [ stdout
+    nil]]]]
 

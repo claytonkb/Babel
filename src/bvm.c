@@ -501,7 +501,7 @@ void bbl2str(void){
     c(result,length-1) = last_mword;
     free(buffer);
 
-    push_alloc(result,0xdeadbeef);
+    push_alloc(result,BBL2STR);
 
 }
 
@@ -542,7 +542,7 @@ mword tree_bbl2str(mword *tree, char *buffer){
 //        buf_size += sprintf(buffer+buf_size, "s%08x [style=bold,shape=record,label=\"", (mword)tree);
         buf_size += sprintf(buffer+buf_size, "{ ");
         for(i=0; i<num_elem; i++){
-            buf_size += sprintf(buffer+buf_size, "%x ", *(mword *)(tree+i));
+            buf_size += sprintf(buffer+buf_size, "0x%x ", *(mword *)(tree+i));
 //            if(i<(num_elem-1)){
 //                buf_size += sprintf(buffer+buf_size, "|");
 //            }

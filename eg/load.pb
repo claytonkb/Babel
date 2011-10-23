@@ -4,5 +4,6 @@ code:
     [ load
     [ bvmroot
     [ bbl2gv
-    nil]]]]]
+    [ stdout
+    nil]]]]]]
 

@@ -10,7 +10,7 @@ code:
     [ [x]    -- get x again
     [ [{0}]
     [ cxr
-    [ ci2dec -- convert the value of x to decimal
+    [ bbl2str -- convert the value of x to decimal
     [ stdout -- print it
     nil]]]]]]]]]]]]]
 

@@ -117,7 +117,7 @@ void times(void){
 }
 
 void dieop(void){
-    printf("Died.\n");
+    fprintf(stderr, "Died.\n");
     exit(0);
 }
 
