@@ -32,6 +32,8 @@ while($#ARGV>-1){
                     clean           ( \@asm_file );
 my $sections =      get_sections    ( \@asm_file );
                     section_parse   ( $sections->{$_}) for (keys %{$sections});
+#print Dumper($sections) and die;
+
                     assemble        ( $sections, $sections->{'main'} );
                     linkit          ( $sections, 'main', $obj_out, 0 );
                     send_obj        ( $proj_name, $obj_out, $sections);
@@ -202,6 +204,8 @@ sub assemble_interior {
 
     my $sections     = shift;
     my $this_section = shift;
+    my @str_vec;
+    my $length;
 
     my $count = 0;
     state $anon_section_num = 0;
@@ -231,6 +235,14 @@ sub assemble_interior {
             $count++;
             next;
 
+        }
+
+        if(
+            $elem->[0] eq "NUMERIC"
+                or
+            $elem->[0] eq "STRING"
+        ){
+            $elem = ["LEAF_ARR", $elem];
         }
 
         if($elem->[0] eq "LEAF_ARR"){
@@ -314,6 +326,15 @@ sub get_sections{
     my $asm_file = shift;
     my $sections;
     my $current_section;
+    my $match;
+
+    # Create nil for use by lists
+    $sections->{'nil'}{src} = [];
+    $sections->{'nil'}{ptr} = 0;
+    $sections->{'nil'}{asmd} = 0;
+    $sections->{'nil'}{bin_ptr} = undef;
+    $sections->{'nil'}{bin} = [];
+    push @{$sections->{'nil'}{src}}, "[nil nil]";
 
     for(@{$asm_file}){
         if(/^([a-zA-Z0-9_]+):/){
@@ -323,7 +344,13 @@ sub get_sections{
             $sections->{$current_section}{asmd} = 0;
             $sections->{$current_section}{bin_ptr} = undef;
             $sections->{$current_section}{bin} = [];
+
+            ($match) = $_ =~ /^[a-zA-Z0-9_]+:(.+)$/;
+            if(defined $match){
+                push @{$sections->{$current_section}{src}}, $match;
+            }
             next;
+
         }
         push @{$sections->{$current_section}{src}}, $_;
     }
@@ -346,11 +373,26 @@ sub section_parse{
 
     my $section = shift;
     my $new_array_ref;
+    my $token;
 
     my $src = $section->{src};
     $section->{obj} = [];
 
 #    my $current_context;
+
+    $token = is_numeric($section);
+    if(defined $token){
+        $section->{obj} = ["LEAF_ARR", ["NUMERIC", 0+$token]];
+        # TODO: write is_whitespace() to check for syntax errors
+        return;
+    }
+
+    $token = is_string($section);
+    if(defined $token){
+        $section->{obj} = ["LEAF_ARR", ["STRING", "$token"]];
+        # TODO: write is_whitespace() to check for syntax errors
+        return;
+    }
 
     if(is_interior_array_begin($section)){
 #        $section->{typ} = "interior_arr";
@@ -363,6 +405,13 @@ sub section_parse{
 #        $section->{typ} = "leaf_arr";
         $section->{obj} = ["LEAF_ARR"];
         leaf_array($section, $section->{obj});
+        return;
+    }
+
+    if(is_list_begin($section)){
+#        die "list detected\n";
+        $section->{obj} = ["INTERIOR_ARR"];
+        list_interior_array($section, $section->{obj});
         return;
     }
 
@@ -429,6 +478,7 @@ sub interior_array{
 
     my $section = shift;
     my $obj = shift;
+    my $token;
 
 #    my $current_context;
     my $new_array_ref;
@@ -467,10 +517,96 @@ sub interior_array{
             next;
         }
 
+        $token = is_numeric($section);
+        if(defined $token){
+            push @{$obj}, ["NUMERIC", 0+$token];
+            next;
+        }
+
+        $token = is_string($section);
+        if(defined $token){
+            $token = '$token = "' . $token . '"';
+            eval($token);
+            push @{$obj}, ["STRING", "$token"];
+            next;
+        }
+
         print "Syntax error\n";
         die;
 
     }
+
+}
+
+
+sub list_interior_array{
+
+    my $section = shift;
+    my $obj = shift;
+    my $token;
+
+#    my $current_context;
+    my $new_array_ref;
+
+    my $label;
+
+    if(is_list_begin($section)){
+        $new_array_ref = ["INTERIOR_ARR"];
+        list_interior_array($section, $new_array_ref);
+        push @{$obj}, $new_array_ref;
+        goto DONE;
+    }
+
+    if(is_interior_array_begin($section)){
+        $new_array_ref = ["INTERIOR_ARR"];
+        interior_array($section, $new_array_ref);
+        push @{$obj}, $new_array_ref;
+        goto DONE;
+    }
+
+    if(is_leaf_array_begin($section)){
+        $new_array_ref = ["LEAF_ARR"];
+        leaf_array($section, $new_array_ref);
+        push @{$obj}, $new_array_ref;
+        goto DONE;
+    }
+
+    $label = is_label($section);
+    if(defined $label){
+        push @{$obj}, ["LABEL", "$label"];
+        goto DONE;
+    }
+
+    $label = is_expanded_label($section);
+    if(defined $label){
+        push @{$obj}, ["EXP_LABEL", "$label"];
+        goto DONE;
+    }
+
+    $token = is_numeric($section);
+    if(defined $token){
+        push @{$obj}, ["NUMERIC", 0+$token];
+        goto DONE;
+    }
+
+    $token = is_string($section);
+    if(defined $token){
+        $token = '$token = "' . $token . '"';
+        eval($token);
+        push @{$obj}, ["STRING", "$token"];
+        goto DONE;
+    }
+
+DONE:
+
+    if(is_list_end($section)){
+        push @{$obj}, ["LABEL","nil"];
+        return;
+    }
+
+    $new_array_ref = ["INTERIOR_ARR"];
+    list_interior_array($section, $new_array_ref);
+    push @{$obj}, $new_array_ref;
 
 }
 
@@ -632,6 +768,41 @@ sub is_string{
     return undef;
 
 }
+
+sub is_list_begin{
+
+    my $section = shift;
+
+    my $string = substr($section->{src}, $section->{ptr});
+
+#    $string =~ /^(\s*\{)/;
+    
+    if($string =~ /^(\s*\()/){
+        $section->{ptr} += length $1;
+        return 1;
+    }
+
+    return 0;
+
+}
+
+sub is_list_end{
+
+    my $section = shift;
+
+    my $string = substr($section->{src}, $section->{ptr});
+
+#    $string =~ /^(\s*\{)/;
+    
+    if($string =~ /^(\s*\))/){
+        $section->{ptr} += length $1;
+        return 1;
+    }
+
+    return 0;
+
+}
+
 
 sub str2vec {
 
