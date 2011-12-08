@@ -1,108 +1,33 @@
+-- logic.pb
+-- This program demonstrates Babel's C-style logic operators
+
+op_name:  [ "cnot" "cand" "cor" "cnand"
+            "cnor" "cxor" "cxnor"]
+operator: [ [cnot nil] [cand nil] [cor nil] [cnand nil]
+            [cnor nil] [cxor nil] [cxnor nil] ]
+
 code:
+    ---
+     ((([op_name] x cxr stdout [":\n"] stdout
 
-    [ [{0xf0c3a569}]
-    [ ddisp
-    [ call
+        [0xb33d1d84] dup [disp] call
+        [0xffbc5a53] dup [disp] call
 
-    [ [{"cnot: "}]
-    [ stdout
-    [ cnot
-    [ disp
-    [ call
+        [operator] x cxr eval 
+        bbl2str stdout [" <- result\n\n"] stdout
 
-    [ [{"cnot: "}]
-    [ stdout
-    [ cnot
-    [ disp
-    [ call
+        x  [1] cuadd
+        [x] [0] save))
+    [[7]]
+    times)
+    ---
 
-    [ [{0xffffffff}]
-    [ ddisp
-    [ call
-    [ [{0xf0c3a569}]
-    [ ddisp
-    [ call
-    [ [{"cand: "}]
-    [ stdout
-    [ cand
-    [ disp
-    [ call
-
-    [ [{0xffffffff}]
-    [ ddisp
-    [ call
-    [ [{0xf0c3a569}]
-    [ ddisp
-    [ call
-    [ [{"cor: "}]
-    [ stdout
-    [ cor
-    [ disp
-    [ call
-
-    [ [{0xffffffff}]
-    [ ddisp
-    [ call
-    [ [{0xf0c3a569}]
-    [ ddisp
-    [ call
-    [ [{"cnand: "}]
-    [ stdout
-    [ cnand
-    [ disp
-    [ call
-
-    [ [{0xffffffff}]
-    [ ddisp
-    [ call
-    [ [{0xf0c3a569}]
-    [ ddisp
-    [ call
-    [ [{"cnor: "}]
-    [ stdout
-    [ cnor
-    [ disp
-    [ call
-
-    [ [{0xffffffff}]
-    [ ddisp
-    [ call
-    [ [{0xf0c3a569}]
-    [ ddisp
-    [ call
-    [ [{"cxor: "}]
-    [ stdout
-    [ cxor
-    [ disp
-    [ call
-
-    [ [{0xffffffff}]
-    [ ddisp
-    [ call
-    [ [{0xf0c3a569}]
-    [ ddisp
-    [ call
-    [ [{"cxnor: "}]
-    [ stdout
-    [ cxnor
-    [ disp
-    [ call
-
-    nil ]]]]]]]]]]] ]]]]]]]]]]] ]]]]]]]]]]] ]]]]]]]]]]] ]]]]]]]]]]] ]]]]]]]]]]] ]]]]] ]]]]] ]]]
-
-
-ddisp:
-    [[ dup
-    [ disp
-    [ call
-    [ ret
-    nil]]]]]
+x: [0]
 
 disp:
-    [[ bbl2str
-    [ stdout
-    [ [{"\n"}]
-    [ stdout
-    [ ret
-    nil]]]]]]
+   (bbl2str
+    stdout
+    ["\n"]
+    stdout
+    ret)
 
