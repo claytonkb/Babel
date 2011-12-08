@@ -1,92 +1,48 @@
+-- carith.pb
+-- This program demonstrates Babel's C-style arithmetic operators
+
+op_name:
+   ["cuadd" "cusub" "cumul" "cudiv" 
+    "ciadd" "cisub" "cimul" "cidiv"]
+
+op:
+   [[cuadd nil] [cusub nil] [cumul nil] [cudiv nil]
+    [ciadd nil] [cisub nil] [cimul nil] [cidiv nil]]
+
 code:
+    ---
+     ((([inform]  call ["\n"] stdout
+        [prompts] call
 
-    [ prompts
-    [ call
-    [ cuadd
-    [ [{"cuadd: "}]
-    [ stdout
-    [ disp
-    [ call
+        [op] x cxr eval
 
-    [ prompts
-    [ call
-    [ cusub
-    [ [{"cusub: "}]
-    [ stdout
-    [ disp
-    [ call
+        [inform] call
+        [": "] stdout
 
-    [ prompts
-    [ call
-    [ cumul
-    [ [{"cumul: "}]
-    [ stdout
-    [ disp
-    [ call
+        ci2dec stdout
+        ["\n"] stdout
 
-    [ prompts
-    [ call
-    [ cudiv
-    [ [{"cudiv: "}]
-    [ stdout
-    [ disp
-    [ call
+        x  [1] cuadd
+        [x] [0] save))
+    [[8]] times)
+    ---
 
-    [ prompts
-    [ call
-    [ ciadd
-    [ [{"ciadd: "}]
-    [ stdout
-    [ disp
-    [ call
-
-    [ prompts
-    [ call
-    [ cisub
-    [ [{"cisub: "}]
-    [ stdout
-    [ disp
-    [ call
-
-    [ prompts
-    [ call
-    [ cimul
-    [ [{"cimul: "}]
-    [ stdout
-    [ disp
-    [ call
-
-    [ prompts
-    [ call
-    [ cidiv
-    [ [{"cidiv: "}]
-    [ stdout
-    [ disp
-    [ call
-
-    nil ]]]]]]] ]]]]]]] ]]]]]]] ]]]]]]] ]]]]]]] ]]]]]]] ]]]]]]] ]]]]]]]
+inform:
+   ([op_name]
+    x
+    cxr
+    stdout
+    ret)
 
 prompts:
-    [[ prompt
-    [ call
-    [ prompt
-    [ call
-    [ ret
-    nil]]]]]]
+   ([prompt] call
+    [prompt] call
+    ret)
 
 prompt:
-    [[ [{"Enter a number:\n> "}]
-    [ stdout
-    [ stdinln
-    [ dec2ci
-    [ ret
-    nil]]]]]]
+   (["Enter a number:\n> "] stdout
+    stdinln dec2ci
+    ret)
 
-disp:
-    [[ ci2dec
-    [ stdout
-    [ [{"\n"}]
-    [ stdout
-    [ ret
-    nil]]]]]]
+x: [0]
 

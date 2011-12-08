@@ -1,27 +1,15 @@
 code:
-   (argv
-    [1]
-    cxr
-    dec2ci
-    [x]
-    [0]
-    save
-      (([consonant]
-        [1]
-        rand
-        [20]
-        curem
-        cxr
+   (argv [1] cxr dec2ci
+    [x] [0] save
+          (([consonant]
+            [1] rand [20] curem
+            cxr
         stdout
-        [vowel]
-        [1]
-        rand
-        [6]
-        curem
-        cxr
+            [vowel]
+            [1] rand [6] curem
+            cxr
         stdout))
-    [x]
-    times)
+    [x] times)
 
 x: [0]
 
