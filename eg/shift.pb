@@ -1,54 +1,27 @@
+-- shift.pb
+-- This program illustrates Babel's C-style logical 
+-- shift operators
+
+val: 0xbabeface
+
+op_name: ["cushl" "cushr" "cashr" "curol" "curor"]
+
+operator: [[cushl nil] [cushr nil] [cashr nil] [curol nil] [curor nil]]
+
+x: [0]
+
 code:
-    [ [{"Shifting/rotating hex value 0xbabeface by 4 bits:\n"}]
-    [ stdout
-    
-    [ [{"cushl: "}]
-    [ stdout
-    [ [{0xbabeface}]
-    [ [{4}]
-    [ cushl
-    [ disp
-    [ call
+   (["Shifting/rotating hex value 0x"] stdout [val] cu2hex stdout [" by 4 bits:\n"] stdout
+    ---
+      (([op_name] x cxr stdout [": "] stdout
+        [val] [4] [operator] x cxr eval
+        [disp] call
 
-    [ [{"cushr: "}]
-    [ stdout
-    [ [{0xbabeface}]
-    [ [{4}]
-    [ cushr
-    [ disp
-    [ call
+        x  [1] cuadd
+        [x] [0] save))
+    [[5]]
+    times)
+    ---
 
-    [ [{"cashr: "}]
-    [ stdout
-    [ [{0xbabeface}]
-    [ [{4}]
-    [ cashr
-    [ disp
-    [ call
-
-    [ [{"curol: "}]
-    [ stdout
-    [ [{0xbabeface}]
-    [ [{4}]
-    [ curol
-    [ disp
-    [ call
-
-    [ [{"curor: "}]
-    [ stdout
-    [ [{0xbabeface}]
-    [ [{4}]
-    [ curor
-    [ disp
-    [ call
-
-    nil ]]]]]]] ]]]]]]] ]]]]]]] ]]]]]]] ]]]]]]] ]]
-
-disp:
-    [[ bbl2str
-    [ stdout
-    [ [{"\n"}]
-    [ stdout
-    [ ret
-    nil]]]]]]
+disp: (bbl2str stdout [{"\n"}] stdout ret)
 
