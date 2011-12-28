@@ -200,6 +200,50 @@ void save(void){
 
 }
 
+// Combination of the old w() and save() operators
+void paste(void){
+
+//    mword offset    = car(TOS_0);
+//    mword dest_size = size((mword*)TOS_1)-offset;
+//    mword src_size  = size((mword*)TOS_2);
+
+    mword offset;//    = car(TOS_0);
+    mword dest_size;// = size((mword*)TOS_1)-offset;
+    mword src_size;//  = size((mword*)TOS_2);
+    mword i;
+    mword iter;
+
+    if(is_leaf((mword*)TOS_1) == is_leaf((mword*)TOS_2)){ //Both src and dest are leaves or both are inte's
+        offset    = car(TOS_0);
+        dest_size = size((mword*)TOS_1)-offset;
+        src_size  = size((mword*)TOS_2);
+
+        iter = (src_size < dest_size) ? src_size : dest_size;
+
+        for(i=0;i<iter;i++){
+            c((mword*)TOS_1,i+offset) = c((mword*)TOS_2,i);
+        }    
+
+    }
+    else{
+        //FIXME: Detect is_leaf(src) && is_inte(dest) and throw exception!
+        offset    = car(TOS_0);
+        dest_size = size((mword*)car(TOS_1))-offset;
+        src_size  = size((mword*)TOS_2);
+
+        iter = (src_size < dest_size) ? src_size : dest_size;
+
+        for(i=0;i<iter;i++){
+            c((mword*)car(TOS_1),i+offset) = c((mword*)TOS_2,i);
+        }
+    }
+
+    zap();
+    //    zap();
+    swap();
+    zap();
+
+}
 
 void arlen8(void){
 

@@ -16,7 +16,7 @@ code:
         [operator] x cxr eval 
         bbl2str stdout [" <- result\n\n"] stdout
 
-        x  [1] cuadd
+        x [1] cuadd
         [x] [0] save))
     [[7]]
     times)

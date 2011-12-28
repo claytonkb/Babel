@@ -1,7 +1,6 @@
--- Babel Operator Reference
+INDEXING NOTATION:
 
-Examples shown in "proto-Babel" for now. This will be updated at some point
-in the future when Bipedal is developed.
+-- Babel Operator Reference
 
 Note: Stack diagrams are shown under the "Stack effect" section. The item
 next to the vertical bar '|' is TOS (Top-Of-Stack), the arrow separates
@@ -10,20 +9,6 @@ indicated, the rest of the stack is left as-is.
 
 Upper-case means "One or more pointers or values"
 Lower-case means "a single value"
-
-- Miscellaneous Operators
-
-    - fnord
-        Does nothing
-        Stack effect:
-            | -> |
-
-    - hash8
-        Hashes a sequence of bytes (hence the '8')
-
-        Stack effect:
-            {"string"}| -> {w x y z}|
-            A hash is 4 mwords in size
 
 - Arithmetic Operators
 
@@ -36,11 +21,11 @@ Lower-case means "a single value"
         Adds two mwords on TOS (Top-Of-Stack) 
     
         Example: 
-            [ [{2}] [ [{3}] [ cuadd nil ]]]
+            [2] [3] cuadd
 
             Leaves 5 on TOS
 
-        Note: If you don't know what "unsigned" means then you shoud use 
+        Note: If you don't know what "unsigned" means then you should use 
         the 'ci' arithmetic operators.
 
         Stack effect:
@@ -64,7 +49,7 @@ Lower-case means "a single value"
 
     - cumul
         C-style unsigned multiplication
-        {a} {b}| -> {lo({a}*{b}) hi({a}*{b})}|
+        {a} {b}| -> {lo(a*b) hi(a*b)}|
 
         Note: The result of multiplication is two mwords, so it is stored
         in a leaf array of size 2.
@@ -245,46 +230,64 @@ Lower-case means "a single value"
         Reads from STDIN (standard input) until newline
         | -> {"string"}|
 
-- Array Operators
+- bstruct Operators
 
-    - s
-        Reads the s-field and places it on TOS
-        {X}| -> {s(X)}|
-        [X]| -> {s(X)}|
+    - span
+        Makes a spanning tree of the bstruct on TOS
+        X| -> Y
+        ... where Y is a spanning tree of X
 
-    - arlen
-        Puts the array length on TOS
-        {X}| -> {len(X)}|
-        [X]| -> {len(X)}|
+    - diff
+        Diffs the bstruct on TOS
+        L R| -> (L n !R) (!L n R) (L n R)|
 
-    - arlen8
-        Puts the 8-bit array length on TOS
-        {X}| -> {len8(X)}|
-        [X]| -> {len8(X)}|
+        To test for sameness, check if TOS-1 and TOS-2 are both 
+        nil or both not nil.
 
-    - islf
-        Tests if TOS is a leaf-array
-        {X}| -> {1}|
-        [X]| -> {0}|
+        The results created by diff use uptrs to point into
+        the originals
 
-    - isin
-        Tests if TOS is an interior-array
-        {X}| -> {0}|
-        [X]| -> {1}|
+    - merge
+        Would be nice to have a merge operator that can "undo" diff
 
-    - w
-        Writes array X into array Y at offset z. Leaves the result on TOS.
-        {X} {Y} {z}| -> {Y written with X at z}|
-        [X] [Y] {z}| -> [Y written with X at z]|
+    - cp (ND)
+        Named after the Unix command. Does a deep-copy of a bstruct.
 
-        If len(X)+z > len(Y), then the write is truncated
+        [X]| -> [copy-of-X]|
 
-    - slice
-        Puts a slice of an array on TOS
-        {X} {a} {b}| -> {X[a..b]}|
-        [X] {a} {b}| -> [X[a..b]]|
+        Example:
+            [(0 (1))] cp
 
-        Read [a..b] as "from a to b", not as an interior-array
+            There is now (0 (1)) on TOS but the original object
+            still exists as-is.
+
+        This operator is recursive.            
+
+    - unload
+        Unloads a bstruct to an offset-relative form
+
+    - mv
+        Moves bstruct A to bstruct B intact
+
+    - rm
+        Recursively frees bstruct on TOS
+        (cf to simply setting to nil to unlink)
+
+    - load
+        Flattens a relative-offset Babel structure into its literal 
+        memory pointer footprint. This operator is applied by the 
+        interpreter to a Babel file when it is initially loaded from file 
+        into memory.
+
+    - bs2gv
+        Prints TOS to STDOUT in Graphviz dot-language format
+
+    - bs2str
+        Prints TOS to string format
+
+    - flatten
+        flattens a bstruct to a list whose cars point at leafs (is this 
+        possible? think of loops)
 
     - mu
         "Memory usage" - by analogy to Unix 'du'
@@ -327,6 +330,42 @@ Lower-case means "a single value"
 
         This operator is recursive
 
+- Array Operators
+
+    - s
+        Reads the s-field and places it on TOS
+        {X}| -> {s(X)}|
+        [X]| -> {s(X)}|
+
+    - lenar
+        (currently arlen)
+        Puts the array length on TOS
+        {X}| -> {len(X)}|
+        [X]| -> {len(X)}|
+
+    - lenar8
+        (currently arlen8)
+        Puts the 8-bit array length on TOS
+        {X}| -> {len8(X)}|
+        [X]| -> {len8(X)}|
+
+    - islf
+        Tests if TOS is a leaf-array
+        {X}| -> {1}|
+        [X]| -> {0}|
+
+    - isin
+        Tests if TOS is an interior-array
+        {X}| -> {0}|
+        [X]| -> {1}|
+
+    - slice (ND)
+        Puts a slice of an array on TOS
+        {X} {a} {b}| -> {X[a..b]}|
+        [X] {a} {b}| -> [X[a..b]]|
+
+        Read [a..b] as "from a to b", not as an interior-array
+
     - newlf
         Creates a new leaf-array of size x and leaves it on TOS
         {x}| -> {leaf-array-of-size-x}|
@@ -335,39 +374,69 @@ Lower-case means "a single value"
         Creates a new interior-array of size x and leaves it on TOS
         {x}| -> {interior-array-of-size-x}|
 
-    - del
+    - del (D)
         Named after the C++ operator
 
         Frees (de-allocates) a leaf-array or interior array created with 
         the newlf or newin operators
 
-    - cp
-        Named after the Unix command.
-
-        Does a deep-copy of all values.
-
-        [X]| -> [copy-of-X]|
-
-        Example:
-            [ [ [{0} [{1}]] ] [ cp nil ]]
-
-            There is now [ [{0} [{1}]] ] on TOS but the original object
-            still exists as-is.
-
-        This operator is recursive.            
-
-    - trunc
+    - trunc (D)
         Truncates an array X to length y:
         {X} {y}| -> {X[0..y]}|
         [X] {y}| -> [X[0..y]]|
 
-    - cxr
+    - cxr (D)
         By analogy to Lisp's car/cdr, where car = c0r and cdr = c1r, etc.
 
-        Returns the xth element of an array Y:
+        Returns the xth element of array A:
 
-        {Y} {x}| -> {Y[x]}|
-        [Y] {x}| -> [Y[x]]|
+        {A} {x}| -> {A[x]}|
+        [A] {x}| -> [A[x]]|
+
+        Note that cxr is a degenerate case of slice:
+            [x] cxr <==> [x] [x] slice
+
+    - paste (D)
+        (currently called w)
+        Pastes array X into array Y at offset z. Leaves the result on TOS.
+        {X} {Y} {z}| -> {Y written with X at z}|
+        [X] [Y] {z}| -> [Y written with X at z]|
+        {X} [Y] {z}| -> [Y.0.z written with X ]|
+
+        If len(X)+z > len(Y), then the write is truncated to len(Y)
+
+    - cutar
+        cuts an array - opposite of arcat (catar)
+        only cuts in one place... if you want more complex behavior, convert
+        to list, then use append/cut
+        A 0| -> nil A|
+        A x| -> A[0:x] A[x:len(A)]|     0 < x < len(A)
+        A len(A)| -> A nil|
+
+    - catar
+        currently called arcat
+        only cats two arrays... if you want more complex behavior, convert
+        to list, then use append/cut
+
+    - cmp
+        does a memcmp (mword sized, cf cmp8)
+        A B| -> { 0, A==B
+                {-1, A < B 
+                { 1, A > B
+
+    - move
+        an in-array memmove, will also have a move8
+        A x y z| -> B  (A[x:y] pasted at A[z], all other words same)
+
+    - move8
+        See move
+
+    - ar2ls
+        Leaf-array on TOS:
+            [1 2 3]| -> (1 2 3)|
+
+        Interior-array on TOS:
+            [a b c]| -> (a . (b . (c d)))|
 
 - String operators
 
@@ -469,6 +538,74 @@ Lower-case means "a single value"
         Undoes push. Similar to uncons but reverse the car and cdr:
         [cons(Y,X)]| -> [X] [Y]|
 
+    - bons
+        "Babel cons"
+        conses an entire list into an interior-array
+
+    - lslen
+
+    - append
+        appends a list of lists
+        ( ('a') ('b' 'c') ('d' 'e') ('f' 'g') ) append
+
+    - rev
+        (1 2 3) rev -> leaves (3 2 1) on TOS
+
+    - cut
+        cuts a list - opposite of append
+        ( 'a' 'b' 'c' 'd' 'e' 'f' 'g') (1 3 5) cut 
+            -> leaves ( ('a') ('b' 'c') ('d' 'e') ('f' 'g') ) on TOS
+
+- Hash Operators
+    - insha
+    - exha
+    - rmha
+    - keysha
+    - valsha
+    - ls2ha
+    - ha2ls
+
+- Namespace Operators
+    - insns
+        inserts an entry into a namespace
+
+    - exns
+        tests for existence of a namespace entry
+
+    - rmns
+        removes a namespace entry
+
+    - dirns
+        like unix ls
+
+    - cpns/mvns/mkdir
+
+    - treens
+        puts a tree with every namespace name on TOS:
+            /
+            +foo
+            ++baz (dir)
+            ++bop
+            +bar
+        ('' ('foo' ('baz') 'bop') ('bar') )
+
+    - pwd
+        puts the pwd on TOS
+
+    - cd
+        foo cd -> sets pwd to <pwd>/foo
+        /foo cd -> sets pwd to /foo
+        .. cd -> sets pwd to parent of pwd
+        ../bar cd -> sets pwd to the sibling of pwd, 'bar'
+
+    - basename
+        '/foo/hello/world' basename -> '/foo/hello' 'world' on TOS
+
+    - dir
+        . dir -> puts a directory listing of pwd on TOS... e.g. ('foo' 'bar' 'baz' 'gimble')
+
+    - switchns 
+        changes the root namespace structure
 
 - Utility Operators
 
@@ -489,6 +626,22 @@ Lower-case means "a single value"
         Places a list of strings on the stack corresponding to the arguments 
         passed to Babel on the commandline.
         | -> [args]|
+
+    - fnord
+        Does nothing
+        Stack effect:
+            | -> |
+
+    - hash/hash8
+        Hashes a sequence of bytes (hence the '8')
+
+        Stack effect:
+            {"string"}| -> {w x y z}|
+            A hash is 4 mwords in size
+
+    - bzip2
+    - bunzip2
+        (de)compresses an array using the bzip2 compressor
 
 - Stack Operators
 
@@ -519,7 +672,55 @@ Lower-case means "a single value"
         [X] {Y}| -> {Y} [X]|
         etc.
 
-- Eval Operators
+    - perm
+        Fast permutation of the top 8 items on the stack
+
+        A B C ... {p}| -> [perm(p,A,B,C...)]
+
+        Example:
+
+            [0] [1] [2] [0xfffff210] perm
+            
+            TOS   = 0
+            TOS-1 = 1
+            TOS-2 = 2
+
+        perm is not restricted to permutations:
+
+            [3] [5] [7] [0xfffff222] perm
+
+            TOS = TOS-1 = TOS-2 = 3
+
+        To leave an item on the stack, use 0xf:
+
+            [2] [4] [6] [0xfffff3f1] perm
+
+            TOS = 2
+            TOS = 4
+            TOS = 6
+
+    - extr
+        Fast extraction of the top 8 items on the stack
+
+        The extr operator uses the same control-word format as perm,
+        however, instead of replacing items on the stack, it simply pushes
+        copies of the requested items on top of the stack.
+
+            [1] [2] [3] [4] [0xfffff13] extr
+        
+        Stack is now:
+
+            [1] [2] [3] [4] [3] [1]|
+
+    - stack 
+        Like Joy
+        A B ...| -> A B ... (A B ...)|
+
+    - unstack
+        Like Joy
+        (A B ...)| -> A B ...|
+
+- Control-flow Operators
 
     - eval
         Named after the Perl function
@@ -538,32 +739,107 @@ Lower-case means "a single value"
         Returns to the last location saved by a call
         | -> |
 
-    - loop
-        Like eval but loops indefinitely. Use 'last' or 'next' to control 
-        loop behavior.
-        [X]| -> |
-
     - last
         Breaks out of current loop
 
     - next
         Goes to next iteration of current loop
 
+- Iteration Operators
+
+    - times
+        Like eval but executes n iterations. Use 'last' or 'next' to modify
+        the loop's behavior.
+
+        [X] n| -> |
+
     - while
         Classic while
+
+    - times
+        (1 2 3 4 5)
+        unstack
+        --
+            (cuadd)
+            4
+        times
+
+    - cond
+        --
+            (([x] 0 gt)
+                ("positive" say)
+            ( [x] 0 lt)
+                ("negative" say)
+            ( [x] 0 eq)
+                ("zero" say))
+        cond
+
+    - zipeach
+    - carteach
+    - eachls
+        --
+            0
+            ( cuadd )
+            ( 1 2 3 4 5 )
+        eachls
 
 - Babel Virtual Machine (BVM) Operators
 
     - bvmroot
         Puts the root pointer to the entire virtual-machine on TOS
         | -> [bvmroot]|
+    - bvmgo
+    - bvmstep
+    - mkbvm
+    - bvmkill
+    - halt
+    - die (synonym to bvmquit?)
 
-    - bbl2gv
-        Prints TOS to STDOUT in Graphviz dot-language format
+- Idiomatic Operators
+    - strint
+    - macint
+    - interpol
+    - cart
+        --
+            ((1 2 3 )
+            ( 4 5 6 ))
+        cart
 
-    - load
-        Flattens a relative-offset Babel structure into its literal 
-        memory pointer footprint. This operator is applied by the 
-        interpreter to a Babel file when it is initially loaded from file 
-        into memory.
+        TOS: (((1 4) (1 5) (1 6)) ((2 4) (2 5) (2 6)) ((3 4) (3 5) (3 6)))
+        
+        Works for all dimensions
+
+    - zip
+        --
+            (( 1  2  3  4 )
+            (  5  6  7  8  9 )
+            (  10 11 12 13 14 15 ))
+        zip
+
+        TOS: ((1 5 10) (2 6 11) (3 7 12) (4 8 13) (nil 9 13) (nil nil 15))
+
+    - transpose
+        multi-dimensional transpose as "dimensional permutation"
+        <x,y,z> -> <y,x,z> or <x,y,z> -> <y,z,x>
+        We can restrict this to "dimensional rotation", then simplify
+        to rotation by ONE:
+        <x,y,z> -> <z,x,y>
+        repeated application of transpose operator will iterate through
+        all dimensional rotations until returning to the original
+
+        <x,y> -> <y,x> -> <x,y>
+        <x,y,z> -> <z,x,y> -> <y,z,x> -> <x,y,z>
+        <w,x,y,z> -> <z,w,x,y> -> <y,z,w,x> -> <x,y,z,w> -> <w,x,y,z>
+        etc.
+
+    - sort 
+    - uniq
+    - filter -> Perl's grep
+        --
+            ( 2 cugt )
+            ( 1 2 3 4 5 )
+        filter
+
+        Leaves ( 3 4 5 ) on the stack
+
 

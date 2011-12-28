@@ -505,6 +505,14 @@ sub interior_array{
             next;
         }
 
+        if(is_list_begin($section)){
+    #        die "list detected\n";
+            $new_array_ref = ["INTERIOR_ARR"];
+            list_interior_array($section, $new_array_ref);
+            push @{$obj}, $new_array_ref;
+            next;
+        }
+
         $label = is_label($section);
         if(defined $label){
             push @{$obj}, ["LABEL", "$label"];
