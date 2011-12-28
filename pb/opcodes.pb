@@ -514,6 +514,7 @@ w16:
 w32:
 {0x12a}
 
+-- FIXME: 'w' and above are deprecated mnemonics
 w:
 {0x12b}
 
@@ -586,8 +587,15 @@ argv:
 cp:
 {0x148}
 
+-- FIXME: 'save' is a deprecated mnemonic
 save:
 {0x149}
+
+paste:
+{0x149}
+
+-- paste8:
+-- {0x14a}
 
 archr:
 {0x14b}

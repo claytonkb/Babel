@@ -227,6 +227,7 @@ void paste(void){
     }
     else{
         //FIXME: Detect is_leaf(src) && is_inte(dest) and throw exception!
+        //FIXME: Detect !is_leaf(dest) and throw exception!
         offset    = car(TOS_0);
         dest_size = size((mword*)car(TOS_1))-offset;
         src_size  = size((mword*)TOS_2);

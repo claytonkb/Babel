@@ -249,7 +249,7 @@
         cxr();          \
         break;          \
     case SAVE:          \
-        save();         \
+        paste();        \
         break;          \
     case ARCAT:         \
         arcat();        \
