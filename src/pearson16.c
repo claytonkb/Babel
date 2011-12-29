@@ -101,6 +101,11 @@ mword *new_hash(void){
 //
 void pearson16_init(void){
 
+    // Security note: This hash IS NOT cryptographically secure. The first 256 bytes were copied from
+    // Pearson's original paper and the rest were retrieved from www.random.org but these are NOT
+    // "nothing-up-my-sleeve" numbers and should not be treated as such. For security purposes, the 
+    // hash should always be treated as plain-text. It should not be treated as noise or random data, 
+    // even though it appears random.
     static char byte_array[4096] = 
     {
 
