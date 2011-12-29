@@ -43,10 +43,10 @@ int         exception_type;
 #define s(x)         (*(x-1))
 #define is_leaf(x)   ((int)s(x) >  0)
 #define is_inte(x)   ((int)s(x) <  0)
-#define is_cptr(x)   ((int)s(x) == 0)
+#define is_href(x)   ((int)s(x) == 0)
 #define is_nleaf(x)  ((int)s(x) <= 0)
 #define is_ninte(x)  ((int)s(x) >= 0)
-#define is_ncptr(x)  ((int)s(x) != 0)
+#define is_nhref(x)  ((int)s(x) != 0)
 #define size(x)      (abs(s(x))/MWORD_SIZE)
 #define c(x,y)       (*(y + x))
 

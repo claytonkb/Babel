@@ -17,6 +17,7 @@ void arlen8(void);
 inline mword _arlen8(mword *string);
 void w(void);
 void paste(void);
+void cut(void);
 void newin(void);
 void newlf(void);
 void del(void);

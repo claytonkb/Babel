@@ -246,6 +246,59 @@ void paste(void){
 
 }
 
+
+void cut(void){
+
+    mword *result_pre;
+    mword *result_post;
+    mword i;
+
+    mword cut_point = car(TOS_0);
+    mword *src      = (mword*)TOS_1;
+
+    zap();
+    zap();
+
+    if(cut_point == 0){
+//        result = new_atom();
+//        *result = nil;
+        push_alloc((mword*)nil, CUT);
+        swap();
+    }
+    else if(cut_point >= size(src)){
+        push_alloc((mword*)nil, CUT);
+    }
+    else{
+        if(is_leaf(src)){
+            result_pre  = _newlf(cut_point);
+            result_post = _newlf(size(src)-cut_point);
+        }
+        else{
+            result_pre = _newin(cut_point);
+            result_post = _newin(size(src)-cut_point);
+        }    
+
+        //TODO: memcpy!
+        for(    i=0;
+                i<size(src);
+                i++
+            ){
+
+            if(i<cut_point){
+                c(result_pre,i) = c(src,i);
+            }
+            else{
+                c(result_post,i-cut_point) = c(src,i);
+            }
+
+        }    
+
+        push_alloc(result_pre,  CUT);
+        push_alloc(result_post, CUT);
+    }
+
+}
+
 void arlen8(void){
 
     mword *result    = new_atom();

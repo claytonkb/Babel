@@ -224,7 +224,7 @@
 #define W8          0x128
 #define W16         0x129
 #define W32         0x12a
-#define W           0x12b
+#define CUT         0x12b
 #define TRUNC       0x12c
 #define CXR         0x12d
 #define ARDEQ       0x12f

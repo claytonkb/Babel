@@ -2,9 +2,12 @@ Babel guts
 
 This document describes the internals of the Babel interpreter.
 
+Note that this document does not detail the syntax of Bipedal (Babel Program
+Description Language).
+
 ----- mword
 
-    mword is short for machine-word and stands for an unsigned int or 
+    MWORD is short for machine-word and stands for an unsigned int or 
     pointer whose size is the native word size of the machine. In other words,
     an mword is either a 32-bit or 64-bit unsigned int or unsigned int pointer
     that is treated like a void pointer (to put it in C terminology).
@@ -18,24 +21,24 @@ This document describes the internals of the Babel interpreter.
     is called a bstruct (which stands for Babel-struct... I'm very creative).
     It is important to note that the Babel interpreter does not maintain any
     state which is not stored in a bstruct. This means that a bstruct at
-    all times* contains a complete image of the running program. This makes
+    all times contains a complete image of the running program. This makes
     it trivial to load, save and restore Babel programs, even while they
     are mid-stream.
 
-    *"at all times" means whenever an operator has finished executing
+    (NB: "at all times" means whenever an operator has finished executing)
 
-    A bstruct consists of one or more arrays of mwords. There are three types
-    of arrays:
+    A bstruct consists of one or more of the following data structures, 
+    connected together:
 
         - leaf-array    : stores values
         - interior-array: stores pointers
-        - terminal-array: stores unrestricted pointers
+        - hash-reference
 
     A bstruct may consist of:
 
         - a single leaf-array OR
-        - an interior-array or terminal-array that may (recursively) point at 
-          one or more interior-arrays, terminal-arrays or leaf-arrays
+        - an interior-array that may (recursively) point at one or more 
+          interior-arrays, leaf-arrays and/or hash-references
 
     A bstruct is (intentionally) defined in such a way that it may contain
     any sort of data. There is nothing specific to Babel about a bstruct. For
@@ -44,26 +47,22 @@ This document describes the internals of the Babel interpreter.
 
 ----- s-field
 
-    To tell apart the three types of array, each array has an s-field.
+    To tell apart the three types of array, each array has an S-FIELD.
     The s-field is a single mword at position 0 in the allocated array. That
     is, the array can be freed by passing a pointer to the s-field to the 
     free() function. This permits clean destruction of a bstruct at any time.
 
-        if( X.s > 0 ) --> X is a leaf-array
-        else
-            if( X.s<<1 > 0 ) --> X is a terminal-array
-            if( X.s<<1 < 0 ) --> X is an interior-array
+        X.s > 0             X is a leaf-array
+        X.s = 0             X is a hash-reference
+        X.s < 0             X is an interior-array
 
     Aside from telling the array type, the s-field also tells the array size.
+    The size is encoded in bytes so you have to divide by MWORD_SIZE to get
+    the size in mwords.
 
-        if( X.s > 0 ) --> X.size = X.s / MWORD_SIZE
-        else
-            X.size = ( -1 * (X.s | TYPE_MASK) ) / MWORD_SIZE
-
-    ... where TYPE_MASK is:
-
-        - 0xc0000000         if MWORD_SIZE == 4
-        - 0xc000000000000000 if MWORD_SIZE == 8
+        X.s > 0             X.size = X.s / MWORD_SIZE
+        X.s = 0             X.size = 1 + HASH_SIZE
+        X.s < 0             X.size = -1 * (X.s / MWORD_SIZE)
 
     The size of every array in a bstruct is an even multiple of MWORD_SIZE.
 
@@ -72,7 +71,7 @@ This document describes the internals of the Babel interpreter.
 
 ----- Entries
 
-    All other mwords in the array other than the s-field are called entries.
+    All other mwords in an array other than the s-field are called entries.
     The zeroth entry is located at array index 1, immediately following the
     s-field.
 
@@ -95,42 +94,28 @@ This document describes the internals of the Babel interpreter.
 
     A pointer in an interior-array may point at any other kind of array.
 
------ terminal-array
+    Every pointer in an interior-array must contain a valid pointer to an 
+    array.
 
-    A terminal array contains one or more unrestricted-pointers or uptrs
-    Unlike regular pointers, a uptr does not have to point only at the zeroth
-    entry of an array. 
+----- hash-reference
 
-    A uptr may point only at leaf-arrays or interior-arrays. It may not point
-    at the s-field of any array. It may point at any byte-offset in a leaf-
-    array. It may point at any mword in an interior array.
+    A hash-reference is a single hash value stored in memory suitable for 
+    fast lookup in the sym_table (symbol table).
 
-    Unlike a regular pointer, a uptr takes up two mwords.
+    Hash-references have two uses:
 
-    There are two types of uptr - safe and unsafe. 
+        - By-name lookup of data
+        - By-name eval
+        - Creating "soft-links" that can emborder data-structures
 
-    A safe uptr consists of a "base and offset" pair - the base must be a 
-    regular pointer (can only point at the zeroth entry of an array) and the
-    offset may not be larger than the size of the array.
+    By-name lookup of data is performed by using the hash value to probe the
+    sym_table. The result will be pushed on the stack.
 
-    An unsafe uptr can point at any valid location in an array. 
-    
-    This permits "C-style" pointer arithmetic and de-referencing. The 
-    functional behavior of safe and unsafe uptrs is exactly the same so that 
-    code which was originally written with unsafe uptrs can be executed in a 
-    "safe mode" by the interpreter without code modification.
-
-    A terminal-array is called terminal because, even though it is an 
-    interior node in the graph, any traversal must stop when it reaches a 
-    terminal-array. Correct traversal of a bstruct is impossible beyond a
-    terminal-array.
-
-    This property is used as a feature, however. If you want to fence a given 
-    data-structure so that the deep operators of Babel do not continue 
-    traversing into other data-structures that are pointed to by the given 
-    data-structure, use a terminal-array instead of an interior-array. Deep
-    operators (that is, built-in operators) will stop traversing once they
-    reach a terminal array.
+    If you want to emborder a given data-structure so that the deep operators 
+    of Babel do not continue traversing into other data-structures that are 
+    pointed to by the given data-structure, you can use a hash-reference. 
+    The built-in operators will stop traversing once they reach a hash-
+    reference.
 
 ----- Traversing a bstruct
 
@@ -157,7 +142,39 @@ This document describes the internals of the Babel interpreter.
     nil behaves slightly differently in Babel than it does in Lisp. Since 
     Babel does not have a notion of an atomic value, nil cannot be an atom and
     never acts like one. Its primary use in Babel is to mark the end of a 
-    list. It also serves some special functions in the behavior of eval().
+    list. It also serves some special functions in control-flow behavior.
+
+----- Hashes
+
+    Hashing is performed with the pearson16() which is a modification of 
+    Pearson's 8-bit permutation hash to generate 16-byte (128-bit) hash
+    values.
+
+    Babel implements extendible hashing (Fagin, Nievergelt, Pippenger, 
+    Strong, 1979) which means the hash table never needs to be re-hashed when
+    items are inserted or deleted.
+
+----- Namespaces
+
+    Namespaces in Babel are hierarchical. A namespace is "just a label" by
+    which to refer to something, it is not a "container", "object" or 
+    "package". Everything lives in one namespace, so you cannot have a
+    variable with the same name as a function, etc.
+
+    The sym_table is just a namespace but the operators for using a
+    namespace can be used by the user to maintain user namespaces. The key
+    is to separate the idea of namespace-as-data-structure and *the* Babel
+    namespace. The former will be referred to as simply "namespace" and the
+    latter will be referred to as the sym_table.
+
+    Babel maintains two pieces of state in addition to the sym_table. The
+    pwd operator permits code to determine its current location within the
+    sym_table. This is particularly useful for path-relative code that can 
+    be loaded into any portion of the sym_table.
+
+    The /babel/path namespace maintains a list of paths similar to Perl's
+    @EXPORT variable. You can manipulate this variable using any of the 
+    applicable Babel operators.
 
 ----- Babel Virtual Machine (bvm)
 
@@ -190,10 +207,22 @@ This document describes the internals of the Babel interpreter.
 
 ----- BVM Code
 
-    Code is a list. Each element of the list is accessed in order. If the next
-    element of the list is a leaf-array, it is treated as an opcode and a
-    lookup is performed. If the next element of the list is an interior-array,
-    it is pushed onto the stack.
+    Code is a list. Each element of the list is accessed in order. 
+
+    When the next element of code_list is: 
+
+        - A leaf-array, it is treated as an opcode and a lookup is performed
+          in jmp_table
+
+        - A hash-reference, it is looked up in the sym_table and control is
+          transferred there, in a manner equivalent to eval.
+
+        - An interior-array and its car is:
+
+            - Not a hash-reference, it is pushed on the stack
+
+            - A hash-reference, it is looked up in the sym_table and the result
+              is pushed on the stack
 
 ----- BVM Stack
 
@@ -202,7 +231,149 @@ This document describes the internals of the Babel interpreter.
     returns its results on the stack. There are no registers in Babel. No 
     internal state is maintained by the interpreter in C variables.
 
-    The stack is itself a list.
+    The stack is itself a list, however, it includes some additional 
+    information for memory-management. In order to conver the stack to a list, 
+    use the stk2ls operator and use the ls2stk operator for vice-versa.
+
+----- Invoking a BVM
+
+    BVMs can be invoked in a nested manner, that is, a BVM may construct 
+    another BVM and then invoke that BVM, transferring control to it until it
+    exits. In fact, every Babel program executes inside of an invisible "root"
+    BVM that is compiled into babel.exe. 
+
+    This BVM contains code for the debugger and other basic commandline and 
+    house-keeping functions.
+
+----- Hidden section
+
+    The hidden section contains limits and controls that restrict what the 
+    BVM can do. For example, if you are launching a BVM fetched from the web
+    you should disable operators that can write to disk, limit the memory 
+    that it can allocate, taint data fetched locally (to prevent privacy 
+    breaches), disable system call operators, disable nested virtual machines
+    (to prevent stack-overflow attacks) and disable operator extension.
+
+----- Operators
+
+    The "active" component of Babel code consists of any of a number of 
+    operators. There are two types of operators: built-in and extended. Each 
+    operator is invoked through the jmp_table.
+
+    - Built-in operators
+
+        Built-in operators have a fixed numerical value below 0x1000. 
+
+    - Extended operators
+
+        The encoding for an extended operator has a value greater than 0x1000 
+        but it is not fixed - an extended operator will be installed in the 
+        "next available" jmp_table entry when it is installed. Babel code 
+        should never attempt to directly rely on the encoded value of an 
+        operator.
+
+        An extended operator can be given an encoding with the newop operator.
+
+        Extended operators can also be invoked by hash-reference. If the next
+        entry in the code_list is a hash-reference, a lookup will be performed
+        in the sym_table and the linked code will be invoked. Naturally, this
+        is a lower-performance alternative.
+
+----- Memory management
+
+    Babel uses a combination of automatic and manual memory management.
+    Memory associated with data-structures pointed to by the bvm_header are 
+    automatically managed, according to specific rules. All other memory must
+    be created and destroyed by the user through the newlf/newin and del
+    operators.
+
+----- Stack memory management
+
+    - Built-ins
+
+        Built-in operators can create results on the stack. The memory for
+        these results is created automatically. When the values are consumed
+        by another built-in operator, they are also automatically freed.
+
+        For example,
+
+            ([2] [3] add 
+
+        ... creates the result {5} which is allocated automatically and put
+        on the stack. When this result is then consumed by the next 
+        instruction:
+
+            [4] mul)
+
+        ... the intermediate result {5} is freed and the new result {20} is 
+        again automatically allocated put on the stack.
+
+    - User operators
+
+        User operators can provide a destructor function to Babel when they 
+        are registered. This function will be called whenever the operator's
+        results are consumed by another operator (built-in or otherwise).
+
+        To signal consumption of a value (removal from the stack) to other 
+        operators, call the zap() function.
+
+----- Load memory management
+
+    The load operator accepts a leaf-array containing an "offset relative" 
+    bstruct as input and generates a "live" bstruct as output. In order to
+    maintain the ability to destruct any portion of a bstruct at any time, the
+    load operator is required to allocate every basic structure as it is 
+    loaded from the leaf-array (it can't simply load in-place).
+
+----- Namespace memory management
+
+    Memory destruction within a namespace is hierarchical. This means that if 
+    you create /foo/bar and then destroy /foo, /foo/bar will also be 
+    destroyed. Note that simply removing a namespace does not affect memory
+    allocation, it's when you use the del operator on a namespace.
+
+    The book-keeping data in a namespace is always automatically memory-
+    managed.
+
+----- Hash memory management
+
+    The book-keeping data in a hash is automatically memory-managed.
+
+----- Semi-manual memory management
+
+    The term "semi-manual" means manual allocation, automatic deletion of 
+    memory. You can create a piece of semi-manually allocated memory by 
+    providing a negative number to newin/newlf. To create a semi-manual memory 
+    block of 10 mwords:
+
+        ([-10] newlf
+
+    ... now, when the memory is consumed, it will be de-allocated:
+
+        zap)  -- Deallocates the 10-mword memory allocated above
+
+----- P-numbers
+
+    Babel has built-in support for arbitrary precision p-adic numbers, called 
+    p-numbers for short. The p-operators (padd, psub, etc.) implement this
+    functionality.
+
+    To calculate the square-root of two to five words of precision:
+
+        5 2 psqrt
+
+----- File I/O
+
+    Babel provides some "quick-and-dirty" I/O operators inspired by Perl's 
+    slurp functionality.
+
+    For more robust file functionality, Babel provides memory-mapped files.
+
+----- Strings
+
+    Babel has native support for UTF-8 encoded strings. Babel strings are not
+    null-terminated.
+
 
 
 

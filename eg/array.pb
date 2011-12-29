@@ -26,15 +26,22 @@ code:
     [disp] call
 
     ["\nLeaf-array length:\n"] stdout
-    [my_leaf] arlen [disp] call
+    [my_leaf] size [disp] call
 
     ["\nInterior-array length:\n"] stdout
-    [my_interior] arlen [disp] call
+    [my_interior] size [disp] call
+
+    ["\nCutting a leaf-array:\n"] stdout
+    [my_interior] [0] cut 
+
+    [dump] call die
+
+    [disp] call [disp] call
 
     ["\n8-bit leaf-array length:\n"] stdout
     ["Hello, world: "] stdout
     ["Hello, world"] [disp] call
-    ["Hello, world"] arlen8 [disp] call
+    ["Hello, world"] sizeby [disp] call
 
     [my_leaf] dup dup
     ["\nleaf-array s-field: "] stdout
@@ -62,12 +69,12 @@ code:
     ["\nConcatenating two leaf-arrays:\n"] stdout
     [a] [disp] call
     [b] [disp] call
-    [a] [b] arcat [disp] call
+    [a] [b] cat [disp] call
 
     ["\nComparing two leaf-arrays:\n"] stdout
-    [a] [b] arcmp [disp] call
-    [b] [a] arcmp [disp] call
-    [a] [a] arcmp [disp] call
+    [a] [b] cmp [disp] call
+    [b] [a] cmp [disp] call
+    [a] [a] cmp [disp] call
 
 )
 
@@ -75,4 +82,6 @@ a: {1 3 5}
 b: {2 4 6}
 
 disp: (bbl2str stdout ["\n"] stdout ret)
+
+dump: (bvmroot bbl2gv ["dump.dot"] spit8 ret)
 

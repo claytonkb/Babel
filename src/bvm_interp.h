@@ -209,8 +209,8 @@
     case ISINTE:        \
         isinte();       \
         break;          \
-    case W:             \
-        w();            \
+    case CUT:           \
+        cut();          \
         break;          \
     case SLICE:         \
         cindex();       \
