@@ -16,6 +16,7 @@ void _journal(char *filename, mword *fileout);
 void stdoutop(void);
 void stdinln(void);
 void spit_mword(void);
+void slurp_mword(void);
 
 #endif //IO_H
 

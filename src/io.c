@@ -109,12 +109,28 @@ void slurp(void){
 
 //    mword *temp_cons = new_cons();
     mword *filename = _b2c((mword*)TOS_0);
-    mword *result    = _slurp((char*)filename);
+    mword *result   = _slurp((char*)filename);
 
 //    cons(temp_cons, result, nil);
 
     zap();
     push_alloc(result, SLURP8);
+
+}
+
+//
+void slurp_mword(void){
+
+//    mword *temp_cons = new_cons();
+    mword *filename = _b2c((mword*)TOS_0);
+    mword *result   = _slurp((char*)filename);
+
+    _trunc(result, size(result)-1);
+
+//    cons(temp_cons, result, nil);
+
+    zap();
+    push_alloc(result, SLURP);
 
 }
 

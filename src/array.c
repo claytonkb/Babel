@@ -409,6 +409,20 @@ void _trunc(mword *operand, mword new_size){
 
 }
 
+//FIXME: The array-8 alignment word is completely broken and needs to be
+//fixed. In the current form, converting from a Babel-string to C-style
+//string requires a lot of work but if the alignment word def'n is
+//changed, this conversion would be unnecessary:
+//
+//align0 : 0x00000000
+//align1 : 0x000000ff
+//align2 : 0x0000ffff
+//align3 : 0x00ffffff
+//
+//All Babel-strings would automatically be null-terminated. Changing the
+//Perl-script and the below functions results in bugs. Not sure what is
+//going wrong.
+
 //Returns an alignment word based on size8
 //
 mword alignment_word8(mword size8){

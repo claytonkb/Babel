@@ -824,11 +824,13 @@ sub str2vec {
         $my_len = length( substr( $str, $index ) );
         if($my_len == 0){
             push @vec, 0xffffffff;
+#            push @vec, 0x00000000;
             last;
         }
         elsif($my_len == 1){
             push @vec, ord( substr( $str, $index, 1 ) );
             push @vec, 0xffffff00;
+#            push @vec, 0x000000ff;
             last;
         }
         elsif($my_len == 2){
@@ -840,6 +842,7 @@ sub str2vec {
                 )
                 ;
             push @vec, 0xffff0000;
+#            push @vec, 0x0000ffff;
             last;
         }
         elsif($my_len == 3){
@@ -853,6 +856,7 @@ sub str2vec {
                 )
                 ;
             push @vec, 0xff000000;
+#            push @vec, 0x00ffffff;
             last;
         }
         else{

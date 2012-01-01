@@ -5,11 +5,7 @@
 -- now
 
 code:
-    [ argv
-    [ [{0}]
-    [ cxr
-    [ slurp8
-    [ load
-    [ bvmexec
-    nil]]]]]]
+    (argv [{0}] cxr
+     slurp8 load
+     bvmexec)
 

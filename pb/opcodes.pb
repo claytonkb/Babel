@@ -198,14 +198,17 @@ break:          {0x104}
 bvmsave:        {0x105}
 bvmfork:        {0x106}
 msize:          {0x107}
+---------------------------
+-- DEPRECATE::
 arlen8:         {0x108}
-sizeby:         {0x108}
 arlen16:        {0x109}
 arlen32:        {0x10a}
 arlen:          {0x10b}
+---------------------------
 size:           {0x10b}
+size8:          {0x108}
 arcat8:         {0x10c}
-catby:          {0x10c}
+cat8:           {0x10c}
 -- FIXME: Deprecate 16/32 operator mnemonics
 arcat16:        {0x10d}
 arcat32:        {0x10e}

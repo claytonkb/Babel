@@ -237,7 +237,7 @@ void bbl2gv(void){
 
     printf("digraph babel {\nnode [shape=record];\n");
     printf("graph [rankdir = \"LR\"];\n");
-    
+
 //        d(global_VM)
 //        d(car(car(car(stack_ptr))))
 //        die

@@ -179,6 +179,9 @@
     case SLURP8:        \
         slurp();        \
         break;          \
+    case SLURP:         \
+        slurp_mword();  \
+        break;          \
     case SPIT8:         \
         spit();         \
         break;          \
