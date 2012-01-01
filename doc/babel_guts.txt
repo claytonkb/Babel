@@ -125,10 +125,6 @@ Description Language).
     twice, once to set the LSB of each s-field in the bstruct and once to 
     clear it again.
 
-    Future optimization should track the sense of the s-field LSB so that 
-    successive traversals alternate between setting and clearing the
-    s-field bit without the need to clean up afterwards.
-
 ----- Lists
 
     As a convention, the zeroth entry of an interior-array is also termed the 

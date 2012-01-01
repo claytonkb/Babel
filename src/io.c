@@ -57,24 +57,20 @@ mword *_slurp(char *filename){ // FIXME: Lots of bad things in here...
 
 //    d(lSize)
 
-    //FIXME: 64-bit!!!!!!!
-    //FIXME: Similar pattern scattered through multiple fn's
-    if(lSize % 4 == 0){
+    if(lSize % MWORD_SIZE == 0){
         file_mword_size = lSize;
-        last_mword = 0xffffffff;
     }
-    else if(lSize % 4 == 1){
-        file_mword_size = lSize+3;
-        last_mword = 0xffffff00;
+    else{
+        file_mword_size = lSize+(MWORD_SIZE-(lSize % MWORD_SIZE));
     }
-    else if(lSize % 4 == 2){
-        file_mword_size = lSize+2;
-        last_mword = 0xffff0000;
-    }
-    else if(lSize % 4 == 3){
-        file_mword_size = lSize+1;
-        last_mword = 0xff000000;
-    }
+//    else if(lSize % 4 == 2){
+//        file_mword_size = lSize+2;
+//    }
+//    else if(lSize % 4 == 3){
+//        file_mword_size = lSize+1;
+//    }
+
+    last_mword = alignment_word8(lSize);
 
     // allocate memory to contain the whole file
     buffer = (char*) malloc ( (sizeof(char)*file_mword_size) + 2*MWORD_SIZE );
@@ -189,6 +185,33 @@ void _journal(char *filename, mword *fileout){
     //If this number differs from the count parameter, it indicates an error.
 
     fclose (pFile);
+
+}
+
+void spit_mword(void){
+
+    char *filename = (char*)_b2c((mword*)TOS_0);
+
+    FILE * pFile;
+
+    mword filesize   = size((mword*)TOS_1) * MWORD_SIZE;
+
+    pFile = fopen(filename , "wb");
+
+    if (pFile==NULL) {//fputs ("File error",stderr); exit (1);}
+        except("spit: file error", __FILE__, __LINE__);
+    }
+
+    fwrite((char*)TOS_1, 1, filesize, pFile);
+
+    //Return Value
+    //The total number of elements successfully written is returned as a size_t object, which is an integral data type.
+    //If this number differs from the count parameter, it indicates an error.
+
+    fclose (pFile);
+
+    zap();
+    zap();
 
 }
 

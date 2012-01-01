@@ -182,6 +182,9 @@
     case SPIT8:         \
         spit();         \
         break;          \
+    case SPIT:          \
+        spit_mword();   \
+        break;          \
     case JOURNAL8:      \
         journal();      \
         break;          \
@@ -240,7 +243,7 @@
         del();          \
         break;          \
     case CP:            \
-        cp();           \
+        copy();           \
         break;          \
     case TRUNC:         \
         trunc();        \
@@ -407,6 +410,9 @@
         break;          \
     case LOAD:          \
         load();         \
+        break;          \
+    case UNLOAD:        \
+        unload();       \
         break;          \
     case BVMBR:         \
         return;         \

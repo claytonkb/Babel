@@ -409,7 +409,7 @@ void _trunc(mword *operand, mword new_size){
 
 }
 
-//
+//Returns an alignment word based on size8
 //
 mword alignment_word8(mword size8){
 
@@ -419,8 +419,7 @@ mword alignment_word8(mword size8){
 
 }
 
-//
-//
+// Decodes the alignment word
 mword dec_alignment_word8(mword alignment_word){
 
     alignment_word = ~alignment_word;

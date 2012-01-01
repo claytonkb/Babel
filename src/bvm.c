@@ -25,6 +25,7 @@
 #include <time.h>
 #include "mt19937ar.h"
 #include "hash.h"
+#include "bstruct.h"
 
 void bvmstep(void){
 
