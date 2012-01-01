@@ -5,7 +5,7 @@
 -- now
 
 code:
-    (argv [{0}] cxr
+    (argv [0] cxr
      slurp8 load
      bvmexec)
 
