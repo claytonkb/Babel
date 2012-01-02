@@ -100,7 +100,7 @@ void times(void){
     //return RTOS-1
     //body   RTOS-0
 
-    if(car(car(TOS_0)) > 0){
+    if(car(TOS_0) > 0){
         push_alloc_rstack((mword*)TOS_0, TIMES);
         push_alloc_rstack((mword*)cdr(code_ptr), TIMES);
 

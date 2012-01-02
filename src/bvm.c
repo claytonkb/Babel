@@ -168,8 +168,8 @@ void bvm_interp(void){
         if(car(code_ptr) == (mword)nil){
             if(!rstack_empty){
                 if(alloc_type(RTOS_0) == TIMES){
-                    if(car(car(car(RTOS_2))) > 1){
-                        c((mword*)car(car(RTOS_2)),0) = car(car(car(RTOS_2))) - 1;
+                    if(car(car(RTOS_2)) > 1){
+                        c((mword*)car(RTOS_2),0) = car(car(RTOS_2)) - 1;
                         (mword*)code_ptr = (mword*)car(RTOS_0);
                     }
                     else{

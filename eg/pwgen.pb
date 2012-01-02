@@ -9,7 +9,7 @@ code:
             [1] rand [6] curem
             cxr
         stdout))
-    [x] times)
+    x times)
 
 x: [0]
 

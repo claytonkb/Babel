@@ -34,8 +34,6 @@ code:
         bbl2str stdout
         ["\n"] stdout)]
 
-        -- nil]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]
-
     [[-1]]
     times)
 
