@@ -427,6 +427,9 @@ void _trunc(mword *operand, mword new_size){
 //
 mword alignment_word8(mword size8){
 
+    if(size8 == 0)
+        return 0;
+
     mword alignment = (mword)-1;
 
     return alignment << ((size8 % MWORD_SIZE) * BITS_PER_BYTE);
@@ -435,6 +438,10 @@ mword alignment_word8(mword size8){
 
 // Decodes the alignment word
 mword dec_alignment_word8(mword alignment_word){
+
+    if(alignment_word == 0){
+        return 0;
+    }
 
     alignment_word = ~alignment_word;
     mword alignment = 0;

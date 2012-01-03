@@ -6,6 +6,6 @@
 
 code:
     (argv [0] cxr
-     slurp8 load
+     slurp load
      bvmexec)
 

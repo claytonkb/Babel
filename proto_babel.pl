@@ -823,8 +823,8 @@ sub str2vec {
     while(1){
         $my_len = length( substr( $str, $index ) );
         if($my_len == 0){
-            push @vec, 0xffffffff;
-#            push @vec, 0x00000000;
+#            push @vec, 0xffffffff;
+            push @vec, 0x00000000;
             last;
         }
         elsif($my_len == 1){

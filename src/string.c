@@ -1,4 +1,3 @@
-// XXX STACK FIX DONE
 // string.c
 //
 
@@ -12,6 +11,19 @@
 #include "utf8.h"
 #include "debug.h"
 
+//These operate on array-8:
+//chomp
+//  remove a newline
+//chop
+//  remove final character of string (usually null-terminator)
+//pad
+//  add a null-terminator
+//cr
+//  add a newline
+//
+//m2b -> convert array to array-8 (always adds alignment_word = 0)
+//b2m -> convert array-8 to array (simply truncates by 1)
+
 void b2c(void){
 
     mword *result    = new_atom();
@@ -23,6 +35,32 @@ void b2c(void){
 
 }
 
+//mword *_b2c(mword *string){
+//
+//    mword strsize = size(string);
+//    mword last_mword = c(string, strsize-1);
+//    mword char_length = _arlen8(string);
+//
+//    last_mword = alignment_word8(dec_alignment_word8(last_mword)+1);
+//
+//    mword *cstr = _newlf(strsize+1); //Just allocate an extra space in case we need it...
+//
+//    memcpy(cstr, string, char_length);
+//
+//    *((char*)cstr+char_length) = (char)0;
+//
+//    if(~last_mword){ // IOW: last_mword != (mword)-1
+//        c(cstr, strsize) = last_mword;
+//    }
+//    else{
+//        c(cstr, strsize-1) = last_mword;
+//    }
+//
+//    return cstr;
+//    
+//}
+
+//
 mword *_b2c(mword *string){
 
     mword strsize = size(string);
@@ -37,7 +75,7 @@ mword *_b2c(mword *string){
 
     *((char*)cstr+char_length) = (char)0;
 
-    if(~last_mword){ // IOW: last_mword != (mword)-1
+    if(last_mword == 0){
         c(cstr, strsize) = last_mword;
     }
     else{
@@ -47,6 +85,7 @@ mword *_b2c(mword *string){
     return cstr;
     
 }
+
 
 void c2b(void){
 
