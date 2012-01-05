@@ -1,52 +1,62 @@
+If you are looking for an overview of Babel, see the "Overview" section
+below.
+
 ----- Compiling Babel
 
-My scripts are set up using Cygwin and I'm currently compiling for a Win32 target
-using the tcc C compiler (I have the compiler in the repo because I eventually plan
-to link to it). Babel might actually compile to *nix but I haven't tried it yet.
+My scripts are set up using Cygwin and I'm currently compiling for a Win32 
+target using the tcc C compiler (I have the compiler in the repo because I 
+eventually plan to link to it). Babel might actually compile to *nix but I 
+haven't tried it yet. Eventually, Babel will be cross-compiled on both
+Windows and *nix.
 
-To compile Babel, you'll need to make a 'bin' directory in the project directory,
-otherwise the make.pl script will crash. Once you've created the 'bin' directory,
-just run:
+To compile Babel, you'll need to make a 'bin' directory in the project 
+directory, otherwise the make.pl script will crash. Once you've created 
+the 'bin' directory, just run:
 
-perl make.pl
+    perl make.pl
 
-This will build babel.exe in the bin directory. You are now ready to run Babel.
+This will build babel.exe in the bin directory. You are now ready to run 
+Babel.
 
 ----- Compiling and running your own Babel code
 
-There are two basic ways to compile and run Babel code. The first (preferred)
-way is to use the 'babel' Perl script:
+There are two basic ways to compile and run Babel code. The first 
+(preferred) way is to use the 'babel' Perl script:
 
-perl babel my_proto_babel_program.pb
+    perl babel my_proto_babel_program.pb
 
-This wrapper script handles the invocation of the proto_babel.pl script and
-invokes babel.exe for you automatically. The second way is to do these
-steps manually. You'll need to do this whenever the wrapper script blows up
-for reasons I haven't yet determined (I suspect memory leaks or freeing of 
-dangling pointers is causing this).
+This wrapper script handles the invocation of the proto_babel.pl script 
+and invokes babel.exe for you automatically. The second way is to do 
+these steps manually. You'll need to do this whenever the wrapper script 
+blows, which can happen for a variety of reasons.
 
-perl proto_babel.pl my_proto_babel_program.pb pb/header.pb pb/opcodes.pb
+    perl proto_babel.pl my_proto_babel_program.pb pb/header.pb pb/opcodes.pb
 
 Then:
 
-bin/babel.exe my_proto_babel_program.pb.bbl
+    bin/babel.exe my_proto_babel_program.pb.bbl
 
 ----- Installing Graphviz on windows
 
-If you want to use the 'bbl2gv' (Babel-to-Graphviz) operator to provide visualization 
-of the Babel data-structure, you will need to install Graphviz dot (on Windows; it's
-installed by default in most Linux distros). In order to view the output, you will 
-need to redirect it to a file:
+If you want to use the 'bbl2gv' (Babel-to-Graphviz) operator to provide 
+visualization of the Babel data-structure, you will need to install 
+Graphviz dot (on Windows; it's installed by default in any Linux 
+distro I'm aware of). In order to view the output, you will need to 
+redirect it to a file:
 
-perl babel eg/bbl2gv.pb > eg/bbl2gv.dot
+    perl babel eg/bbl2gv.pb > eg/bbl2gv.dot
 
-Download the Graphviz software for your version of Windows and install it. Then, run
-the following command:
+Download the Graphviz software for your version of Windows and install it. 
+Then, run the following command:
 
-dot -Tsvg eg/bbl2gv.dot > eg/bbl2gv.svg
+    dot -Tsvg eg/bbl2gv.dot > eg/bbl2gv.svg
 
-Now, open the eg/bbl2gv.svg file in any web browser (Chrome and Firefox both work well
-for me).
+Now, open the eg/bbl2gv.svg file in any web browser (Chrome and Firefox 
+both work well for me).
+
+Note that when you run the interpreter in debug mode, it automatically 
+generates a "snapshot.dot" file, which is a visual snapshot of your entire 
+Babel program.
 
 ----- Babel Overview
 
@@ -60,13 +70,13 @@ support for basic C integer arithmetic operations, flow-control, I/O,
 branching and a selection of Babel-specific operators.
 
 Babel is extremely raw. There is very little operand checking, exceptions
-are always fatal IF an exception check is even performed. There's already
-some bad 32-bit-only code. Basically, "don't make mistakes unless you want
-things to blow up" is the rule for writing Babel code at this point in 
-time.
+are always fatal IF an exception check is even performed. Basically, 
+don't make mistakes unless you want things to blow up.
 
 The proto_babel.pl script is the front-end that does the dirty work of
-generating native Babel programs. Here's an overview.
+generating native Babel programs.
+
+----- Proto-Babel
 
 A .pb file consists of a series of labeled sections. Each section is
 independent from the point-of-view of the script. You can define as many
@@ -80,44 +90,17 @@ my program. This is where the interpreter begins executing. You can define
 additional sections as desired but you have to observe the rules of 
 how sections behave when using them in your code.
 
-The code section is a "list" in the Lisp sense. However, unlike Lisp,
-proto-Babel does not have the parentheses construct (S-expressions)
-that permit you to make a list, such as: (apples oranges bananas) or
-Python-style (apples, oranges, bananas)
-
-Instead, you have to make lists through inclusion:
-
-[apples [oranges [bananas]]]
-
-If you wrote:
-
-[apples oranges bananas]
-
-... the script will not complain because this is valid but it just
-doesn't do what you mean, at least, not for code. All code must be 
-in the nested [apples [oranges [bananas]]] layout.
-
-A convention I use to make this less tiresome is to put a left-edge
-of open-brackets [ beside my code and orient the code vertically.
-
-code:
-    [ [{"Hello, world}]
-    [ b2c
-    [ cprints
-    nil ]]]
-
-At the bottom, I place the "nil ]]]" and just keep typing ] until my text
-editor shows a match with the first [ under code:
+The code section is a "list" in the Lisp sense. 
 
 The curly-braces {} define an array of values - also called a "leaf array":
 
-{0 1 2 3}
+    {0 1 2 3}
 
 A value is either a number or text and nothing else:
 
-{"apples bananas oranges" 0 "ET phone home"}
+    {"apples bananas oranges" 0 "ET phone home"}
 
-{ {0} } <-- illegal! Leaf arrays cannot nest
+    { {0} } <-- illegal! Leaf arrays cannot nest
 
 Numbers and text constants cannot be placed outside of curly-braces in 
 proto-Babel.
@@ -126,79 +109,71 @@ The square-brackets define an array of pointers - also called an "interior
 array". A pointer can be to an array of values or to another array of 
 pointers and nothing else.
 
-[0] <--- illegal!
+    [0]
 
-[{0}] <--- this is what you really mean
+    [{0}]
 
-[[apples][oranges][bananas]] <--- nested interior arrays
+    Nested interior arrays:
+
+    [[apples][oranges][bananas]]
 
 Labels allow the definition of sections. A section contains either a leaf-
 array or an interior-array and nothing else:
 
-my_number: 
-    0x10 <--- illegal!
+    my_number: 0x10
 
-This is what you really mean:
-
-my_number:
-    {0x10}
-
-my_interior_array:
-    [ {0x10} {0x20} [{0x30}] ]
+my_interior_array: [ 0x10 0x20 [30] "Hello!" ]
 
 You don't have to indent sections but I do it by convention.
 
 A section-name can be used as a label:
 
-the_number_two:
-    {2}
+    the_number_two: 2
 
-code:
-    [ [the_number_two]
-    [ [{3}]
-    [ cuadd
-    nil]]]
+    code: ([the_number_two] [3] cuadd)
 
 Generally, you can think of the use of a label as a "text-substitution"
 but it's really a pointer. Hence, labels cannot be used inside leaf arrays:
 
-{the_number_two} <--- illegal!
+    {the_number_two} <--- illegal!
 
 This is what you really mean:
 
-{*the_number_two}
+    {*the_number_two}
 
 The addition of an asterisk before the section-name converts the label to
 an "in-place expansion". Think of this as "remove the outermost brackets
 and insert here."
 
-{1 *the_number_two 3 4 5}
+This:
 
-and
+    {1 *the_number_two 3 4 5}
 
-{1 2 3 4 5}
+and this:
 
-... are literally equivalent and generate exactly the same bytes.
+    {1 2 3 4 5}
+
+... are synonymous.
 
 You can use in-place expansion for interior arrays, as well - the main:
 section in any of the example .pb files shows this.
 
-Every Babel operator is just a number defined in the opcodes.pb file. To
+Every Babel operator is just a number defined in the pb/opcodes.pb file. To
 successfully compile code with the proto_babel.pl script, you will need
 to pass in the opcodes.pb file on the command-line along with the .pb file
 you are trying to assemble.
 
-You can example the .pb.lst file that is generated to see the literal 
-layout of the bytes in the program.
+You can use the .pb.lst file that is generated to see the literal layout 
+of the bytes in the program.
 
 Line comments are specified by double-dash
 
 -- This is a comment
 
-##### Built-in functions, naming conventions and mnemonics
+----- Built-in functions, naming conventions and mnemonics
 
 Babel v0.10 supports a subset of the final built-in functions that are
-planned for Babel 1.0.
+planned for Babel 1.0. See doc/babel_ref.txt for a list of Babel operators.
 
 abbr    meaning
 -----------------
@@ -245,4 +220,21 @@ A B OFFSET w    <===>   "A write to B at OFFSET"
 
 ... or "A -> B" or "A flows into B" "from A to B"
 
-test
+----- Documentation
+
+doc/babel_phil.txt
+    Documents the "Philosophy of Babel"
+
+doc/babel_ref.txt
+    Documents the built-in Babel operators
+
+doc/babel_guts.txt
+    Documents the internals of the Babel interpreter, as it is.
+
+doc/babel_arch.txt
+    Documents the final goal to which Babel is being developed
+
+eg/*
+    Contains many examples of Babel programs, somewhat disorganized at
+    present but will improve over time.
+
