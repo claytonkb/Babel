@@ -370,6 +370,33 @@ Description Language).
     Babel has native support for UTF-8 encoded strings. Babel strings are not
     null-terminated.
 
+----- Strings
 
+    Babel has native support for UTF-8 encoded strings. Babel strings are not
+    null-terminated.
+
+----- Operand-checking
+
+    Operand-checking is time-consuming and unnecessary for well-tested code.
+    Most built-in operators are implemented with a core "unsafe" function and
+    a wrapper operand-check function.
+
+----- Jump table
+
+----- Strings
+
+    Babel handles strings in several different forms:
+
+    - Native form. The string is UTF-8 encoded WITHOUT a null terminator in
+    an array8 leaf-array
+
+    - C-style. This is just a native string with a null terminator appended.
+
+    - String-array. This is a leaf-array such that each entry in the array 
+    contains the Unicode code-point of the encoded character. It is created
+    from a native-form string via the str2ar operator.
+
+    - String-list. This is a string-array on which the the ar2ls operator
+    has been called.
 
 
