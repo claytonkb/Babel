@@ -1,0 +1,2122 @@
+Babel
+
+----- Unix-inspired operators ------
+
+Namespace:
+    ('hello' 'world') mkpath -> '<pwd>/hello/world' on TOS (pwd-relative)
+    ('' 'hello' 'world') mkpath -> '/hello/world' on TOS (absolute)
+
+    foo cd -> sets pwd to <pwd>/foo
+    /foo cd -> sets pwd to /foo
+    .. cd -> sets pwd to parent of pwd
+    ../bar cd -> sets pwd to the sibling of pwd, 'bar'
+
+    /pwd -> puts the pwd on TOS
+
+    /path    -> the relative-path search list. Contains '/babel/op' on boot
+
+    '/hello/world' basename -> 'world' on TOS
+    '/hello/world' dirname  -> '/hello' on TOS
+
+    . dir -> puts a directory listing of pwd on TOS... e.g. ('foo' 'bar' 'baz' 'gimble')
+
+    switchns -> changes the root namespace structure
+
+    cpns/mvns/mkdir/rmns
+
+List:
+    cat
+    cut
+    join  -> like Perl's
+        ('' 'foo' 'bar') '/' join -> '/foo/bar'
+    split
+
+    paste
+
+    sort 
+    uniq
+    filter
+
+Array:
+    ls2ar
+    ar2ls
+
+    
+
+Hash:
+    ('foo' 1 'bar' 2) /my_hash ls2ha   --OR
+    {'foo' 1 'bar' 2} /my_hash insns
+
+    /my_hash ha2ls -> leaves ('foo' 1 'bar' 2) on TOS    
+
+----- visible whitespace -----
+
+    | (but not , ; or .)
+
+    The vertical bar is a "visible whitespace" token... it is treated
+    as logically equivalent to the ASCII 0x20 space.
+
+    This permits you to do nice things with the formatting:
+
+    ---------------------------------
+    |       important_array:        |
+    |    [ 5 4 1 2 7 3 7 4 0 1 ]    |
+    ---------------------------------
+
+    my_folding_quote:
+        #\
+        |   This   |
+        |   is     |
+        |   a      |
+        |   folding|
+        |   quote  |
+
+    Note that visible whitespace does NOT apply within quotes:
+    "Hello|world" will print exactly as it appears
+
+    You can escape visible whitespace just like ASCII 0x20:
+
+    my_weird\|name: [ 5 4 3 2 1 ]
+
+----- floating-point -----
+
+    Using the period as visible-whitespace raises the problem of the decimal-point:
+
+        3.14 ftoa stdout
+    
+    However, Babel has no intrinsic floating-point support. It has p-nums but
+    this is not the same:
+
+        '3.14' p2dec stdout
+
+    I'm not sure if Babel will have any native floating-point support (can always
+    be added as a library).
+
+----- non-alphanumeric operator aliases -----
+    
+    + 
+    - 
+    * 
+    / 
+    = 
+    ~
+    !
+    @
+    #
+    $
+    %
+    ^
+    &
+    *
+    <
+    >
+    <=
+    >=
+    <<
+    >>
+    
+    Think about syntactic catenation and prefix-freeness...
+
+        Most important operators (guess)
+
+        dup         *2
+        cxr         @
+        cond        ??
+        sel         ?
+        hash8       #
+        eval        
+        stdout      !
+        times       *
+        swap        <->
+        call        <<
+
+code:
+    (   argv 0 @
+        slurp8
+        load *2
+        [x] 0 paste
+
+    --------------------------
+    |  (    "next op: ".!
+    |       
+    |       [x] *2 *2
+    |       cdr car car
+    |
+    |       *2 islf
+    |       (   "push ".!
+    |           bbl2str.! )
+    |       (   [opcode_map]
+    |           <->
+    |           @
+    |           ! )
+    |       ?
+    |       eval
+    |
+    |       "\n> ".!
+    |
+    |       stdinln dec2ci bvmstep
+    |       bbl2gv "snapshot.dot" spit8
+    |
+    |       "TOS: ".!
+    |       cdr cdr cdr car car car
+    |       bbl2str.! "\n".! )
+    [-1]
+    times )
+
+
+----- each with uptr -----
+
+    The regular each operator makes a copy of each entry in the
+    array and places this copy on TOS. But lets say you want to
+    increment the value of each entry of a leaf array. We should
+    be able to say something like:
+
+    ---
+        (1 cuadd)
+        [1 2 3 4 5]
+    eachar
+
+    The way we'll make this work is if you have a uptr to an array:
+    
+        my_array: [1 2 3 4 5]
+
+        1.newup
+        {'my_uptr'}.nil.insns
+
+        ---
+            my_array
+            my_uptr
+            0
+        paste
+
+        ---
+            (1 cuadd)
+            my_uptr
+        eachar
+
+----- hash-quoting -----
+    
+    If you use curly-braces, this means "create a hash with the following 
+    key-value pairs":
+
+    my_hash: {"key" value}
+
+    This requires an even number of elements in a hash list. But what
+    if there were just one entry?:
+
+    my_hash: {"key"}
+
+    Babel will take this as a "clever" sign that you just want the
+    single entry to be HASHED and its hash substituted in place. This
+    works for strings or any other Babel data structure:
+
+    my_hash: {1} -- returns the hash of the mword 0x00000001
+
+    my_hash: {[1 2 3 4 5]} -- returns the hash of all these mwords
+    -- This becmoes problematic with non-leaf arrays...
+
+----- s-expr parsing -----
+
+    Just like the namespaces will be broken up and parsed into a list,
+    so it would be nice to do the same with all paren-like tokens...
+
+    () [] {}
+
+    These get automatically parsed
+
+----- Babel extension hooks -----
+
+    Instead of implementing any/all, Babel will provide a SET of hooks
+    for extending the built-in operator set.
+
+    - Operator extension
+        This will hook into the switch statement in bvm_interp.h...
+        basically, just a dynamic jump table.
+
+    - Destructor extension
+        This will permit the objects created on the stack by extended 
+        operators to be automatically destroyed. The corresponding 
+        destructor will be called whenever the object is removed
+        from the stack (we may need a non-freeing zap).
+
+    - Selector extension
+        This will permit extension of the nil-detection at the end
+        of a code-list - it will also allow other forms of jump-table
+        behavior... basically, the equivalent of putting a "continue"
+        or even a "return" in the bvm_interp.h switch statement instead 
+        of a "break". Also, interaction with rstack is permitted.
+
+----- Babel any/all -----
+
+    (a b c) all
+
+    If any of a,b or c "fail", then revert the stack
+    to its parent and delete all "side-effects".
+
+    (d e f) any
+
+    Unless all of d, e and f "fail", pass up the stack
+    intact and merge all "side-effects" into the next
+    level up.
+
+    How is "success/failure" communicated? rstack?
+
+
+----- Evaluation order -----
+
+Babel parsing redux:
+    two types: sequence and alternation
+    abc:
+        ( 'a' 'b' 'c' ) seq
+    def:
+        ( 'd' 'e' 'f' ) seq
+    abc_or_def:
+        ( abc def (abc abc_or_def) (def abc_or_def) ) altern
+
+    We start with an abstract syntax tree and "expand" it 
+    out until it is the full parse tree.
+
+    Whenever we run into non-matching text, we begin back-
+    tracking the expansion and retrying the NEAREST ALTERNATIVE
+
+    Hence, we have to save on a stack somewhere the list of
+    "next alternatives" to the alternatives we've so far tried
+
+New idea:
+    Revamp this to be the fundamental control-flow structure 
+    of Babel to imbue a more "Prolog-esque" feel into Babel
+
+    Remember that "facts" are not ordered left-to-right like 
+    a string is... they just are. Facts are unordered.
+
+    "side-effects" are alterations to state that have to be
+    undone when back-tracking.
+
+    Imagine for each branch in an alternation, we choose a new
+    random number to be the "root" of the namespace tree.
+
+    All writes go to this new namespace tree. All reads are
+    searched in ancestor directories until found. (Deletion/
+    existence tests?)
+
+----- Idiomatic Operators
+
+Doing a fold with eachls:
+    --
+        0
+        ( cuadd )
+        ( 1 2 3 4 5 )
+    eachls
+
+Doing a fold with unstack:
+    (1 2 3 4 5)
+    unstack
+    --
+        (cuadd)
+        4
+    times
+
+Doing a C-style switch with cond:
+    --
+        (([x] 0 gt)
+            ("positive" say)
+        ( [x] 0 lt)
+            ("negative" say)
+        ( [x] 0 eq)
+            ("zero" say))
+    cond
+
+Doing a sequence of conditionals:
+    -- THIS DOES NOT WORK!!!:
+        ([x] swap eval)
+        (( 0 gt "positive" say)
+        (  0 lt "negative" say)
+        (  0 eq "zero"     say))
+    eachls
+
+
+Filtering with grep:
+    --
+        ( 2 cugt )
+        ( 1 2 3 4 5 )
+    grep
+
+    Leaves ( 3 4 5 ) on the stack
+
+Cartesian product:
+    --
+        ((1 2 3 )
+        ( 4 5 6 ))
+    cart
+
+    TOS: (((1 4) (1 5) (1 6)) ((2 4) (2 5) (2 6)) ((3 4) (3 5) (3 6)))
+    
+    Works for all dimensions
+
+Zipping:
+    --
+        (( 1  2  3  4 )
+        (  5  6  7  8  9 )
+        (  10 11 12 13 14 15 ))
+    zip
+
+    TOS: ((1 5 10) (2 6 11) (3 7 12) (4 8 13) (nil 9 13) (nil nil 15))
+
+Zip-each?:
+cart-each?: (can't we easily do these with existing stuff?)
+sort
+
+
+----- variables ------
+
+babel:
+    env:
+        argv: [nil]
+        argc: [0]
+        path: [nil]
+        home: [nil]
+        pwd:  [nil]
+        user: [nil]
+    asm:
+        fnord: {0x100}
+        etc:
+    disasm:
+        [ "err" "cushl" "rsvd" "cushr" ... ]
+    bvm:
+        steps: [0]
+
+--------------------------
+arcut
+link (ostruct)
+
+--> TODO: Operator naming convention cleanup... need
+to do this at some point.
+
+--> TODO: Fix loop, next, last
+--> TODO: Bug in nested ret's due to nil
+
+----- spanning tree -----
+
+span
+    this operator constructs a spanning tree across a
+    bstruct. the pointers into each array in the bstruct
+    are unrestricted pointers so they block traversal,
+    permitting the spanning tree to be traversed while
+    maintaining its distinction from the bstruct it
+    spans.
+
+----- some new bstruct operators ----- 
+
+comp
+	does a shallow compare
+	think abt interior vs. non-interior
+diff
+	L R| --> (L n !R) (!L n R) (L n R)|
+
+	To test for sameness, check if TOS-1 and TOS-2 are both 
+	nil or both not nil.
+
+    The results created by diff use uptrs to point into
+    the originals
+
+----- Re-organized array and list operators ------
+
+list-read operators:
+    car
+    cdr
+    cxr     (these are the same as before)
+
+DONT NEED A TRAV OPERATOR:
+    my_bstruct
+        (cxr)
+        (1 0 4 9 8)
+    each
+
+list-write operators:
+    wrcar
+    wrcdr
+    wrcxr (pretty obvious, these will replace "w")
+    wrcaar
+    wrcadr
+    wrcaxr (these will replace "save", they do a "staggered write")
+
+array operators:
+    filter
+        filters the elements of an array according to a list of select values
+    cut
+        cuts an array
+    slice
+        selects a slice of an array
+    paste
+        currently what w does
+    move
+        an in-array memmove, will also have a move8
+    carpaste
+        like wrcaxr except can paste an entire array into another
+
+There seems to be a larger conceptual design issue here between 
+in-place/destructive operations and on-the-stack/copy operations. Need to
+think about this some more and try to build more conceptual clarity into 
+the operators.
+
+Overwrite is an issue wherever you are trying to UPDATE STATE. Because
+Babel is not trying to be "conceptually pure" or "functional", most 
+operators default to being destructive. If you don't want to destroy
+something, just dup it and then use the operator on the dup'd copy.
+
+However, carpaste and the wrcaar, wrcadr and wrcaxr operators work around
+the limitation of "pulling" each level of a bstruct onto the stack before 
+you operate on it. The primitive operators (arithmetic, logic, etc.) only
+operate on stack copies of values, not on the values themselves in memory.
+
+-----------------
+
+Idea: pwd instead of parameter lists for functions?
+
+e.g.:
+
+    ( '/myvar' [foo] call )
+
+foo:
+    (pwdset
+    ... do whatever
+    ret)
+
+-----------------
+
+----- Unrestricted pointers -----
+
+    An unrestricted pointer or uptr is a pointer stored in an array 
+    of size 1 but which has an s-field of 0. Traversing operators 
+    do not traverse through C-style pointers.
+
+    A cptr can point at any leaf or interior array. There are two 
+    types of cptr - safe and unsafe. A safe cptr consists of a 
+    "base and offset" pair - the base is restricted to only point
+    at the first element of an array. Unlike the pointers in an 
+    interior array, an unsafe irregular pointer can point at any 
+    valid location in an array. This permits "C-style" pointer 
+    arithmetic and de-referencing. The functional behavior of
+    safe and unsafe irregular pointers is exactly the same and
+    both have the same internal format so that code which was
+    originally written with unsafe cptrs can be executed in a 
+    "safe mode" by the interpreter without code modification.
+
+    These properties of irregular pointers permit the following
+    usage models:
+
+        - Better-performance array access
+        - Fencing of data-structures that contain pointers so 
+        that deep-copy or other traversing operators will only
+        copy the portion of interest.
+        - Safe execution of code containing unsafe irregular 
+        pointers though at a performance cost
+
+    Use an array label to create an irregular pointer or use the
+    mkcptr operator. Use deref to dereference it.
+
+    mksptr and sderef are the safe versions
+
+----- Conditional -----
+
+Cond short-circuits on the first matching condition, that is,
+it exits the structure. Switch only exits the structure if
+the "last" keyword is used. This permits C-style fall-through
+behavior. Order matters.
+
+       ((cond-a)
+            (action-a)
+        (cond-b)
+            (action-b)
+        ...
+    cond)
+
+       ((cond-a)
+            (action-a)
+        (cond-b)
+            (action-b)
+        ...
+    switch)
+
+----- Loops -----
+
+echoer:
+        ((  "> "    stdout 
+            stdinln stdout 
+            "\n"    stdout )
+    loop)
+
+print_10x:
+        (( "Hello, world\n" stdout )
+    10 times)
+
+decrementer:
+        (( [i] 1 cusub )
+    ([i] 0 cugt) while)
+
+sum:
+        (0
+        ( cuadd )
+    [1 2 3 4 5] each)
+
+sumls:
+        (0
+        ( cuadd )
+    (1 2 3 4 5) eachls)
+
+----- Structs -----
+
+    You can create a "struct" in Babel using either the structls
+    or the structar operators.
+
+    The structls operator takes a list and converts it into a hash
+    containing code that will access the particular element of the
+    list.
+
+        (1 (2 3))
+        ('a' ('b' 'c')) structls
+        'c' luha 
+        -- [cdr car cdr] is now on the stack
+        eval 
+        -- 3 is now on the stack
+
+    The structar operator works similarly:
+
+        [ [1] [ 2 3 ] ]
+        [ ['a'] ['b' 'c'] ] structar
+        'c' luha
+        -- [?] is now on the stack
+        eval 
+        -- 3 is now on the stack
+
+
+----- Labels -----
+
+    There are two kinds of labels - list labels and array labels.
+
+    A list label can be placed anywhere inside a list:
+
+        (1 2 lslabel: 3)
+
+    Now, the label can be used to refer to the last element of the list:
+
+        (lslabel car 1 add)
+
+    An array label creates an irregular pointer:
+
+        [1 2 arlabel: 3]
+
+    To use it:
+
+        (arlabel deref car 1 add)
+
+    Note that, for the sake of consistency, an irregular pointer is formed
+    even if the label points to the first element of an array:
+
+        [arlabel: 1 2 3]
+
+        (arlabel deref car 1 add)
+
+----- In-place expansion -----
+
+    --- Lists
+
+    Assume you label some code:
+
+        add3: 3 add  -- Parens are automatically implied
+
+    Now, we have to differentiate between "control transfer" to the labeled
+    code versus inline placement of the code. To control transfer, do the
+    following:
+
+        4 add3 call
+
+    This transfers execution control to code. Result is '7' on the stack.
+
+    If, instead, you wanted the code to be inlined, interpolate it. To 
+    EXPAND a list into another list, use the {} operator:
+
+        4 {add3}
+
+    But this:
+
+        4 *add3
+
+    ... is equivalent to:
+
+        4 (3 add)
+
+    ... which is not what is desired in this case.
+
+    This leads to some interesting conclusions.... 
+
+        {(4)} 
+
+    ... is equivalent to:
+
+        4
+
+    --- Arrays
+
+    Let's say we have an array:
+
+        my_arr: [1 2 3]
+
+    Now, we want to sum it:
+
+        my_arr sum  -- pushes a pointer to my_arr on the stack
+
+    But let's say we wanted to expand my_arr into another array, then sum that:
+
+        my_other_arr: [{my_arr} 4]
+
+    ... equivalent to:
+
+        my_other_arr: [1 2 3 4]
+
+    ... also equivalent to:
+
+        my_other_arr: [*my_arr 4]
+
+    For arrays, * and {} are equivalent.
+
+
+----- Hash/obj/namespace constructors -----
+
+    - Hash
+        A hash table allows structured association of a hashed string with a pointer
+
+    - Obj
+        An obj consists of a hash-table and an associated Babel structure:
+
+        ( hash_table . babel_struct )
+
+        The hash-table contains pointers *exclusively* into the associated Babel structure.
+
+    - Namespace
+        A namespace is a special case of an obj. It is an obj with certain properties that
+        make it behave like namespace of the familiar Unix filesystem.
+
+        1. The hash-table must contain the hash of '/' and this must point to the base of
+        the associated Babel-structure.
+
+        2. Every entry in the hash-table must be the suffix of an existing entry cat'd with
+        '/' except for entries that are a suffix of (1)
+
+        3. Every entry in the Babel structure must be pointed to by one entry in the 
+        hash-table
+
+        4. Every entry in the Babel structure must have as its parent the Babel structure 
+        entry whose corresponding entry in the hash table is its longest prefix
+
+----- Obj loading -----
+
+    'name0' hash dup [src_obj_file] objlu [dest_obj_file] subst
+
+    Step 1) Look up the pointer by (hash of) name in the source obj file hash-table
+    Step 2) Substitute any occurence of the hash of the name in the dest obj file with the
+            pointer which was looked up in Step 1
+
+----- API/Commandline -----
+
+    Babel should expose itself as an API so it can be built
+    into other projects.
+
+    Specifically, it should be possible to pass in a .bbl
+    or .bob and have it work correctly. The use of global
+    variables might be a problem.
+
+----- Babel arithmetic -----
+
+    Want to support arbitrary-precision
+
+    Would like to have p-adic support
+
+    Addition and subtraction easy to implement
+
+    Regular multiplication:
+    http://en.wikipedia.org/wiki/Multiplication_algorithm#Lattice_multiplication
+
+    Division (inversion): see 2adic.c
+
+    Notation:
+        http://mathforum.org/dr.math/faq/faq.typing.math.html
+        http://www.karlscalculus.org/email.html
+
+    Babel arithmetic will consist of the following basic operations:
+
+        + - * / exp ln abs mod atan sin? sinh? etc.? pi? ln2?
+
+    A Babel numeric value is called a "p-number" or pnum. This is a reference to
+    p-adics. Specifically, Babel implements 2-adic arithmetic and maintains all
+    numbers internally as 2-adic integers. You can evaluate a numerical expression
+    to calculate a truncated 2-adic number as a result. If this result is stored
+    and re-used, it will be treated again as a 2-adic integer. If you require
+    arbitrary precision in your calculations, do not store intermediate truncated
+    2-adic numbers (simply construct a larger function).
+
+    Babel's system of arbitrary precision is explained below:
+
+    ----- Big idea
+
+    Similar to Michael Stoll's CREALs for Lisp, Babel can implement arbitrary 
+    precision arithmetic by defining numbers in terms of functions to compute
+    them.
+
+    Let's say you want to use the value 1/sqrt(5) in a calculation. First,
+    define it:
+
+    inv_sqrt5: (5 sqrt inv)
+
+    To calculate it to 10 words of precision (320 bits):
+
+        10          -- precision
+        inv_sqrt5
+        peval       -- pnum evaluation
+
+    How precision is managed:
+
+    - For addition and subtraction, we need n bits of precision
+    from each operand to produce an n-bit result
+
+    - The same for multiplication - the key is to work on a 
+    diagonal of the multiplication lattice. That is, lattice 
+    multiplication places the result along the bottom and left
+    edges of the lattice... this will lead to incorrect results
+    for p-adic multiplication... the correct approach is to
+    only take results along the bottom edge of the lattice and
+    expand the lattice until it is large enough to accomodate
+    a particular operand size.
+
+    In short, an n-bit result requires two n-bit operands as
+    in the case of addition and subtraction.
+
+    This conclusion was reached by intuition and therefore, 
+    may be mistaken. Will need help from more a mathematically
+    knowledgeable individual to check this.
+
+----- Arrays -----
+
+    --- arnth
+    
+    Returns arlen-1
+
+    --- Arrays of width < mword
+
+    Babel uses a convention for determining the length of arrays
+    which have a width less than the mword size.
+
+    Array width must be 2^n bytes, n>=0.
+
+    What is the length of an array of 10 bytes?
+
+    The mword length is 3 since 3 mwords will be used to store the
+    10 bytes. But naive multiplication of mword-size would result
+    in an incorrect array length of 12. Hence, Babel stores an
+    alignment word at the end of the array.
+
+    In 32-bit Babel, the alignment word is one of:
+
+        0xffffffff      byte-length % 4 = 0
+        0xffffff00      byte-length % 4 = 1
+        0xffff0000      byte-length % 4 = 2
+        0xff000000      byte-length % 4 = 3
+
+    arlen8 or arlen16 (or arlen32 in 64-bit Babel) will return the 
+    correct array length for the given array width.
+
+    Note that naive use of arlen on non-mword arrays will likely 
+    result in program bugs.
+
+    ----- arcat*
+
+    arcat8/arcat16/arcat32
+
+    ----- v*/p*
+
+    v8/v16/v32
+    p8/p16/p32
+    vw8/vw16/vw32
+    pw8/pw16/pw32
+
+----- Built-in Functions -----
+
+    NOTE: 
+        Get rid of ls2ar... same as bons
+        Get rid of shat... does not need to be a built-in
+
+    ----- LIST -----
+
+    cons
+        cdr car| -> (car . cdr)
+    bons
+        "Babel cons"
+        conses an entire list into an array of pointers
+    car
+    cdr
+    ls2ar
+    lslen
+    isnil
+    isls
+    append
+    flatten
+    lsrev
+
+        ls -> list
+        ar -> array
+        pt -> a pointer
+        va -> a value
+        ha -> hash
+        lf -> leaf (value array)
+        in -> interior (pointer array)
+
+    ----- ARRAY -----
+
+    newin
+    newlf
+    in2lf
+    s
+    arlen
+    islf
+    isinte
+
+    mu
+    nva
+    npt
+    nlf
+    nin
+        mu = nva + npt + nlf + nin
+
+    ar2ls
+        can be used on either but meant for leafs
+        [1 2 3] -> (1 2 3)
+    arser
+        
+    c
+    shat
+        "shatter" - the inte version of ar2ls
+        [a b c d] -> (a . (b . (c . d)))
+
+
+    ----- FILE -----
+
+    open (bin default)
+    close
+
+    mem-mapped files?
+
+    ----- MEMORY -----
+
+    new
+    del
+
+    ----- BVM -----
+
+    bvmptr
+    mkbvm
+    bvmgo
+    bvmquit
+    bvmkill
+
+    ----- MISC -----
+
+    halt
+    fnord
+
+    ----- STACK -----
+
+    push
+    pop
+    stack
+    unstack
+
+    zap
+    dup
+    i
+    dip
+    zap
+    dup
+
+    ----- MOVES -----
+
+    cp
+    dcp (deep copy)
+    mv
+
+    ----- CONDITIONAL -----
+
+    sel
+    popif
+    fncall
+    fnret
+
+    ----- PSEUDO -----
+
+    dump
+
+    ----- ARITH/LOGIC/COMP -----
+
+    see opcode_map.txt
+
+----- Irregular Arrays -----
+
+    An array with s-field = 0 is an "irregular array".
+    There are no rules about what can be in an irregular array.
+    Programs that use irregular arrays cannot be saved/restored.
+    Irregular arrays can be used for increased perf by pointing in
+    to the middle of an array (prohibited for interior arrays)
+    and also to "fence" deep-copy of objects that contain pointers
+    to other objects that you do not want to be included in deep-
+    copy.
+
+----- Debugger -----
+
+    On startup, Babel constructs its own BVM (the "shell") before 
+    launching the user's BVM. The user's BVM is invoked by the wrapper 
+    BVM with the bvmgo operator. The user BVM can use bvmbrk to break 
+    out of the current BVM into the next higher BVM. In order to 
+    facilitate debug on nested BVM's, there are two special-purpose 
+    operators - bvmdb and bvmrsm.
+
+    bvmdb breaks from the current BVM all the way to the shell BVM.
+    bvmrsm re-enters the BVM which was broken out of by bvmdb
+
+    Tracing will cause the debugger to decode the operator to its
+    plain-text representation as well as depict changes to the stack
+    and stack operands. Rstack?
+
+----- Eval -----
+
+    Babel has four forms of eval.
+
+    ----- eval
+
+        Recursive Babel evaluation.
+
+    ----- Babel macro eval
+
+        maceval
+
+    If you want to eval a macro without flattening it (substituting its
+    parameters), use the maceval operator. Every time an unresolved symbol
+    is encountered in the macro, it is looked up in the symbol-table (at
+    run-time). While this is a slower form of execution, it can provide
+    significantly increased modularity and may be suitable as a high-level
+    interface wrapper around regular code.
+
+    ----- areval
+
+    Requires an array containing code to be evaluated on TOS
+
+        [2 3 add] 
+        arval
+
+    ----- lispeval
+
+    Invokes operators in prefix-order:
+
+        2 3 4 mul cuadd
+
+    becomes:
+
+        (cuadd 2 (mul 3 4)) lispeval
+
+    lispeval will recursively call itself every time a list is
+    pushed onto the stack. It will "stuff" the first element of
+    the list for future execution. See the "PrefixAlgorithm.doc"
+    for more info.
+
+----- Exec -----
+
+    Windows:
+    http://msdn.microsoft.com/en-us/library/ms682425%28v=VS.85%29.aspx
+
+    Linux:
+    http://www.yolinux.com/TUTORIALS/ForkExecProcesses.html
+        system()
+
+    Windows CreateProcess() == Linux fork()/exec()
+
+    For parallel processing, we will use memory-mapped files for
+    data-sharing.
+
+    If you want to nest BVMs in the same OS process, just use bvmexec
+
+    If you want to launch a BVM in its own OS process (parallel execution)
+    use the exec operator to invoke another instance of babel and 
+    provide the current .bbl file and shared memory file-name to babel.
+
+    If you want a *nix-style fork of your Babel code (but the interpreter
+    itself!), use the bvmfork operator.
+
+    In general, the exec operator acts like *nix fork/exec or Win equiv.
+
+----- File I/O -----
+
+    Babel exposes the C file I/O functions as Babel operators. However,
+    the C std library is pretty old and best practice has changed a 
+    bit in the meantime. Babel provides some streamlined operators for
+    file I/O. 
+
+    -- slurp/spit/journal
+
+    For most small files where it's not a waste to read in the entire
+    file to memory, you can use the slurp/spit operators.
+
+        "/home/test.txt" slurp
+
+    This reads in the entire file /home/test.txt and leaves a leaf
+    array containing the file on TOS. slurp automatically closes the 
+    file after reading it in.
+
+    slurp operates in bin mode only. Use the string manipulation
+    operators and the /babel/newline environment variable to process
+    the file once it has been read.
+
+    (We should probably have a configurable slurp file-size limit
+    to prevent accidental attempts at slurping huge files).
+
+    If the file does not exist, slurp will raise an exception.
+
+    To write a file at once to disk (overwrite, not append), use spit:
+
+        [ 0 1 2 3 4 5 6 7 8 9 ] "/home/output.bin" spit
+
+    This writes 10 mwords with values 0-9 to the file /home/output.bin
+    replacing whatever was in it. Spit automatically closes a file
+    once it has finished writing to it.
+
+    To spit in append-mode, use the journal operator:
+
+        "Done... Signing out.\n" "/home/logfile" journal
+
+    If the file did not exist, spit and journal will create it (no 
+    indication is given).
+
+    journal DOES NOT automatically close a file. To ensure a file
+    is closed, use the clfile operator.
+
+    If something goes wrong, spit/journal will raise an exception.
+
+    If you do not want this behavior, you can always use the old-
+    fashioned C file I/O operators.
+
+    -- *file
+
+    For larger files, you will want to use the *file operators. The *file
+    operators implement a memory-mapped file interface.
+
+    To read from a file, specify a leaf array to store the file into, the 
+    filename and the _BYTE OFFSET_ into the file you want.
+
+        1000 newlf              -- Creates a leaf array of 1000 mwords
+        "/home/bigfile.mpg"
+        123985
+        rdfile
+
+    The above example reads MWORD_SIZE*1000 bytes from /home/bigfile.mpg
+    into the leaf array, starting at byte offset 123985 in the file.
+
+    Only the filename and offset will be cleared off the stack after
+    rdfile finishes, so the leaf array is still accessible on the 
+    stack.
+
+    rdfile will create the file descriptor if it did not already exist.
+
+    Note that the filename, the size of the destination leaf array AND 
+    the offset all affect whether rdfile creates a new file descriptor.
+
+    If something goes wrong, rdfile will raise an exception.
+
+    To close all descriptors associated with a particular file, use
+    the clfile operator:
+
+        "/home/bigfile.mpg"
+        clfile
+
+    This DOES NOT write back any changes.
+
+    To write to a file:
+
+        my_leaf_array
+        "/home/bigfile.mpg"
+        123985
+        wrfile
+
+    Like rdfile, wrfile will create a new descriptor if one did not
+    already exist.
+
+    Because it is possible to get "descriptor leaks" if you mistakenly
+    use the wrong size array or the wrong offset, you can use the 
+    cntfile operator to find the number of descriptors for a particular
+    file:
+
+        ( fnord )
+        ( zap "Descriptor leak detected\n" stderr die )
+        "/home/bigfile.mpg"
+        cntfile
+        1
+        gt
+        zapif
+        eval
+
+
+    In windows, 
+
+        http://msdn.microsoft.com/en-us/library/aa366556%28v=VS.85%29.aspx
+
+    In Linux,
+
+        http://en.wikipedia.org/wiki/Mmap
+        http://beej.us/guide/bgipc/output/html/multipage/mmap.html
+
+
+----- Flow control -----
+
+    Flow-control in Babel is the sel operator:
+
+        ("a is greater than or equal to b" pr)
+        ("a is less than b" pr)
+        a b lt
+        sel
+        eval
+
+    This is how sel operates:
+
+    A B  (0 or nil)| -> A|
+    A B !(0 or nil)| -> B|
+
+    Basically, you read from the bottom up.
+
+    You can nest sel's:
+
+        (
+            ("a is greater than b" pr)
+            ("a is equal to b" pr)
+            a b eq
+            sel
+            eval
+        )
+        ("a is greater than b" pr)
+        a b gt
+        sel
+        eval
+
+----- Functions, macros and lambdas -----
+
+    Functions
+
+        To create something that behaves like you would expect a function to
+        behave, you simply need to use temporary variable stacks:
+
+            fac:
+                n push  -- TOS gets pushed on the stack referenced by '/fac/n'
+                (n car dup 1 sub fac mul)
+                (zap 1)
+                n car 0 eq
+                if
+                eval
+                n pop   -- Clean up after yourself, otherwise memory leak
+
+                help:
+                    #-
+                        This is a block quoted help section
+
+        Instead of having a single stack, each "automatic variable" is
+        actually its own stack. This is purely conventional, you need not 
+        implement function calls this way, I just find it to be the most 
+        elegant.
+
+    Macros
+
+        To implement and use a macro:
+
+            add2: 2 add
+            3 add2 eval -- The stack now has 5 on it
+
+    Lambdas
+
+        To create something that behaves like a lambda:
+
+            op2: (2) swap cons eval
+
+    count: {
+        from     cp     -- since we are in an anonymous lexical context, multiple calls to 
+        to       cp     -- counter will create unique variables each time, avoiding namespace collisions
+        stride   cp
+        to count cp
+        ((from stride cp)
+        (zap count stride add)
+        to count gt
+        if
+        eval)
+    }
+
+
+----- Inline C -----
+
+    see tcc/libtcc.c
+
+
+----- Interpolation -----
+
+    Babel has four types of interpolation
+        
+        - string interpolation
+        - macro interpolation
+        - general interpolation (Markov algorithm)
+
+    ----- String Interpolation
+
+    strint permits you to perform complex substitutions on a
+    Babel character list.
+
+        adj
+        'interpolated'
+        str2ls
+    assign
+
+        "This string is {adj}"
+        str2ls
+    strint
+
+    ----- Babel macro interpolation
+
+        macint
+
+    A Babel macro is a Babel data-structure that has unresolved symbols in it.
+
+    There are three types of unresolved symbols:
+
+        - "babel_unresolved_inte" 
+        - "babel_expanding_unresolved_inte"
+        - "babel_unresolved_leaf"
+
+    The hash of the unresolved symbol type is stored at the point at which
+    the object is to be inserted, followed by the hash of the symbol name
+    to be substituted. The macro interpolator looks up the hash in the symbol 
+    table at macro-creation-time and substitutes the entry in the symbol 
+    table for the hashes.
+
+    The macint operator is also how Babel object files are resolved. An object
+    file is just a macro which has been written to file.
+
+    -------------------
+
+    interpol
+
+        x y| -> z|
+
+            - x     the list on which to perform the interpolations
+            - y     a list of substitutions
+            - z     the interpololated list
+
+        TOS must consist of a list of (match sub) pairs. match is a 
+        pointer to a list which will be provided to the pegpar operator. 
+        The match generated by pegpar will then be passed to sub. 
+        Whatever sub returns will be substituted into the string. The 
+        (match sub) list is ordered; the first item has highest precedence, 
+        the second has next-highest precedence and so on. It is possible 
+        to implement a Markov algorithm with interpol.
+
+
+----- Lists -----
+
+
+    Functions:
+
+    unquote
+        takes a list on car of stack
+        concats the list with the stack itself
+
+    eval
+        takes a list on car of TOS
+        appends eval-list to the given list
+            and begins evaluating from car
+
+    name
+        takes a string on car of stack
+        inserts entry into the symbol table pointing
+            to cdar of stack
+
+        Potential issue:
+            0 'x' name zap x -- What happens?
+
+    if
+        if car is true
+            pops stack 
+        else
+            pops stack twice
+
+    symbol-name:
+        when a symbol-name is encountered in the code, its car becomes
+        the current focus and eval-list is appended to it
+
+    tos -- Top Of Stack
+        This symbol can be used to directly refer to the stack itself
+        e.g.
+        tos cdr  -- Returns the second item on the stack
+
+    sum: -- I'm pretty sure this is correct:
+        'x' arg
+        (sum x car add) -- else
+        (zap x car)
+        x cdr isnil?
+        if
+        eval
+        delargs
+
+    PROBLEMS:
+        destructiveness... constant copying???
+
+
+    Lisp-style functions:
+
+    car
+        returns the car of the list on TOS (NOT CORRECT/CONSISTENT)
+
+    cdr
+        returns the cdr of the list on TOS
+
+    cxr0 - cxr15
+        an enumeration of caaaar through cddddr where 'a'->0 and 'd'->1
+
+    append
+        appends the list at car and the list at cdar on the stack
+        (1 2 3) (4 5 6) append
+            -- Leaves (1 2 3 4 5 6) on stack
+
+    cons
+        takes two lists on the stack
+        creates a new list which has the first list as its car and the second list as its cdr
+            (1 2) (3 4) cons -- Leaves ((1 2) 3 4) on the stack
+
+    quote
+        In Babel, you don't need an explicit quote operator, simply place the thing you want to quote in another
+        set of parentheses:
+
+        (1 2 3 4)
+        -- Quoted:
+        ((1 2 3 4))
+
+        -- Seems not fully thought out...... FIXME
+
+    eq
+        compares two atoms for equality (identity) and returns 'true' if the atoms are the same, NIL if they are different.
+
+    atom
+         of an S-expression is 'true' if the S-expression is an atom, and NIL otherwise.
+
+    null
+        of an S-expression is 'true' if the S-expression is the empty list (that is, NIL), and NIL otherwise.
+
+
+
+    NEW:
+
+    cp
+        DEEP copies the list pointed by TOS.car to the location pointed to by TOS.cdar
+
+    mv
+        Unlinks and moves a stack from one place to another
+
+
+    ##### EXTENDING LISP/JOY
+
+    -- SWITCH
+    -- The "list stack" is really just a pointer to a particular sub-tree. This pointer
+    -- can be moved anywhere with the 'switch' operator.
+
+    my_new_stack: ()
+
+    (my_new_stack) switch
+
+    -- To get back where you started from:
+
+    tos 'return' name my_new_stack switch
+
+    -- Or, if you wanted to use an anonymous reference to create a new stack:
+
+    () car switch
+
+    -- This creates a "nested stack" as it were
+    -- To get back:
+
+    ... return switch
+
+    -- GO
+    -- The same is also true of the "code stack"
+    -- To go to a completely new sub-tree, use the go operator
+
+    my_code: do this do that etc.
+
+    (my_code) go
+
+
+    -- RMCAR
+    -- unlink car
+    -- You can unlink a sub-tree:
+
+    (1 2 my_sub_tree: (3 4) 5) my_sub_tree rmcar
+
+    -- Result:
+
+    (1 2 5)
+
+    -- rmcdr
+    -- inverse of above:
+
+    (1 2 my_sub_tree: (3 4) 5) (my_sub_tree) rmcdr
+
+    -- Result:
+
+    (1 2)
+
+    NOTE: Unlinking does not delete. You have to delete the symbol
+    reference to completely delete the sub-tree:
+
+    (1 2 my_sub_tree: (3 4) 5) (my_sub_tree) rmcar (my_sub_tree) delsym
+
+
+----- Loading -----
+
+    - Traverse the tree
+        - If interior node, increment by base pointer value
+        - Else, do not change
+
+
+    3 imm       -> 0x0000000d
+    4 list      -> 0x00000010
+    2           -> 0x00000002
+    6 imm       -> 0x00000019
+    7 list      -> 0x0000001c
+    3           -> 0x00000003
+    9 imm       -> 0x00000025
+    nil         -> 0x0000002a
+    add (17)    -> 0x00000022
+    3           -> 0x00000003
+
+    ^^^Sample object file
+
+    ##### Virtual machine types
+
+    Babel has three types of virtual machine.
+        - List absolute
+        - List relative
+        - Vector absolute
+
+    A binary loaded from file will be in list-relative
+    format, so the list-absolute interpreter invokes
+    an instance of the list-relative interpreter.
+
+    ##### Loading:
+
+        - Loading binary from file (or memory)
+            Binary Babel files are stored in list relative form
+            No loading is required to execute list-relative in
+                the interpreter
+            However, the list-relative interpreter is slow since
+                every instruction, reference, pointer and so on
+                must be fully offset
+
+        - Loading list absolute
+            The list-relative interpreter can still use the list-
+                absolute operators to construct references, copy 
+                lists and so on.
+
+                e.g.
+
+
+
+
+        - Loading
+
+    tos
+    tocs
+    max_malloc
+
+    Vector Loading:
+
+    Vector loading is a run-time process
+
+    A loadable vector 
+
+----- Memory Management -----
+
+    -- Memory management
+
+    Memory management in Babel is hierarchical.
+
+    This means that when you delete a memory region, all sub-regions will
+    also be recursively deleted.
+
+    To implement this, Babel keeps track of where you initially store the
+    pointer returned from a call to new. The memory region in which you
+    initially store the pointer becomes the parent region of the newly-
+    created memory region. Deleting the parent will recursively delete
+    this and all sub-regions.
+
+    In the hidden segment in the BVM header, there is an entry for the
+    mem_tree. Each entry in the mem_tree has the following form:
+
+    ( begin end descend )
+
+    For example, if you call new three times while in the main obj page,
+    the mem_tree will look like this:
+
+    ( (begin0 end0 descend0) (begin1 end1 descend1) (begin2 end2 descend2) )
+
+    Any of the descend* may point to a list with this same form.
+
+    When new is called, a search is performed on the mem_tree to find which
+    region the new pointer will be stored in. The new memory region will
+    then be appended to the descend list of the parent memory region.
+
+    Similarly, when del is called, a search is performed to find what memory
+    region the pointer that was given to del resides in (you don't have to
+    do a delete on the BASE of the memory region, as in C/C++). This region
+    and all its descendants (if any) are recursively deleted.
+
+    We could add a fast_new and fast_del for when the user knows exactly
+    which region in the mem_tree is affected.
+
+    Unlike C/C++, it is very important where you store the pointer from
+    a call to new. This determines the lifetime of the memory region - its
+    lifetime is less than or equal to the lifetime of all its ancestors.
+
+    Structuring memory allocation in this way makes it much simpler to free
+    memory constructed from many new's in a local context. Simply freeing
+    the parent context will free all memory alloc'd while in that local
+    context.
+
+    ----- balloc/bfree
+
+    In addition to new/delete, there is also a more manual interface. If
+    you want to manage when you delete your memory, use a call to balloc.
+    This is just a wrapper around malloc that keeps count of memory usage
+    for containerization.
+
+    ----- Namespaces
+
+    Namespaces are also hierarchical and it is not an accident that the 
+    hierarchical structure of memory in Babel corresponds with the namespace
+    hierarchy. If you delete a namespace, the memory of all child namespaces
+    is recursively freed using the hierarchical mem_tree.
+
+    Memory management of namespaces is automatic. In other words, the 
+    memory management of named objects is automatic. new/del is semi-automatic
+    in that del will automatically remove all descendants. balloc is fully
+    manual memory management.
+
+----- Namespaces -----
+
+    foo:
+        pwd     -- puts ('' 'foo') on TOS
+        last    -- gets the last element of a list
+        pr      -- prints 'foo' to STDOUT
+
+        '/' ('' 'foo') '/' join cat
+
+    --- Making a namespace:
+        
+        #-
+            foo:
+                bar:
+                    (17 32 10)
+        mkns -- makes a namespace structure from the above text
+
+----- Core Operators -----
+
+    Core Operators
+
+        Conventions
+
+        - A specific operator will expect a specific number and type of operands (no hidden polymorphism)
+        - Machine word operators are denoted with a c- prefix, i.e. cuadd -> "C-style unsigned add"
+
+        a b sub   -- means a - b
+
+    Flow-control:
+        if
+            (0 A B) -> (B)
+            (1 A B) -> (A B)
+
+    Joy:
+        swap
+            (A B) -> (B A)
+        zap
+            (A B) -> (B)
+        dup
+            (A) -> (A A)
+        zap
+            (A) -> ()
+        eval
+            ((A) B) -> code:(A)
+        switch
+            Switches TOS to point to the list referenced at current TOS
+        go
+            Switches TOCS to point to the list referenced at TOS
+        tos
+            Puts a reference to current TOS on the stack
+        tocs
+            Puts a reference to current TOCS on the stack
+
+    Stack:
+        push
+            Pushes onto the stack referenced at TOS
+        pop
+            Pops from the stack referenced at TOS
+
+    Comparison:
+        gt      Obvious
+        lt
+        eq
+        ge
+        le
+        ne
+
+    Arithmetic:
+        add     Obvious
+        sub
+        mul
+        div
+
+    I/O:
+        pr
+        query
+
+    Memory:
+        cp
+            (A B) -> Recursively copies from reference A to reference B
+        mv
+            (A B)
+
+    Lists:
+        car 
+        cdr 
+        cons
+        isnil
+        append
+            (A B) -> Appends list A to list B
+        atom ?
+        rmcar
+        rmcdr
+
+    Symbol table:
+        insym
+            Inserts a symbol into the symbol table
+        rmsym
+            Removes a symbol from the symbol table
+        exsym
+            Tests for existence of a symbol in the symbol table
+        defsym
+            Tests for definedness of a symbol in the symbol table
+        pwd
+            Puts the present working directory on the stack
+
+    Vectors:
+        mkvec
+            Makes a vector given a few parameters
+        th
+            Returns the nth element of a vector
+        ijth
+            For multi-dim vectors
+        joinvec
+            Joins two vectors together
+        vcp?
+            Copies a certain number of elements from one vector
+            to another of the same width
+        lenv
+            Returns the vector's length (how measured?)
+        width
+            Returns the vector's width
+        dims
+            Returns the dimension list of a vector
+
+    References:
+        deref
+            Dereferences whatever's at TOS
+                Equivalent to 'car' for list-references
+        s2href
+            Converts a symbol to a hash-reference
+        s2ref
+            Converts a symbol to a raw reference
+        h2ref
+            Converts a hash-reference to a raw-reference
+
+    Strings:
+        cat
+
+----- Parsing -----
+
+    Basic ideas:
+        - Top-down parsing as *list-expansion* into the final parse-tree
+        - Just two types of parsing constructs - alternation and sequence
+
+
+    Two types of matching: alternation and sequence
+
+    -- Alternation
+    letter: ('letter' 'a' 'b' 'c') altm
+        -- if first option succeeds, returns ('letter' 'a')
+            -- if first option does not succeed, discard the returned error and move to second option
+        -- if second option succeeds, returns ('letter' 'b') and so on
+            -- if second option does not succeed, discard the returned error and move to third option
+        -- if third option succeeds, returns ('letter' 'c') and so on
+            -- if third option fails, return ('ERROR' 'a' 'b' 'c')
+
+    -- Sequence
+    word: ('word' letter letter letter) seqm
+
+    -- if it succeeds, it returns ('word' (x) (y) (z)) where
+    -- x y and z are whatever was returned by the respective calls
+    -- If any one fails, the whole thing fails
+        -- Return error information from below
+
+    letter: ('letter' 'a' 'b' 'c') altm
+    letters: ('letters' mult_letters letter) altm
+    mult_letters: ('mult_letters' letter letters) seqm
+    not_letters: ('not_letters' letters) notm
+
+
+    -- Literal sequence:
+    foo: ('foo' 'a' 'b' 'c') seqm
+        -- If first element is not an 'a', then return an error
+
+    Stack:
+    ( matching_list )
+    ( parse_tree )
+    ----------------
+
+    -- Pattern matching
+
+    Use a PARSING EXPRESSION GRAMMAR
+        to implement a TOP-DOWN PARSER
+        that uses MEMOIZATION and "packrat parsing"
+
+    Syntax (from Wiki 2011)
+
+        Formally, a parsing expression grammar consists of:
+
+            A finite set N of nonterminal symbols.
+            A finite set S of terminal symbols that is disjoint from N.
+            A finite set P of parsing rules.
+            An expression eS termed the starting expression.
+
+        Each parsing rule in P has the form A ? e, where A is a 
+        nonterminal symbol and e is a parsing expression. A 
+        parsing expression is a hierarchical expression similar 
+        to a regular expression, which is constructed in the 
+        following fashion:
+
+        An atomic parsing expression consists of:
+
+            any terminal symbol,
+            any nonterminal symbol, or
+            the empty string e.
+
+        Given any existing parsing expressions e, e1, and e2, a new 
+        parsing expression can be constructed using the following 
+        operators:
+
+            Sequence: e1 e2
+            Ordered choice: e1 / e2
+            Zero-or-more: e*
+            One-or-more: e+
+            Optional: e?
+            And-predicate: &e
+            Not-predicate: !e
+
+    Use list notation (keep in mind post-fix order):
+
+        (e1 e2 ':')     -- e2 followed by e1
+        (e1 e2 '|')     -- e2 or e1
+        (e '*')         -- e zero-or-more times
+        (e '+')         -- e one-or-more times
+        (e '?')         -- e zero-or-one times
+        (e '&')         -- true if e, else false, consumes no input
+        (e '!')         -- true if not e, else false
+
+    Use the peg operator to convert a plain-text string to an
+    internal PEG list:
+
+        "'a' 'b' | 'c'" peg   --> ('c' ('b' 'a' ':') '|')
+
+    To get the string back:
+
+        ('c' ('b' 'a' ':') '|') unpeg   --> "ab|c"
+
+    Use the strmat keyword to apply a peg:
+
+        "c" "'a' 'b' | 'c'" peg strmat
+
+    You may use barewords to encode a named expressions:
+
+        my_pattern: ('c' ('b' 'a' ':') '|')
+
+        string (my_pattern 'd' '|')
+
+    You can use block quote to make specifying a grammar
+    easier:
+
+    my_grammar:
+    bq
+        'a' 'b' | 'c'
+
+    This also makes it easier to define sub-rules. The
+    peg operator will perform the substitutions:
+
+    my_grammar:
+    bq
+        pattern0: 'a' 'b' | 'c'
+        pattern1: pattern0 'd'
+    -- etc.
+
+    Substring capture
+
+        strmat returns a WHOLE PARSE TREE
+
+        How does this work for anonymous parse expressions???
+
+----- Stack -----
+
+    -- stack
+
+    The stack consists of a spine of cons cells that are memory-managed
+    by the interpreter. Hanging off the spine are whatever the user is
+    pushing and popping.
+
+    The built-in functions (such as add, sub, mul, div, etc.) that return
+    a result on the stack allocate memory for the result through the
+    interpreter. If you want a result to be persistent, you must copy it
+    out of the stack and store it elsewhere. As soon as the value is
+    popped from the stack, it ceases to exist. For example, let's say you
+    have two lists, A and B and you cons them:
+
+    A B cons
+
+    You must copy the result somewhere if you want it to survive past
+    a pop. 
+
+    A B cons pop -- The cons'd list is gone
+
+    Correct way:
+
+    A B cons mylist cp pop
+
+    Now, A COPY OF the cons of A and B is stored in mylist. When you pop,
+    the original cons gets freed.
+
+    -- rstack
+
+    Used for pushing return pointers by the call/ret operators
+
+    -- dup/dig swap/rollup
+
+    Babel provides two stack-manipulation operators to implement the 
+    functionality of Joy's many stack-manipulation operators. Babel's
+    operators are more minimal and provide a wider functionality.
+
+    The two operators are:
+
+        - perm8
+        - dup8
+
+    Both operate on the same principle except that perm8 does not 
+    increase the size of the stack (like swap/rollup) where dup8
+    does (as dup does).
+
+    perm8 takes a single numerical operand on TOS. The argument
+    is 32-bits (or the lowest 32-bits on 64-bit machines) divided
+    into 8 4-bit fields. Each field is numbered F0-F7. The least 
+    significant 4 bits of the 32-bit operand is F0. Each field 
+    can have one of nine values, 0x0-0x7 or 0xf. For each field n
+    which does not have the value 0xf, the following relation
+    holds:
+
+        TOS-n = TOS-Fn
+
+    For each field Fn which has the value 0xf, perm8 does not attempt 
+    to assign TOS-n. Any permutation of 8 values can be implemented 
+    with perm8, in addition to duplication of values.
+
+    For example, to implement the Joy swap operator:
+
+        0xffffff01 perm8    -- switches TOS-0 and TOS-1
+
+    The other rollup-like operators can also be implemented with perm8.
+
+    The dup8 operator also takes a single numerical operand 
+    formatted in the same way as perm8. However, dup8 adds its results
+    on top of the stack rather than overwriting the items already
+    on the stack. This makes dup8 more like dup/dig Joy operators.
+
+    For example, to implement dup:
+
+        0xfffffff0 dup8
+
+----- Strings -----
+
+    Babel has built-in support for the UTF-8 encoding. Since all ASCII is
+    well-formed UTF-8, this makes support for UTF-8 an obvious choice. 
+    Internally, Babel stores strings in UTF-32/UCS-4 encoding. Babel does
+    not have built-in support for UTF-16/UCS-2 (Windows Unicode encoding).
+
+    Operators:
+
+    str2ar
+
+        This operators assumes a UTF-8 input string and generates
+        an array of UTF-32/UCS-4 values.
+
+    ar2str
+
+        This operator assumes a UTF-32/UCS-4 array, respectively,
+        and generates a UTF-8 string of characters as output
+
+    You can convert a char array to a char list by using the ar2ls operator.
+
+    Once a string has been converted into list or array form, C-style
+    string manipulations (e.g. strlen, strcat, etc.) can be performed using
+    the ordinary Babel list and array operators.
+
+    If you give a Babel string to cprintf it may result in unexpected
+    behavior since Babel strings are UTF-8 encodings which will not be 
+    correctly interpreted by code that is expecting ASCII input. 
+
+    Use stdout instead.
+
+    ----- Lower- and upper-case
+
+    Case management is language-specific. Babel has built-in support for
+    English upper-case and lower-case operators. These operate on Babel 
+    character lists or character arrays.
+
+    lc_eng
+    uc_eng
+
+    ----- Converting to/from C strings
+
+    C strings are null-terminated. Babel strings are not (so they can
+    be efficiently concat'd using the arcat* operators). Use:
+
+    b2c
+    c2b
+
+    ... operators to convert back and forth.
+
+    NOTE:
+        Would like to eliminate these operators and use a "strip" operator
+        to strip off any trailing nulls in a byte-sequence.
+
+    ----- ASCII encodings of Unicode
+
+    Use the \U{} escape inside a double-quote string to specify a 
+    unicode character code point (in hex):
+
+    "\U{263A}"  -- This reduces to a single-character: smiley
+                -- Babel will encode this string in UTF-8 format
+
+
+----- Symbolics -----
+
+    Babel implements its symbol table with a hash algorithm h(h0, x) that has the following property:
+
+    h(h(0, a), b) = h(0,a . b)
+
+    ... and so on.
+
+    This permits a performance enhancement by storing pre-hashed keys which can
+    later be extended at the cost of only a few processing cycles. I haven't read
+    of this technique anywhere (I don't know if I'm the first to think of it) so
+    I call it "progressive hashing".
+
+    The hash is chosen to be large enough such that collisions will happen rarely 
+    as to be simply negligible. Initial implementation will use a 128-bit
+    hash. The hash algorithm itself is chosen to be fast, not "one-way" or 
+    otherwise secure. I will use the following approximation of the probability of
+    collisions:
+
+        1 - e ^ (-n^2 / 2*H)
+
+    Where n is the number of hashes generated and H is the number of all possible
+    hashes. Cisco projects (as of 2011) that internet traffic will reach 64 exabytes
+    by 2014. Assuming 1/8th of all internet traffic were handled by Babel and that one
+    hash is needed for every 4 kilobytes* of data sent over the internet, the number
+    of hashes needed in a year would be:
+
+        2^66 * 2^-3 * 2^-12 = 2^51 hashes per day
+
+    Multiplying this by 11.22 years (close to a decade, 11.22 years = 2^12 days)
+
+        Total keys hashed = 2^51*2^12 = 2^63
+
+        1 - e ^( -(2^63)^2 / 2 * 2^128 )
+            = 1 - e^( -2^( log(2^126)-log(2^129) ) )
+            = 1 - e^( -2^( 126 - 129 ) )
+            = 1 - e^(-1/8)
+            = 1 - 0.882 = 0.118
+
+    So, given the above SWAG'd numbers, there would be an 11.8% chance that there will be
+    a hash collision during a decade of use. If Babel were to become widespread,
+    an upgrade to a larger hash would certainly be necessary.
+
+        *Note: I chose 4k because that is the size of a typical page on IA32 architecture,
+        which is the most common architecture on the Internet.
+
+    The hash itself is used as an index into a prefix-trie. Because hash collisions
+    "never" happen, we can assume we will never need to re-calculate the hash
+    table. So, we can safely skip the complexity involved in hash-table recalculation.
+    If hash collisions were to become a concern, I believe the right way to resolve
+    them is to increase the size of the hash because bytes and cycles are cheap
+    but code complexity - especially at the lowest levels - is not.
+
+    As an aside, Babel should have a "collision-detection mode" for debug purposes. If
+    a collision does occur, the programmer should at least be able to have a means
+    to figure out why.
+
+    I have chosen to use extendible hashing (Fagin et. al.) to implement the hash table.
+    This permits fast expansion and contraction of the hash table as entries are 
+    added and deleted. There are no buckets, chaining or other messiness.
+
+    ##### Goal
+
+    The design goal that drove these choices was the desire to implement a namespace
+    structure in Babel as similar to a *nix-style URI path system as possible.
+
+    On boot, a Babel VM constructs a hash table as the default hash table or symbol table.
+    The symbol table resides at "", that is, the hash of the empty string contains a circular 
+    reference back to the symbol table itself. Any function which accepts a hash table as
+    an operand can be used on the symbol table by passing "" as the name of the hash. Babel
+    internally detects this as a special condition and selects the symbol table as the
+    target hash (otherwise, you have a catch-22).
+
+    Babel uses the *nix convention of the slash to separate levels of a path. The root
+    namespace is "/". When a Babel lexical scope is opened, this is the default namespace.
+    To create an entry in the hash table, simply use a bareword followed by a colon:
+
+        my_namespace:
+
+    Now, everything that follows must be indented and the namespace continues until the 
+    end of indentation. Namespaces can be nested:
+
+        my_namespace:
+            my_nested_namespace:
+
+    You don't have to put anything in a namespace. An empty namespace, if accessed, will
+    return an undefined value.
+
+    Namespaces can be deleted.
+
+    You can perform "interpolation" to permit dynamic construction of a namespace name.
+
+    Anonymous lexical contexts.
+
+    To open an anonymous lexical context, use the curly-braces.
+
+
+----- Windows -----
+
+    see tcc/examples/hello_win.c
+
+

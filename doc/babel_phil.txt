@@ -1,0 +1,140 @@
+Philosophy of Babel
+
+- Let it be
+
+    There's no point dictating to people, they're going to use the language
+    they like and they'll like a language based on how well it is suited to
+    help them achieve their goals. Hence, my primary design object with Babel 
+    has been to make it adept at helping people achieve their goals. This is
+    complicated by the fact that there is not exactly a list of the most 
+    common goals which programmers have.
+
+- Optimize for best performance on the programmer's brain
+
+    Larry Wall's philosophy is that we tend to over-optimize for the machine 
+    and often fail to optimize for performance on the programmer's mind. This
+    results in poor overall performance when code is filled with bugs and 
+    sub-optimal algorithms or falls into disrepair due to the difficulty of
+    maintenance.
+
+    Babel's initial inspiration came from my first encounter with Perl. I 
+    learned Perl only after having earned my degree and I realized that what
+    I could do in minutes with Perl would have taken me weeks of intense C++ 
+    programming to achieve, even with the STL or utilizing specialized, 
+    third-party libraries. This is not because Perl has some special powers
+    over other languages, it's because of Perl's optimization philosophy.
+
+- Make the common case fast (Amdahl's Law)
+
+    The most important law of computer design is to make the common case fast.
+    There's very little performance benefit to optimizing something that only
+    happens a tiny fraction of the time, however fun the optimization of that 
+    particular problem may be.
+
+    Babel tries to avoid optimization for its own sake. Clearly, a more 
+    optimal solution should always be preferred over a less optimal solution,
+    all things equal. But all things are rarely ever equal so smart 
+    optimization is directed towards the common case.
+
+    No language can magically solve all your problems but it can sure make 
+    them worse. Babel attempts to avoid making things worse than they have
+    to be.
+
+- Respect tradition
+
+    There is a large body of common practice across a wide spectrum of 
+    computer cultures. These traditions usually represent the "best in class"
+    and deserve respect for that reason.
+
+    Babel's design is inspired by and indebted to many computing traditions:
+    Unix, GNU, linux, C, C++, Perl, Lisp, Forth (and Joy), YAML and many 
+    others.
+
+    Babel looks to tradition to identify what the common case is in order to
+    optimize to that. For example, it might seem strange on first brush that
+    I have included bzip2 and bunzip2 as core operators in Babel but the need 
+    to quickly and easily compress/decompress data without a lot of headache
+    is a common programming need.
+
+    Babel says: Why hide the compression operators off in some library where 
+    the programmer has to know they exist, go look them up and then import 
+    them? Why not just make the common case fast? If you hate bzip2, you can
+    always roll your own operator and add it into Babel or import an existing
+    library.
+
+- Be humble
+
+    A lot of programming concepts have very lofty names but when you start
+    tearing off the Christmas-packaging and look underneath, you often find 
+    that the reality is decidedly less grandiose. Babel attempts to take a 
+    more humble approach. While there are 'reflection' 'polymorphism' 
+    'pure functional evaluation' 'call with current continuation' and even 
+    'lazy evaluation' in Babel, they are not called these things.
+
+- Preserve symmetry over orthogonality
+
+    Many Babel operators are redundant. I have yet to understand all the 
+    hubbub about orthogonality - the basic operations of a pure Turing machine
+    are orthogonal and they are everything you need to build a fully 
+    functioning programming language but I'd hate to program a Turing machine.
+
+    Instead of orthogonality, Babel has chosen symmetry as the guiding light.
+    Whenever possible, I have tried to make operators such that they exactly
+    undo each other.
+
+    [1 2 3] 2 cutar catar -> [1 2 3]
+
+    I believe this design philosophy will make it easier for the programmer to
+    memorize the operation of the core operators. If you know what cutar does,
+    you also know what its opposite (catar) does.
+
+- Be cooperative
+
+    Babel's core operators are designed to consume input from as many other 
+    operators as possible and generate output that can be consumed by as many
+    other operators as possible. This makes the suite of operators available
+    for operation on a particular piece of data as large as possible.
+
+    Babel attempts to apply this same philosophy to the external environment,
+    as well. Babel will read in any file type, and can save its internal state
+    in a variety of the most widely supported data formats (UTF-8, Graphviz 
+    dot, CSV, YAML-subset, S-expressions etc.)
+
+    Babel is also easily built into your C or other language project and can
+    be easily compiled with C (and possibly other) language extensions. Babel
+    can dynamically link with any library that understands how to register new
+    opcodes in Babel which is an almost trivial operation.
+
+- Be literate
+
+    Babel's layout is partly inspired by Knuth's philosophy of literate 
+    programming. The primacy of the namespace hierarchy in the layout of 
+    Bipedal, indent-delimitation of comments, quotes and namespaces, the 
+    "normally open" nature of a Bipedal file, the avoidance of arbitrary 
+    punctuation characters as operators, the permission of Unicode characters
+    as identifier names and the use of "visible whitespace" are all inspired 
+    by literate-programming ideas.
+
+    Babel is conscientiously international. The non-English-speaking world is 
+    the future of technological and economic growth and they need to be able
+    to program in the language they speak. This is why Babel has seamless 
+    support for UTF-8 strings (parsing, string operations, etc.) and why 
+    Bipedal files are UTF-8 encoded, permitting Unicode identifier and 
+    operator names.
+
+- Avoid intellectual property tarpits
+
+    Babel does not originate in the university system, it has been developed
+    entirely in my own spare time. I have decided to keep Babel out of the GNU
+    tarpit - Babel does not use any GNU software and is BSD-licensed. This 
+    means that Babel can be used in closed-source, commercial products without
+    royalties or other hinderances.
+
+    As anyone who has spent five minutes in honest, unhampered reflection on 
+    the issue knows, intellectual property law is in severe disrepair in the 
+    developed world. Babel is open-source but respects the right (the 
+    commercial need, in fact) of software developers that release their 
+    software onto open platforms - such as the PC - to keep their source code
+    closed.
+
+
