@@ -75,7 +75,7 @@ Description Language).
     The zeroth entry is located at array index 1, immediately following the
     s-field.
 
------ leaf-array
+----- Leaf-array
 
     A leaf-array contains one or more values stored in an array of mwords. The
     contents of a leaf-array do not have to be accessed in mword-aligned 
@@ -85,7 +85,14 @@ Description Language).
     The defining feature of a leaf-array is that it cannot contain pointers to
     any other arrays.
 
------ interior-array
+    Array-8
+
+    A leaf-array may also be stored as an "array-8". Array-8 is just a 
+    convention for padding the last mword of a leaf array with a special 
+    mword that indicates the byte length of the array. Babel strings are 
+    stored as array-8 in native form, see "Strings" section below.
+ 
+----- Interior-array
 
     An interior-array contains one or more pointers, each mword-sized. 
 
@@ -97,7 +104,7 @@ Description Language).
     Every pointer in an interior-array must contain a valid pointer to an 
     array.
 
------ hash-reference
+----- Hash-reference
 
     A hash-reference is a single hash value stored in memory suitable for 
     fast lookup in the sym_table (symbol table).
@@ -365,16 +372,6 @@ Description Language).
 
     For more robust file functionality, Babel provides memory-mapped files.
 
------ Strings
-
-    Babel has native support for UTF-8 encoded strings. Babel strings are not
-    null-terminated.
-
------ Strings
-
-    Babel has native support for UTF-8 encoded strings. Babel strings are not
-    null-terminated.
-
 ----- Operand-checking
 
     Operand-checking is time-consuming and unnecessary for well-tested code.
@@ -383,7 +380,24 @@ Description Language).
 
 ----- Jump table
 
+
+
 ----- Strings
+
+    Babel has native support for UTF-8 encoded strings. Babel strings are not
+    null-terminated. However, a Babel-string stored in array-8 form is always
+    C-string safe because the alignment-word at the end of an array-8 always
+    contains one or more null bytes. For example, in 32-bit Babel, the 
+    alignment word is one of:
+
+        0x00000000      byte-length % 4 = 0
+        0xffffff00      byte-length % 4 = 1
+        0xffff0000      byte-length % 4 = 2
+        0xff000000      byte-length % 4 = 3
+
+    You should always convert Babel strings to C form using the cr operator 
+    but if a Babel string is mistakenly passed to a C function, it will not 
+    cause an overrun.
 
     Babel handles strings in several different forms:
 
@@ -399,4 +413,9 @@ Description Language).
     - String-list. This is a string-array on which the the ar2ls operator
     has been called.
 
+----- Interpreter reset
+
+    On invocation of the local babel binary from the command-line or by a
+    system exec call, Babel begins a set of steps which are called Babel
+    reset.
 

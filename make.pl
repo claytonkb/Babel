@@ -1,5 +1,9 @@
 # make.pl
 
+if(!-e 'bin'){
+    mkdir 'bin';
+}
+
 system("perl proto_babel.pl src/rt.pb pb/header.pb pb/opcodes.pb");
 
 `rm -f bin/babel.exe`;

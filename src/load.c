@@ -78,6 +78,28 @@ void load_tree(mword *tree, mword offset){
 
     }
 
+//    mword *new_array;
+//
+//    if( is_inte(tree+offset) ){
+//
+//        new_array = _newin(num_elem);
+//
+//        for(i=0; i<num_elem; i++){
+//            load_tree(tree, (mword)*(tree+offset+i));
+////            c(new_array,i) = *(tree+offset+i) + tree_base;
+//        }
+//
+//    }
+//    else{
+//
+//        new_array = _newlf(num_elem);
+//
+//        for(i=0; i<num_elem; i++){
+//            c(new_array,i) = *(tree+offset+i);
+//        }
+//
+//    }
+
 }
 
 void clean_tree(mword *tree){
