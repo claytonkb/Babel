@@ -30,6 +30,7 @@ This document is basically just a todo-list.
 - bvm_init rat's nest...
     - PRNG seed
     - Pearson init (should happen ONCE per INTERPRETER RESET)
+    - argv
 
 - Basic "text match" operators
     seq
