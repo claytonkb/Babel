@@ -33,6 +33,7 @@ void save(void);
 void arcat(void);
 void arcmp(void);
 int _arcmp(mword *left, mword *right);
+inline mword *_newin_blank(mword size);
 
 #endif //ARRAY_H
 

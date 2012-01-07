@@ -78,29 +78,72 @@ void load_tree(mword *tree, mword offset){
 
     }
 
-//    mword *new_array;
-//
-//    if( is_inte(tree+offset) ){
-//
-//        new_array = _newin(num_elem);
-//
-//        for(i=0; i<num_elem; i++){
-//            load_tree(tree, (mword)*(tree+offset+i));
-////            c(new_array,i) = *(tree+offset+i) + tree_base;
-//        }
-//
-//    }
-//    else{
-//
-//        new_array = _newlf(num_elem);
-//
-//        for(i=0; i<num_elem; i++){
-//            c(new_array,i) = *(tree+offset+i);
-//        }
-//
-//    }
+}
+
+
+void _load_at_reset(mword *tree){//, mword offset){
+
+//    mword *tree = global_VM-1;
+//    load_tree_reset(tree, 1*MWORD_SIZE);
+    clean_tree(tree+1);
 
 }
+
+//load_tree_reset
+//
+mword load_tree_reset(
+        mword *tree, 
+        mword *LUT_abs, 
+        mword *LUT_rel, 
+        mword *dest, 
+        mword *offset,
+        mword *LUT_offset){
+
+    int i;
+    mword rel_offset;
+
+    if( s(tree) & (MWORD_SIZE-1) ){ //Already dumped
+        return get_rel_offset(LUT_abs, LUT_rel, tree);
+    }
+
+    int num_elem = size(tree);
+
+//    printf("-------- %08x\n", (mword)s(tree));
+    *(dest+(*offset)) = s(tree);
+    *offset = *offset+1;
+    s(tree) |= 0x1; //Mark dumped
+
+    c(LUT_abs,*LUT_offset) = (mword)tree;
+    c(LUT_rel,*LUT_offset) = *offset;
+    *LUT_offset = *LUT_offset+1;
+
+    mword local_offset = *offset;
+
+    if(is_inte(tree)){
+        *offset = *offset + num_elem;
+        for(i=0; i<num_elem; i++){
+            c(dest,local_offset+i) = unload_tree(
+                                        (mword*)c(tree,i), 
+                                        LUT_abs, 
+                                        LUT_rel, 
+                                        dest, 
+                                        offset, 
+                                        LUT_offset)
+                                    * MWORD_SIZE
+                ;
+        }
+    }
+    else{
+        for(i=0; i<num_elem; i++){
+            c(dest,(*offset)) = c(tree,i);
+            *offset = *offset+1;
+        }
+    }
+
+    return local_offset;
+
+}
+
 
 void clean_tree(mword *tree){
 

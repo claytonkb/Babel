@@ -88,6 +88,26 @@ inline mword *_newin(mword size){
 
 }
 
+// Does the same thing as _newin but doesn't initialize the array entries
+// to nil.
+inline mword *_newin_blank(mword size){
+
+    mword *ptr = malloc( MWORDS(size+1) );
+    if(ptr == NULL){
+        except("_newin: malloc returned NULL", __FILE__, __LINE__);
+    }
+
+    ptr[0] = -1 * size * MWORD_SIZE;
+
+//    int i;
+//    for(i = 1; i<=size; i++){ // All pointers must be valid - initialize to nil
+//        ptr[i] = nil;
+//    }
+
+    return ptr+1;
+
+}
+
 // TOS_0 to
 // TOS_1 from
 // TOS_2 operand

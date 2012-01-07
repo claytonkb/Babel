@@ -24,9 +24,15 @@ mword unload_tree(
         mword *offset,
         mword *LUT_offset);
 mword get_rel_offset(mword *LUT_abs, mword *LUT_rel, mword *elem);
+void _load_at_reset(mword *tree);
+mword load_tree_reset(
+        mword *tree, 
+        mword *LUT_abs, 
+        mword *LUT_rel, 
+        mword *dest, 
+        mword *offset,
+        mword *LUT_offset);
 
-
-#endif //LOAD_H
 
 // Clayton Bauman 2011
 
