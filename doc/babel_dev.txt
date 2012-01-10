@@ -15,8 +15,7 @@ This document is basically just a todo-list.
 - Fix zap()
     Implement per-opcode destructor table
 
-- Implement stack-temporary mem allocation
-    [-10] newin  (syntax?)
+- Implement stack-temporary mem allocation (see babel_guts.txt)
 
 - Implement operand-checking wrappers
     Naming convention:
@@ -24,6 +23,8 @@ This document is basically just a todo-list.
     _foo()  -> non-operand-checking, non-stack operator
     foo_()  -> operand-checking, stack operator
     _foo_() -> operand-checking, non-stack operator (?)
+
+
 
 - Implement hidden section layout
 

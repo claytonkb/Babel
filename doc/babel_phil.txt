@@ -82,11 +82,11 @@ Philosophy of Babel
     Whenever possible, I have tried to make operators such that they exactly
     undo each other.
 
-    [1 2 3] 2 cutar catar -> [1 2 3]
+    [1 2 3] 2 cut cat --------> [1 2 3]
 
     I believe this design philosophy will make it easier for the programmer to
-    memorize the operation of the core operators. If you know what cutar does,
-    you also know what its opposite (catar) does.
+    memorize the operation of the core operators. If you know what cut does,
+    you also know what its opposite (cat) does.
 
 - Be cooperative
 
