@@ -238,6 +238,14 @@ Description Language).
     information for memory-management. In order to conver the stack to a list, 
     use the stk2ls operator and use the ls2stk operator for vice-versa.
 
+----- BVM Interpreter
+
+    The interpreter is a stack machine (prefix order). This means that compilers
+    that generate Babel code do no need to use parentheses to implement 
+    operator precedence. The precedence is encoded in the order of operations.
+
+    This simplifies the parsing requirements of any Babel front-end language.
+
 ----- Invoking a BVM
 
     BVMs can be invoked in a nested manner, that is, a BVM may construct 
