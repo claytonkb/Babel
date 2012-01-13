@@ -83,6 +83,21 @@ void load_tree(mword *tree, mword offset){
 
 void _load_at_reset(mword *tree){//, mword offset){
 
+    int i;
+
+    mword tree_size  = size(tree);
+//    mword *dest      = 0;
+    mword *LUT_abs   = _newin_blank(tree_size);
+    mword *LUT_rel   = _newlf(tree_size);
+
+        for(i=0; i<tree_size; i++){
+            c(LUT_rel,i) = (mword)-1;
+        }
+
+    mword offset     = 0;
+    mword LUT_offset = 0;
+    mword *root = load_tree_reset(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
+    
 //    mword *tree = global_VM-1;
 //    load_tree_reset(tree, 1*MWORD_SIZE);
     clean_tree(tree+1);
@@ -91,56 +106,60 @@ void _load_at_reset(mword *tree){//, mword offset){
 
 //load_tree_reset
 //
-mword load_tree_reset(
+mword *load_tree_reset(
         mword *tree, 
+        mword offset,
         mword *LUT_abs, 
         mword *LUT_rel, 
-        mword *dest, 
-        mword *offset,
         mword *LUT_offset){
 
     int i;
-    mword rel_offset;
 
     if( s(tree) & (MWORD_SIZE-1) ){ //Already dumped
-        return get_rel_offset(LUT_abs, LUT_rel, tree);
+        return get_abs_offset(LUT_rel, LUT_abs, offset);
     }
 
     int num_elem = size(tree);
 
-//    printf("-------- %08x\n", (mword)s(tree));
-    *(dest+(*offset)) = s(tree);
-    *offset = *offset+1;
+////    printf("-------- %08x\n", (mword)s(tree));
+//    *(dest+(*offset)) = s(tree);
+//    *offset = *offset+1;
     s(tree) |= 0x1; //Mark dumped
 
-    c(LUT_abs,*LUT_offset) = (mword)tree;
-    c(LUT_rel,*LUT_offset) = *offset;
-    *LUT_offset = *LUT_offset+1;
+    mword *new_arr;
 
-    mword local_offset = *offset;
+    if(is_inte(tree)){ //<--- FIXME DOESN'T WORK
+        new_arr = _newin(num_elem);
 
-    if(is_inte(tree)){
-        *offset = *offset + num_elem;
+        c(LUT_rel,*LUT_offset) = offset;
+        c(LUT_abs,*LUT_offset) = (mword)new_arr;
+        *LUT_offset = *LUT_offset+1;
+
         for(i=0; i<num_elem; i++){
-            c(dest,local_offset+i) = unload_tree(
-                                        (mword*)c(tree,i), 
-                                        LUT_abs, 
-                                        LUT_rel, 
-                                        dest, 
-                                        offset, 
-                                        LUT_offset)
-                                    * MWORD_SIZE
-                ;
+            c(new_arr,i) = (mword)load_tree_reset(
+                tree,
+                c(tree,offset+i),
+                LUT_abs, 
+                LUT_rel, 
+                LUT_offset);
         }
+        // foreach
+        //     recurse
+        //     copy returned value into allocated slot
     }
     else{
+        new_arr = _newlf(num_elem);
+
+        c(LUT_rel,*LUT_offset) = offset;
+        c(LUT_abs,*LUT_offset) = (mword)new_arr;
+        *LUT_offset = *LUT_offset+1;
+
         for(i=0; i<num_elem; i++){
-            c(dest,(*offset)) = c(tree,i);
-            *offset = *offset+1;
+            c(new_arr,i) = c(tree,i);
         }
     }
 
-    return local_offset;
+    return new_arr;
 
 }
 
@@ -343,6 +362,11 @@ mword get_rel_offset(mword *LUT_abs, mword *LUT_rel, mword *elem){
     return nil;
 
 }
+
+mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword *elem){
+
+}
+
 
 // Clayton Bauman 2011
 
