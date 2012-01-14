@@ -238,6 +238,14 @@ Description Language).
     information for memory-management. In order to conver the stack to a list, 
     use the stk2ls operator and use the ls2stk operator for vice-versa.
 
+----- BVM Interpreter
+
+    The interpreter is a stack machine (prefix order). This means that compilers
+    that generate Babel code do no need to use parentheses to implement 
+    operator precedence. The precedence is encoded in the order of operations.
+
+    This simplifies the parsing requirements of any Babel front-end language.
+
 ----- Invoking a BVM
 
     BVMs can be invoked in a nested manner, that is, a BVM may construct 
@@ -287,7 +295,7 @@ Description Language).
     Babel uses a combination of automatic and manual memory management.
     Memory associated with data-structures pointed to by the bvm_header are 
     automatically managed, according to specific rules. All other memory must
-    be created and destroyed by the user through the newlf/newin and del
+    be created and destroyed by the user through the newlf/newin and free/del
     operators.
 
 ----- Stack memory management
@@ -342,18 +350,25 @@ Description Language).
 
     The book-keeping data in a hash is automatically memory-managed.
 
------ Semi-manual memory management
+----- Scope control
 
-    The term "semi-manual" means manual allocation, automatic deletion of 
-    memory. You can create a piece of semi-manually allocated memory by 
-    providing a negative number to newin/newlf. To create a semi-manual memory 
-    block of 10 mwords:
+    You can declare an object on the stack to be stack-scoped:
 
-        ([-10] newlf
+        [10] newin scopstk
 
-    ... now, when the memory is consumed, it will be de-allocated:
+    When this object is zap'd, it will be freed. If you want the object to be 
+    del'd when it is zap'd, use the scopstkr (r for -r or "recursive") operator.
 
-        zap)  -- Deallocates the 10-mword memory allocated above
+    You can also make an object persist:
+
+        [2] [3] cuadd scoppers
+
+    Normally, the result of the add would be consumed (and freed) by the next
+    operator that zaps it.
+
+    Internally, zap() should be used when an operator wants to 'consume' an 
+    operand on the stack but _zap() should be used for unconditional removal
+    of an item from the stack.
 
 ----- P-numbers
 
@@ -363,7 +378,7 @@ Description Language).
 
     To calculate the square-root of two to five words of precision:
 
-        5 2 psqrt
+        [5] [2] psqrt
 
 ----- File I/O
 
@@ -380,7 +395,11 @@ Description Language).
 
 ----- Jump table
 
+    Each built-in opcode is an offset into a jump table. New opcodes that are
+    added in with the addop operator are dynamically assigned jump table offsets.
 
+    When constructing a bvm for launch, the parent bvm can restrict the built-in
+    operators that are available through the hidden section of the header.
 
 ----- Strings
 

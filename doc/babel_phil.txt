@@ -82,11 +82,11 @@ Philosophy of Babel
     Whenever possible, I have tried to make operators such that they exactly
     undo each other.
 
-    [1 2 3] 2 cutar catar -> [1 2 3]
+    [1 2 3] 2 cut cat --------> [1 2 3]
 
     I believe this design philosophy will make it easier for the programmer to
-    memorize the operation of the core operators. If you know what cutar does,
-    you also know what its opposite (catar) does.
+    memorize the operation of the core operators. If you know what cut does,
+    you also know what its opposite (cat) does.
 
 - Be cooperative
 
@@ -137,4 +137,57 @@ Philosophy of Babel
     software onto open platforms - such as the PC - to keep their source code
     closed.
 
+- Sell it
+
+    OK, here's my sales pitch. Why should you use Babel? Here are some of the
+    things that Babel can do that no other major language can do (easily).
+
+    - It is easy to containerize and launch nested Babel programs, making it 
+      easy to manage the risks of executing arbitrary code.
+
+    - Built-in crypto makes it easy to enforce a "white-list" code execution 
+      policy, reducing the risks associated with executing remote code.
+
+    - As a by-product of containerization, it is easy to save and restore your
+      Babel program to and from disk at any point, making it easy for the user
+      to suspend and resume at will. This is a prerequisite to any fully-
+      virtualized compute environment.
+
+    - Your data structures are all stored in an underlying, uniform bstruct
+      structure, making it trivial to save and restore them to and from disk,
+      to make deep copies of them, to delete all memory associated with them, 
+      and so on.
+
+    - You can easily compress and encrypt your program data objects, (or whole 
+      Babel programs).
+
+    - Visualizing your data is uniquely easy with Babel's built-in support for
+      generating Graphviz dot files. These can be post-processed with the dot
+      tool to generate graphical snapshots of your data. This speeds up debug
+      and helps the programmer fully absorb the semantic significance of the 
+      syntax.
+
+    - Babel provides both Lisp-style lists and array structures, permitting you
+      to organize your data in a manner to maximize both flexibility and 
+      performance. Modern computer architecture is array-based and can perform
+      array lookups many times faster than list-traversal. But for data that is
+      constantly changing size or continually undergoing complex permutations,
+      lists are a clear performance winner by permitting you to perform more of
+      your operations in-place.
+
+    - Babel provides a comprehensive suite of abstract data-structures, 
+      including array, list, hash (map/dictionary) and namespace (or directory).
+      This gives you the tools you need for rapid prototyping of very complex
+      code even if you eventually choose to implement your solution in a lower-
+      level language and link it in.
+
+    - The Babel namespace is modeled on a Unix-style directory structure, making
+      it possible to nest data and code in arbitrarily deep and complex 
+      structures. Manipulating namespace paths permits implementation of 
+      OO-style templates, polymorphism and more.
+
+    - Arbitrary-precision arithmetic is built right into the Babel core, making
+      it easy to implement crypto algorithms in an academic (non-optimized)
+      fashion. Other applications such as desktop calculation are also 
+      facilitated.
 
