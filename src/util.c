@@ -47,7 +47,7 @@ void init_global_argv(int argc, char **argv){
         return;
     }
 
-    (mword*)global_argv = _newin(argc-NUM_BABEL_INTERP_ARGS);
+    (mword*)global_argv = _newin_blank(argc-NUM_BABEL_INTERP_ARGS);
 
     //Note: Each argument can be up to 64KB in size... this is unreasonably large
     //but could never reasonably become a design limitation in the future yet it is

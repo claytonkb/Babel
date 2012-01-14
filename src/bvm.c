@@ -120,7 +120,8 @@ void _bvm_init(mword *bvm){
     time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
     init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
-    internal_global_VM = bvm+1;
+//    internal_global_VM = bvm+1;
+    internal_global_VM = bvm;
     global_VM = (mword *)cdr(internal_global_VM);
 
 }

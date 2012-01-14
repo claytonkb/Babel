@@ -18,9 +18,10 @@
 int main(int argc, char **argv){
 
     #include "rt.pb.c"
-    _load((mword*)bbl);
+//    _load((mword*)bbl);
+//    _bvm_init(bbl);
 
-    _bvm_init(bbl);
+    _bvm_init(_load_at_reset((mword*)bbl+1));
 
     //Need to figure out what to do with this...
     init_global_argv(argc, argv);

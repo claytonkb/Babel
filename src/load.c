@@ -81,7 +81,7 @@ void load_tree(mword *tree, mword offset){
 }
 
 
-void _load_at_reset(mword *tree){//, mword offset){
+mword *_load_at_reset(mword *tree){//, mword offset){
 
     int i;
 
@@ -96,11 +96,12 @@ void _load_at_reset(mword *tree){//, mword offset){
 
     mword offset     = 0;
     mword LUT_offset = 0;
-    mword *root = load_tree_reset(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
-    
+
+    return load_tree_reset(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
+
 //    mword *tree = global_VM-1;
 //    load_tree_reset(tree, 1*MWORD_SIZE);
-    clean_tree(tree+1);
+//    clean_tree(tree+1);
 
 }
 
@@ -129,7 +130,7 @@ mword *load_tree_reset(
     mword *new_arr;
 
     if(is_inte(tree)){ //<--- FIXME DOESN'T WORK
-        new_arr = _newin(num_elem);
+        new_arr = _newin_blank(num_elem);
 
         c(LUT_rel,*LUT_offset) = offset;
         c(LUT_abs,*LUT_offset) = (mword)new_arr;
@@ -143,6 +144,7 @@ mword *load_tree_reset(
                 LUT_rel, 
                 LUT_offset);
         }
+
         // foreach
         //     recurse
         //     copy returned value into allocated slot
