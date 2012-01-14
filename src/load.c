@@ -81,11 +81,11 @@ void load_tree(mword *tree, mword offset){
 }
 
 
-mword *_load_at_reset(mword *tree){//, mword offset){
+mword *_load_at_reset(mword *tree, mword tree_size){//, mword offset){
 
     int i;
 
-    mword tree_size  = size(tree);
+//    mword tree_size  = size(tree);
 //    mword *dest      = 0;
     mword *LUT_abs   = _newin_blank(tree_size);
     mword *LUT_rel   = _newlf(tree_size);
@@ -94,7 +94,7 @@ mword *_load_at_reset(mword *tree){//, mword offset){
             c(LUT_rel,i) = (mword)-1;
         }
 
-    mword offset     = 0;
+    mword offset     = MWORD_SIZE;
     mword LUT_offset = 0;
 
     return load_tree_reset(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
@@ -114,29 +114,33 @@ mword *load_tree_reset(
         mword *LUT_rel, 
         mword *LUT_offset){
 
+    offset = offset / MWORD_SIZE;
+
     int i;
 
-    if( s(tree) & (MWORD_SIZE-1) ){ //Already dumped
+    if( s((mword*)(tree+offset)) & (MWORD_SIZE-1) ){ //Already dumped
         return get_abs_offset(LUT_rel, LUT_abs, offset);
     }
 
-    int num_elem = size(tree);
-
+    int num_elem = size(tree+offset);
+    
 ////    printf("-------- %08x\n", (mword)s(tree));
 //    *(dest+(*offset)) = s(tree);
 //    *offset = *offset+1;
-    s(tree) |= 0x1; //Mark dumped
+    s(tree+offset) |= 0x1; //Mark dumped
 
     mword *new_arr;
 
-    if(is_inte(tree)){ //<--- FIXME DOESN'T WORK
+    if(is_inte(tree+offset)){ //<--- FIXME DOESN'T WORK
+//        printf("inte\n");
         new_arr = _newin_blank(num_elem);
 
-        c(LUT_rel,*LUT_offset) = offset;
+        c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
         c(LUT_abs,*LUT_offset) = (mword)new_arr;
         *LUT_offset = *LUT_offset+1;
 
         for(i=0; i<num_elem; i++){
+//            d(c(tree,offset+i))
             c(new_arr,i) = (mword)load_tree_reset(
                 tree,
                 c(tree,offset+i),
@@ -150,14 +154,15 @@ mword *load_tree_reset(
         //     copy returned value into allocated slot
     }
     else{
+//        printf("leaf\n");
         new_arr = _newlf(num_elem);
 
-        c(LUT_rel,*LUT_offset) = offset;
+        c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
         c(LUT_abs,*LUT_offset) = (mword)new_arr;
         *LUT_offset = *LUT_offset+1;
 
         for(i=0; i<num_elem; i++){
-            c(new_arr,i) = c(tree,i);
+            c(new_arr,i) = c(tree,offset+i);
         }
     }
 
@@ -165,6 +170,26 @@ mword *load_tree_reset(
 
 }
 
+
+mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword *elem){
+
+    int i=0;
+    int LUT_size = size(LUT_rel);
+    mword curr_elem;
+
+    for(;i<LUT_size;i++){
+        curr_elem = c(LUT_rel,i);
+        if(curr_elem == (mword)elem){
+            return (mword*)c(LUT_abs,i);
+        }
+        else if(curr_elem == (mword)-1){
+            return (mword*)-1;
+        }
+    }
+
+    return (mword*)-1;
+
+}
 
 void clean_tree(mword *tree){
 
@@ -365,9 +390,6 @@ mword get_rel_offset(mword *LUT_abs, mword *LUT_rel, mword *elem){
 
 }
 
-mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword *elem){
-
-}
 
 
 // Clayton Bauman 2011

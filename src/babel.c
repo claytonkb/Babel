@@ -17,14 +17,23 @@
 //
 int main(int argc, char **argv){
 
+    int i;
+
     #include "rt.pb.c"
 //    _load((mword*)bbl);
 //    _bvm_init(bbl);
 
-    _bvm_init(_load_at_reset((mword*)bbl+1));
+//    for(i=0;i<sizeof(bbl)/MWORD_SIZE;i++){
+//        printf("%x ", i*MWORD_SIZE);
+//        d(bbl[i]);
+//    }
+//
+    _bvm_init(_load_at_reset((mword*)bbl,sizeof(bbl)/MWORD_SIZE));
 
     //Need to figure out what to do with this...
     init_global_argv(argc, argv);
+
+//    bbl2gv();
 
     global_steps = (mword) -1;
     _bvmexec(internal_global_VM);

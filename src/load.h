@@ -24,7 +24,7 @@ mword unload_tree(
         mword *offset,
         mword *LUT_offset);
 mword get_rel_offset(mword *LUT_abs, mword *LUT_rel, mword *elem);
-mword *_load_at_reset(mword *tree);
+mword *_load_at_reset(mword *tree, mword tree_size);
 mword *load_tree_reset(
         mword *tree, 
         mword offset,
