@@ -242,6 +242,9 @@
     case NEWIN:         \
         newin();        \
         break;          \
+    case FREE_OP:       \
+        free_op();      \
+        break;          \
     case DEL:           \
         del();          \
         break;          \

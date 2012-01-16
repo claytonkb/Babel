@@ -5,6 +5,8 @@ code:
     ["out.bbl"] slurp8
     dup arlen [1] cusub trunc
     load
+    cp
+    bvmroot
     bbl2gv stdout)
 
 lst:

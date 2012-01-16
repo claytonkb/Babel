@@ -385,20 +385,20 @@ void newlf(void){
 
 }
 
-void del(void){
-
-//    free((mword*)(TOS_0 - 1)); //FIXME: Extremely dangerous!!!
-    _del((mword*)TOS_0);
-    zap();
-
-}
-
-void _del(mword *mem){
-
-    free(mem-1);
-
-}
-
+//void del(void){
+//
+////    free((mword*)(TOS_0 - 1)); //FIXME: Extremely dangerous!!!
+//    _del((mword*)TOS_0);
+//    zap();
+//
+//}
+//
+//void _del(mword *mem){
+//
+//    free(mem-1);
+//
+//}
+//
 
 void trunc(void){
 

@@ -192,6 +192,7 @@
 #define BVMFORK     0x106
 #define MWORD_SIZEOP 0x107
 #define ARLEN8      0x108
+#define FREE_OP     0x109
 #define ARLEN16     0x109
 #define ARLEN32     0x10a
 #define ARLEN       0x10b

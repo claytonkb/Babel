@@ -26,6 +26,7 @@
 #include "mt19937ar.h"
 #include "hash.h"
 #include "bstruct.h"
+#include "alloc.h"
 
 void bvmstep(void){
 
