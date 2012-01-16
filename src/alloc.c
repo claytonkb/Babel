@@ -14,6 +14,7 @@ void free_op(void){
 
 void _free_op(mword *mem){
 
+//    d(mem)
     free(mem-1);
 
 }

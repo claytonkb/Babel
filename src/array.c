@@ -64,6 +64,9 @@ inline mword *_newlf(mword size){
     }
 
     ptr[0] = size * MWORD_SIZE;
+
+//    d(ptr)
+
     return ptr+1;
 
 }
@@ -83,6 +86,8 @@ inline mword *_newin(mword size){
     for(i = 1; i<=size; i++){ // All pointers must be valid - initialize to nil
         ptr[i] = nil;
     }
+
+//    d(ptr)
 
     return ptr+1;
 
