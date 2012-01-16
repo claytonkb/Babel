@@ -5,7 +5,7 @@ code:
     ["out.bbl"] slurp8
     dup arlen [1] cusub trunc
     load
-    bbl2str stdout)
+    bbl2gv stdout)
 
 lst:
     [(dup size ci2dec stdout ret)]

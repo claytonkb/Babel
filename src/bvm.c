@@ -101,7 +101,7 @@ void _bvmexec(mword *bvm){
 
 }
 
-void _bvm_init(mword *bvm){
+void _bvm_init(mword *bvm, int argc, char **argv){
 
     pearson16_init();
 
@@ -124,26 +124,28 @@ void _bvm_init(mword *bvm){
     internal_global_VM = bvm;
     global_VM = (mword *)cdr(internal_global_VM);
 
+    init_global_argv(argc, argv);
+
 }
 
-//bvm_init
+////bvm_init
+////
+//void bvm_init(void){
 //
-void bvm_init(void){
-
-    int i;
-
-    bvm_check();
-
-    _load(global_VM-1);
-
-    internal_global_VM = global_VM; // A BVM is never permitted to access internal_global_VM
-//    d(car(car(internal_global_VM)))
-  //      die
-    global_VM = (mword *)cdr(global_VM);
-
-//    STACK_TRACE = 0; // FIXME: This needs to be removed at some point...
-
-}
+//    int i;
+//
+//    bvm_check();
+//
+//    _load(global_VM-1);
+//
+//    internal_global_VM = global_VM; // A BVM is never permitted to access internal_global_VM
+////    d(car(car(internal_global_VM)))
+//  //      die
+//    global_VM = (mword *)cdr(global_VM);
+//
+////    STACK_TRACE = 0; // FIXME: This needs to be removed at some point...
+//
+//}
 
 //bvm_check
 //

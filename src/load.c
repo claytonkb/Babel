@@ -22,66 +22,66 @@
 
 void load(void){
 
-    _load((mword*)TOS_0);
+    mword *result = _load((mword*)TOS_0, size((mword*)TOS_0));
 //    d(TOS_0)
 //    die
-    TOS_0 = TOS_0 + MWORD_SIZE;
+//    TOS_0 = TOS_0 + MWORD_SIZE;
 
-//    zap();
-//    push_alloc(result, LOAD);
-
-}
-
-void _load(mword *tree){//, mword offset){
-
-//    mword *tree = global_VM-1;
-    load_tree(tree, 1*MWORD_SIZE);
-    clean_tree(tree+1);
+    zap();
+    push_alloc(result, LOAD);
 
 }
 
-//load_tree
+//void _load(mword *tree){//, mword offset){
 //
-void load_tree(mword *tree, mword offset){
-//void _load(mword *tree, mword offset){
-
-    int i;
-    #define tree_base (mword)tree;
-    offset /= MWORD_SIZE ;
-
-//    if(offset > global_machine_page_size){
-//        except("load_tree: offset out of bounds", __FILE__, __LINE__);
+////    mword *tree = global_VM-1;
+//    load_tree(tree, 1*MWORD_SIZE);
+//    clean_tree(tree+1);
+//
+//}
+//
+////load_tree
+////
+//void load_tree(mword *tree, mword offset){
+////void _load(mword *tree, mword offset){
+//
+//    int i;
+//    #define tree_base (mword)tree;
+//    offset /= MWORD_SIZE ;
+//
+////    if(offset > global_machine_page_size){
+////        except("load_tree: offset out of bounds", __FILE__, __LINE__);
+////    }
+//
+//    if( s(tree+offset) & (MWORD_SIZE-1) ){ //Already loaded
+//        return;
 //    }
-
-    if( s(tree+offset) & (MWORD_SIZE-1) ){ //Already loaded
-        return;
-    }
-
-    int num_elem = size(tree+offset);
-
-//    if( 
-//            offset+num_elem > global_machine_page_size 
-//            ||
-//            num_elem == 0
-//      ){
-//        except("load_tree: array size is incorrect", __FILE__, __LINE__);
+//
+//    int num_elem = size(tree+offset);
+//
+////    if( 
+////            offset+num_elem > global_machine_page_size 
+////            ||
+////            num_elem == 0
+////      ){
+////        except("load_tree: array size is incorrect", __FILE__, __LINE__);
+////    }
+//    
+//    s(tree+offset) |= 0x1; //Mark visited
+//
+//    if( is_inte(tree+offset) ){
+//
+//        for(i=0; i<num_elem; i++){
+//            load_tree(tree, (mword)*(tree+offset+i));
+//            *(tree+offset+i) += tree_base;
+//        }
+//
 //    }
-    
-    s(tree+offset) |= 0x1; //Mark visited
+//
+//}
+//
 
-    if( is_inte(tree+offset) ){
-
-        for(i=0; i<num_elem; i++){
-            load_tree(tree, (mword)*(tree+offset+i));
-            *(tree+offset+i) += tree_base;
-        }
-
-    }
-
-}
-
-
-mword *_load_at_reset(mword *tree, mword tree_size){//, mword offset){
+mword *_load(mword *tree, mword tree_size){//, mword offset){
 
     int i;
 
@@ -97,7 +97,7 @@ mword *_load_at_reset(mword *tree, mword tree_size){//, mword offset){
     mword offset     = MWORD_SIZE;
     mword LUT_offset = 0;
 
-    return load_tree_reset(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
+    return load_tree(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
 
 //    mword *tree = global_VM-1;
 //    load_tree_reset(tree, 1*MWORD_SIZE);
@@ -107,7 +107,7 @@ mword *_load_at_reset(mword *tree, mword tree_size){//, mword offset){
 
 //load_tree_reset
 //
-mword *load_tree_reset(
+mword *load_tree(
         mword *tree, 
         mword offset,
         mword *LUT_abs, 
@@ -136,7 +136,7 @@ mword *load_tree_reset(
         *LUT_offset = *LUT_offset+1;
 
         for(i=0; i<num_elem; i++){
-            c(new_arr,i) = (mword)load_tree_reset(
+            c(new_arr,i) = (mword)load_tree(
                 tree,
                 c(tree,offset+i),
                 LUT_abs, 

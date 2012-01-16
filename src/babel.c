@@ -28,10 +28,9 @@ int main(int argc, char **argv){
 //        d(bbl[i]);
 //    }
 //
-    _bvm_init(_load_at_reset((mword*)bbl,sizeof(bbl)/MWORD_SIZE));
+    _bvm_init(_load((mword*)bbl,sizeof(bbl)/MWORD_SIZE),argc,argv);
 
     //Need to figure out what to do with this...
-    init_global_argv(argc, argv);
 
 //    bbl2gv();
 

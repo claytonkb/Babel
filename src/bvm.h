@@ -6,8 +6,9 @@
 
 void bvmexec(void);
 void _bvmexec(mword *bvm);
-void _bvm_init(mword *bvm);
-void bvm_init(void);
+//void _bvm_init(mword *bvm);
+void _bvm_init(mword *bvm, int argc, char **argv);
+//void bvm_init(void);
 void bvm_check(void);
 void bvm_interp(void);
 void bvmroot(void);
