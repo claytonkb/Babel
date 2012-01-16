@@ -5,7 +5,7 @@
 -- now
 
 code:
-    (argv [0] cxr
-     slurp load
-     bvmexec)
+   (argv [0] cxr
+    slurp load
+    bvmexec)
 

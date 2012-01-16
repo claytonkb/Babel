@@ -23,12 +23,11 @@
 void load(void){
 
     mword *result = _load((mword*)TOS_0, size((mword*)TOS_0));
-//    d(TOS_0)
-//    die
-//    TOS_0 = TOS_0 + MWORD_SIZE;
-
     zap();
     push_alloc(result, LOAD);
+
+//    _load((mword*)TOS_0);
+//    TOS_0 = TOS_0 + MWORD_SIZE;
 
 }
 
@@ -79,7 +78,7 @@ void load(void){
 //    }
 //
 //}
-//
+
 
 mword *_load(mword *tree, mword tree_size){//, mword offset){
 
