@@ -8,7 +8,7 @@
 #include "stack.h"
 #include "bvm.h"
 
-void copy(void){
+void cp(void){
 
     mword *result = _unload((mword*)TOS_0);
     push_alloc(result, CP);

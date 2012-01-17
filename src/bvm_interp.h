@@ -249,7 +249,7 @@
         del();          \
         break;          \
     case CP:            \
-        copy();           \
+        cp();           \
         break;          \
     case TRUNC:         \
         trunc();        \

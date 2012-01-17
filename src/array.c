@@ -346,33 +346,31 @@ inline mword _arlen8(mword *string){
 
 }
 
-// cp means DEEP copy as oppposed to w* which are shallow copy operators
-void cp(void){
-
-
-
-}
-
-// FIXME This function is incorrectly named...
-void _cp(mword offset, mword *dest, mword *src){ //FIXME: This function is full of landmines...
-
-    mword dest_size = size((mword*)dest)-offset;
-    mword src_size  = size((mword*)src);
-
-    mword iter = src_size < dest_size ? src_size : dest_size;
-
-    mword i;
-    for(i=0;i<iter;i++){
-        c((mword*)dest,i+offset) = c((mword*)src,i);
-    }    
-
-}
+//// cp means DEEP copy as oppposed to w* which are shallow copy operators
+//void cp(void){
+//
+//
+//
+//}
+//
+//// FIXME This function is incorrectly named...
+//void _cp(mword offset, mword *dest, mword *src){ //FIXME: This function is full of landmines...
+//
+//    mword dest_size = size((mword*)dest)-offset;
+//    mword src_size  = size((mword*)src);
+//
+//    mword iter = src_size < dest_size ? src_size : dest_size;
+//
+//    mword i;
+//    for(i=0;i<iter;i++){
+//        c((mword*)dest,i+offset) = c((mword*)src,i);
+//    }    
+//
+//}
 
 void newin(void){
 
     mword *result = _newin(car(TOS_0)); //FIXME: There is no checking...
-
-    d(result)
 
     zap();
     push_alloc(result, NEWIN);
@@ -382,8 +380,6 @@ void newin(void){
 void newlf(void){
 
     mword *result = _newlf(car(TOS_0)); //FIXME: There is no checking...
-
-    d(result)
 
     zap();
     push_alloc(result, NEWLF);

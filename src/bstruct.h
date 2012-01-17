@@ -4,7 +4,7 @@
 #ifndef BSTRUCT_H
 #define BSTRUCT_H
 
-void copy(void);
+void cp(void);
 
 #endif //BSTRUCT_H
 

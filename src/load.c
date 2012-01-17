@@ -79,7 +79,6 @@ void load(void){
 //
 //}
 
-
 mword *_load(mword *tree, mword tree_size){//, mword offset){
 
     int i;
@@ -118,7 +117,7 @@ mword *load_tree(
     int i;
 
     if( s((mword*)(tree+offset)) & (MWORD_SIZE-1) ){ //Already dumped
-        return get_abs_offset(LUT_rel, LUT_abs, offset);
+        return get_abs_offset(LUT_rel, LUT_abs, offset*MWORD_SIZE);
     }
 
     int num_elem = size(tree+offset);
@@ -132,7 +131,7 @@ mword *load_tree(
 
         c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
         c(LUT_abs,*LUT_offset) = (mword)new_arr;
-        *LUT_offset = *LUT_offset+1;
+        *LUT_offset = *LUT_offset+1;        
 
         for(i=0; i<num_elem; i++){
             c(new_arr,i) = (mword)load_tree(
