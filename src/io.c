@@ -39,7 +39,7 @@ mword *_slurp(char *filename){ // FIXME: Lots of bad things in here...
 
     FILE * pFile;
     long lSize;
-    char * buffer;
+    mword* buffer;
     size_t result;
     long file_mword_size;
 
@@ -55,25 +55,19 @@ mword *_slurp(char *filename){ // FIXME: Lots of bad things in here...
     rewind (pFile);
     mword last_mword;
 
-//    d(lSize)
+    file_mword_size = lSize/MWORD_SIZE; 
 
-    if(lSize % MWORD_SIZE == 0){
-        file_mword_size = lSize;
+    if(lSize % MWORD_SIZE != 0){//XXX Assumes the int div rounds to floor
+        file_mword_size++;
     }
-    else{
-        file_mword_size = lSize+(MWORD_SIZE-(lSize % MWORD_SIZE));
-    }
-//    else if(lSize % 4 == 2){
-//        file_mword_size = lSize+2;
-//    }
-//    else if(lSize % 4 == 3){
-//        file_mword_size = lSize+1;
-//    }
+
+    file_mword_size++; //for the alignment_word
 
     last_mword = alignment_word8(lSize);
 
     // allocate memory to contain the whole file
-    buffer = (char*) malloc ( (sizeof(char)*file_mword_size) + 2*MWORD_SIZE );
+    //buffer = (char*) malloc ( (sizeof(char)*file_mword_size*MWORD_SIZE) );
+    buffer = _newlf(file_mword_size);
 
     if (buffer == NULL) {
         except("_slurp: malloc returned NULL", __FILE__, __LINE__);
@@ -84,14 +78,12 @@ mword *_slurp(char *filename){ // FIXME: Lots of bad things in here...
     }
 
     // copy the file into the buffer:
-    result = fread ( buffer+MWORD_SIZE, 1, lSize, pFile );
+    result = fread ( (char*)buffer, 1, lSize, pFile );
 
-    (mword)buffer[0] = (mword)file_mword_size + MWORD_SIZE;
-//    printf("%08x\n", *(mword*)buffer);
-
-    mword *last_mword_addr;
-    (char*)last_mword_addr = (buffer+file_mword_size+MWORD_SIZE);
-    *last_mword_addr = last_mword;
+//    char *last_mword_addr = (char*)(buffer+(file_mword_size*MWORD_SIZE));
+//    (char*)last_mword_addr = (buffer+file_mword_size+MWORD_SIZE);
+//    *last_mword_addr = last_mword;
+    c(buffer, file_mword_size-1) = last_mword;
 
     if (result != lSize) { fputs ("Reading error",stderr); exit (3); }
 
@@ -99,7 +91,7 @@ mword *_slurp(char *filename){ // FIXME: Lots of bad things in here...
 
     fclose (pFile);
 //    return (mword *)(buffer+2*MWORD_SIZE);
-    return (mword *)(buffer+MWORD_SIZE);
+    return buffer;
 
 }
 

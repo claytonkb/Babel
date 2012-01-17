@@ -337,7 +337,7 @@ inline mword _arlen8(mword *string){
     mword last_mword = c(string, strsize);
     mword alignment = dec_alignment_word8(last_mword);
 
-    if(~last_mword){ //FIXME: 64-bit
+    if(last_mword){
         return  (strsize * MWORD_SIZE) - (MWORD_SIZE - alignment);
     }
     else{
@@ -448,7 +448,7 @@ void _trunc(mword *operand, mword new_size){
 //
 mword alignment_word8(mword size8){
 
-    if(size8 == 0)
+    if(size8 % MWORD_SIZE == 0)
         return 0;
 
     mword alignment = (mword)-1;
