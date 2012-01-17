@@ -108,8 +108,9 @@ mword *_slurp(char *filename){ // FIXME: Lots of bad things in here...
 void slurp(void){
 
 //    mword *temp_cons = new_cons();
-    mword *filename = _b2c((mword*)TOS_0);
-    mword *result   = _slurp((char*)filename);
+//    mword *filename = _b2c((mword*)TOS_0);
+//    mword *result   = _slurp((char*)filename);
+    mword *result   = _slurp((char*)TOS_0);
 
 //    cons(temp_cons, result, nil);
 
@@ -122,8 +123,9 @@ void slurp(void){
 void slurp_mword(void){
 
 //    mword *temp_cons = new_cons();
-    mword *filename = _b2c((mword*)TOS_0);
-    mword *result   = _slurp((char*)filename);
+//    mword *filename = _b2c((mword*)TOS_0);
+//    mword *result   = _slurp((char*)filename);
+    mword *result   = _slurp((char*)TOS_0);
 
     _trunc(result, size(result)-1);
 
@@ -136,8 +138,9 @@ void slurp_mword(void){
 
 void spit(void){
 
-    mword *filename = _b2c((mword*)TOS_0);
-    _spit((char*)filename, (mword*)TOS_1);
+//    mword *filename = _b2c((mword*)TOS_0);
+//    _spit((char*)filename, (mword*)TOS_1);
+    _spit((char*)TOS_0, (mword*)TOS_1);
     zap();
     zap();
 
