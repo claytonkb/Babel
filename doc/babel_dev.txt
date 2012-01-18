@@ -2,15 +2,15 @@ Babel dev
 
 This document is basically just a todo-list.
 
-- Fix load()
-    Currently, load does an "in-place" load. Implement an algo based on 
-    unload() that allocates space for each new array as it is encountered.
-
-    - Fix babel.c reset flow to use a non-initializing _newin (don't init
-    unused entries to nil because there is no nil at reset).
-
-- recursive free operator
-    Cheat off unload/cp()?
+#- Fix load()
+#    Currently, load does an "in-place" load. Implement an algo based on 
+#    unload() that allocates space for each new array as it is encountered.
+#
+#    - Fix babel.c reset flow to use a non-initializing _newin (don't init
+#    unused entries to nil because there is no nil at reset).
+#
+#- recursive free operator
+#    Cheat off unload/cp()?
 
 - Fix zap()
     Implement per-opcode destructor table
@@ -27,8 +27,6 @@ This document is basically just a todo-list.
     _foo()  -> non-operand-checking, non-stack operator
     foo_()  -> operand-checking, stack operator
     _foo_() -> operand-checking, non-stack operator (?)
-
-
 
 - Implement hidden section layout
 
