@@ -545,7 +545,7 @@ Lower-case means "a single value"
     - append
         appends a list of lists
         ( ('a') ('b' 'c') ('d' 'e') ('f' 'g') ) append
-
+            -> leaves ('a' 'b' 'c' 'd' 'e' 'f' 'g') on TOS
     - part
         Partitions a list - opposite of append
         ( 'a' 'b' 'c' 'd' 'e' 'f' 'g') (1 3 5) part
