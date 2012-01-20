@@ -12,6 +12,15 @@ This document is basically just a todo-list.
 #- recursive free operator
 #    Cheat off unload/cp()?
 
+- Nested text blocks
+
+- Both nil and 0 should be treated as false for cond's, loops etc.
+    [(1 2 3 4)]
+    [(dup car [1] cuadd)]
+    [(cdr)]
+    while
+In theory, should leave (2 3 4 5) on TOS
+
 - Fix zap()
     Implement per-opcode destructor table
 
