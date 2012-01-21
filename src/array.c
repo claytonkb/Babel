@@ -542,5 +542,19 @@ int _arcmp(mword *left, mword *right){
 
 }
 
+void ar2ls(void){
+
+    mword *result = _ar2ls((mword*)TOS_0);
+    zap();
+    push_alloc(result, AR2LS);
+
+}
+
+mword *_ar2ls(mword *arr){
+
+    
+
+}
+
 // Clayton Bauman 2011
 

@@ -80,15 +80,28 @@ void isnil(void){
 //#define cons(a,b,c) car(a) = (mword)(b); cdr(a) = (mword)(c);
 void consls(void){
 
-    mword *temp_cons = new_cons();
+//    mword *temp_cons = new_cons();
+//
+//    cons(temp_cons, (mword*)TOS_1, (mword*)TOS_0);
 
-    cons(temp_cons, (mword*)TOS_1, (mword*)TOS_0);
+    mword *result = _consls((mword*)TOS_1, (mword*)TOS_0);
 
     zap();
     zap();
-    push_alloc(temp_cons, CONS);
+    push_alloc(result, CONS);
 
 }
+
+mword *_consls(mword *car_field, mword *cdr_field){
+
+    mword *temp_cons = new_cons();
+
+    cons(temp_cons, car_field, cdr_field);
+
+    return temp_cons;
+
+}
+
 
 //
 //

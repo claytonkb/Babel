@@ -10,6 +10,7 @@ void carindex(void);
 void cdrindex(void);
 void isnil(void);
 void consls(void);
+mword *_consls(mword *car_field, mword *cdr_field);
 void uncons(void);
 void push(void);
 void pop(void);
