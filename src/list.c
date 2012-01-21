@@ -7,6 +7,7 @@
 #include "stack.h"
 #include "bvm_opcodes.h"
 #include "except.h"
+#include "array.h"
 
 //
 //
@@ -141,6 +142,45 @@ void pop(void){
     push_alloc(temp_car, POP);
 
 }
+
+void len(void){
+    mword *result = _newlf(1);
+    *result = _len((mword*)TOS_0);
+    zap();
+    push_alloc(result, LSLEN);
+
+}
+
+mword _len(mword *list){
+    mword length = 0;
+    while(list != (mword*)nil){
+        length++;
+        list = (mword*)cdr(list);
+    }
+    return length;
+}
+
+
+//void bons(void){
+//
+//    mword *result = _bons((mword*)TOS_0);
+//    zap();
+//    push_alloc(result, AR2LS);
+//
+//}
+//
+//mword *_bons(mword *arr){
+//
+//    mword *last_cons = (mword*)nil;
+//    int i;
+//
+//    for(i=size(arr)-1;i>=0;i--){
+//        last_cons = _consls((mword*)c(arr,i),last_cons);
+//    }
+//
+//    return last_cons;
+//
+//}
 
 
 // Clayton Bauman 2011

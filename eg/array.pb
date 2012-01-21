@@ -5,7 +5,9 @@ my_leaf: {0 1 2 3 4 5 6 7 8 9}
 my_interior: [[0][1][2][3][4][5][6][7][8][9]]
 
 code:
-   (["Slicing a leaf array from 3 to 7:\n"] stdout
+   ([my_interior] ar2ls [disp] call
+
+    ["Slicing a leaf array from 3 to 7:\n"] stdout
     [my_leaf] [disp] call
     ["... \n"] stdout
     [my_leaf] [3] [7] slice

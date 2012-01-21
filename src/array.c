@@ -542,6 +542,7 @@ int _arcmp(mword *left, mword *right){
 
 }
 
+// TODO leaf arrays
 void ar2ls(void){
 
     mword *result = _ar2ls((mword*)TOS_0);
@@ -552,7 +553,14 @@ void ar2ls(void){
 
 mword *_ar2ls(mword *arr){
 
-    
+    mword *last_cons = (mword*)nil;
+    int i;
+
+    for(i=size(arr)-1;i>=0;i--){
+        last_cons = _consls((mword*)c(arr,i),last_cons);
+    }
+
+    return last_cons;
 
 }
 

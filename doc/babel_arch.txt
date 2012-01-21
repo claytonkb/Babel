@@ -1749,6 +1749,13 @@ sumls:
 
 ----- Parsing -----
 
+    New term: "Parsing combinator" Very similar to what we're doing here.
+
+    letter: ([('a' 'b' 'c' 'd' 'e' 'f' 'g' 'h' 'i' 'j' 'k' 'l' 'm' 'n' 'o' 'p' 'q' 'r' 's' 't' 'u' 'v' 'w' 'x' 'y' 'z')] alt)
+    word: ((([(letter word)] seq) letter)] alt)
+    sentence: ([(([(word ' ' sentence)] seq) word)] alt)
+
+===================
     Basic ideas:
         - Top-down parsing as *list-expansion* into the final parse-tree
         - Just two types of parsing constructs - alternation and sequence

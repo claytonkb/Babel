@@ -302,7 +302,7 @@ str2ar:         {0x181}
 cu2dec:         {0x184}
 cu2hex:         {0x185}
 ci2dec:         {0x186}
-lslen:          {0x188}
+len:            {0x188}
 take:           {0x189}
 give:           {0x18a}
 lscat:          {0x18c}

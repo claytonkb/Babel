@@ -315,6 +315,10 @@
     case UNCONS:        \
         uncons();       \
         break;          \
+    case AR2LS:         \
+        ar2ls();        \
+    case LSLEN:         \
+        len();          \
     case PUSH:          \
         push();         \
         break;          \
