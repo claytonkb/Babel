@@ -118,30 +118,30 @@ void uncons(void){
 
 }
 
-//push
-// equivalent to Joy's swons
-void push(void){
-
-    mword *temp_cons = new_cons();
-
-    cons(temp_cons, (mword*)TOS_0, (mword*)TOS_1);
-
-    zap();
-    zap();
-    push_alloc(temp_cons, PUSH);
-
-}
-
-//pop
+////push
+//// equivalent to Joy's swons
+//void push(void){
 //
-void pop(void){
-
-    //FIXME: No checking...
-    mword *temp_car = (mword*)car(TOS_0);
-    TOS_0 = cdr(TOS_0);
-    push_alloc(temp_car, POP);
-
-}
+//    mword *temp_cons = new_cons();
+//
+//    cons(temp_cons, (mword*)TOS_0, (mword*)TOS_1);
+//
+//    zap();
+//    zap();
+//    push_alloc(temp_cons, PUSH);
+//
+//}
+//
+////pop
+////
+//void pop(void){
+//
+//    //FIXME: No checking...
+//    mword *temp_car = (mword*)car(TOS_0);
+//    TOS_0 = cdr(TOS_0);
+//    push_alloc(temp_car, POP);
+//
+//}
 
 void len(void){
     mword *result = _newlf(1);
@@ -161,26 +161,56 @@ mword _len(mword *list){
 }
 
 
-//void bons(void){
-//
-//    mword *result = _bons((mword*)TOS_0);
-//    zap();
-//    push_alloc(result, AR2LS);
-//
-//}
-//
-//mword *_bons(mword *arr){
-//
-//    mword *last_cons = (mword*)nil;
-//    int i;
-//
-//    for(i=size(arr)-1;i>=0;i--){
-//        last_cons = _consls((mword*)c(arr,i),last_cons);
-//    }
-//
-//    return last_cons;
-//
-//}
+void bons(void){
+
+    mword *result = _bons((mword*)TOS_0);
+    zap();
+    push_alloc(result, BONS);
+
+}
+
+mword *_bons(mword *list){
+
+    mword list_length = _len(list);
+    mword *arr = _newin(list_length);
+
+    int i=0;
+    while(list != (mword*)nil){
+        c(arr,i) = car(list);
+        i++;
+        list = (mword*)cdr(list);
+    }
+
+    return arr;
+
+}
+
+void ls2lf(void){
+
+    mword *result = _ls2lf((mword*)TOS_0);
+    zap();
+    push_alloc(result, LS2LF);
+
+}
+
+mword *_ls2lf(mword *list){
+
+    mword list_length = _len(list);
+    mword *arr = _newlf(list_length);
+
+    int i=0;
+    while(list != (mword*)nil){
+        if(!is_leaf((mword*)car(list))){
+            die //FIXME: Exception
+        }
+        c(arr,i) = car(car(list));
+        i++;
+        list = (mword*)cdr(list);
+    }
+
+    return arr;
+
+}
 
 
 // Clayton Bauman 2011

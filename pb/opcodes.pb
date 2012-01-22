@@ -334,7 +334,8 @@ slurp:          {0x1b0}
 spit:           {0x1b1}
 journal:        {0x1b2}
 isls:           {0x1b8}
-ls2ar:          {0x1bb}
+ls2lf:          {0x1ba}
+bons:           {0x1bb}
 isat:           {0x1bc}
 isnil:          {0x1bd}
 slurp8:         {0x1c0}

@@ -330,7 +330,8 @@
 #define JOURNAL     0x1b2
 
 #define ISLS        0x1b8
-#define LS2AR       0x1bb
+#define LS2LF       0x1ba
+#define BONS        0x1bb
 #define ISAT        0x1bc
 #define ISNIL       0x1bd
 

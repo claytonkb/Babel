@@ -536,11 +536,13 @@ Lower-case means "a single value"
         [cons(X, Y)]| -> [X] [Y]|
 
     - bons
-        "Babel cons"
-        conses an entire list into an interior-array
+        Undoes ar2ls on an interior-array
 
     - len
         List length
+
+    - ls2lf
+        Undoes ar2ls on a leaf-array
 
     - append
         appends a list of lists

@@ -1,7 +1,14 @@
 code:
-   ([{0 0 0 0}] dup
-    [{"test"}] hash8 bbl2str stdout
-    [{"\n"}] stdout
-    [{0x74736574}] hash bbl2str stdout
-    [{"\n"}] stdout)
+   (["Progressive hashing:\n"] stdout
+    [{0 0 0 0}] ["G"] hash8
+    disp call
+    [{0 0 0 0}] ["GG"] hash8
+    disp call
+    ["\n"] stdout
+    [{0 0 0 0}] ["G"] hash8
+    dup disp call
+    ["G"] hash8
+    dup disp call)
+
+disp: [( bbl2str stdout ["\n"] stdout)]
 

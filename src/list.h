@@ -12,10 +12,14 @@ void isnil(void);
 void consls(void);
 mword *_consls(mword *car_field, mword *cdr_field);
 void uncons(void);
-void push(void);
-void pop(void);
+//void push(void);
+//void pop(void);
 void len(void);
 mword _len(mword *list);
+void bons(void);
+mword *_bons(mword *list);
+void ls2lf(void);
+mword *_ls2lf(mword *list);
 
 #endif //LIST_H
 

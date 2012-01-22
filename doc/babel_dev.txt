@@ -12,6 +12,9 @@ This document is basically just a todo-list.
 #- recursive free operator
 #    Cheat off unload/cp()?
 
+- Fix cp of lists... nil doesn't copy correctly
+    - May need to implement substitution operator
+
 - Nested text blocks
 
 - Both nil and 0 should be treated as false for cond's, loops etc.

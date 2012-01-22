@@ -555,9 +555,19 @@ mword *_ar2ls(mword *arr){
 
     mword *last_cons = (mword*)nil;
     int i;
+    mword *entry;
 
-    for(i=size(arr)-1;i>=0;i--){
-        last_cons = _consls((mword*)c(arr,i),last_cons);
+    if(is_inte(arr)){
+        for(i=size(arr)-1;i>=0;i--){
+            last_cons = _consls((mword*)c(arr,i),last_cons);
+        }
+    }
+    else{
+        for(i=size(arr)-1;i>=0;i--){
+            entry = _newlf(1);
+            *entry = c(arr,i);
+            last_cons = _consls(entry,last_cons);
+        }
     }
 
     return last_cons;

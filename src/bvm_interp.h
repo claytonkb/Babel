@@ -317,13 +317,15 @@
         break;          \
     case AR2LS:         \
         ar2ls();        \
+        break;          \
     case LSLEN:         \
         len();          \
-    case PUSH:          \
-        push();         \
         break;          \
-    case POP:           \
-        pop();          \
+    case BONS:          \
+        bons();         \
+        break;          \
+    case LS2LF:         \
+        ls2lf();        \
         break;          \
 
 #define util_ops        \

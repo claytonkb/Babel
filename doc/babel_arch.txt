@@ -1,10 +1,34 @@
 Babel
 
+----- More hash-reference -----
+
+Hash-reference on TOS when nil is encountered in code_list results in
+a "tail call".
+
+This will be how exceptions are implemented
+
+Use the ret operator to get an unconditional return
+
+Special hash-references
+    When loading/unloading, not all info is saved/restored.
+    For example, nil is not properly saved/restored.
+    Need a way to say "point to the thing named 'x'"
+    Also need a way to say "call this thing 'z'"
+    Also need a way to say "place a copy of the thing named 'w' here"
+
 ----- Unix-inspired operators ------
 
+pa (abbr.) means "path"
+
 Namespace:
-    ('hello' 'world') mkpath -> '<pwd>/hello/world' on TOS (pwd-relative)
-    ('' 'hello' 'world') mkpath -> '/hello/world' on TOS (absolute)
+    ('hello' 'world') pa2str -> '<pwd>/hello/world' on TOS (pwd-relative)
+    ('' 'hello' 'world') pa2str -> '/hello/world' on TOS (absolute)
+
+    ['/hello/world'] str2pa -> ('' 'hello' 'world') on TOS
+    ['hello/world'] str2pa -> (<pwd> 'hello' 'world') on TOS
+
+    Modify hash operator to detect inte on TOS ... if it finds inte, it
+    assumes this is a path and does a pa2str before hashing.
 
     foo cd -> sets pwd to <pwd>/foo
     /foo cd -> sets pwd to /foo
@@ -94,27 +118,6 @@ Hash:
 
 ----- non-alphanumeric operator aliases -----
     
-    + 
-    - 
-    * 
-    / 
-    = 
-    ~
-    !
-    @
-    #
-    $
-    %
-    ^
-    &
-    *
-    <
-    >
-    <=
-    >=
-    <<
-    >>
-    
     Think about syntactic catenation and prefix-freeness...
 
         Most important operators (guess)
@@ -123,12 +126,30 @@ Hash:
         cxr         @
         cond        ??
         sel         ?
-        hash8       #
-        eval        
-        stdout      !
-        times       *
+        hash8       %
+        size        #
+        eval        ! (as in "Do it!")
+        stdout      << (like cout)
+        stdinln     >> (like cin)
+        spit        <<<
+        slurp       >>>
         swap        <->
-        call        <<
+        call        !! (as in "Do it!!")
+        ciadd       +
+        cisub       -
+        cimul       *
+        cidiv       /
+        ciabs       ||        
+        cieq        =
+        cmp         ~=
+        cilt        <
+        cigt        >
+        cile        <=
+        cige        >=
+        cand        &
+        cor         | 
+        cxor        ^
+        cnot        ~  (hmmmm)
 
 code:
     (   argv 0 @
@@ -137,29 +158,28 @@ code:
         [x] 0 paste
 
     --------------------------
-    |  (    "next op: ".!
+    |  (    "next op: " <<
     |       
     |       [x] *2 *2
     |       cdr car car
     |
     |       *2 islf
-    |       (   "push ".!
-    |           bbl2str.! )
+    |       (   "push " <<
+    |           bbl2str << )
     |       (   [opcode_map]
     |           <->
     |           @
-    |           ! )
-    |       ?
-    |       eval
+    |           << )
+    |       ? !
     |
-    |       "\n> ".!
+    |       "\n> " <<
     |
-    |       stdinln dec2ci bvmstep
+    |       >> dec2ci bvmstep
     |       bbl2gv "snapshot.dot" spit8
     |
-    |       "TOS: ".!
+    |       "TOS: " <<
     |       cdr cdr cdr car car car
-    |       bbl2str.! "\n".! )
+    |       bbl2str << "\n" << )
     [-1]
     times )
 

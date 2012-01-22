@@ -3,6 +3,15 @@
 use strict;
 use feature 'state';
 no warnings 'recursion'; # Get "deep recursion" on large .pb files otherwise
+use Hash::Pearson16;
+
+#my @my_hash = Hash::Pearson16::pearson16_hash($ARGV[0]);
+#my $j;
+#for($j=0;$j<=$#my_hash;$j++){
+#    printf("%02x", $my_hash[$j]);
+#}
+#print "\n";
+#die;
 
 use YAML::XS;
 use Data::Dumper;
