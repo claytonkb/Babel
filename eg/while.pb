@@ -1,21 +1,9 @@
 code:
-    [   [[  [{"Hello, world\n"}]
-            [ stdout
-            [ x
-            [ [{1}]
-            [ cusub
-            [ [x]
-            [ [{0}]
-            [ save
-            [ zap
-            nil]]]]]]]]]]
-    [   [   [ x
-            [ [{0}]
-            [ cugt
-            nil]]]]
-    [ while
-    nil]]]
+     ([(["Hello, world\n"] stdout
+        [x] car [1] cuadd [x] [0] paste
+        zap)]
+      [(x [10] cult)]
+     while)
 
-x:
-    [{10}]
+x: [0]
 

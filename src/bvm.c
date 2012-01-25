@@ -175,7 +175,7 @@ void bvm_interp(void){
 
     mword* discard;
 
-    while(global_steps--){
+    while(global_steps--){//FIXME: This is not correct long-term
 
         if(car(code_ptr) == (mword)nil){
             if(!rstack_empty){
@@ -191,7 +191,7 @@ void bvm_interp(void){
                     }
                 }
                 else if(alloc_type(RTOS_0) == WHILEOP){
-                    if(car(TOS_0) != 0){
+                    if(!is_false((mword*)TOS_0)){
                         zap();
                         (mword*)code_ptr = (mword*)car(RTOS_0);
                         push_alloc_rstack( (mword*)car(RTOS_2), 0);

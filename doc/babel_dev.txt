@@ -12,6 +12,8 @@ This document is basically just a todo-list.
 #- recursive free operator
 #    Cheat off unload/cp()?
 
+- Implement each/loop/etc. in preparation for nested hashes
+
 - Fix cp of lists... nil doesn't copy correctly
     - May need to implement substitution operator
 
