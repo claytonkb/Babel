@@ -50,6 +50,12 @@ int         exception_type;
 #define size(x)      (abs(s(x))/MWORD_SIZE)
 #define c(x,y)       (*(y + x))
 
+#define is_false(x) ( is_leaf(x) && car(x) == 0\
+                    ||is_inte(x) && car(x) == nil)
+
+//((is_inte(x) && x == (mword*)nil \
+//                    ||is_leaf(x) && x == 0) ? 0 : 1)
+
 #define car(x)      c((mword *)x,0)
 #define cdr(x)      c((mword *)x,1)
 #define cadr(x)     car(cdr(x))

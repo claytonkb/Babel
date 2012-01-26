@@ -5,16 +5,16 @@ use feature 'state';
 no warnings 'recursion'; # Get "deep recursion" on large .pb files otherwise
 use Hash::Pearson16;
 
-#my @my_hash = Hash::Pearson16::pearson16_hash($ARGV[0]);
+use YAML::XS;
+use Data::Dumper;
+
+#my @my_hash = Hash::Pearson16::pearson16_hash("nil");
 #my $j;
 #for($j=0;$j<=$#my_hash;$j++){
 #    printf("%02x", $my_hash[$j]);
 #}
 #print "\n";
 #die;
-
-use YAML::XS;
-use Data::Dumper;
 
 #open YAML_FILE, shift;
 #my $yaml_file = join '', <YAML_FILE>;
