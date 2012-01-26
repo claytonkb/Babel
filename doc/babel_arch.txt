@@ -4,6 +4,24 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- dup, zap, hash-references -----
+
+a: [2 3]
+
+a dup <--- how do we automatically memory-manage this?
+
+We know when it is zapped, it is safe to free it but not everything
+can be safely freed when zapped (we might try to free the same 
+thing twice).
+
+So, what will happen is dup will convert whatever is on TOS
+to a hash-reference, if it is not already. Hashes will be 
+enhanced to have an optional third meta-data for reference-
+counting. If the value there is -1, the reference is not being
+tracked. Otherwise, each new dup will increment the reference-
+count and only when we zap on a ref-count of zero will the
+associated object be freed.
+
 ----- Memory allocation -----
 
 Note this applies to perf-optimized babel only.
@@ -48,7 +66,10 @@ BVM is set running again.
 
 This also makes garbage collection very nice:
 
-    gc: (root save restore)
+    gc: (save restore)
+
+Note: this routine would have to exist in the BVM's parent and be 
+invoked on behalf of the child BVM.
 
 ----- Hash-based BVM structure ------
 
