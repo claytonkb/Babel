@@ -1,4 +1,81 @@
-Babel
+Babel Architecture
+
+Note that this file contains a lot of deprecated/obsolete information 
+which is not marked as such. I'm just using it as a running reference
+during the development process.
+
+----- Memory allocation -----
+
+Note this applies to perf-optimized babel only.
+
+We use lots of size 1 and size 2 arrays. The idea is to implement a 
+dedicated free list for size-1 and size-2 arrays that is never itself
+freed. To clean up after operating on a large, complex data-object,
+simply use the gc routine mentioned below.
+
+During a full-BVM restore, the interpreter will recognize this as an
+opportunity to free the memory for the size-1 and size-2 lists and 
+will do so.
+
+----- Save/restore -----
+
+Propose: New operators
+
+Save just unloads the entire BVM and pushes it on rstack. Restore loads
+the saved BVM and continues execution from there. Can be used for 
+aggressive use of backtracking.
+
+It might be nice to make the save/restore targetable... perhaps we only
+need to save/restore a particular data-structure but we don't care about
+the rest of the interpreter state because we're not touching it (have to
+be careful for asynchronous stuff).
+
+For example, during parsing, you want to speculatively fill out a parse-
+tree and this tree can be really complex and undoing what has been done
+up to this point can be complex. Saving a snapshot of the whole tree
+at each decision-point provides a naive "brute-force" method of 
+implementing back-tracking.
+
+Proposed implementation: (ptr save) <--- saves whatever is pointed to
+by pointer on rstack. Restore restores the object from rstack back to
+the pointer. Must not free the location that holds the pointer in the 
+intervening time.
+
+Special case: (bvmroot save ... restore) this causes the entire BVM to be
+wrapped up and saved on rstack. Once restore is called, the BVM on 
+rstack is unloaded then the current BVM is blown away and the saved
+BVM is set running again.
+
+This also makes garbage collection very nice:
+
+    gc: (root save restore)
+
+----- Hash-based BVM structure ------
+
+Consider: Replace the current list-based BVM structure with hash-based or
+nested-hash/namespace-based structure.
+
+The basic idea here is that the BVM would be stored AS a hash.
+
+Some nice things come out of this.
+
+Loading into a particular namespace becomes "smooth" between hash-based data-
+structures and BVMs... it's the same process.
+
+We can adopt some nice conventions, as well.
+
+For example:
+
+/extern could contain the symbols that the loaded hash would like to link into
+its parent (basically, get reference to parent's root hash).
+
+/global could contain the symbols that the loaded hash would like to install
+into its parent's hash, pointing into itself.
+
+The loading BVM can, of course, decide whether or not to permit these actions.
+
+Export/import of symbols? Imagine a BVM that, once loaded, wants copies of
+some of the entries from its parent's hash table.
 
 ----- More hash-reference -----
 

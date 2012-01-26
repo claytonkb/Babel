@@ -12,8 +12,16 @@ This document is basically just a todo-list.
 #- recursive free operator
 #    Cheat off unload/cp()?
 
+- Major re-write: Change to hash-based BVM.
+    - But first, have to update hashing to use binary tree
+    - We can keep the old byte-based code for a new data-structure called
+    a "filesystem" or fs, which will know how to read a data-structure out
+    of memory, off disk or a combination (implement caching).
+
 - Fix cp of lists... nil doesn't copy correctly
-    - May need to implement substitution operator
+    - unload operator needs to be given a list of symbols to "recognize"
+    - load operator will have to be enhanced to handle more complex 
+    structures
 
 - Nested text blocks
 
