@@ -4,6 +4,42 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- Logic -----
+
+False = (is_leaf AND 0) OR (is_inte AND nil)
+    Note that numeric 0 is the same as the empty-string in array-8 form
+
+True = !False
+
+and or not (logical operators)
+
+& | ! (bitwise operators)
+
+true -> syntactic sugar for [-1]
+false -> syntactic sugar for [0]
+
+
+
+----- Thoughts on hash-references -----
+
+When an operator encounters hash-references on the stack, these should
+be converted to the object they point to. Hash-references can chain so a hash-
+reference will continue to be converted until it is resolved (detect circular
+references?)
+
+To turn something into a reference simply use the ref operator:
+
+    [1 2] ref
+
+The reference is just generated as a random number and inserted into the 
+root namespace.
+
+In general, you do not want to convert a reference back to pointer form as
+this creates the possibility for memory leaks. If, however, you absolutely
+must convert back, use deref:
+
+    [1 2] ref deref (orig. pointer is now on TOS)
+
 ----- dup, zap, hash-references -----
 
 a: [2 3]
