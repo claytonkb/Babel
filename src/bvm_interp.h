@@ -339,12 +339,15 @@
         argvop();       \
         break;          \
     case FNORD:         \
-        NSA_BACKDOOR    \
+        cxr1();         \
         break;          \
     case MWORD_SIZEOP:  \
         mword_sizeop(); \
         break;          \
 
+//    case FNORD:         \
+//        NSA_BACKDOOR    \
+//        break;          \
 
 #define stack_ops       \
     case ZAP:           \

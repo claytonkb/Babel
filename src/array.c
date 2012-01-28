@@ -151,6 +151,31 @@ void cxr(void){
 
 }
 
+void cxr8(void){
+}
+
+mword _cxr8(mword *val, mword bit){
+}
+
+void cxr1(void){
+
+    mword *result = new_atom();
+    *result = _cxr1((mword*)TOS_1,car(TOS_0));
+
+    zap(); zap();
+    push_alloc(result, FNORD);
+
+}
+
+mword _cxr1(mword *val, mword bit){
+    mword mword_select = bit/(MWORD_BIT_SIZE);
+    mword bit_offset = bit % MWORD_BIT_SIZE;
+    if(mword_select > size(val)-1)
+         except("_cxr1 error:", __FILE__, __LINE__);
+    return (c(val,mword_select) & (1<<bit_offset)) >> bit_offset;
+}
+
+
 //w
 //
 void w(void){
@@ -268,6 +293,7 @@ void paste(void){
 }
 
 
+//FIXME: I think this operator is broken
 void cut(void){
 
     mword *result_pre;
@@ -277,7 +303,6 @@ void cut(void){
     mword cut_point = car(TOS_0);
     mword *src      = (mword*)TOS_1;
 
-    zap();
     zap();
 
     if(cut_point == 0){
@@ -290,6 +315,7 @@ void cut(void){
         push_alloc((mword*)nil, CUT);
     }
     else{
+        zap();
         if(is_leaf(src)){
             result_pre  = _newlf(cut_point);
             result_post = _newlf(size(src)-cut_point);

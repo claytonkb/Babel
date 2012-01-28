@@ -17,6 +17,8 @@ mword *_luha(mword *hash_table, char *hash, mword level);
 void insha(void);
 void luha(void);
 void exha(void);
+void select_bit_test(void);
+mword select_bit(mword *val, mword bit);
 
 #endif //HASH_H
 

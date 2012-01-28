@@ -2,12 +2,16 @@
 -- This program illustrates Babel's array operators
 
 my_leaf: {0 1 2 3 4 5 6 7 8 9}
-my_interior: [[0][1][2][3][4][5][6][7][8][9]]
+-- my_interior: [[0][1][2][3][4][5][6][7][8][9]]
+my_interior: [0 1 2 3 4 5 6 7 8 9]
 
 code:
-   ([my_interior] ar2ls [disp] call
+   (["Converting an array to a list:\n"] stdout
+    [my_interior] [disp] call
+    ["... \n"] stdout
+    [my_interior] ar2ls [disp] call
 
-    ["Slicing a leaf array from 3 to 7:\n"] stdout
+    ["\nSlicing a leaf array from 3 to 7:\n"] stdout
     [my_leaf] [disp] call
     ["... \n"] stdout
     [my_leaf] [3] [7] slice
@@ -34,16 +38,18 @@ code:
     [my_interior] size [disp] call
 
     ["\nCutting a leaf-array:\n"] stdout
-    [my_interior] [0] cut 
-
-    [dump] call die
-
+    [my_leaf] [3] cut
     [disp] call [disp] call
 
-    ["\n8-bit leaf-array length:\n"] stdout
+    ["\nCatting cut leaf-arrays:\n"] stdout
+    [my_leaf] [3] cut cat
+    [disp] call
+
+    ["\narray-8 length:\n"] stdout
     ["Hello, world: "] stdout
     ["Hello, world"] [disp] call
-    ["Hello, world"] sizeby [disp] call
+    ["array-8 length: "] stdout
+    ["Hello, world"] size8 [disp] call
 
     [my_leaf] dup dup
     ["\nleaf-array s-field: "] stdout
@@ -68,15 +74,12 @@ code:
 --    ["\nAllocating a new interior-array:\n"] stdout
 --    [3] newin [disp] call
 
-    ["\nConcatenating two leaf-arrays:\n"] stdout
-    [a] [disp] call
-    [b] [disp] call
-    [a] [b] cat [disp] call
-
     ["\nComparing two leaf-arrays:\n"] stdout
-    [a] [b] cmp [disp] call
-    [b] [a] cmp [disp] call
-    [a] [a] cmp [disp] call
+    ["a: "] stdout [a] [disp] call
+    ["b: "] stdout [b] [disp] call
+    ["a b ~: "] stdout [a] [b] cmp [disp] call
+    ["b a ~: "] stdout [b] [a] cmp [disp] call
+    ["a a ~: "] stdout [a] [a] cmp [disp] call
 
 )
 
@@ -85,5 +88,5 @@ b: {2 4 6}
 
 disp: (bbl2str stdout ["\n"] stdout ret)
 
-dump: (bvmroot bbl2gv ["dump.dot"] spit8 ret)
+dump: (bbl2gv ["dump.dot"] spit8 ret)
 

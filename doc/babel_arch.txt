@@ -4,6 +4,16 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- Slice/Paste -----
+
+Extend slice and paste with 8-bit and 1-bit versions:
+
+[0xdeadbeef] [4] [6] slice8 --> leaves [0xad] on TOS
+[0xdeadbeef] [4] [16] slice1 --> leaves [0xbee] on TOS
+
+[0xb] [0xbade] [1] [2] paste8 --> leaves [0xbabe] on TOS
+[1] [0xcab] [8] [9] paste1 -> leaves [0xdab] on TOS
+
 ----- Logic -----
 
 False = (is_leaf AND 0) OR (is_inte AND nil)
@@ -17,8 +27,6 @@ and or not (logical operators)
 
 true -> syntactic sugar for [-1]
 false -> syntactic sugar for [0]
-
-
 
 ----- Thoughts on hash-references -----
 

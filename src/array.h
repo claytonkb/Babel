@@ -36,6 +36,10 @@ int _arcmp(mword *left, mword *right);
 inline mword *_newin_blank(mword size);
 void ar2ls(void);
 mword *_ar2ls(mword *arr);
+void cxr8(void);
+mword _cxr8(mword *val, mword bit);
+void cxr1(void);
+mword _cxr1(mword *val, mword bit);
 
 #endif //ARRAY_H
 

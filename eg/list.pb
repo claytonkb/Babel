@@ -3,7 +3,9 @@ code:
     [(1 2 3)] cdr disp call
     [(1)] [(2 3)] cons dup disp call
     uncons disp call disp call
-    [(1 2 3)] uncons disp call disp call)
+    [(1 2 3)] uncons disp call disp call
+    [[1 2 3]] ar2ls dup disp call
+    bons disp call)
 
 disp:
     [(bbl2str stdout ["\n"] stdout)]
