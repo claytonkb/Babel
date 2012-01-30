@@ -151,20 +151,7 @@ void cxr(void){
 
 }
 
-void cxr8(void){
-}
-
 mword _cxr8(mword *val, mword bit){
-}
-
-void cxr1(void){
-
-    mword *result = new_atom();
-    *result = _cxr1((mword*)TOS_1,car(TOS_0));
-
-    zap(); zap();
-    push_alloc(result, FNORD);
-
 }
 
 mword _cxr1(mword *val, mword bit){

@@ -10,6 +10,7 @@
 #include "pearson16.h"
 #include "bvm.h"
 #include "bvm_opcodes.h"
+#include "ref.h"
 
 //void push_alloc(mword *operand, mword alloc_type){
 
@@ -31,25 +32,38 @@ mword *new_hash_entry(mword *val, mword *hash){
 mword *new_hash_key_entry(mword *val, mword *hash, mword *key){
 }
 
-// val hash_table hash insha
 void insha(void){
 
-    mword *val        = (mword*)TOS_2;
-    mword *hash_table = (mword*)TOS_1;
-    mword *hash       = (mword*)TOS_0;
+//    mword *result = new_atom();
+//    *result = _cxr1((mword*)TOS_1,car(TOS_0));
+//
+//    zap();
+//    zap();
+//    push_alloc(result, INSHA);
 
-    val = new_hash_entry(val, hash);
 
-    _insha(hash_table, (char *)hash, val, 0);
-
-//    cons(temp_cons, result, nil);
-
-    zap();
-    swap();
-    zap();
-//    push_alloc(result, SLURP8);
 
 }
+
+//// val hash_table hash insha
+//void insha(void){
+//
+//    mword *val        = (mword*)TOS_2;
+//    mword *hash_table = (mword*)TOS_1;
+//    mword *hash       = (mword*)TOS_0;
+//
+//    val = new_hash_entry(val, hash);
+//
+//    _insha(hash_table, (char *)hash, val, 0);
+//
+////    cons(temp_cons, result, nil);
+//
+//    zap();
+//    swap();
+//    zap();
+////    push_alloc(result, SLURP8);
+//
+//}
 
 // hash_table hash insha
 void luha(void){
@@ -91,23 +105,23 @@ void exha(void){
 void _insha(mword *hash_table, char *hash, mword *val, mword level){
 }
 
-void select_bit_test(void){
-
-    mword *result = new_atom();
-    *result = select_bit((mword*)TOS_1,car(TOS_0));
-
-    zap(); zap();
-    push_alloc(result, FNORD);
-
-}
-
-mword select_bit(mword *val, mword bit){
-    mword mword_select = bit/(MWORD_BIT_SIZE);
-    mword bit_offset = bit % MWORD_BIT_SIZE;
-    if(mword_select > size(val)-1)
-         except("select_bit error:", __FILE__, __LINE__);
-    return (c(val,mword_select) & (1<<bit_offset)) >> bit_offset;
-}
+//void select_bit_test(void){
+//
+//    mword *result = new_atom();
+//    *result = select_bit((mword*)TOS_1,car(TOS_0));
+//
+//    zap(); zap();
+//    push_alloc(result, FNORD);
+//
+//}
+//
+//mword select_bit(mword *val, mword bit){
+//    mword mword_select = bit/(MWORD_BIT_SIZE);
+//    mword bit_offset = bit % MWORD_BIT_SIZE;
+//    if(mword_select > size(val)-1)
+//         except("select_bit error:", __FILE__, __LINE__);
+//    return (c(val,mword_select) & (1<<bit_offset)) >> bit_offset;
+//}
 
 mword *_luha(mword *hash_table, char *hash, mword level){
 }
