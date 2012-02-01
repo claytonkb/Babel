@@ -27,6 +27,7 @@
 #include "hash.h"
 #include "bstruct.h"
 #include "alloc.h"
+#include "ref.h"
 
 void bvmstep(void){
 
@@ -218,6 +219,9 @@ void bvm_interp(void){
         else if( is_leaf((mword *)car(code_ptr)) ){
             opcode_switch(car(car(code_ptr)))
         }
+        else if( is_href((mword *)car(code_ptr)) ){ //FIXME: Implement href operator calls!
+            except("bvm_interp: hash-reference detected in code", __FILE__, __LINE__);
+        }
         else{
             except("bvm_interp: error detected during execution", __FILE__, __LINE__);
         }
@@ -274,7 +278,20 @@ mword tree_bbl2gv(mword *tree){
         return 0;
     }
 
+    if( is_href(tree) ){
+        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
+        for(i=0; i<HASH_SIZE; i++){
+            printf("<f%d> %x", i, *(mword *)(tree+i));
+            if(i<(HASH_SIZE-1)){
+                printf("|");
+            }
+        }
+        printf("\"];\n");
+        return 0;
+    }
+
     int num_elem = size(tree);
+
 //    count = num_elem + 1;
 
     s(tree) |= 0x1;

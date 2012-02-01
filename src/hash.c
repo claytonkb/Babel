@@ -41,8 +41,6 @@ void insha(void){
 //    zap();
 //    push_alloc(result, INSHA);
 
-
-
 }
 
 //// val hash_table hash insha
