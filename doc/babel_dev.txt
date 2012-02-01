@@ -1,0 +1,76 @@
+Babel dev
+
+This document is basically just a todo-list.
+
+#- Fix load()
+#    Currently, load does an "in-place" load. Implement an algo based on 
+#    unload() that allocates space for each new array as it is encountered.
+#
+#    - Fix babel.c reset flow to use a non-initializing _newin (don't init
+#    unused entries to nil because there is no nil at reset).
+#
+#- recursive free operator
+#    Cheat off unload/cp()?
+
+<<<<<<< HEAD
+- Major re-write: Change to hash-based BVM.
+    - But first, have to update hashing to use binary tree
+    - We can keep the old byte-based code for a new data-structure called
+    a "filesystem" or fs, which will know how to read a data-structure out
+    of memory, off disk or a combination (implement caching).
+=======
+- Implement each/loop/etc. in preparation for nested hashes
+>>>>>>> 000ced94c67243acd6cfb1cfe75157409f24328e
+
+- Fix cp of lists... nil doesn't copy correctly
+    - unload operator needs to be given a list of symbols to "recognize"
+    - load operator will have to be enhanced to handle more complex 
+    structures
+
+- Nested text blocks
+
+- Both nil and 0 should be treated as false for cond's, loops etc.
+    [(1 2 3 4)]
+    [(dup car [1] cuadd)]
+    [(cdr)]
+    while
+In theory, should leave (2 3 4 5) on TOS
+
+- Fix zap()
+    Implement per-opcode destructor table
+
+- Implement _zap()
+    This is an unconditional zap used by operators that re-arranged the 
+    stack
+
+- Implement stack-temporary mem allocation (see babel_guts.txt)
+
+- Implement operand-checking wrappers
+    Naming convention:
+    foo()   -> non-operand-checking, stack operator
+    _foo()  -> non-operand-checking, non-stack operator
+    foo_()  -> operand-checking, stack operator
+    _foo_() -> operand-checking, non-stack operator (?)
+
+- Implement hidden section layout
+
+- bvm_init rat's nest...
+    - PRNG seed
+    - Pearson init (should happen ONCE per INTERPRETER RESET)
+    - argv
+
+- Basic "text match" operators
+    seq
+    alt
+
+- command-line argument processing in rt.pb
+    Allow switch-select debug mode
+
+- Implement operator jump table
+
+- rmha
+    Cheat off unload/cp()?
+
+- Namespaces...
+
+
