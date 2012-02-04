@@ -339,7 +339,7 @@
         argvop();       \
         break;          \
     case FNORD:         \
-        newref();       \
+        bbl2gv();       \
         break;          \
     case MWORD_SIZEOP:  \
         mword_sizeop(); \
@@ -400,11 +400,17 @@
     case INSHA:         \
         insha();        \
         break;          \
+    case INSKHA:         \
+        inskha();        \
+        break;          \
     case LUHA:          \
         luha();         \
         break;          \
     case EXHA:          \
         exha();         \
+        break;          \
+    case RMHA:          \
+        rmha();         \
         break;          \
     case HASH8:         \
         hash8();        \

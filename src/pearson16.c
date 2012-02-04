@@ -93,6 +93,10 @@ mword *new_hash(void){
     }
 
     ptr[0] = HASH_SIZE * MWORD_SIZE;
+    ptr[1] = 0;
+    ptr[2] = 0;
+    ptr[3] = 0;
+    ptr[4] = 0;
     return ptr+1;
 
 }

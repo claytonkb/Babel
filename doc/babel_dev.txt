@@ -12,15 +12,27 @@ This document is basically just a todo-list.
 #- recursive free operator
 #    Cheat off unload/cp()?
 
-<<<<<<< HEAD
+#- update hashing to use binary tree
+#    - insha
+#        Change operand order to:
+#            (hash-table hash val insha)
+#    - luha
+#        Change operand order:
+#            (hash-table hash luha)
+#    - same for exha
+
+- Hash-ref work
+    - add hash-ref to bbl2gv (DONE)
+    - add hash-ref to bvm_interp (partially done)
+    - fix size() (DONE)
+    - get_TOS()
+
 - Major re-write: Change to hash-based BVM.
-    - But first, have to update hashing to use binary tree
     - We can keep the old byte-based code for a new data-structure called
     a "filesystem" or fs, which will know how to read a data-structure out
     of memory, off disk or a combination (implement caching).
-=======
+
 - Implement each/loop/etc. in preparation for nested hashes
->>>>>>> 000ced94c67243acd6cfb1cfe75157409f24328e
 
 - Fix cp of lists... nil doesn't copy correctly
     - unload operator needs to be given a list of symbols to "recognize"

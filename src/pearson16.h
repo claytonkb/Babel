@@ -12,7 +12,7 @@ void hash(void);
 mword *_pearson16(mword* sinit, mword *skey, mword strlen);
 
 //FIXME: 32-bit specific:
-#define HASH_SIZE 4
+//#define HASH_SIZE 4
 
 #endif //PEARSON16_H
 

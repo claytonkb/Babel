@@ -199,6 +199,7 @@ bvmsave:        {0x105}
 bvmfork:        {0x106}
 msize:          {0x107}
 free:           {0x109}
+rmha:           {0x10a}
 ---------------------------
 -- DEPRECATE::
 arlen8:         {0x108}

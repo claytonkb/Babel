@@ -28,6 +28,9 @@ int         exception_type;
 #define MWORD_BIT_SIZE (MWORD_SIZE << 3)
 #define MWORDS(x) ((x)*MWORD_SIZE)
 
+#define HASH_BIT_SIZE 128
+#define HASH_SIZE (HASH_BIT_SIZE/MWORD_BIT_SIZE)
+
 #define BITS_PER_BYTE 8
 
 #define WINDOWS
@@ -47,7 +50,8 @@ int         exception_type;
 //#define is_nleaf(x)  ((int)s(x) <= 0)
 //#define is_ninte(x)  ((int)s(x) >= 0)
 //#define is_nhref(x)  ((int)s(x) != 0)
-#define size(x)      (abs(s(x))/MWORD_SIZE)
+//#define size(x)      (abs(s(x))/MWORD_SIZE)
+#define size(x)      (is_href(x)?HASH_SIZE:(abs(s(x))/MWORD_SIZE))
 #define c(x,y)       (*(y + x))
 
 #define is_false(x) ( is_leaf(x) && car(x) == 0\

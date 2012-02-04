@@ -12,25 +12,31 @@
 #include "bvm_opcodes.h"
 #include "ref.h"
 
+#define opposite_side(x) ((x==0)?1:0)
+
 //void push_alloc(mword *operand, mword alloc_type){
 
 // make hash-entry
-mword *new_hash_entry(mword *val, mword *hash){
+mword *new_hash_entry(mword *hash, mword *val, mword *key, mword ref_count){
+
+    mword *href = _newref(hash);
+    mword *ref_count_ptr = new_atom();
+    *ref_count_ptr = ref_count;
 
     mword *temp_consA = new_cons();
     mword *temp_consB = new_cons();
+    mword *temp_consC = new_cons();
+    mword *temp_consD = new_cons();
 
-    cons(temp_consA,  hash,  nil);
-    cons(temp_consB,  val,   temp_consA);
+    cons(temp_consA,  ref_count_ptr,  nil       );
+    cons(temp_consB,  key,            temp_consA);
+    cons(temp_consC,  val,            temp_consB);
+    cons(temp_consD,  href,           temp_consC);
 
-    return temp_consB;
+    return temp_consD;
 
 }
 
-
-// make hash-entry with key
-mword *new_hash_key_entry(mword *val, mword *hash, mword *key){
-}
 
 void insha(void){
 
@@ -41,6 +47,303 @@ void insha(void){
 //    zap();
 //    push_alloc(result, INSHA);
 
+    mword *hash_table = (mword*)TOS_2;
+    mword *hash       = (mword*)TOS_1;
+    mword *val        = (mword*)TOS_0;
+
+    mword *result;
+    mword *temp;
+    mword cons_side;
+
+//    fprintf(stderr,"insha: ");
+//    fprintf(stderr,"%x ",c(hash,0));
+//    fprintf(stderr,"%x ",c(hash,1));
+//    fprintf(stderr,"%x ",c(hash,2));
+//    fprintf(stderr,"%x\n",c(hash,3));
+//
+    if(hash_table == (mword*)nil){
+        cons_side = _cxr1(hash,0);
+        temp = new_hash_entry(hash, val, (mword*)nil, (mword)-1);
+        result = _newin(2);
+        c(result,cons_side) = (mword)temp;
+    }
+    else{
+        _insha(hash_table, hash, val, 0);
+        result = hash_table;
+    }
+
+//    cons(temp_cons, result, nil);
+
+    zap();
+    zap();
+    zap();
+
+    push_alloc(result, INSHA);
+
+}
+
+void _insha(mword *hash_table, mword *hash, mword *val, mword level){
+
+    mword cons_side = _cxr1(hash,level);
+    mword next_cons_side;
+    mword occupant_cons_side;
+    mword *temp;
+//    mword *tempB;
+
+//    d(cons_side)
+
+    if(is_href((mword*)car(c(hash_table,cons_side)))){
+        if(!_arcmp((mword*)car(c(hash_table,cons_side)),hash)){
+            car(cdr(c(hash_table,cons_side))) = (mword)val;
+        }
+        else{
+            temp = (mword*)c(hash_table,cons_side);
+            c(hash_table,cons_side) = (mword)_newin(2);
+            next_cons_side = _cxr1((mword*)car(temp),level+1);
+            c((mword*)c(hash_table,cons_side),next_cons_side) = (mword)temp;
+            _insha((mword*)c(hash_table,cons_side), hash, val, level+1);
+        }
+    }
+    else if(car(c(hash_table,cons_side)) == nil){
+        temp = new_hash_entry(hash, val, (mword*)nil, (mword)-1);
+        c(hash_table,cons_side) = (mword)temp;
+    }
+    else{
+        _insha((mword*)c(hash_table,cons_side), hash, val, level+1);
+    }
+
+}
+
+void inskha(void){
+
+    mword *hash_table = (mword*)TOS_2;
+    mword *key        = (mword*)TOS_1;
+    mword *val        = (mword*)TOS_0;
+
+    mword *hash_init = new_hash();
+    mword *hash = _pearson16(hash_init, key, (mword)strlen((char*)key));
+
+    mword *result;
+    mword *temp;
+    mword cons_side;
+
+    if(hash_table == (mword*)nil){
+        cons_side = _cxr1(hash,0);
+        temp = new_hash_entry(hash, val, key, (mword)-1);
+        result = _newin(2);
+        c(result,cons_side) = (mword)temp;
+    }
+    else{
+        _inskha(hash_table, hash, key, val, 0);
+        result = hash_table;
+    }
+
+    zap();
+    zap();
+    zap();
+
+    push_alloc(result, INSHA);
+
+}
+
+
+void _inskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level){
+
+    mword cons_side = _cxr1(hash,level);
+    mword next_cons_side;
+    mword occupant_cons_side;
+    mword *temp;
+
+    if(is_href((mword*)car(c(hash_table,cons_side)))){
+        if(!_arcmp((mword*)car(c(hash_table,cons_side)),hash)){
+            car(cdr(c(hash_table,cons_side))) = (mword)val;
+        }
+        else{
+            temp = (mword*)c(hash_table,cons_side);
+            c(hash_table,cons_side) = (mword)_newin(2);
+            next_cons_side = _cxr1((mword*)car(temp),level+1);
+            c((mword*)c(hash_table,cons_side),next_cons_side) = (mword)temp;
+            _inskha((mword*)c(hash_table,cons_side), hash, key, val, level+1);
+        }
+    }
+    else if(car(c(hash_table,cons_side)) == nil){
+        temp = new_hash_entry(hash, val, key, (mword)-1);
+        c(hash_table,cons_side) = (mword)temp;
+    }
+    else{
+        _inskha((mword*)c(hash_table,cons_side), hash, key, val, level+1);
+    }
+
+}
+
+
+// hash_table hash insha
+void exha(void){
+
+    mword *hash_table = (mword*)TOS_1;
+    mword *hash       = (mword*)TOS_0;
+
+//    fprintf(stderr,"exha: ");
+//    fprintf(stderr,"%x ",c(hash,0));
+//    fprintf(stderr,"%x ",c(hash,1));
+//    fprintf(stderr,"%x ",c(hash,2));
+//    fprintf(stderr,"%x\n",c(hash,3));
+//
+    mword *result = new_atom();
+//    mword *temp;
+//    mword cons_side;
+
+    if(hash_table == (mword*)nil){
+        *result = 0;
+    }
+    else{
+        *result = _exha(hash_table, hash, 0);
+    }
+
+//    cons(temp_cons, result, nil);
+
+    zap();
+
+    push_alloc(result, EXHA);
+}
+
+mword _exha(mword *hash_table, mword *hash, mword level){
+
+    mword cons_side = _cxr1(hash,level);
+//    d(cons_side)
+    mword next_cons_side;
+    mword occupant_cons_side;
+    mword *temp;
+//    mword *tempB;
+
+    if(is_href((mword*)car(c(hash_table,cons_side)))){
+        if(!_arcmp((mword*)car(c(hash_table,cons_side)),hash)){
+//            fprintf(stderr,"A\n");
+            return 1;
+        }
+        else{
+//            fprintf(stderr,"B\n");
+            return 0;
+        }
+    }
+    else if(c(hash_table,cons_side) == nil){
+//            fprintf(stderr,"C\n");
+        return 0;
+    }
+    else{
+//            fprintf(stderr,"D\n");
+        return _exha((mword*)c(hash_table,cons_side), hash, level+1);
+    }
+
+}
+
+void luha(void){
+
+    mword *hash_table = (mword*)TOS_1;
+    mword *hash       = (mword*)TOS_0;
+
+    mword *result;
+//    mword *temp;
+//    mword cons_side;
+
+    if(hash_table == (mword*)nil){
+        result = (mword*)nil;
+    }
+    else{
+        result = _luha(hash_table, hash, 0);
+    }
+
+//    cons(temp_cons, result, nil);
+
+    zap();
+
+    push_alloc(result, LUHA);
+
+}
+
+
+mword *_luha(mword *hash_table, mword *hash, mword level){
+
+    mword cons_side = _cxr1(hash,level);
+//    mword *tempB;
+
+    if(is_href((mword*)car(c(hash_table,cons_side)))){
+        if(!_arcmp((mword*)car(c(hash_table,cons_side)),hash)){
+            return (mword*)car(cdr(c(hash_table,cons_side)));
+        }
+        else{
+            return (mword*)nil;
+        }
+    }
+    else if(c(hash_table,cons_side) == nil){
+        return (mword*)nil;
+    }
+    else{
+        return _luha((mword*)c(hash_table,cons_side), hash, level+1);
+    }
+
+}
+
+void rmha(void){
+
+    mword *hash_table = (mword*)TOS_1;
+    mword *hash       = (mword*)TOS_0;
+
+    mword *sink;
+//    mword *temp;
+//    mword cons_side;
+
+    if(hash_table == (mword*)nil){
+        return;
+    }
+    else{
+        sink = _rmha(hash_table, hash, 0);
+    }
+
+//    cons(temp_cons, result, nil);
+
+    zap();
+
+}
+
+mword *_rmha(mword *hash_table, mword *hash, mword level){
+
+    mword cons_side = _cxr1(hash,level);
+    mword *temp;
+
+    if(is_href((mword*)car(c(hash_table,cons_side)))){
+        if(!_arcmp((mword*)car(c(hash_table,cons_side)),hash)){
+//            fprintf(stderr,"A\n");
+            c(hash_table,cons_side) = nil;
+            return (mword*)c(hash_table,opposite_side(cons_side));
+        }
+        else{
+//            fprintf(stderr,"B\n");
+            return (mword*)nil;
+        }
+    }
+    else if(c(hash_table,cons_side) == nil){
+//            fprintf(stderr,"C\n");
+        return (mword*)nil;
+    }
+    else{
+        temp = _rmha((mword*)c(hash_table,cons_side), hash, level+1);
+        if(temp == (mword*)nil){
+//            fprintf(stderr,"D\n");
+            return (mword*)nil;
+        }
+        else{
+            if((c(hash_table,opposite_side(cons_side)) == nil) && (level > 0)){
+//            fprintf(stderr,"E\n");
+                return temp;
+            }
+            else{
+//            fprintf(stderr,"F\n");
+                (mword*)c(hash_table,cons_side) = temp;
+                return (mword*)nil;
+            }
+        }
+    }
 }
 
 //// val hash_table hash insha
@@ -64,44 +367,7 @@ void insha(void){
 //}
 
 // hash_table hash insha
-void luha(void){
 
-    mword *hash_table = (mword*)TOS_1;
-    mword *hash       = (mword*)TOS_0;
-
-//    val = new_hash_entry(val, hash);
-
-    mword *result = _luha(hash_table, (char *)hash, 0);
-
-//    cons(temp_cons, result, nil);
-
-    zap();
-    zap();
-    push_alloc(result, LUHA);
-
-}
-
-// hash_table hash insha
-void exha(void){
-
-    mword *hash_table = (mword*)TOS_1;
-    mword *hash       = (mword*)TOS_0;
-
-//    val = new_hash_entry(val, hash);
-
-    mword *result = new_atom();
-    *result = _exha(hash_table, (char *)hash, 0);
-
-//    cons(temp_cons, result, nil);
-
-    zap();
-    zap();
-    push_alloc(result, EXHA);
-
-}
-
-void _insha(mword *hash_table, char *hash, mword *val, mword level){
-}
 
 //void select_bit_test(void){
 //
@@ -121,14 +387,6 @@ void _insha(mword *hash_table, char *hash, mword *val, mword level){
 //    return (c(val,mword_select) & (1<<bit_offset)) >> bit_offset;
 //}
 
-mword *_luha(mword *hash_table, char *hash, mword level){
-}
-
-mword _exha(mword *hash_table, char *hash, mword level){
-}
-
-void _inskha(mword *hash_table, mword *val, mword *key){
-}
 
 //void _insha(mword *hash_table, char *hash, mword *val, mword level){
 //

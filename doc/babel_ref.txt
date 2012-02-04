@@ -557,11 +557,51 @@ Lower-case means "a single value"
         (1 2 3) rev -> leaves (3 2 1) on TOS
 
 - Hash Operators
+
+    Unlike most Babel operators, the hash operators do not zap all their 
+    input operands. The hash itself is left on TOS. This eliminates the 
+    need for a separate "makeha" operator and is consistent with multiple
+    operations on the same hash. Don't forget to zap the hash off TOS when
+    you are done:
+
+        my_hash ["foo"] [42] inskha ["bar"] [13] inskha zap  -- done
+
     - insha
+        Insert into hash:
+        
+            my_hash [{0 0 0 0}] ["foo"] hash8 [42] insha
+
+        ... inserts the value 42 into my_hash with the key "foo". Does not
+        store the key in the hash.
+
+    - inskha
+        Insert by key into hash:
+        
+            my_hash ["foo"] [42] inskha
+
+        ... inserts the value 42 into my_hash with the key "foo". The
+        key is stored in the hash-entry.
+
     - exha
+        Test existence in hash:
+        
+            my_hash [{0 0 0 0}] ["foo"] hash8 exsha
+
+        Leaves 1 on TOS if the associated entry is found in the hash, 
+        otherwise, leaves 0 on TOS.
+
     - rmha
+        Remove from hash:
+        
+            my_hash [{0 0 0 0}] ["foo"] hash8 rmsha
+
+        ... removes the the entry from my_hash with the key "foo" if it 
+        exists.
+
     - keysha
     - valsha
+    - enref
+    - deref
     - ls2ha
     - ha2ls
 
