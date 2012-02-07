@@ -4,6 +4,29 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- Stack noise: up/down -----
+
+Propopse: Re-implement stack as a doubly-linked list
+
+Stack has three arguments; TOS-2 needs to be multiplied by 3; TOS-2 needs
+to be divided by four. Both TOS-1 and TOS-0 need to be subtracted from 
+TOS-2.
+
+This can't be done with swap alone. Up/down permit clean processing of 
+non-TOS parameters:
+
+    down down
+    3 * up
+    4 / up
+    - -
+
+This works by implementing the stack as a doubly-linked list. We can
+move up or down the stack and allow execution to continue there. This
+really starts to matter when dealing with more than two parameters
+(swap is no longer good enough). You either have to do some kind of 
+stack permutation or have a two-way stack and utilize the up/down 
+operators.
+
 ----- Slice/Paste -----
 
 Extend slice and paste with 8-bit and 1-bit versions:
@@ -65,6 +88,9 @@ counting. If the value there is -1, the reference is not being
 tracked. Otherwise, each new dup will increment the reference-
 count and only when we zap on a ref-count of zero will the
 associated object be freed.
+
+NOTE: We may want to consider having an "rdup" operator to do this...
+let the programmer decide whether he knows what he's doing or not.
 
 ----- Memory allocation -----
 

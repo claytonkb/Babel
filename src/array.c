@@ -6,7 +6,7 @@
 #include "array.h"
 #include "list.h"
 #include "stack.h"
-#include "count.h"
+#include "bstruct.h"
 #include "bvm_opcodes.h"
 #include "except.h"
 
@@ -254,7 +254,7 @@ void paste(void){
         iter = (src_size < dest_size) ? src_size : dest_size;
 
         for(i=0;i<iter;i++){
-            c((mword*)TOS_1,i+offset) = c((mword*)TOS_2,i);
+            c((mword*)TOS_1,i+offset) = c((mword*)car(cdr(cdr(stack_ptr))),i);
         }    
 
     }

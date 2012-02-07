@@ -1,17 +1,27 @@
 code:
-   (
-    [{0 0 0 0}] ["nil"] hash8
+   (["Progressive hashing:\n"] stdout
+    [{0 0 0 0}] ["G"] hash8 ["G  -> "] stdout
     disp call
-    ["Progressive hashing:\n"] stdout
-    [{0 0 0 0}] ["G"] hash8
-    disp call
-    [{0 0 0 0}] ["GG"] hash8
+    [{0 0 0 0}] ["GG"] hash8 ["GG -> "] stdout
     disp call
     ["\n"] stdout
-    [{0 0 0 0}] ["G"] hash8
-    dup disp call
-    ["G"] hash8
-    dup disp call)
+    [{0 0 0 0}] ["G"] hash8 ["G"] hash8 ["G -> G -> "] stdout
+    disp call
+
+    [nil]
+    [(dup [{0 0 0 0}] swap hash8 swap insha)]
+    [("foo" "bar" "bap" "baz")]
+    each
+
+    ["\nHash lookup:\n"] stdout
+    [([{0 0 0 0}] swap hash8 luha stdout ["\n"] stdout)]
+    [("foo" "bar" "bap" "baz")]
+    each
+
+    ["\nHash existence:\n"] stdout
+    [([{0 0 0 0}] swap hash8 exha bbl2str stdout ["\n"] stdout)]
+    [("foo" "bar" "bap" "baz" "bop")]
+    each)
 
 disp: [( bbl2str stdout ["\n"] stdout)]
 

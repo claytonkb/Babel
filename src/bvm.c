@@ -13,7 +13,6 @@
 #include "array.h"
 #include "eval.h"
 #include "list.h"
-#include "count.h"
 #include "debug.h"
 #include "pearson16.h"
 #include "except.h"
@@ -195,7 +194,7 @@ void bvm_interp(void){
                     if(!is_false((mword*)TOS_0)){
                         zap();
                         (mword*)code_ptr = (mword*)car(RTOS_0);
-                        push_alloc_rstack( (mword*)car(RTOS_2), 0);
+                        push_alloc_rstack((mword*)car(RTOS_2), 0);
                     }
                     else{
                         zap();
@@ -203,6 +202,21 @@ void bvm_interp(void){
                         (mword*)code_ptr = (mword*)car(pop_rstack());
                         discard = pop_rstack();
                     }
+                }
+                else if(alloc_type(RTOS_0) == EACH){
+                    if(cdr(car(RTOS_2)) != nil){
+                        c((mword*)RTOS_2,0) = cdr(car(RTOS_2));
+                        push_alloc((mword*)car(car(RTOS_2)),EACH);
+                        (mword*)code_ptr = (mword*)car(RTOS_0);
+                    }
+                    else{
+                        discard = pop_rstack();
+                        (mword*)code_ptr = (mword*)car(pop_rstack());
+                        discard = pop_rstack();
+                    }
+                }
+                else if(alloc_type(RTOS_0) == LOOP){
+                    (mword*)code_ptr = (mword*)car(RTOS_0);
                 }
                 else{
                     (mword*)code_ptr = (mword*)car(pop_rstack());
@@ -423,9 +437,30 @@ mword _tree_bbl2gv(mword *tree, char *buffer){
     int num_elem = size(tree);
 //    count = num_elem + 1;
 
-    s(tree) |= 0x1;
 
-    if(is_inte(tree)){
+    if( is_href(tree) ){
+//        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
+//        for(i=0; i<HASH_SIZE; i++){
+//            printf("<f%d> %x", i, *(mword *)(tree+i));
+//            if(i<(HASH_SIZE-1)){
+//                printf("|");
+//            }
+//        }
+//        printf("\"];\n");
+//        return 0;
+
+        buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)tree);
+        for(i=0; i<HASH_SIZE; i++){
+            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(tree+i));
+            if(i<(HASH_SIZE-1)){
+                buf_size += sprintf(buffer+buf_size, "|");
+            }
+        }
+        buf_size += sprintf(buffer+buf_size, "\"];\n");
+
+    }
+    else if(is_inte(tree)){
+        s(tree) |= 0x1;
 
         buf_size += sprintf(buffer+buf_size, "\"s%08x\" [shape=record,label=\"", (mword)tree);
         for(i=0; i<num_elem; i++){
@@ -486,6 +521,8 @@ mword _tree_bbl2gv(mword *tree, char *buffer){
         }
         buf_size += sprintf(buffer+buf_size, "\"];\n");
     }
+
+    s(tree) |= 0x1;
 
     return buf_size;
 

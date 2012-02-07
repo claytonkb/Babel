@@ -10,7 +10,7 @@ use Data::Dumper;
 
 #my @my_hash = Hash::Pearson16::pearson16_hash("nil");
 #my $j;
-#for($j=0;$j<=$#my_hash;$j++){
+#for($j=$#my_hash;$j>=0;$j--){
 #    printf("%02x", $my_hash[$j]);
 #}
 #print "\n";

@@ -251,7 +251,7 @@
 #define SRAND       0x142
 #define ARGVOP      0x143
 #define CP          0x148
-#define SAVE        0x149
+#define PASTE        0x149
 #define ARCHR       0x14B
 #define ARMV8       0x14C
 #define ARMV        0x14F
@@ -357,4 +357,13 @@
 #define STDINOP     0x1e2
 #define STDINLN     0x1e3
 #define STDINF      0x1e4
+
+#define NHREF       0x1e5
+#define ANDOP       0x1e6
+#define OROP        0x1e7
+#define NOTOP       0x1e8
+#define ISHREF      0x1e9
+#define EACH        0x1ea
+#define NEWREF      0x1eb
+#define SPAN        0x1ec
 

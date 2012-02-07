@@ -192,6 +192,7 @@ cferror:    {0x0d8}
 fnord:          {0x100}
 bvmroot:        {0x101}
 bvmexec:        {0x102}
+babel:          {0x102}
 bvmkill:        {0x103}
 bvmstep:        {0x103}
 break:          {0x104}
@@ -358,4 +359,12 @@ stderr:         {0x1e1}
 stdin:          {0x1e2}
 stdinln:        {0x1e3}
 stdinf:         {0x1e4}
+nhref:          {0x1e5}
+and:            {0x1e6}
+or:             {0x1e7}
+not:            {0x1e8}
+ishref:         {0x1e9}
+each:           {0x1ea}
+newref:         {0x1eb}
+span:           {0x1ec}
 

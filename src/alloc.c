@@ -4,7 +4,6 @@
 #include "babel.h"
 #include "alloc.h"
 #include "stack.h"
-#include "count.h"
 #include "array.h"
 #include "load.h"
 #include "bstruct.h"

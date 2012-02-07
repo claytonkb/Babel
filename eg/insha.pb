@@ -1,12 +1,12 @@
 --insha.pb
 
 code:
-   (x
-    (([4] rand [1] rand insha))
-    z times    
-    fnord )
+   ([nil]
+    [([4] rand [1] rand insha)]
+    [20] times
+    x [0] paste zap x )
+--    [(bbl2str stdout ["\n"] stdout)] swap
+--    each)
 
-x: [nil]
-
-z: [100]
+x: [x x]
 

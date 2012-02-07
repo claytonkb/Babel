@@ -135,6 +135,15 @@
       case CNOT:        \
         cnot();         \
         break;          \
+      case ANDOP:        \
+        andop();         \
+        break;          \
+      case OROP:        \
+        orop();         \
+        break;          \
+      case NOTOP:        \
+        notop();         \
+        break;          \
 
 
 #define cmp_ops         \
@@ -215,6 +224,12 @@
     case ISINTE:        \
         isinte();       \
         break;          \
+    case ISHREF:        \
+        ishref();       \
+        break;          \
+    case NEWREF:        \
+        newref();       \
+        break;          \
     case CUT:           \
         cut();          \
         break;          \
@@ -226,6 +241,9 @@
         break;          \
     case NLF:           \
         nlf();          \
+        break;          \
+    case NHREF:           \
+        nhref();          \
         break;          \
     case NIN:           \
         nin();          \
@@ -251,13 +269,16 @@
     case CP:            \
         cp();           \
         break;          \
+    case SPAN:            \
+        span();           \
+        break;          \
     case TRUNC:         \
         trunc();        \
         break;          \
     case CXR:           \
         cxr();          \
         break;          \
-    case SAVE:          \
+    case PASTE:          \
         paste();        \
         break;          \
     case ARCAT:         \
@@ -379,7 +400,7 @@
         continue;       \
     case LOOP:          \
         loop();         \
-        break;          \
+        continue;       \
     case LAST:          \
         last();         \
         continue;       \
@@ -388,6 +409,9 @@
         continue;       \
     case WHILEOP:       \
         whileop();      \
+        continue;       \
+    case EACH:          \
+        each();         \
         continue;       \
     case TIMES:         \
         times();        \
@@ -399,6 +423,9 @@
 #define hash_ops        \
     case INSHA:         \
         insha();        \
+        break;          \
+    case KEYSHA:         \
+        keysha();        \
         break;          \
     case INSKHA:         \
         inskha();        \

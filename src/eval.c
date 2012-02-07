@@ -5,7 +5,7 @@
 #include "babel.h"
 #include "eval.h"
 #include "stack.h"
-#include "count.h"
+#include "bstruct.h"
 #include "debug.h"
 #include "bvm_opcodes.h"
 
@@ -51,7 +51,7 @@ void ret(void){
 
 void loop(void){
 
-    push_alloc_rstack((mword*)code_ptr, LOOP);
+//    push_alloc_rstack((mword*)code_ptr, LOOP);
 
 //    push_rstack((mword*)TOS_1);
 //    push_rstack((mword*)TOS_0);
@@ -59,6 +59,14 @@ void loop(void){
 //    zap();
 //
 //    push_rstack((mword*)cdr(code_ptr));
+
+    mword temp_TOS_0 = TOS_0;
+    zap();
+
+    push_alloc_rstack((mword*)cdr(code_ptr), LOOP);
+    push_alloc_rstack((mword*)temp_TOS_0, LOOP);
+
+    code_ptr = temp_TOS_0;
 
 }
 
@@ -119,6 +127,31 @@ void times(void){
 void dieop(void){
     fprintf(stderr, "Died.\n");
     exit(0);
+}
+
+void each(void){
+
+    //body   RTOS-0
+    //return RTOS-1
+    //list   RTOS-2
+
+    if(TOS_0 != nil){
+        push_alloc_rstack((mword*)TOS_0, EACH);
+        mword *temp_list = (mword*)TOS_0;
+        push_alloc_rstack((mword*)cdr(code_ptr), EACH);
+
+        zap();
+        mword temp_code_ptr = TOS_0;
+        zap();
+        code_ptr = temp_code_ptr;
+        push_alloc_rstack((mword*)code_ptr, EACH);
+        push_alloc((mword*)car(temp_list),EACH);
+
+    }
+    else{
+        code_ptr = cdr(code_ptr);
+    }
+
 }
 
 // Clayton Bauman 2011

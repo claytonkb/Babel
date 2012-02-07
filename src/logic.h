@@ -21,6 +21,9 @@ void cnot(void);
 void logicFD(void);
 void logicFE(void);
 void logicFF(void);
+void andop(void);
+void orop(void);
+void notop(void);
 
 #endif //LOGIC_H
 

@@ -5,7 +5,7 @@
 
 #include "babel.h"
 #include "debug.h"
-#include "count.h"
+#include "bstruct.h"
 #include "load.h"
 #include "stack.h"
 #include "bvm_opcodes.h"

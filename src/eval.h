@@ -12,6 +12,7 @@ void loop(void);
 void last(void);
 void next(void);
 void whileop(void);
+void each(void);
 void times(void);
 void dieop(void);
 

@@ -3,7 +3,8 @@ code:
         [x] car [1] cuadd [x] [0] paste
         zap)]
       [(x [10] cult)]
-     while)
+     while
+    bvmroot bbl2gv stdout)
 
 x: [0]
 

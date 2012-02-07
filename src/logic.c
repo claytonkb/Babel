@@ -267,21 +267,50 @@ void logicFE(void){
 
 void logicFF(void){
 
-//    mword *temp_cons = new_cons();
     mword *result    = new_atom();
 
     *result = (mword)(-1);
 
-//    cons(temp_cons, result, nil);
-
     zap();
     zap();
-//    push_alloc(result, F00F);
     push_alloc(result, F00F);
 
 }
 
+void andop(void){
 
+    mword *result    = new_atom();
+
+    *result = ( !is_false((mword*)TOS_1) && !is_false((mword*)TOS_0) );
+    
+    zap();
+    zap();
+    push_alloc(result, ANDOP);
+
+}
+
+void orop(void){
+
+    mword *result    = new_atom();
+
+    *result = ( !is_false((mword*)TOS_1) || !is_false((mword*)TOS_0) );
+    
+    zap();
+    zap();
+    push_alloc(result, OROP);
+
+}
+
+void notop(void){
+
+    mword *result    = new_atom();
+
+    *result = is_false((mword*)TOS_0);
+
+    zap();
+    push_alloc(result, NOTOP);
+
+}
 
 // Clayton Bauman 2011
 

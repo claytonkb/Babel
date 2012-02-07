@@ -6,7 +6,7 @@
 #include "arith.h"
 #include "stack.h"
 #include "list.h"
-#include "count.h"
+#include "bstruct.h"
 #include "bvm_opcodes.h"
 #include "except.h"
 #include "array.h"

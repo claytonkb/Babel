@@ -103,7 +103,7 @@ Lower-case means "a single value"
         C-style unsigned rotate-left
         {a} {b}| -> {a ror b}|
 
-- Logic Operators
+- Bitwise Logic Operators
     Babel has 16 logic operators F0-Ff. Each one implements the Boolean
     function of two bits whose numerical value when the truth-table is 
     read vertically is the number of the operator. Since most people don't
@@ -235,22 +235,9 @@ Lower-case means "a single value"
 - bstruct Operators
 
     - span
-        Makes a spanning tree of the bstruct on TOS
+        Makes a "spanning array" of the bstruct on TOS
         X| -> Y
-        ... where Y is a spanning tree of X
-
-    - diff
-        Diffs the bstruct on TOS
-        L R| -> (L n !R) (!L n R) (L n R)|
-
-        To test for sameness, check if TOS-1 and TOS-2 are both 
-        nil or both not nil.
-
-        The results created by diff use uptrs to point into
-        the originals
-
-    - merge
-        Would be nice to have a merge operator that can "undo" diff
+        ... where Y is an array containing a pointer into every array and href in X
 
     - cp (ND)
         Named after the Unix command. Does a deep-copy of a bstruct.
@@ -268,13 +255,6 @@ Lower-case means "a single value"
     - unload
         Unloads a bstruct to an offset-relative form
 
-    - mv
-        Moves bstruct A to bstruct B intact
-
-    - rm
-        Recursively frees bstruct on TOS
-        (cf to simply setting to nil to unlink)
-
     - load
         Flattens a relative-offset Babel structure into its literal 
         memory pointer footprint. This operator is applied by the 
@@ -286,10 +266,6 @@ Lower-case means "a single value"
 
     - bs2str
         Prints TOS to string format
-
-    - flatten
-        flattens a bstruct to a list whose cars point at leafs (is this 
-        possible? think of loops)
 
     - mu
         "Memory usage" - by analogy to Unix 'du'
@@ -315,6 +291,10 @@ Lower-case means "a single value"
         [X]| -> nin(X)|
 
         This operator is recursive
+
+    - nhref
+        "Number of hash-references"
+        Returns the total number of hash-references in the object on TOS
 
     - nva
         "Number of values"
@@ -359,12 +339,17 @@ Lower-case means "a single value"
         {X}| -> {0}|
         [X]| -> {1}|
 
+    - ishref
+        Tests if TOS is a hash-reference
+
     - slice (ND)
         Puts a slice of an array on TOS
         {X} {a} {b}| -> {X[a..b]}|
         [X] {a} {b}| -> [X[a..b]]|
 
         Read [a..b] as "from a to b", not as an interior-array
+
+    - slice8/slice1
 
     - newlf
         Creates a new leaf-array of size x and leaves it on TOS
@@ -407,6 +392,8 @@ Lower-case means "a single value"
 
         If len(X)+z > len(Y), then the write is truncated to len(Y)
 
+    - paste8/paste1
+
     - cut
         Cuts an array - opposite of cat
 
@@ -428,7 +415,7 @@ Lower-case means "a single value"
         behavior, convert your arrays to lists, then use append/part
 
     - cmp
-        does a memcmp (mword sized, cf cmp8)
+        does a memcmp
         A B| -> { 0, A==B
                 {-1, A < B 
                 { 1, A > B
@@ -548,6 +535,7 @@ Lower-case means "a single value"
         appends a list of lists
         ( ('a') ('b' 'c') ('d' 'e') ('f' 'g') ) append
             -> leaves ('a' 'b' 'c' 'd' 'e' 'f' 'g') on TOS
+
     - part
         Partitions a list - opposite of append
         ( 'a' 'b' 'c' 'd' 'e' 'f' 'g') (1 3 5) part
@@ -585,7 +573,7 @@ Lower-case means "a single value"
     - exha
         Test existence in hash:
         
-            my_hash [{0 0 0 0}] ["foo"] hash8 exsha
+            my_hash [{0 0 0 0}] ["foo"] hash8 exha
 
         Leaves 1 on TOS if the associated entry is found in the hash, 
         otherwise, leaves 0 on TOS.
@@ -599,11 +587,42 @@ Lower-case means "a single value"
         exists.
 
     - keysha
-    - valsha
-    - enref
+        Extracts all "keys" from the hash. Note that the extracted keys
+        are actually hash-references, not symbolic keys. The symbolic
+        keys can be recovered with the lukha operator.
+
+    - newref
+        Creates a new hash reference on TOS from a hash value:
+
+            ["foo"] hash8 newhref  -- There is now an href to foo on TOS
+
+    - lukha
+        Look up a hash-entry's key
+
+    - lurha
+        Look up a hash-entry's ref-count
+
+    - enref/unref
     - deref
     - ls2ha
     - ha2ls
+
+    - diffha
+        Diffs the hashes on TOS
+        L R| -> (L n !R) (!L n R) (L n R)|
+
+        To test for sameness, check if TOS-1 and TOS-2 are both 
+        nil or both not nil.
+
+    - merge
+        Would be nice to have a merge operator that can "undo" diff
+
+    - hash/hash8
+        Hashes a sequence of bytes (hence the '8')
+
+        Stack effect:
+            {"string"}| -> {w x y z}|
+            A hash is 4 mwords in size
 
 - Namespace Operators
     - insns
@@ -671,13 +690,6 @@ Lower-case means "a single value"
         Does nothing
         Stack effect:
             | -> |
-
-    - hash/hash8
-        Hashes a sequence of bytes (hence the '8')
-
-        Stack effect:
-            {"string"}| -> {w x y z}|
-            A hash is 4 mwords in size
 
     - bzip2
     - bunzip2
@@ -760,7 +772,7 @@ Lower-case means "a single value"
         Like Joy
         (A B ...)| -> A B ...|
 
-- Control-flow Operators
+- Flow-control Operators
 
     - eval
         Named after the Perl function
@@ -785,25 +797,6 @@ Lower-case means "a single value"
     - next
         Goes to next iteration of current loop
 
-- Iteration Operators
-
-    - times
-        Like eval but executes n iterations. Use 'last' or 'next' to modify
-        the loop's behavior.
-
-        [X] n| -> |
-
-        Example:
-            (1 2 3 4 5)
-            unstack
-            --
-                (cuadd)
-                4
-            times
-
-    - while
-        Classic while
-
     - cond
         --
             (([x] 0 gt)
@@ -814,20 +807,55 @@ Lower-case means "a single value"
                 ("zero" say))
         cond
 
+- Iteration Operators
+
+    - times
+        Like eval but executes n iterations. Use 'last' or 'next' to modify
+        the loop's behavior.
+
+        [X] n| -> |
+
+        Example:
+
+            (1 2 3 4 5) unstack
+            --
+                (cuadd)
+            [4] times
+
+    - while
+        Classic while
+
+    - each
+        Iterates across a list
+        
+            [0]
+            --
+                (cuadd)
+                (1 2 3 4)
+            each
+
+    - for
+        Iterates across an array with index
+        
+            [0]
+            --
+                (cuadd)
+                [1 2 3 4]
+                [i]
+            for
+
     - zipeach
     - carteach
-    - eachls
-        --
-            0
-            ( cuadd )
-            ( 1 2 3 4 5 )
-        eachls
 
 - Babel Virtual Machine (BVM) Operators
+
+    - babel
+        This operator "execs" a loaded BVM on TOS
 
     - bvmroot
         Puts the root pointer to the entire virtual-machine on TOS
         | -> [bvmroot]|
+
     - bvmgo
     - bvmstep
     - mkbvm

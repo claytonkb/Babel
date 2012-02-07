@@ -5,7 +5,7 @@
 #include "babel.h"
 #include "stack.h"
 #include "list.h"
-#include "count.h"
+#include "bstruct.h"
 #include "bvm_opcodes.h"
 #include "array.h"
 

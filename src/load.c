@@ -5,10 +5,11 @@
 #include "load.h"
 #include "except.h"
 #include "stack.h"
-#include "count.h"
+#include "bstruct.h"
 #include "array.h"
 #include "bvm_opcodes.h"
 #include "list.h"
+#include "ref.h"
 
 //
 //
@@ -122,11 +123,10 @@ mword *load_tree(
 
     int num_elem = size(tree+offset);
     
-    s(tree+offset) |= 0x1; //Mark dumped
-
     mword *new_arr;
 
     if(is_inte(tree+offset)){
+        s(tree+offset) |= 0x1; //Mark dumped
         new_arr = _newin_blank(num_elem);
 
         c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
@@ -143,7 +143,7 @@ mword *load_tree(
         }
 
     }
-    else{
+    else if(is_leaf(tree+offset)){
         new_arr = _newlf(num_elem);
 
         c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
@@ -154,6 +154,19 @@ mword *load_tree(
             c(new_arr,i) = c(tree,offset+i);
         }
     }
+    else{
+        new_arr = _newref((mword*)(tree+offset));
+
+        c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
+        c(LUT_abs,*LUT_offset) = (mword)new_arr;
+        *LUT_offset = *LUT_offset+1;
+
+//        for(i=0; i<num_elem; i++){
+//            c(new_arr,i) = c(tree,offset+i);
+//        }
+    }
+
+    s(tree+offset) |= 0x1; //Mark dumped
 
     return new_arr;
 
@@ -294,6 +307,9 @@ mword *_unload(mword *tree){//, mword offset){
     clean_tree(tree);
    
     num_arrays += _nlf(tree);
+    clean_tree(tree);
+
+    num_arrays += _nhref(tree);
     clean_tree(tree);
 
 //    d(tree_size)
