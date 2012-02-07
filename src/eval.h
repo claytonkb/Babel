@@ -15,6 +15,7 @@ void whileop(void);
 void each(void);
 void times(void);
 void dieop(void);
+void eachar(void);
 
 #endif //EVAL_H
 

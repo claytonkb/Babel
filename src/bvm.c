@@ -215,6 +215,19 @@ void bvm_interp(void){
                         discard = pop_rstack();
                     }
                 }
+                else if(alloc_type(RTOS_0) == EACHAR){
+                    if(car(car(RTOS_3)) < size((mword*)car(RTOS_2))-1){
+                        *((mword*)car(RTOS_3)) = car(car(RTOS_3)) + 1;
+                        push_alloc((mword*)c((mword*)car(RTOS_2),car(car(RTOS_3))),EACHAR);
+                        (mword*)code_ptr = (mword*)car(RTOS_0);
+                    }
+                    else{
+                        discard = pop_rstack();
+                        (mword*)code_ptr = (mword*)car(pop_rstack());
+                        discard = pop_rstack();
+                        discard = pop_rstack();
+                    }
+                }
                 else if(alloc_type(RTOS_0) == LOOP){
                     (mword*)code_ptr = (mword*)car(RTOS_0);
                 }

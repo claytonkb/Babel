@@ -366,4 +366,4 @@
 #define EACH        0x1ea
 #define NEWREF      0x1eb
 #define SPAN        0x1ec
-
+#define EACHAR      0x1ed

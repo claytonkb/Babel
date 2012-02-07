@@ -413,6 +413,9 @@
     case EACH:          \
         each();         \
         continue;       \
+    case EACHAR:          \
+        eachar();         \
+        continue;       \
     case TIMES:         \
         times();        \
         continue;       \

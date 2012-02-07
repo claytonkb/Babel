@@ -367,4 +367,4 @@ ishref:         {0x1e9}
 each:           {0x1ea}
 newref:         {0x1eb}
 span:           {0x1ec}
-
+eachar:         {0x1ed}

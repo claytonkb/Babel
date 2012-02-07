@@ -8,6 +8,7 @@
 #include "bstruct.h"
 #include "debug.h"
 #include "bvm_opcodes.h"
+#include "array.h"
 
 void eval(void){
 
@@ -147,6 +148,34 @@ void each(void){
         push_alloc_rstack((mword*)code_ptr, EACH);
         push_alloc((mword*)car(temp_list),EACH);
 
+    }
+    else{
+        code_ptr = cdr(code_ptr);
+    }
+
+}
+
+void eachar(void){
+
+    //body   RTOS-0
+    //return RTOS-1
+    //array  RTOS-2
+    //count  RTOS-3
+
+    if(TOS_0 != nil){
+        mword *count = _newlf(1);
+        *count = 0;
+        push_alloc_rstack((mword*)count,EACHAR);
+        push_alloc_rstack((mword*)TOS_0, EACHAR);
+        mword *temp_array = (mword*)TOS_0;
+        push_alloc_rstack((mword*)cdr(code_ptr), EACHAR);
+
+        zap();
+        mword temp_code_ptr = TOS_0;
+        zap();
+        code_ptr = temp_code_ptr;
+        push_alloc_rstack((mword*)code_ptr, EACHAR);
+        push_alloc((mword*)c(temp_array,*count),EACHAR);
     }
     else{
         code_ptr = cdr(code_ptr);

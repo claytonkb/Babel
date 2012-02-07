@@ -21,7 +21,18 @@ code:
     ["\nHash existence:\n"] stdout
     [([{0 0 0 0}] swap hash8 exha bbl2str stdout ["\n"] stdout)]
     [("foo" "bar" "bap" "baz" "bop")]
-    each)
+    each
 
-disp: [( bbl2str stdout ["\n"] stdout)]
+    ["\nHash removal and keys:\n"] stdout
+    [([{0 0 0 0}] swap hash8 rmha)]
+    [("foo" "bar")]
+    each
+
+    keysha bbl2str stdout)
+
+--    bbl2gv ["hash.dot"] spit8)
+
+x: [x x]
+
+disp: [( bbl2str stdout ["\n"] stdout )]
 
