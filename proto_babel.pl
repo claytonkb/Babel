@@ -28,6 +28,7 @@ my $obj_out = [];
 
 #my $MWORD_SIZE = 8;    # 64-bit mode
 my $MWORD_SIZE = 4;
+my $HASH_SIZE = 16/$MWORD_SIZE;
 
 my $proj_name = $ARGV[0];
 
@@ -493,6 +494,7 @@ sub interior_array{
     my $new_array_ref;
 
     my $label;
+    my @hash;
 
     while(1){
 
@@ -519,6 +521,18 @@ sub interior_array{
             $new_array_ref = ["INTERIOR_ARR"];
             list_interior_array($section, $new_array_ref);
             push @{$obj}, $new_array_ref;
+            next;
+        }
+
+        @hash = is_hash_ref($section);
+        if($#hash > -1){
+            push @{$obj}, ["HASH_REF", @hash];
+#my $j;
+#for($j=$#hash;$j>=0;$j--){
+#    printf("%02x", $hash[$j]);
+#}
+#print "\n";
+#die;
             next;
         }
 
@@ -743,6 +757,24 @@ sub is_label{
     }
 
     return undef;
+
+}
+
+sub is_hash_ref{
+
+    my $section = shift;
+
+    my $string = substr($section->{src}, $section->{ptr});
+
+#   $string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/;
+#   print substr($string,0,10) . "\n";
+    if($string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*&)/){
+        $section->{ptr} += length $1;
+        $string =~ /^\s*([A-Za-z_][A-Za-z_0-9]*)&/;
+        return Hash::Pearson16::pearson16_hash($1);
+    }
+
+    return ();
 
 }
 

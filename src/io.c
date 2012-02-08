@@ -226,9 +226,24 @@ void spit_mword(void){
 
 }
 
+
+void stdoutop(void){
+
+    mword length = size((mword*)TOS_0);
+    int i;
+
+    for(i = 0; i<length; i++){
+        putchar((int)(*((mword*)TOS_0+i)));
+    }
+
+    zap();
+
+}
+
+
 // FIXME: Make UTF-8 compliant...
 //
-void stdoutop(void){
+void stdoutop8(void){
 
     mword length = _arlen8((mword*)TOS_0);
     int i;

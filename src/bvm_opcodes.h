@@ -352,7 +352,7 @@
 #define WRFILE      0x1d1
 #define CLFILE      0x1d2
 #define CNTFILE     0x1d3
-#define STDOUTOP    0x1e0
+#define STDOUTOP8   0x1e0
 #define STDERROP    0x1e1
 #define STDINOP     0x1e2
 #define STDINLN     0x1e3
@@ -367,3 +367,16 @@
 #define NEWREF      0x1eb
 #define SPAN        0x1ec
 #define EACHAR      0x1ed
+#define PHASH       0x1ee
+#define PHASH8      0x1ef
+#define DOWN        0x1f0
+#define UP          0x1f1
+#define TAKE        0x1f2
+#define DEPTH       0x1f3
+#define GIVE        0x1f4
+#define NEST        0x1f5
+#define CLEAR       0x1f6
+#define STDOUTOP    0x1f7
+#define LS2AR       0x1f8
+
+

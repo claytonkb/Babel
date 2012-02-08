@@ -24,6 +24,15 @@
 //m2b -> convert array to array-8 (always adds alignment_word = 0)
 //b2m -> convert array-8 to array (simply truncates by 1)
 
+//void b2m(void){
+//
+//    if(size(TOS_0) < 1)
+//        return;
+//
+//    _trunc((mword*)TOS_0, size(TOS_0)-1);
+//
+//}
+
 void b2c(void){
 
     mword *result    = new_atom();

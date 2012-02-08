@@ -1,12 +1,8 @@
-code: ([(["Type something\n> "] stdout 
-        stdinln
-
-        [(["quit"] cmp)]
-        [(last)]
-        [(["You typed: "] stdout stdout ["\n"] stdout)]
-        sel eval
-
-        )] 
-        loop 
-        ["Done."] stdout)
+code: (["Ctl+C to quit\n"] pr
+        [(  ["Type something\n> "] pr
+            stdinln
+            ["You typed: "] pr
+            ["\n"] cat8 pr
+        )] loop 
+        ["Done."] pr)
 

@@ -308,7 +308,8 @@ len:            {0x188}
 take:           {0x189}
 give:           {0x18a}
 lscat:          {0x18c}
-bbl2str:        {0x190}
+bbl2str:        {0x190} --deprecate
+show:           {0x190}
 hex2cu:         {0x195}
 dec2ci:         {0x196}
 uncons:         {0x198}
@@ -354,11 +355,13 @@ rdfile:         {0x1d0}
 wrfile:         {0x1d1}
 clfile:         {0x1d2}
 cntfile:        {0x1d3}
-stdout:         {0x1e0}
+stdout8:        {0x1e0}
+pr:             {0x1e0}
 stderr:         {0x1e1}
 stdin:          {0x1e2}
 stdinln:        {0x1e3}
 stdinf:         {0x1e4}
+
 nhref:          {0x1e5}
 and:            {0x1e6}
 or:             {0x1e7}
@@ -368,3 +371,15 @@ each:           {0x1ea}
 newref:         {0x1eb}
 span:           {0x1ec}
 eachar:         {0x1ed}
+phash:          {0x1ee}
+phash8:         {0x1ef}
+down:           {0x1f0}
+up:             {0x1f1}
+take:           {0x1f2}
+depth:          {0x1f3}
+give:           {0x1f4}
+nest:           {0x1f5}
+clear:          {0x1f6}
+stdout:         {0x1f7}
+ls2ar:          {0x1f8}
+

@@ -23,28 +23,28 @@ This document is basically just a todo-list.
 
 #- retool _*ha to tree_*ha for internal use of hash operators.
     - done except for keysha
+- keysha has a bug... causes "Can't spawn.." error whenever it is used
+even though it succeeds... probably some kind of out-of-bounds array
+access
 
 - paste has some weird bug... try pasting, then doing keysha from the
   pasted copy... doesn't work right
+    - wrcar/wrcdr/wrcxr (get rid of paste-as-such)
 
 - cheat off bvm.pb to implement a quick-and-dirty hash-based BVM with 
 proto_babel.pl
 
-- create a separate progressive-hashing operator... phash/phash8 so we
-don't have to type [{0 0 0 0}] every time to hash something
+#- create a separate progressive-hashing operator... phash/phash8 so we
+#don't have to type [{0 0 0 0}] every time to hash something
 
 - Implement each/loop/etc. in preparation for nested hashes
 #    - each is (hopefully) implemented
 #    - implement loop
     - next/last have lots of bugs in them... probably need to implement
         a case-specific behavior for these operators.
-    - implement for (eachar?)
+#    - implement for (eachar?)
 
 #- insha has a bug. See A/B/C.dot snapshots
-
-- keysha has a bug... causes "Can't spawn.." error whenever it is used
-even though it succeeds... probably some kind of out-of-bounds array
-access
 
 - Compress insha to special case of inskha
 

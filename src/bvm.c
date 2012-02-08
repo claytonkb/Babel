@@ -179,6 +179,12 @@ void bvm_interp(void){
 
         if(car(code_ptr) == (mword)nil){
             if(!rstack_empty){
+                while(alloc_type(RTOS_0) == DOWN){
+                    up();
+                }
+                if(alloc_type(RTOS_0) == NEST){
+                    up();
+                }
                 if(alloc_type(RTOS_0) == TIMES){
                     if(car(car(RTOS_2)) > 1){
                         c((mword*)car(RTOS_2),0) = car(car(RTOS_2)) - 1;

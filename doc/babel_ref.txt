@@ -724,53 +724,35 @@ Lower-case means "a single value"
         [X] {Y}| -> {Y} [X]|
         etc.
 
-    - perm
-        Fast permutation of the top 8 items on the stack
+    - down
+        Analogous to doing a cdr on the stack itself. If the code_ptr 
+        becomes nil after executing one or more downs without a balancing 
+        up, as many ups as are required to undo the downs will be executed
+        automatically.
+    
+    - nest
+        Analogous to doing a car on the stack. If the code_ptr becomes
+        nil after a nest and with no intervening up, an up will be 
+        executed automatically.
 
-        A B C ... {p}| -> [perm(p,A,B,C...)]
+    - up
+        Undoes down/nest.
 
-        Example:
+    - take
+        Takes TOS items from the stack and puts them into a list. Does not
+        zap the items (should it?)
 
-            [0] [1] [2] [0xfffff210] perm
-            
-            TOS   = 0
-            TOS-1 = 1
-            TOS-2 = 2
+    - give
+        Undoes take
 
-        perm is not restricted to permutations:
+    - clear
+        Empties the stack
 
-            [3] [5] [7] [0xfffff222] perm
-
-            TOS = TOS-1 = TOS-2 = 3
-
-        To leave an item on the stack, use 0xf:
-
-            [2] [4] [6] [0xfffff3f1] perm
-
-            TOS = 2
-            TOS = 4
-            TOS = 6
-
-    - extr
-        Fast extraction of the top 8 items on the stack
-
-        The extr operator uses the same control-word format as perm,
-        however, instead of replacing items on the stack, it simply pushes
-        copies of the requested items on top of the stack.
-
-            [1] [2] [3] [4] [0xfffff13] extr
-        
-        Stack is now:
-
-            [1] [2] [3] [4] [3] [1]|
-
-    - stack 
-        Like Joy
-        A B ...| -> A B ... (A B ...)|
-
-    - unstack
-        Like Joy
-        (A B ...)| -> A B ...|
+    - depth
+        Places the depth of the stack on TOS. To gather up the entire stack
+        into a list:
+    
+            depth take
 
 - Flow-control Operators
 
@@ -817,32 +799,38 @@ Lower-case means "a single value"
 
         Example:
 
-            (1 2 3 4 5) unstack
+            ([(1 2 3 4 5)] give
             --
-                (cuadd)
-            [4] times
+                [(cuadd)]
+            [4] times)
 
     - while
         Classic while
 
+            ([0]
+            [(dup [1] cuadd)]
+            [([10] cult)]
+            while)
+
+    - loop
+        Loops indefinitely
+
     - each
         Iterates across a list
-        
             [0]
             --
                 (cuadd)
                 (1 2 3 4)
             each
 
-    - for
-        Iterates across an array with index
-        
+    - eachar
+        Iterates across an array
+
             [0]
             --
                 (cuadd)
                 [1 2 3 4]
-                [i]
-            for
+            eachar
 
     - zipeach
     - carteach

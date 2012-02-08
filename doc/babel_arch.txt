@@ -4,28 +4,57 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
------ Stack noise: up/down -----
+----- Stack operators -----
 
-Propopse: Re-implement stack as a doubly-linked list
+- down
+    Moves "down" the stack
+- nest
+    Loads list on TOS as "current stack"
+- up
+    Returns up the stack from the last down/nest
+- take
+    Takes n items off the stack
+- give
+    Puts a list onto the stack
+- deep
+    Puts the stack length on TOS
 
-Stack has three arguments; TOS-2 needs to be multiplied by 3; TOS-2 needs
-to be divided by four. Both TOS-1 and TOS-0 need to be subtracted from 
-TOS-2.
+----- Const/Variable Syntax -----
 
-This can't be done with swap alone. Up/down permit clean processing of 
-non-TOS parameters:
+Enhance BPDL syntax to distinguish between const and variable labels.
+Use a colon to define a variable. Use an equal-sign to define a const.
 
-    down down
-    3 * up
-    4 / up
-    - -
+    main= (["Hello, world"] stdout)
+    x: [x x]
 
-This works by implementing the stack as a doubly-linked list. We can
-move up or down the stack and allow execution to continue there. This
-really starts to matter when dealing with more than two parameters
-(swap is no longer good enough). You either have to do some kind of 
-stack permutation or have a two-way stack and utilize the up/down 
-operators.
+There is still nothing preventing you from writing to const labels during
+run-time (OOP folks will freak out; too bad for them) except you will 
+probably blow up your program. Const definitions can be used by the 
+assembler to eliminate unnecessary entries from the symbol table.
+
+----- Ziggurat/Babel -----
+
+At some point, fork the Babel project in two. The current development 
+will be renamed "Ziggurat" and will be the "reference-standard" - a 
+non-optimized implementation of Babel whose purpose is to be as 
+perspicuous as possible.
+
+The new fork will become the release candidate for Babel v1.0 and will 
+be performance optimized. Test harnesses will be created to enable Babel
+and Ziggurat to run in lock-step. Random Babel code will be generated and
+executed on both models simultaneously for testing purposes.
+
+Babel will implement a stack-based language in C:
+
+    OpA(
+    OpB(
+    OpC(bvm_cache)))
+
+Every operator will take a "bvm_cache" struct as input and produce the
+same struct type as output. A "bvm_cache" is just a struct containing 
+pointers to the most frequently accessed BVM data: code, stack, nil, etc.
+
+Visually, execution order will be from the bottom to the top.
 
 ----- Slice/Paste -----
 

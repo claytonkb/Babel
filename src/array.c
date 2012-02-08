@@ -71,6 +71,22 @@ inline mword *_newlf(mword size){
 
 //
 //
+inline mword *_newlfz(mword size){
+
+    mword *ptr = malloc( MWORDS(size+1) );
+    if(ptr == NULL){
+        except("_newlf: malloc returned NULL", __FILE__, __LINE__);
+    }
+
+    memset((char*)ptr,0,MWORDS(size+1));
+    ptr[0] = size * MWORD_SIZE;
+
+    return ptr+1;
+
+}
+
+//
+//
 inline mword *_newin(mword size){
 
     mword *ptr = malloc( MWORDS(size+1) );
@@ -530,6 +546,61 @@ void arcat(void){
 
 }
 
+mword array8_size(mword size8){
+
+    mword size = size8 / MWORD_SIZE;
+
+    if(size8 % MWORD_SIZE != 0){ //XXX Assumes the int div rounds to floor
+        size++;
+    }
+
+    size++; //for the alignment_word
+
+}
+
+// TOS_1 . TOS_0
+//
+void arcat8(void){
+
+    char *result;
+    mword size8;
+
+    if      ( is_leaf((mword*)TOS_0)  &&  is_leaf((mword*)TOS_1) ){
+        size8 = _arlen8((mword*)TOS_0) + _arlen8((mword*)TOS_1);
+        result = (char*)_newlf( array8_size(size8) );
+    }
+    else{ //Throw an exception
+        except("arcat8: cannot concatenate non-leaf arrays", __FILE__, __LINE__);
+    }
+
+    mword i,j;
+    for(    i=0;
+            i<_arlen8((mword*)TOS_1);
+            i++
+        ){
+
+        result[i] = *((char*)TOS_1+i);
+
+    }
+
+    for(    i=0,j=_arlen8((mword*)TOS_1);
+            i<_arlen8((mword*)TOS_0);
+            i++,j++
+        ){
+
+        result[j] = *((char*)TOS_0+i);
+
+    }
+
+    c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
+
+    zap();
+    zap();
+    push_alloc((mword*)result, ARCAT8);
+
+}
+
+
 void arcmp(void){
 
     mword *result    = new_atom();
@@ -586,6 +657,34 @@ mword *_ar2ls(mword *arr){
     return last_cons;
 
 }
+
+//// This is intended for lists containing leaf arrays
+//// ONLY
+//void ls2ar(void){
+//
+//    mword length = _len((mword*)TOS_0);
+//
+//    if(length < 1){
+//        push_alloc((mword*)nil,LS2AR);
+//        return;
+//    }
+//
+//    mword *result = _newlf(length);
+//    _ls2ar((mword*)TOS_0,result,0);
+//
+//    push_alloc(result,LS2AR);
+//
+//}
+//
+//void _ls2ar(mword *list, mword *array, mword offset){
+//
+//    if(list == (mword*)nil)
+//        return;
+//
+//    array[offset] = car(list);
+//    _ls2ar(list,array,offset+1);
+//
+//}
 
 // Clayton Bauman 2011
 

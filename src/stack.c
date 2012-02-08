@@ -52,12 +52,6 @@ void push_alloc(mword *operand, mword alloc_type){
 //
 void zap(void){
 
-//#ifdef DEBUG
-//    if(STACK_TRACE){
-//        return;
-//    }
-//#endif
-
     if(stack_ptr == nil){
         return;
     }
@@ -75,7 +69,6 @@ void zap(void){
     (mword*)stack_ptr = temp_stack_ptr;
 
 }
-
 
 //
 //
@@ -188,13 +181,100 @@ void swap(void){
 
 }
 
+void down(void){
 
-////FIXME: Get rid of this crap:
-//#ifdef DEBUG
-//void toggle_stack_trace(void){
-//    STACK_TRACE = !STACK_TRACE;
-//}
-//#endif
+    push_alloc_rstack((mword*)TOS_0,DOWN);
+    zap();
+
+}
+
+void up(void){
+
+    if(alloc_type(RTOS_0) == DOWN){
+        push_alloc((mword*)car(pop_rstack()),UP);
+    }
+    else{ //NEST
+        stack_ptr = car(pop_rstack());
+    }
+
+}
+
+void take(void){
+
+    mword count = car(TOS_0);
+    mword *temp;
+
+    zap();
+
+    mword *result = take_tree((mword*)stack_ptr,count);
+
+    push_alloc(result,TAKE);
+
+}
+
+mword *take_tree(mword *stack, mword count){
+
+    if(count == 0)
+        return (mword*)nil;
+
+    mword *temp = new_cons();
+    cons(temp,car(car(stack)),take_tree((mword*)cdr(stack),count-1));
+
+    return temp;
+
+}
+
+void depth(void){
+
+    mword *result = new_atom();
+    *result = _len((mword*)stack_ptr);
+
+    push_alloc(result, DEPTH);
+
+}
+
+void give(void){
+
+    mword *list = (mword*)TOS_0;
+
+    zap();
+
+    give_tree((mword*)list);
+
+}
+
+void give_tree(mword *list){
+
+    if(list == (mword*)nil)
+        return;
+
+    give_tree((mword*)cdr(list));
+
+    push_alloc((mword*)car(list),GIVE);
+
+}
+
+void clear(void){
+
+    while(TOS_0 != nil){
+        zap();
+    }
+
+}
+
+void nest(void){
+
+    mword *new_stack = (mword*)TOS_0;
+
+    zap();
+    push_alloc_rstack((mword*)stack_ptr,NEST);
+
+    clear();
+
+    give_tree(new_stack);
+
+}
+
 
 // Clayton Bauman 2011
 

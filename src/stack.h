@@ -17,6 +17,15 @@ void sel(void);
 void _zap(mword **target);
 void dup(void);
 void swap(void);
+void down(void);
+void up(void);
+void take(void);
+mword *take_tree(mword *stack, mword count);
+void depth(void);
+void give(void);
+void give_tree(mword *list);
+void nest(void);
+void clear(void);
 
 //#ifdef DEBUG
 //mword STACK_TRACE;

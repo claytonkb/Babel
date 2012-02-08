@@ -203,6 +203,9 @@
     case STDOUTOP:      \
         stdoutop();     \
         break;          \
+    case STDOUTOP8:      \
+        stdoutop8();     \
+        break;          \
     case STDINLN:       \
         stdinln();      \
         break;          \
@@ -283,6 +286,9 @@
         break;          \
     case ARCAT:         \
         arcat();        \
+        break;          \
+    case ARCAT8:         \
+        arcat8();        \
         break;          \
     case ARCMP:         \
         arcmp();        \
@@ -383,6 +389,27 @@
     case SWAP:          \
         swap();         \
         break;          \
+    case DOWN:          \
+        down();         \
+        break;          \
+    case UP:            \
+        up();           \
+        break;          \
+    case TAKE:          \
+        take();         \
+        break;          \
+    case GIVE:          \
+        give();         \
+        break;          \
+    case DEPTH:         \
+        depth();        \
+        break;          \
+    case NEST:         \
+        nest();        \
+        break;          \
+    case CLEAR:         \
+        clear();        \
+        break;          \
 
 
 #define eval_ops        \
@@ -441,6 +468,12 @@
         break;          \
     case RMHA:          \
         rmha();         \
+        break;          \
+    case PHASH8:         \
+        phash8();        \
+        break;          \
+    case PHASH:          \
+        phash();         \
         break;          \
     case HASH8:         \
         hash8();        \

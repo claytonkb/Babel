@@ -20,10 +20,6 @@ void paste(void);
 void cut(void);
 void newin(void);
 void newlf(void);
-//void del(void);
-//void cp(void);
-//void _cp(mword offset, mword *dest, mword *src);
-//void _del(mword *mem);
 void trunc(void);
 mword alignment_word8(mword size8);
 mword dec_alignment_word8(mword alignment_word);
@@ -38,6 +34,10 @@ void ar2ls(void);
 mword *_ar2ls(mword *arr);
 mword _cxr8(mword *val, mword bit);
 mword _cxr1(mword *val, mword bit);
+inline mword *_newlfz(mword size);
+void arcat8(void);
+//void ls2ar(void);
+//void _ls2ar(mword *list, mword *array, mword offset);
 
 #endif //ARRAY_H
 

@@ -301,7 +301,6 @@ void _rmha(mword *hash_table,mword *hash){
         sink = _rmha_tree(hash_table, hash, 0);
     }
 
-
 }
 
 mword *_rmha_tree(mword *hash_table, mword *hash, mword level){
