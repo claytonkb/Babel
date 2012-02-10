@@ -344,6 +344,8 @@ void keysha(void){
 
     mword **result;
     *result = (mword*)nil;
+
+    die
     _keysha(hash_table, result);
 
     zap();
@@ -357,7 +359,6 @@ void _keysha(mword *hash_table, mword **list){
     mword *temp;
 
     if(hash_table==(mword*)nil){
-//        printf("A");
         return;
     }
     else if(is_href((mword*)car(hash_table))){

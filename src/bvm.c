@@ -178,72 +178,75 @@ void bvm_interp(void){
     while(global_steps--){//FIXME: This is not correct long-term
 
         if(car(code_ptr) == (mword)nil){
-            if(!rstack_empty){
-                while(alloc_type(RTOS_0) == DOWN){
-                    up();
-                }
-                if(alloc_type(RTOS_0) == NEST){
-                    up();
-                }
-                if(alloc_type(RTOS_0) == TIMES){
-                    if(car(car(RTOS_2)) > 1){
-                        c((mword*)car(RTOS_2),0) = car(car(RTOS_2)) - 1;
-                        (mword*)code_ptr = (mword*)car(RTOS_0);
-                    }
-                    else{
-                        discard = pop_rstack();
-                        (mword*)code_ptr = (mword*)car(pop_rstack());
-                        discard = pop_rstack();
-                    }
-                }
-                else if(alloc_type(RTOS_0) == WHILEOP){
-                    if(!is_false((mword*)TOS_0)){
-                        zap();
-                        (mword*)code_ptr = (mword*)car(RTOS_0);
-                        push_alloc_rstack((mword*)car(RTOS_2), 0);
-                    }
-                    else{
-                        zap();
-                        discard = pop_rstack();
-                        (mword*)code_ptr = (mword*)car(pop_rstack());
-                        discard = pop_rstack();
-                    }
-                }
-                else if(alloc_type(RTOS_0) == EACH){
-                    if(cdr(car(RTOS_2)) != nil){
-                        c((mword*)RTOS_2,0) = cdr(car(RTOS_2));
-                        push_alloc((mword*)car(car(RTOS_2)),EACH);
-                        (mword*)code_ptr = (mword*)car(RTOS_0);
-                    }
-                    else{
-                        discard = pop_rstack();
-                        (mword*)code_ptr = (mword*)car(pop_rstack());
-                        discard = pop_rstack();
-                    }
-                }
-                else if(alloc_type(RTOS_0) == EACHAR){
-                    if(car(car(RTOS_3)) < size((mword*)car(RTOS_2))-1){
-                        *((mword*)car(RTOS_3)) = car(car(RTOS_3)) + 1;
-                        push_alloc((mword*)c((mword*)car(RTOS_2),car(car(RTOS_3))),EACHAR);
-                        (mword*)code_ptr = (mword*)car(RTOS_0);
-                    }
-                    else{
-                        discard = pop_rstack();
-                        (mword*)code_ptr = (mword*)car(pop_rstack());
-                        discard = pop_rstack();
-                        discard = pop_rstack();
-                    }
-                }
-                else if(alloc_type(RTOS_0) == LOOP){
-                    (mword*)code_ptr = (mword*)car(RTOS_0);
-                }
-                else{
-                    (mword*)code_ptr = (mword*)car(pop_rstack());
-                }
-            }
-            else{
-                break;
-            }
+            if(_last()) continue;
+            break;
+//            if(!rstack_empty){
+//                while(alloc_type(RTOS_0) == DOWN){
+//                    up();
+//                }
+//                if(alloc_type(RTOS_0) == NEST){
+//                    up();
+//                }
+//                if(alloc_type(RTOS_0) == TIMES){
+//                    if(car(car(RTOS_2)) > 1){
+//                        c((mword*)car(RTOS_2),0) = car(car(RTOS_2)) - 1;
+//                        (mword*)code_ptr = (mword*)car(RTOS_0);
+//                    }
+//                    else{
+//                        discard = pop_rstack();
+//                        (mword*)code_ptr = (mword*)car(pop_rstack());
+//                        discard = pop_rstack();
+//                    }
+//                }
+//                else if(alloc_type(RTOS_0) == WHILEOP){
+//                    if(!is_false((mword*)TOS_0)){
+//                        zap();
+//                        (mword*)code_ptr = (mword*)car(RTOS_0);
+//                        push_alloc_rstack((mword*)car(RTOS_2), 0);
+//                    }
+//                    else{
+//                        zap();
+//                        discard = pop_rstack();
+//                        (mword*)code_ptr = (mword*)car(pop_rstack());
+//                        discard = pop_rstack();
+//                    }
+//                }
+//                else if(alloc_type(RTOS_0) == EACH){
+//                    if(cdr(car(RTOS_2)) != nil){
+//                        c((mword*)RTOS_2,0) = cdr(car(RTOS_2));
+//                        push_alloc((mword*)car(car(RTOS_2)),EACH);
+//                        (mword*)code_ptr = (mword*)car(RTOS_0);
+//                    }
+//                    else{
+//                        discard = pop_rstack();
+//                        (mword*)code_ptr = (mword*)car(pop_rstack());
+//                        discard = pop_rstack();
+//                    }
+//                }
+//                else if(alloc_type(RTOS_0) == EACHAR){
+//                    if(car(car(RTOS_3)) < size((mword*)car(RTOS_2))-1){
+//                        *((mword*)car(RTOS_3)) = car(car(RTOS_3)) + 1;
+//                        push_alloc((mword*)c((mword*)car(RTOS_2),car(car(RTOS_3))),EACHAR);
+//                        (mword*)code_ptr = (mword*)car(RTOS_0);
+//                    }
+//                    else{
+//                        discard = pop_rstack();
+//                        (mword*)code_ptr = (mword*)car(pop_rstack());
+//                        discard = pop_rstack();
+//                        discard = pop_rstack();
+//                    }
+//                }
+//                else if(alloc_type(RTOS_0) == LOOP){
+//                    (mword*)code_ptr = (mword*)car(RTOS_0);
+//                }
+//                else{
+//                    (mword*)code_ptr = (mword*)car(pop_rstack());
+//                }
+//                continue;
+//            }
+//            else{
+//                break;
+//            }
         }
 
         if( is_inte((mword *)car(code_ptr)) ){

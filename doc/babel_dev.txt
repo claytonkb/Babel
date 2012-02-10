@@ -21,6 +21,17 @@ This document is basically just a todo-list.
 #            (hash-table hash luha)
 #    - same for exha
 
+- refactor bvm_interp()/last()
+
+- append/part/reverse 
+- trans(pose)/cart/zip/unzip/perm
+- sort/filter/uniq
+    review quick-sort (remember heaps)
+    filter is a lot like while
+    uniq should be easy
+
+- move
+
 #- retool _*ha to tree_*ha for internal use of hash operators.
     - done except for keysha
 - keysha has a bug... causes "Can't spawn.." error whenever it is used

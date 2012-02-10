@@ -9,8 +9,6 @@
 #include "bvm_opcodes.h"
 #include "array.h"
 
-
-
 void push_alloc_rstack(mword *operand, mword alloc_type){
 
     mword *temp_consA = new_cons();
@@ -23,6 +21,7 @@ void push_alloc_rstack(mword *operand, mword alloc_type){
     cons(temp_consA,   type,         nil);
     cons(temp_consB,   operand,      temp_consA);
     cons(temp_consC,   temp_consB,   rstack_ptr);
+//    cons(temp_consC,   rstack_ptr, temp_consB);
 
     (mword*)rstack_ptr = temp_consC;
 

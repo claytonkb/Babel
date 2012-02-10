@@ -285,6 +285,7 @@ void andop(void){
     
     zap();
     zap();
+
     push_alloc(result, ANDOP);
 
 }

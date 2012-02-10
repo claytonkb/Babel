@@ -9,6 +9,77 @@
 #include "bvm.h"
 #include "array.h"
 #include "list.h"
+#include "except.h"
+
+void wr(void){
+
+    _wr((mword*)TOS_1,(mword*)TOS_0,(mword*)TOS_2);
+
+    zap();
+    zap();
+    zap();
+
+}
+
+
+void _wr(mword *tree, mword *list, mword* src){
+
+    if (cdr(list) == nil){
+
+        if(is_leaf(tree)){
+            if(is_leaf(src)){
+                mword offset    = car(car(list));
+                mword dest_size = size(tree)-offset;
+                mword src_size  = size(src);
+
+                mword iter = (src_size < dest_size) ? src_size : dest_size;
+
+                int i;
+                for(i=0;i<iter;i++){
+                    *(tree+i+offset) = c(src,i);
+                }
+                return;
+            }
+            else{
+                except("_wr: Can't paste non-leaf array into leaf-array", __FILE__, __LINE__);
+            }
+        }
+        else if(is_inte(tree)){
+            c(tree,car(car(list))) = (mword)src;
+            return;
+        }
+        else{
+            except("_wr: href case not yet implemented", __FILE__, __LINE__);
+        }
+
+    }
+
+    if (!is_inte(tree)) except("_wr: Can't traverse non-interior array", __FILE__, __LINE__);
+
+    return _wr((mword*)c(tree,car(car(list))),(mword*)cdr(list),src);
+
+}
+
+void trav(void){
+
+    mword *result = _trav((mword*)TOS_1,(mword*)TOS_0);
+
+//    zap();
+//    zap();
+
+    push_alloc(result, TRAV);
+
+}
+
+mword *_trav(mword *tree, mword *list){
+
+    if (list == (mword*)nil) return tree;
+
+    if (!is_inte(tree)) except("_trav: Can't traverse non-interior array", __FILE__, __LINE__);
+
+    return _trav((mword*)c(tree,car(car(list))),(mword*)cdr(list));
+
+}
 
 void mu(void) {
 

@@ -4,6 +4,25 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- Mid-array References -----
+
+    Include an "offset" field in the hash entry list for references.
+    This field is used to "automatically" index into an array.
+
+    Does this make sense?
+        Only for leaf arrays...
+
+----- Writeback -----
+
+X Y [Z]   wr
+
+    Exception if is_leaf(X) && is_inte(Y)
+
+X Y [(Z)] wr
+
+X Y&      wr
+
+
 ----- Stack operators -----
 
 - down
@@ -16,7 +35,7 @@ during the development process.
     Takes n items off the stack
 - give
     Puts a list onto the stack
-- deep
+- depth
     Puts the stack length on TOS
 
 ----- Const/Variable Syntax -----

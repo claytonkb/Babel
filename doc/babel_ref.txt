@@ -206,33 +206,60 @@ Lower-case means "a single value"
 
         Prefer stdout
 
-    - slurp8
+    - slurp/slurp8
         Named after the Perl idiom
 
-        Slurps an entire file to an array8
+        Slurps an entire file to an array (or array8)
         {"filename"}| -> {X}|
 
         X is the contents of the named file.
 
-    - spit8
-        Play on words - opposite of slurp. Writes an array8 to file. 
-        Overwrites existing file. Creates file if it does not exist.
+    - spit/spit8
+        Play on words - opposite of slurp. Writes an array (or array8) 
+        to file. Overwrites existing file. Creates file if it does not 
+        exist.
+
         {X} {"filename"}| -> |
 
     - journal8
         Same as spit8 but appends to existing file. Creates file if it does
         not exist.
+
         {X} {"filename"}| -> |
 
     - stdout
-        Prints a string to STDOUT (standard output)
+        Prints an array to STDOUT as UCS-4 characters
+        {"string"}| -> |
+
+    - print/stdout8
+        Prints an array8 to STDOUT in UTF-8 encodin
         {"string"}| -> |
 
     - stdinln
         Reads from STDIN (standard input) until newline
+        This operator is byte-wise so it places an array8 on TOS
         | -> {"string"}|
 
 - bstruct Operators
+
+    - msize
+        Puts MWORD_SIZE on TOS
+
+    - trav
+        Traverses a bstruct.
+
+            [X] [(Y)] trav
+
+        Traverses bstruct X according to the sequence of offsets specified 
+        in list Y.
+
+    - paste
+        Writes into a bstruct.
+
+            [X] [(Y)] trav
+
+        Writes into bstruct X according at the location found by traversing
+        the sequence of offsets specified in list Y.
 
     - span
         Makes a "spanning array" of the bstruct on TOS
@@ -261,10 +288,10 @@ Lower-case means "a single value"
         interpreter to a Babel file when it is initially loaded from file 
         into memory.
 
-    - bs2gv
+    - dump
         Prints TOS to STDOUT in Graphviz dot-language format
 
-    - bs2str
+    - show
         Prints TOS to string format
 
     - mu
@@ -326,8 +353,8 @@ Lower-case means "a single value"
 
     - size8
         Puts the 8-bit array length on TOS
-        {X}| -> {len8(X)}|
-        [X]| -> {len8(X)}|
+        {X}| -> {size8(X)}|
+        [X]| -> {size8(X)}|
 
     - islf
         Tests if TOS is a leaf-array
@@ -347,7 +374,7 @@ Lower-case means "a single value"
         {X} {a} {b}| -> {X[a..b]}|
         [X] {a} {b}| -> [X[a..b]]|
 
-        Read [a..b] as "from a to b", not as an interior-array
+        Read [a..b] as "from a to b"
 
     - slice8/slice1
 
@@ -359,11 +386,19 @@ Lower-case means "a single value"
         Creates a new interior-array of size x and leaves it on TOS
         {x}| -> {interior-array-of-size-x}|
 
+    - free
+        Frees the array on TOS - NOT recursive. See del.
+
     - del (D)
-        Named after the C++ operator
+        Named after the C++ delete operator
 
         Frees (de-allocates) a leaf-array or interior array created with 
-        the newlf or newin operators
+        the newlf or newin operators. Be careful with this operator - 
+        everything accessible from TOS will be deleted. In particular:
+
+            root del
+
+        ... will crash the interpreter.
 
     - trunc (D)
         Truncates an array X to length y:
@@ -383,21 +418,12 @@ Lower-case means "a single value"
 
         Make this into a pseudo-operator?
 
-    - paste (D)
-        Pastes array X into array Y at offset z. Leaves the result on TOS.
-
-        {X} {Y} {z}| -> {Y written with X at z}|
-        [X] [Y] {z}| -> [Y written with X at z]|
-        {X} [Y] {z}| -> [Y.0.z written with X ]|
-
-        If len(X)+z > len(Y), then the write is truncated to len(Y)
-
     - paste8/paste1
 
     - cut
         Cuts an array - opposite of cat
 
-        The cut operator only cuts in one place. if you want more complex 
+        The cut operator only cuts in one place. If you want more complex 
         behavior, convert the array to a list, then use append/part
 
         A 0| -> nil A|
@@ -523,7 +549,10 @@ Lower-case means "a single value"
         [cons(X, Y)]| -> [X] [Y]|
 
     - bons
-        Undoes ar2ls on an interior-array
+        Undoes ar2ls on an interior-array.
+
+        Mnemonic: "Babel cons"... since it's like consing together an entire list
+        into an "oversize" cons box.
 
     - len
         List length
@@ -570,6 +599,9 @@ Lower-case means "a single value"
         ... inserts the value 42 into my_hash with the key "foo". The
         key is stored in the hash-entry.
 
+    - luha
+        Look up a hash-entry
+
     - exha
         Test existence in hash:
         
@@ -594,7 +626,7 @@ Lower-case means "a single value"
     - newref
         Creates a new hash reference on TOS from a hash value:
 
-            ["foo"] hash8 newhref  -- There is now an href to foo on TOS
+            ["foo"] hash8 newref  -- There is now an href to foo on TOS
 
     - lukha
         Look up a hash-entry's key
@@ -623,6 +655,9 @@ Lower-case means "a single value"
         Stack effect:
             {"string"}| -> {w x y z}|
             A hash is 4 mwords in size
+
+    - phash/phash8
+        Performs a progressive hash
 
 - Namespace Operators
     - insns
@@ -754,6 +789,21 @@ Lower-case means "a single value"
     
             depth take
 
+- Truth-value Operators
+    
+                    { 1 if TOS=0 or TOS=nil
+    is_false(x) ->  {
+                    { 0 otherwise
+
+    - and
+        Places (!is_false(TOS) & !is_false(TOS-1)) on TOS
+
+    - or
+        Places (!is_false(TOS) | !is_false(TOS-1)) on TOS
+
+    - not
+        Places is_false(TOS) on TOS
+
 - Flow-control Operators
 
     - eval
@@ -840,16 +890,20 @@ Lower-case means "a single value"
     - babel
         This operator "execs" a loaded BVM on TOS
 
-    - bvmroot
+    - root
         Puts the root pointer to the entire virtual-machine on TOS
-        | -> [bvmroot]|
+        | -> [root]|
 
-    - bvmgo
     - bvmstep
     - mkbvm
     - bvmkill
     - halt
-    - die (synonym to bvmquit?)
+    - die
+        Exits a virtual machine
+    - fork
+    - system (equivalent to Perl's system())
+    - shell (equivalent to Perl's back-tick quotes)
+    - exec (does a fork/exec in Linux; CreateProcess in Windows)
 
 - Idiomatic Operators
     - strint

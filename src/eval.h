@@ -16,6 +16,7 @@ void each(void);
 void times(void);
 void dieop(void);
 void eachar(void);
+mword _last(void);
 
 #endif //EVAL_H
 

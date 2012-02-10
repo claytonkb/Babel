@@ -191,6 +191,7 @@ cferror:    {0x0d8}
 
 fnord:          {0x100}
 bvmroot:        {0x101}
+root:           {0x101}
 bvmexec:        {0x102}
 babel:          {0x102}
 bvmkill:        {0x103}
@@ -225,6 +226,7 @@ nin:            {0x114}
 load:           {0x115}
 unload:         {0x116}
 bbl2gv:         {0x117}
+dump:           {0x117}
 slice8:         {0x118}
 slice16:        {0x119}
 slice32:        {0x11a}
@@ -382,4 +384,5 @@ nest:           {0x1f5}
 clear:          {0x1f6}
 stdout:         {0x1f7}
 ls2ar:          {0x1f8}
+trav:           {0x1f9}
 

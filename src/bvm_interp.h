@@ -135,14 +135,14 @@
       case CNOT:        \
         cnot();         \
         break;          \
-      case ANDOP:        \
-        andop();         \
+      case ANDOP:       \
+        andop();        \
         break;          \
       case OROP:        \
         orop();         \
         break;          \
-      case NOTOP:        \
-        notop();         \
+      case NOTOP:       \
+        notop();        \
         break;          \
 
 
@@ -203,8 +203,8 @@
     case STDOUTOP:      \
         stdoutop();     \
         break;          \
-    case STDOUTOP8:      \
-        stdoutop8();     \
+    case STDOUTOP8:     \
+        stdoutop8();    \
         break;          \
     case STDINLN:       \
         stdinln();      \
@@ -245,8 +245,8 @@
     case NLF:           \
         nlf();          \
         break;          \
-    case NHREF:           \
-        nhref();          \
+    case NHREF:         \
+        nhref();        \
         break;          \
     case NIN:           \
         nin();          \
@@ -272,8 +272,8 @@
     case CP:            \
         cp();           \
         break;          \
-    case SPAN:            \
-        span();           \
+    case SPAN:          \
+        span();         \
         break;          \
     case TRUNC:         \
         trunc();        \
@@ -281,17 +281,20 @@
     case CXR:           \
         cxr();          \
         break;          \
-    case PASTE:          \
-        paste();        \
+    case PASTE:         \
+        wr();           \
         break;          \
     case ARCAT:         \
         arcat();        \
         break;          \
-    case ARCAT8:         \
-        arcat8();        \
+    case ARCAT8:        \
+        arcat8();       \
         break;          \
     case ARCMP:         \
         arcmp();        \
+        break;          \
+    case TRAV:          \
+        trav();         \
         break;          \
 
 //    case B2C:           \
@@ -404,8 +407,8 @@
     case DEPTH:         \
         depth();        \
         break;          \
-    case NEST:         \
-        nest();        \
+    case NEST:          \
+        nest();         \
         break;          \
     case CLEAR:         \
         clear();        \
@@ -440,8 +443,8 @@
     case EACH:          \
         each();         \
         continue;       \
-    case EACHAR:          \
-        eachar();         \
+    case EACHAR:        \
+        eachar();       \
         continue;       \
     case TIMES:         \
         times();        \
@@ -454,11 +457,11 @@
     case INSHA:         \
         insha();        \
         break;          \
-    case KEYSHA:         \
-        keysha();        \
+    case KEYSHA:        \
+        keysha();       \
         break;          \
-    case INSKHA:         \
-        inskha();        \
+    case INSKHA:        \
+        inskha();       \
         break;          \
     case LUHA:          \
         luha();         \
@@ -469,11 +472,11 @@
     case RMHA:          \
         rmha();         \
         break;          \
-    case PHASH8:         \
-        phash8();        \
+    case PHASH8:        \
+        phash8();       \
         break;          \
-    case PHASH:          \
-        phash();         \
+    case PHASH:         \
+        phash();        \
         break;          \
     case HASH8:         \
         hash8();        \

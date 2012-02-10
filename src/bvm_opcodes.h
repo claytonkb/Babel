@@ -378,5 +378,6 @@
 #define CLEAR       0x1f6
 #define STDOUTOP    0x1f7
 #define LS2AR       0x1f8
+#define TRAV        0x1f9
 
 

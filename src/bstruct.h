@@ -4,6 +4,12 @@
 #ifndef BSTRUCT_H
 #define BSTRUCT_H
 
+void wr(void);
+void _wr(mword *tree, mword *list, mword* src);
+
+void trav(void);
+mword *_trav(mword *tree, mword *list);
+
 void   mu           (void);
 mword _mu           (mword *tree);
 

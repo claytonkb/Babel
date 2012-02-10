@@ -9,6 +9,8 @@
 #include "debug.h"
 #include "bvm_opcodes.h"
 #include "array.h"
+#include "bvm.h"
+#include "list.h"
 
 void eval(void){
 
@@ -76,6 +78,79 @@ void last(void){
     code_ptr = nil;
 }
 
+mword _last(void){
+
+    mword* discard;
+
+    if(!rstack_empty){
+        while(alloc_type(RTOS_0) == DOWN){
+            up();
+        }
+        if(alloc_type(RTOS_0) == NEST){
+            up();
+        }
+        if(alloc_type(RTOS_0) == TIMES){
+            if(car(car(RTOS_2)) > 1){
+                c((mword*)car(RTOS_2),0) = car(car(RTOS_2)) - 1;
+                (mword*)code_ptr = (mword*)car(RTOS_0);
+            }
+            else{
+                discard = pop_rstack();
+                (mword*)code_ptr = (mword*)car(pop_rstack());
+                discard = pop_rstack();
+            }
+        }
+        else if(alloc_type(RTOS_0) == WHILEOP){
+            if(!is_false((mword*)TOS_0)){
+                zap();
+                (mword*)code_ptr = (mword*)car(RTOS_0);
+                push_alloc_rstack((mword*)car(RTOS_2), 0);
+            }
+            else{
+                zap();
+                discard = pop_rstack();
+                (mword*)code_ptr = (mword*)car(pop_rstack());
+                discard = pop_rstack();
+            }
+        }
+        else if(alloc_type(RTOS_0) == EACH){
+            if(cdr(car(RTOS_2)) != nil){
+                c((mword*)RTOS_2,0) = cdr(car(RTOS_2));
+                push_alloc((mword*)car(car(RTOS_2)),EACH);
+                (mword*)code_ptr = (mword*)car(RTOS_0);
+            }
+            else{
+                discard = pop_rstack();
+                (mword*)code_ptr = (mword*)car(pop_rstack());
+                discard = pop_rstack();
+            }
+        }
+        else if(alloc_type(RTOS_0) == EACHAR){
+            if(car(car(RTOS_3)) < size((mword*)car(RTOS_2))-1){
+                *((mword*)car(RTOS_3)) = car(car(RTOS_3)) + 1;
+                push_alloc((mword*)c((mword*)car(RTOS_2),car(car(RTOS_3))),EACHAR);
+                (mword*)code_ptr = (mword*)car(RTOS_0);
+            }
+            else{
+                discard = pop_rstack();
+                (mword*)code_ptr = (mword*)car(pop_rstack());
+                discard = pop_rstack();
+                discard = pop_rstack();
+            }
+        }
+        else if(alloc_type(RTOS_0) == LOOP){
+            (mword*)code_ptr = (mword*)car(RTOS_0);
+        }
+        else{
+            (mword*)code_ptr = (mword*)car(pop_rstack());
+        }
+        return 1;
+    }
+
+    return 0;
+
+}
+
 void next(void){
     (mword*)code_ptr = (mword*)car(pop_rstack());
 //    code_ptr = nil;
@@ -110,7 +185,9 @@ void times(void){
     //body   RTOS-0
 
     if(car(TOS_0) > 0){
-        push_alloc_rstack((mword*)TOS_0, TIMES);
+        mword *times = new_atom();
+        *times = car(TOS_0);
+        push_alloc_rstack(times, TIMES);
         push_alloc_rstack((mword*)cdr(code_ptr), TIMES);
 
         zap();

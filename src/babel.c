@@ -30,7 +30,7 @@ int main(int argc, char **argv){
     global_steps = (mword) -1;
     _bvmexec(internal_global_VM);
 
-    printf("\n");
+//    printf("\n");
     return 0;
 
 }
