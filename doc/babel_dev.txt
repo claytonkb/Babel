@@ -21,14 +21,25 @@ This document is basically just a todo-list.
 #            (hash-table hash luha)
 #    - same for exha
 
-- refactor bvm_interp()/last()
+#- refactor bvm_interp()/last()
 
-- append/part/reverse 
-- trans(pose)/cart/zip/unzip/perm
-- sort/filter/uniq
-    review quick-sort (remember heaps)
-    filter is a lot like while
-    uniq should be easy
+- rstack re-write
+    - Each rstack operator needs to perform a SINGLE push/pop
+      and store all its state in a list
+
+- nth/ith
+    Rename cxr
+    Implement for lists
+
+- List dev
+    - append/part/reverse 
+    - trans(pose)/cart/zip/unzip/perm
+    - sort/filter/uniq
+        review quick-sort (remember heaps)
+        filter is a lot like while
+        uniq should be easy
+
+- cond
 
 - move
 
