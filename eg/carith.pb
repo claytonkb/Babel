@@ -1,48 +1,27 @@
 -- carith.pb
 -- This program demonstrates Babel's C-style arithmetic operators
 
-op_name:
-   ["cuadd" "cusub" "cumul" "cudiv" 
-    "ciadd" "cisub" "cimul" "cidiv"]
-
-op:
-   [[cuadd nil] [cusub nil] [cumul nil] [cudiv nil]
-    [ciadd nil] [cisub nil] [cimul nil] [cidiv nil]]
+ops: ((("cuadd" (u+)) ("cusub" (u-)) ("cumul" (cumul)) ("cudiv" (u/))
+       ("ciadd" (+))  ("cisub" (-))  ("cimul" (cimul)) ("cidiv" (/))))
 
 code:
     ---
-     ((([inform]  call ["\n"] stdout
-        [prompts] call
+         ( ((dup car inform !
+            prompts !
 
-        [op] x cxr eval
+            <-  <->
+            ->  <->
+            cdr car !
 
-        [inform] call
-        [": "] stdout
+            ci2dec ("\n") . << ))
 
-        ci2dec stdout
-        ["\n"] stdout
+        ops ...)
 
-        x  [1] cuadd
-        [x] [0] save))
-    [[8]] times)
-    ---
+inform: (((":\n") . << ))
 
-inform:
-   ([op_name]
-    x
-    cxr
-    stdout
-    ret)
-
-prompts:
-   ([prompt] call
-    [prompt] call
-    ret)
+prompts: (( prompt ! prompt ! ))
 
 prompt:
-   (["Enter a number:\n> "] stdout
-    stdinln dec2ci
-    ret)
-
-x: [0]
+   ((("Enter a number:\n> ") << 
+   >> $d ))
 

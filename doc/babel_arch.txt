@@ -4,6 +4,62 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- exec/execs -----
+
+    The exec operator executes a command through the OS's system call 
+    method. In the case of Windows, this is CreateProcess and in *nix
+    it is system(). See discussion of redirecting child process std I/O
+    below.
+
+    execs will "silently" exec the command, that is, it will not attempt
+    to capture the process's STDOUT.
+
+    exec expects a code block at TOS-1 to handle the process I/O:
+
+        [( ["stdout"] lukha pr )] --This isn't right... what about stdin?
+        ["c:\windows\dir.exe"]
+    exec
+
+    The execs operator requires only the name of the process:
+
+    ["c:\windows\dir.exe"] execs
+
+----- system() on Windows -----
+
+    Creating a Child Process with Redirected Input and Output:
+    http://msdn.microsoft.com/en-us/library/windows/desktop/ms682499%28v=vs.85%29.aspx
+    
+    More stuff:
+    http://support.microsoft.com/default.aspx?scid=kb;en-us;190351
+
+    The STARTUPINFO struct which must be passed to CreateProcess
+    has a field for hStdInput and hStdOutput... this may enable
+    "capturing" of STDOUT.
+
+    http://msdn.microsoft.com/en-us/library/windows/desktop/ms682512%28v=vs.85%29.aspx
+
+    Create some sort of thread manager with storage for the output 
+    of the programs. Plan to dequeue and clean up this in a separate 
+    thread regularly enough so that it doesn't get too big.
+
+    For each third party app you want to 'host' create a thread. In 
+    each thread create a process. Create named pipes for each of the 
+    threads to capture the STDIN and STDOUT for each of the 
+    processes (in your case you may only need the STDOut). 
+    CreateProcess allows you to specify the specify the STARTUPINFO. 
+    This startupInfo allows you to set hStdError, hStdOutput, and 
+    hStdInput, which you can point to the named pipes, which should 
+    be pointers on a structure in your object that manages all the 
+    threads. In the threads, you (in a threadsafe way) update this 
+    data.
+
+    Then in your UI you can read or display this data independent 
+    / asynchronous to the functioning of the actual third party 
+    programs, whenver you display it you can clear the data off 
+    the 'data collector' and move it to the UI manager since as 
+    far as the command line program is concerned it's gone 
+    anyway.
+
 ----- Mid-array References -----
 
     Include an "offset" field in the hash entry list for references.
@@ -344,12 +400,15 @@ Hash:
         sel         ?
         hash8       %
         size        #
+        len         ##
         eval        ! (as in "Do it!")
         stdout      << (like cout)
         stdinln     >> (like cin)
         spit        <<<
         slurp       >>>
         swap        <->
+        down        <-
+        up          ->
         call        !! (as in "Do it!!")
         ciadd       +
         cisub       -
@@ -366,6 +425,15 @@ Hash:
         cor         | 
         cxor        ^
         cnot        ~  (hmmmm)
+        show        $
+        ci2dec      %d, etc.
+        cat8        .
+        and:            {0x1e6}
+        &&:             {0x1e6}
+        or:             {0x1e7}
+        ||:             {0x1e7}
+        not:            {0x1e8}
+        ~~:             {0x1e8}
 
 code:
     (   argv 0 @

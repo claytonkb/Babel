@@ -32,6 +32,8 @@ my $HASH_SIZE = 16/$MWORD_SIZE;
 
 my $proj_name = $ARGV[0];
 
+my $section_name = qr/[_A-Za-z\+-<>=!~#%\.\$\?\/\|^][_A-Za-z0-9\+-<>=!~#%\.\$\?\/\|^]*/;
+
 while($#ARGV>-1){
     $asm_file = shift @ARGV;
     open ASM_FILE, $asm_file;
@@ -110,8 +112,15 @@ sub linkit{
     }
 
     for (@{$sections->{$curr_section}{bin}}){
+        if($_ =~ /^(\s*-?[1-9][0-9]*)/ or $_ =~ /^(\s*0+)[^x]/ or $_ eq '0' ){
+            $obj_out->[$curr_ptr] = $_;
+            $curr_ptr++;
+            next;
+        }
+        #print("$_\n");
         # if a name, recurse linkit
-        if( /[_A-Za-z][_A-Za-z0-9]*/ ){
+#        if( /[_A-Za-z][_A-Za-z0-9]*/ ){
+        if( "$_" =~ /$section_name/ ){
             if(!exists $sections->{$_}){
                 print "Unresolved symbol: $_\n";
                 die;
@@ -347,7 +356,8 @@ sub get_sections{
     push @{$sections->{'nil'}{src}}, "[nil nil]";
 
     for(@{$asm_file}){
-        if(/^([a-zA-Z0-9_]+):/){
+#        if(/^([a-zA-Z0-9_]+):/){
+        if(/^($section_name):/){
             $current_section = $1;
             $sections->{$current_section}{src} = [];
             $sections->{$current_section}{ptr} = 0;
@@ -355,7 +365,8 @@ sub get_sections{
             $sections->{$current_section}{bin_ptr} = undef;
             $sections->{$current_section}{bin} = [];
 
-            ($match) = $_ =~ /^[a-zA-Z0-9_]+:(.+)$/;
+#            ($match) = $_ =~ /^[a-zA-Z0-9_]+:(.+)$/;
+            ($match) = $_ =~ /^$section_name:(.+)$/;
             if(defined $match){
                 push @{$sections->{$current_section}{src}}, $match;
             }
@@ -536,6 +547,12 @@ sub interior_array{
             next;
         }
 
+        $token = is_numeric($section);
+        if(defined $token){
+            push @{$obj}, ["NUMERIC", 0+$token];
+            next;
+        }
+
         $label = is_label($section);
         if(defined $label){
             push @{$obj}, ["LABEL", "$label"];
@@ -545,12 +562,6 @@ sub interior_array{
         $label = is_expanded_label($section);
         if(defined $label){
             push @{$obj}, ["EXP_LABEL", "$label"];
-            next;
-        }
-
-        $token = is_numeric($section);
-        if(defined $token){
-            push @{$obj}, ["NUMERIC", 0+$token];
             next;
         }
 
@@ -602,6 +613,12 @@ sub list_interior_array{
         goto DONE;
     }
 
+    $token = is_numeric($section);
+    if(defined $token){
+        push @{$obj}, ["NUMERIC", 0+$token];
+        goto DONE;
+    }
+
     $label = is_label($section);
     if(defined $label){
         push @{$obj}, ["LABEL", "$label"];
@@ -611,12 +628,6 @@ sub list_interior_array{
     $label = is_expanded_label($section);
     if(defined $label){
         push @{$obj}, ["EXP_LABEL", "$label"];
-        goto DONE;
-    }
-
-    $token = is_numeric($section);
-    if(defined $token){
-        push @{$obj}, ["NUMERIC", 0+$token];
         goto DONE;
     }
 
@@ -714,9 +725,11 @@ sub is_expanded_label{
 
 #    $string =~ /^(\s*\*[A-Za-z_][A-Za-z_0-9]*)/;
     
-    if($string =~ /^(\s*\*[A-Za-z_][A-Za-z_0-9]*)/){
+#    if($string =~ /^(\s*\*[A-Za-z_][A-Za-z_0-9]*)/){
+    if($string =~ /^(\s*\*$section_name)/){
         $section->{ptr} += length $1;
-        $string =~ /^\s*\*([A-Za-z_][A-Za-z_0-9]*)/;
+#        $string =~ /^\s*\*([A-Za-z_][A-Za-z_0-9]*)/;
+        $string =~ /^\s*\*($section_name)/;
         return $1;
     }
 
@@ -732,9 +745,11 @@ sub is_addr_label{
 
 #    $string =~ /^(\s*\*[A-Za-z_][A-Za-z_0-9]*)/;
     
-    if($string =~ /^(\s*&[A-Za-z_][A-Za-z_0-9]*)/){
+#    if($string =~ /^(\s*&[A-Za-z_][A-Za-z_0-9]*)/){
+    if($string =~ /^(\s*&$section_name)/){
         $section->{ptr} += length $1;
-        $string =~ /^\s*&([A-Za-z_][A-Za-z_0-9]*)/;
+#        $string =~ /^\s*&([A-Za-z_][A-Za-z_0-9]*)/;
+        $string =~ /^\s*&($section_name)/;
         return $1;
     }
 
@@ -750,9 +765,11 @@ sub is_label{
 
 #   $string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/;
     
-    if($string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/){
+#    if($string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/){
+    if($string =~ /^(\s*$section_name)/){
         $section->{ptr} += length $1;
-        $string =~ /^\s*([A-Za-z_][A-Za-z_0-9]*)/;
+#        $string =~ /^\s*([A-Za-z_][A-Za-z_0-9]*)/;
+        $string =~ /^\s*($section_name)/;
         return $1;
     }
 
@@ -768,9 +785,12 @@ sub is_hash_ref{
 
 #   $string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/;
 #   print substr($string,0,10) . "\n";
-    if($string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*&)/){
+
+#    if($string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*&)/){
+    if($string =~ /^(\s*$section_name&)/){
         $section->{ptr} += length $1;
-        $string =~ /^\s*([A-Za-z_][A-Za-z_0-9]*)&/;
+#        $string =~ /^\s*([A-Za-z_][A-Za-z_0-9]*)&/;
+        $string =~ /^\s*($section_name)&/;
         return Hash::Pearson16::pearson16_hash($1);
     }
 
@@ -811,6 +831,11 @@ sub is_string{
     if($string =~ /^(\s*"[^"]*")/){
         $section->{ptr} += length $1;
         $string =~ /^\s*"([^"]*)"/;
+        return "$1";
+    }
+    elsif($string =~ /^(\s*'[^']*')/){
+        $section->{ptr} += length $1;
+        $string =~ /^\s*'([^']*)'/;
         return "$1";
     }
 

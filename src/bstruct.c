@@ -64,8 +64,8 @@ void trav(void){
 
     mword *result = _trav((mword*)TOS_1,(mword*)TOS_0);
 
-//    zap();
-//    zap();
+    zap();
+    zap();
 
     push_alloc(result, TRAV);
 
