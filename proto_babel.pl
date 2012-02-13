@@ -81,7 +81,10 @@ sub send_obj{
     for(keys %{$sections}){
         next if /^ANON_/;
         if(defined $sections->{$_}{obj_ptr}){
-            printf LST_FILE ("%08x $_\n", $sections->{$_}{obj_ptr} * $MWORD_SIZE);
+            my $op = $_;
+            $op =~ s/%/%%/g;
+#            printf("$op\n");
+            printf LST_FILE ("%08x $op\n", $sections->{$_}{obj_ptr} * $MWORD_SIZE);
         }
     }
 

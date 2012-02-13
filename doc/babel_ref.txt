@@ -12,13 +12,80 @@ indicated, the rest of the stack is left as-is.
 Upper-case means "One or more pointers or values"
 Lower-case means "a single value"
 
+- Non-alphanumeric operator names
+
+To provide a short-hand for certain common operators and make Babel 
+operators more recognizable in terms of the operators used in other 
+languages, I have decided to create a variety of non-alphanumeric
+operator aliases. Because these aliases may be particularly cryptic
+when first encountered, I have collected them in one place here:
+
+       Symbol       Operator        Mnemonic
+      ------------------------------------------------------------------
+        *2          dup             double TOS
+        @           trav            what is AT this location?
+        ?           sel             a question
+        ??          cond            a big question
+        %%          hash8           Perl hash sigil: %
+        #           size            number-of
+        #8          size8            "    "
+        ##          len             number-of (lists take up more space)
+        !           eval            do it!
+        <<          stdout8         like cout <<
+        >>          stdinln8        like cin >>
+        <<<         spit8           like stdout8 but going all the way to file
+        >>>         slurp8          like stdinlin8 but coming all the way from file
+        <->         swap            reverse TOS and TOS-1
+        <-          down            stack on left, moving left is going "down" 
+        ->          up              stack on left, moving right is going "up"    
+        !!          call            do it!!
+        +           ciadd           same as C
+        -           cisub           same as C
+        *           cimul           same as C
+        /           cidiv           same as C
+        %           curem           same as C
+        =           ceq             same as C
+        <           cilt            same as C
+        >           cigt            same as C
+        >=          cige            same as C
+        <=          cile            same as C
+        u+          cuadd           
+        u-          cusub
+        u*          cumul
+        u/          cudiv
+        u<          cult
+        u>          cugt
+        u>=         cuge
+        u<=         cule
+        &           cand            same as C
+        |           cor             same as C
+        ^           cxor            same as C
+        ~           cnot            instead of !
+        ~&          cnand           see ~
+        ~|          cnor            see ~
+        ~^          cxnor           see ~
+        ~=          cne             see ~
+        &&          and             same as C
+        ||          or              same as C
+        ~~          not             see ~
+        |.|         ciabs           like the math operator
+        ==          cmp             big equality
+        ...         each            traversing a list
+        $           show            Perl scalar sigil
+        %d          ci2dec          like printf
+        %u          cu2dec          like printf
+        %x          cu2hex          like printf
+        $d          dec2ci          reverse of printf
+        $x          hex2cu          reverse of printf
+        .           cat8            like the Perl operator
+
 - Arithmetic Operators
 
     Note: The arithmetic operators are all prefixed with 'c' because
     Babel will have its own native number format and arbitrary-precision
     arithmetic at some point in the future.
-
-    - cuadd
+ 
+    - cuadd (u+)
         C-style unsigned addition
         Adds two mwords on TOS (Top-Of-Stack) 
     
@@ -33,44 +100,44 @@ Lower-case means "a single value"
         Stack effect:
             {a} {b}| -> {a+b}|
 
-    - cusub
+    - cusub (u-)
         C-style unsigned subtraction
         {a} {b}| -> {a-b}|
 
-    - ciadd
+    - ciadd (+)
         C-style integer addition
         {a} {b}| -> {a+b}|
 
-    - cisub
+    - cisub (-)
         C-style integer subtraction
         {a} {b}| -> {a-b}|
 
-    - ciabs
+    - ciabs (|.|)
         C-style absolute-value
         {a}| -> {abs(a)}|
 
-    - cumul
+    - cumul (u*)
         C-style unsigned multiplication
         {a} {b}| -> {lo(a*b) hi(a*b)}|
 
         Note: The result of multiplication is two mwords, so it is stored
         in a leaf array of size 2.
 
-    - cudiv
+    - cudiv (u/)
         C-style unsigned division
         {a} {b}| -> {a/b}|
 
-    - curem
+    - curem (%)
         C-style unsigned remainder (usually termed "mod")
         {a} {b}| -> {a%b}|
 
-    - cimul
+    - cimul (*)
         C-style integer multiplication
         {a} {b}| -> {lo(a*b) hi(a*b)}|
 
         See also: cumul
 
-    - cidiv
+    - cidiv (/)
         C-style integer division
         {a} {b}| -> {a/b}|
 
@@ -80,26 +147,26 @@ Lower-case means "a single value"
 
 - Shift Operators
 
-    - cushl
+    - cushl/shl
         C-style unsigned shift-left
         {a} {b}| -> {a<<b}|
         
-    - cushr
+    - cushr/shr
         C-style unsigned shift-right
         {a} {b}| -> {a>>b}|
         
-    - cashr
+    - cashr/ashr
         C-style arithmetic shift-right
         {a} {b}| -> {a>>b}|
 
         Performs an arithmetic shift-right which is suitable for dividing 
         a signed (integer) value by a power of 2
 
-    - curol
+    - curol/rol
         C-style unsigned rotate-left
         {a} {b}| -> {a rol b}|
 
-    - curor
+    - curor/ror
         C-style unsigned rotate-left
         {a} {b}| -> {a ror b}|
 
@@ -113,73 +180,73 @@ Lower-case means "a single value"
     - Fx
         {a} {b}| -> {a Fx b}|
 
-    - cand
+    - cand (&)
         C-style bitwise AND
         {a} {b}| -> {a & b}|
         
-    - cnand
+    - cnand (~&)
         C-style bitwise NAND
         {a} {b}| -> !{a & b}|
 
-    - cor
+    - cor (|)
         C-style bitwise OR
         {a} {b}| -> {a | b}|
 
-    - cnor
+    - cnor (~|)
         C-style bitwise NOR
         {a} {b}| -> !{a | b}|
 
-    - cxor
+    - cxor (^)
         C-style bitwise XOR
         {a} {b}| -> {a ^ b}|
 
-    - cxnor
+    - cxnor (~^)
         C-style bitwise XNOR
         {a} {b}| -> !{a ^ b}|
 
-    - cnot
+    - cnot (~)
         C-style bitwise complement
         {a}| -> ~{a}|
 
 - Comparison Operators
 
-    - cne
+    - cne (~=)
         C-style not-equal
         {a} {b}| -> {a != b}|
         
-    - ceq
+    - ceq (=)
         C-style equal
         {a} {b}| -> {a == b}|
         
-    - cult
+    - cult (u<)
         C-style unsigned less-than
         {a} {b}| -> {a < b}|
 
-    - cule
+    - cule (u<=)
         C-style unsigned less-than-or-equal
         {a} {b}| -> {a <= b}|
 
-    - cugt
+    - cugt (u>)
         C-style unsigned greater-than
         {a} {b}| -> {a > b}|
 
-    - cuge
+    - cuge (u>=)
         C-style unsigned greater-than-or-equal
         {a} {b}| -> {a >= b}|
 
-    - cilt
+    - cilt (<)
         C-style integer less-than
         {a} {b}| -> {a < b}|
 
-    - cile
+    - cile (<=)
         C-style integer less-than-or-equal
         {a} {b}| -> {a <= b}|
 
-    - cigt
+    - cigt (>)
         C-style integer greater-than
         {a} {b}| -> {a > b}|
 
-    - cige
+    - cige (>=)
         C-style integer greater-than-or-equal
         {a} {b}| -> {a >= b}|
 
@@ -206,7 +273,7 @@ Lower-case means "a single value"
 
         Prefer stdout
 
-    - slurp/slurp8
+    - slurp/slurp8 (>>>)
         Named after the Perl idiom
 
         Slurps an entire file to an array (or array8)
@@ -214,7 +281,7 @@ Lower-case means "a single value"
 
         X is the contents of the named file.
 
-    - spit/spit8
+    - spit/spit8 (<<<)
         Play on words - opposite of slurp. Writes an array (or array8) 
         to file. Overwrites existing file. Creates file if it does not 
         exist.
@@ -231,11 +298,11 @@ Lower-case means "a single value"
         Prints an array to STDOUT as UCS-4 characters
         {"string"}| -> |
 
-    - print/stdout8
+    - pr/stdout8 (<<)
         Prints an array8 to STDOUT in UTF-8 encodin
         {"string"}| -> |
 
-    - stdinln
+    - stdinln (>>)
         Reads from STDIN (standard input) until newline
         This operator is byte-wise so it places an array8 on TOS
         | -> {"string"}|
@@ -245,7 +312,7 @@ Lower-case means "a single value"
     - msize
         Puts MWORD_SIZE on TOS
 
-    - trav
+    - trav (@)
         Traverses a bstruct.
 
             [X] [(Y)] trav
@@ -291,7 +358,7 @@ Lower-case means "a single value"
     - dump
         Prints TOS to STDOUT in Graphviz dot-language format
 
-    - show
+    - show ($)
         Prints TOS to string format
 
     - mu
@@ -346,12 +413,12 @@ Lower-case means "a single value"
         {X}| -> {s(X)}|
         [X]| -> {s(X)}|
 
-    - size
+    - size (#)
         Puts the array size on TOS
         {X}| -> {size(X)}|
         [X]| -> {size(X)}|
 
-    - size8
+    - size8 (#8)
         Puts the 8-bit array length on TOS
         {X}| -> {size8(X)}|
         [X]| -> {size8(X)}|
@@ -436,11 +503,11 @@ Lower-case means "a single value"
         defined as the 0th boundary and the boundary between entry 0 and 
         entry 1 is the 1st boundary, and so on.
 
-    - cat
+    - cat/cat8 (.)
         Concatenate two arrays of the same type. If you want more complex 
         behavior, convert your arrays to lists, then use append/part
 
-    - cmp
+    - cmp (==)
         does a memcmp
         A B| -> { 0, A==B
                 {-1, A < B 
@@ -482,31 +549,28 @@ Lower-case means "a single value"
 
         {X}| -> {"string"}|
 
-    - cu2dec
+    - cu2dec (%u)
         Converts an C-style unsigned value to its ASCII decimal 
         representation
 
         {x}| -> {"string"}|
     
-    - ci2dec
+    - ci2dec (%d)
         Converts an C-style integer value to its ASCII decimal 
         representation
 
         {x}| -> {"string"}|
 
-    - dec2ci
+    - dec2ci ($d)
         Undoes ci2dec, see above
 
-    - dec2ci
-        Undoes ci2dec, see above
-
-    - cu2hex
-        Converts an C-style unsigned value to its ASCII hexa-decimal 
+    - cu2hex (%x)
+        Converts an C-style unsigned value to its ASCII hexadecimal 
         representation
 
         {x}| -> {"string"}|
 
-    - hex2cu
+    - hex2cu ($x)
         Undoes cu2hex, see above
 
 - List Operators
@@ -554,7 +618,7 @@ Lower-case means "a single value"
         Mnemonic: "Babel cons"... since it's like consing together an entire list
         into an "oversize" cons box.
 
-    - len
+    - len (##)
         List length
 
     - ls2lf
@@ -649,7 +713,7 @@ Lower-case means "a single value"
     - merge
         Would be nice to have a merge operator that can "undo" diff
 
-    - hash/hash8
+    - hash/hash8 (%%)
         Hashes a sequence of bytes (hence the '8')
 
         Stack effect:
@@ -736,7 +800,7 @@ Lower-case means "a single value"
         Named after the Joy operator
         Removes the TOS
 
-    - sel
+    - sel (?)
         Selects one of the top two values on the stack:
         {f} {X} {Y}| -> {X}|
         {t} {X} {Y}| -> {Y}|
@@ -746,20 +810,20 @@ Lower-case means "a single value"
 
         Where f = 0 and t != 0
 
-    - dup
+    - dup (*2)
         Named after the Joy operator
         Duplicates the TOS. Shallow-copy.
         {X}| -> {X} {X}|
         [X]| -> [X] [X]|
 
-    - swap    
+    - swap (<->)
         Named after the Joy operator
         Swaps the top two items on the stack.
         {X} {Y}| -> {Y} {X}|
         [X] {Y}| -> {Y} [X]|
         etc.
 
-    - down
+    - down (<-)
         Analogous to doing a cdr on the stack itself. If the code_ptr 
         becomes nil after executing one or more downs without a balancing 
         up, as many ups as are required to undo the downs will be executed
@@ -770,7 +834,7 @@ Lower-case means "a single value"
         nil after a nest and with no intervening up, an up will be 
         executed automatically.
 
-    - up
+    - up (->)
         Undoes down/nest.
 
     - take
@@ -795,18 +859,18 @@ Lower-case means "a single value"
     is_false(x) ->  {
                     { 0 otherwise
 
-    - and
+    - and (&&)
         Places (!is_false(TOS) & !is_false(TOS-1)) on TOS
 
-    - or
+    - or (||)
         Places (!is_false(TOS) | !is_false(TOS-1)) on TOS
 
-    - not
+    - not (~~)
         Places is_false(TOS) on TOS
 
 - Flow-control Operators
 
-    - eval
+    - eval (!)
         Named after the Perl function
         Evaluates TOS
         [X]| -> |
@@ -815,7 +879,7 @@ Lower-case means "a single value"
         Classic goto
         [X]| -> |
 
-    - call
+    - call (!!)
         Saves the current location in code, then does a goto
         [X]| -> |
 
@@ -829,7 +893,7 @@ Lower-case means "a single value"
     - next
         Goes to next iteration of current loop
 
-    - cond
+    - cond (??) 
         --
             (([x] 0 gt)
                 ("positive" say)
@@ -865,7 +929,7 @@ Lower-case means "a single value"
     - loop
         Loops indefinitely
 
-    - each
+    - each (...)
         Iterates across a list
             [0]
             --
@@ -951,5 +1015,4 @@ Lower-case means "a single value"
         filter
 
         Leaves ( 3 4 5 ) on the stack
-
 

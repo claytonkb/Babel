@@ -4,6 +4,59 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- File extensions -----
+
+If the file ends in .bz2, Babel will automatically unzip the file. So
+you can store your Babel files in zipped form with no hassles.
+
+Once unzipped, Babel will attempt to interpret the input file as a 
+compiled file. If the input file is not a compiled Babel file, it will 
+fail. Then, Babel will try to interpret the file as uncompiled code 
+(script).
+
+Switches will be included to force Babel to interpret the file in a
+particular way or fail.
+
+----- CLI/stdin/stdout/nesting/etc. -----
+
+The babel operator invokes a sub-instance of the babel interpreter.
+
+To keep things consistent with the external world, implement the following
+structure:
+
+On invocation:
+- Check stdin
+    - if non-empty:
+        read and place lines on stack
+        unless user uses a switch to say "don't do this"
+    - If empty, check command-line
+        perform CLI auto-parse:
+            TOS contains a list of all default arguments - if no default
+            arguments, nil
+            TOS-1 contains a hash with each CLI parameter and the 
+            argument following it, if any. Can handle --switch,
+            -switch=1, etc. Can't handle flags but those can be 
+            decoded by hand.
+        unless user uses a switch to say "don't do this"
+
+You can do the same thing when starting a sub-instance of Babel:
+
+    ["foo.bbl"] >>> load
+    [(1 2 3)] <-- whatever is here will be give'd to the child
+                        babel's stack; if nil, nothing is pushed
+    babel
+
+Whatever is left on the stack after execution is considered the
+return value of the program and is pushed on the parent's stack.
+
+Use the bbl operator to just launch/exit with no stack transfers.
+
+If this is the root instance, the stack can be sent to STDOUT. Each
+element on the stack will be pop'd and then sent as UTF-8 text (i.e.
+stdout8). The user must request this behavior with a switch. -s?
+
+    babel -s foo.bbl
+
 ----- exec/execs -----
 
     The exec operator executes a command through the OS's system call 
