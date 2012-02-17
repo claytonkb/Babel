@@ -4,15 +4,41 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
------ alt/fail -----
+----- parsing -----
 
-    ( save_state& )
-    ( alt_list )
-    alt
+Use alt/back. 
 
-    The save_state is restored after each fail and control transfers
-    to the next element of the alt_list. Once an alternative succeeds,
-    the operator itself is finished and execution proceeds.
+The parse-tree and pointers into the string being parsed will be kept 
+in the save_state area (we can probably descend the parse-tree so 
+save/restore is quick).
+
+Create a $0 variable that contains "this namespace" so we can insert
+into the parse-tree by name and track whether we've visited this namespace
+before at this pointer into the string being parsed (PEG).
+
+----- walk/write -----
+
+Like trav but for lists.
+
+( 'a' ('b' 'c' ('d' 'e') 'f') 'g' 'h')
+[(1 2 0)] walk --> yields 'd'
+
+write is like paste but for lists:
+
+['i']
+( 'a' ('b' 'c' ('d' 'e') 'f') 'g' 'h')
+[(1 2 0 0)] write --> yields ( 'a' ('b' 'c' ('i' 'e') 'f') 'g' 'h')
+
+----- alt/back -----
+
+( save_state& )
+( alt_list )
+alt
+
+The save_state is restored after each back and control transfers
+to the next element of the alt_list. Once an alternative completes
+without back-tracking, the alt operator itself is finished and 
+execution proceeds.
 
 ----- File extensions -----
 

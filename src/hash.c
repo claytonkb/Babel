@@ -342,10 +342,9 @@ void keysha(void){
 
     mword *hash_table = (mword*)TOS_0;
 
-    mword **result;
+    mword **result = (mword**)_newin(1);
     *result = (mword*)nil;
 
-    die
     _keysha(hash_table, result);
 
     zap();
