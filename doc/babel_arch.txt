@@ -4,6 +4,16 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- alt/fail -----
+
+    ( save_state& )
+    ( alt_list )
+    alt
+
+    The save_state is restored after each fail and control transfers
+    to the next element of the alt_list. Once an alternative succeeds,
+    the operator itself is finished and execution proceeds.
+
 ----- File extensions -----
 
 If the file ends in .bz2, Babel will automatically unzip the file. So
