@@ -20,6 +20,15 @@ void bons(void);
 mword *_bons(mword *list);
 void ls2lf(void);
 mword *_ls2lf(mword *list);
+void ith(void);
+mword *_ith(mword *list, mword i);
+void list_end(void);
+mword *_list_end(mword *list);
+mword *_list_next_to_end(mword *list);
+void push(void);
+void pop(void);
+void unshift(void);
+void shift(void);
 
 #endif //LIST_H
 

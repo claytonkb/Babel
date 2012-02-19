@@ -379,5 +379,6 @@
 #define STDOUTOP    0x1f7
 #define LS2AR       0x1f8
 #define TRAV        0x1f9
-
+#define ITH         0x1fa
+#define CR          0x1fb
 

@@ -27,9 +27,9 @@ This document is basically just a todo-list.
     - Each rstack operator needs to perform a SINGLE push/pop
       and store all its state in a list
 
-- nth/ith
-    Rename cxr
-    Implement for lists
+#- nth/ith
+#    Rename cxr
+#    Implement for lists
 
 - List dev
     - append/part/reverse 

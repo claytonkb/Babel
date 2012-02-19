@@ -333,7 +333,7 @@ when first encountered, I have collected them in one place here:
         X| -> Y
         ... where Y is an array containing a pointer into every array and href in X
 
-    - cp (ND)
+    - cp
         Named after the Unix command. Does a deep-copy of a bstruct.
 
         [X]| -> [copy-of-X]|
@@ -436,7 +436,7 @@ when first encountered, I have collected them in one place here:
     - ishref
         Tests if TOS is a hash-reference
 
-    - slice (ND)
+    - slice
         Puts a slice of an array on TOS
         {X} {a} {b}| -> {X[a..b]}|
         [X] {a} {b}| -> [X[a..b]]|
@@ -456,7 +456,7 @@ when first encountered, I have collected them in one place here:
     - free
         Frees the array on TOS - NOT recursive. See del.
 
-    - del (D)
+    - del
         Named after the C++ delete operator
 
         Frees (de-allocates) a leaf-array or interior array created with 
@@ -467,23 +467,23 @@ when first encountered, I have collected them in one place here:
 
         ... will crash the interpreter.
 
-    - trunc (D)
+    - trunc
         Truncates an array X to length y:
         {X} {y}| -> {X[0..y]}|
         [X] {y}| -> [X[0..y]]|
 
-    - cxr (D)
-        By analogy to Lisp's car/cdr, where car = c0r and cdr = c1r, etc.
-
+    - th
         Returns the xth element of array A:
 
         {A} {x}| -> {A[x]}|
         [A] {x}| -> [A[x]]|
 
-        Note that cxr is a degenerate case of slice:
-            [x] cxr <==> [x] [x] slice
+        Note that th is a degenerate case of slice:
+            [x] th <==> [x] [x] slice
 
-        Make this into a pseudo-operator?
+        It is also equivalent to trav:
+
+            [x] th <==> ((x)) trav
 
     - paste8/paste1
 
@@ -591,6 +591,9 @@ when first encountered, I have collected them in one place here:
         [cons(X,Y)]| -> {Y}|
         [cons(X,Y)]| -> [Y]|
 
+    - ith
+        Mnemonic: lIst -> Ith
+
     - isnil
         Tests if TOS is nil
         [nil]| -> {1}|
@@ -623,6 +626,37 @@ when first encountered, I have collected them in one place here:
 
     - ls2lf
         Undoes ar2ls on a leaf-array
+
+    - ith
+        Returns the ith element of a list:
+
+            (('a' 'b' 'c' 'd')) [2] ith --> leaves 'c' on TOS
+
+    - push
+        Like the Perl operator
+        Undoes pop
+
+        ((a b c)) ((d e f)) push --> leaves (a b c d e f) on TOS
+
+    - pop
+        Like the Perl operator
+        Undoes push of length-1 list
+
+        ((a b c)) pop --> leaves (a b) (c) on TOS
+
+    - unshift
+        Like the Perl operator
+        Undoes shift
+
+        ((a b c)) ((d e f)) shift --> leaves (d e f a b c) on TOS
+
+        A B unshift <--> A B swap push
+
+    - shift
+        Like the Perl operator
+        Undoes unshift of length-1 list
+
+        ((a b c)) shift --> leaves (b c) (a) on TOS
 
     - append
         appends a list of lists

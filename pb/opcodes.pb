@@ -259,7 +259,7 @@ sleep:          {0x120}
 die:            {0x121}
 goto:           {0x122}
 call:           {0x123}
-!!:           {0x123}
+!!:             {0x123}
 ret:            {0x124}
 loop:           {0x125}
 last:           {0x126}
@@ -267,9 +267,10 @@ next:           {0x127}
 cut:            {0x12b}
 trunc:          {0x12c}
 cxr:            {0x12d}
+th:             {0x12d}
 ardeq:          {0x12f}
 eval:           {0x130}
-!:           {0x130}
+!:              {0x130}
 areval:         {0x131}
 lseval:         {0x132}
 meval:          {0x133}
@@ -277,10 +278,12 @@ exec:           {0x134}
 while:          {0x135}
 times:          {0x136}
 isin:           {0x138}
+in?:            {0x138}
 in2lf:          {0x139}
 newin:          {0x13a}
 ar2ls:          {0x13b}
 islf:           {0x13c}
+lf?:            {0x13c}
 del:            {0x13d}
 newlf:          {0x13e}
 s:              {0x13f}
@@ -376,6 +379,7 @@ ls2lf:          {0x1ba}
 bons:           {0x1bb}
 isat:           {0x1bc}
 isnil:          {0x1bd}
+nil?:           {0x1bd}
 slurp8:         {0x1c0}
 >>>:            {0x1c0}
 spit8:          {0x1c1}
@@ -428,4 +432,6 @@ clear:          {0x1f6}
 stdout:         {0x1f7}
 ls2ar:          {0x1f8}
 trav:           {0x1f9}
+ith:            {0x1fa}
+cr:             {0x1fb}
 

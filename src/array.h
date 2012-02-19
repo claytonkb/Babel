@@ -10,7 +10,7 @@ void islf(void);
 void isinte(void);
 inline mword *_newlf(mword size);
 inline mword *_newin(mword size);
-void cindex(void);
+void slice(void);
 //void pindex(void);
 //void vindex(void);
 void arlen8(void);
@@ -36,6 +36,8 @@ mword _cxr8(mword *val, mword bit);
 mword _cxr1(mword *val, mword bit);
 inline mword *_newlfz(mword size);
 void arcat8(void);
+void cr(void);
+void slice8(void);
 //void ls2ar(void);
 //void _ls2ar(mword *list, mword *array, mword offset);
 

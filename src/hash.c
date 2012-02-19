@@ -110,6 +110,10 @@ void inskha(void){
     mword *key        = (mword*)TOS_1;
     mword *val        = (mword*)TOS_0;
 
+//    mword *hash_init = new_hash();
+//    mword *hash = _pearson16(hash_init, key, (mword)strlen((char*)key));
+//
+
     mword *result = _inskha(hash_table, key, val);
 
     zap();
@@ -125,6 +129,10 @@ mword *_inskha(mword *hash_table, mword *key, mword *val){
     mword *hash_init = new_hash();
     mword *hash = _pearson16(hash_init, key, (mword)strlen((char*)key));
 
+//    char *buffer = (char*)_newlf(1000);
+//    mword discard = tree_bbl2str(hash,buffer);
+//    printf("%s\n",buffer);
+//
     mword *result;
     mword *temp;
     mword cons_side;

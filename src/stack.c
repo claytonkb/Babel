@@ -9,6 +9,14 @@
 #include "bvm_opcodes.h"
 #include "array.h"
 
+mword *cons_alloc(mword *car, mword *cdr){
+
+    mword *temp = new_cons();
+    cons(temp,car,cdr);
+    return temp;
+
+}
+
 void push_alloc_rstack(mword *operand, mword alloc_type){
 
     mword *temp_consA = new_cons();

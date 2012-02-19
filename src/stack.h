@@ -26,6 +26,7 @@ void give(void);
 void give_tree(mword *list);
 void nest(void);
 void clear(void);
+mword *cons_alloc(mword *car, mword *cdr);
 
 //#ifdef DEBUG
 //mword STACK_TRACE;

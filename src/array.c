@@ -128,20 +128,25 @@ inline mword *_newin_blank(mword size){
 // TOS_0 to
 // TOS_1 from
 // TOS_2 operand
-//
-void cindex(void){
+void slice(void){
 
     mword *result;
-    if(is_leaf((mword*)TOS_2)){
-        result = _newlf(car(TOS_0)-car(TOS_1)+1);
+
+    if(car(TOS_0)<=car(TOS_1)){
+        result = (mword*)nil;
     }
     else{
-        result = _newin(car(TOS_0)-car(TOS_1)+1);
+        if(is_leaf((mword*)TOS_2)){
+            result = _newlf(car(TOS_0)-car(TOS_1));
+        }
+        else{
+            result = _newin(car(TOS_0)-car(TOS_1));
+        }
     }
 
     mword i,j;
     for(    i=car(TOS_1), j=0;
-            i<=car(TOS_0);
+            i<car(TOS_0);
             i++,j++
         ){
 
@@ -600,6 +605,77 @@ void arcat8(void){
 
 }
 
+//TODO: Move these def'ns to string.h:
+#define NEWLINE 0xa
+#define NEWLINE_SIZE 1
+
+// TOS_0 . "\n"
+// TODO: Optimize for cases when we have slack-space
+void cr(void){
+
+    char *result;
+    mword size8;
+
+    if      ( is_leaf((mword*)TOS_0)  ){
+        size8 = _arlen8((mword*)TOS_0) + NEWLINE_SIZE;
+        result = (char*)_newlf( array8_size(size8) );
+    }
+    else{ //Throw an exception
+        except("cr: cannot concatenate to a non-leaf array", __FILE__, __LINE__);
+    }
+
+    mword i,j;
+    for(    i=0;
+            i<_arlen8((mword*)TOS_0);
+            i++
+        ){
+
+        result[i] = *((char*)TOS_0+i);
+
+    }
+
+    result[size8-1] = NEWLINE; //FIXME: Assumes *nix newline
+
+    c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
+
+    zap();
+    push_alloc((mword*)result, CR);
+
+}
+
+// TOS_0 to
+// TOS_1 from
+// TOS_2 operand
+void slice8(void){
+
+    mword size8 = car(TOS_0)-car(TOS_1);
+
+    char *result;
+    if(is_leaf((mword*)TOS_2)){
+        result = (char*)_newlf(array8_size(size8));
+    }
+    else{
+        except("slice8: cannot slice8 a non-leaf array", __FILE__, __LINE__);
+    }
+
+    mword i,j;
+    for(    i=car(TOS_1), j=0;
+            i<car(TOS_0);
+            i++,j++
+        ){
+
+        result[j] = ((char*)TOS_2)[i];
+
+    }    
+
+    c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
+
+    zap();
+    zap();
+    zap();
+    push_alloc((mword*)result, SLICE8);
+
+}
 
 void arcmp(void){
 

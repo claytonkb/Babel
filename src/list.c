@@ -118,30 +118,84 @@ void uncons(void){
 
 }
 
-////push
-//// equivalent to Joy's swons
-//void push(void){
-//
-//    mword *temp_cons = new_cons();
-//
-//    cons(temp_cons, (mword*)TOS_0, (mword*)TOS_1);
-//
-//    zap();
-//    zap();
+void list_end(void){
+
+}
+
+mword *_list_end(mword *list){
+
+    while(cdr(list) != nil){
+        list = (mword*)cdr(list);
+    }
+    return list;
+    
+}
+
+mword *_list_next_to_end(mword *list){
+
+    while(cdr(cdr(list)) != nil){
+        list = (mword*)cdr(list);
+    }
+    return list;
+    
+}
+
+//push
+// Like Perl's
+// ((a b c)) ((d e f)) push --> (a b c d e f)
+void push(void){
+
+    mword *endls = _list_end((mword*)TOS_1);
+    c(endls,1) = TOS_0;
+
+    zap();
+    // XXX Might get alloc-type bugs here...
 //    push_alloc(temp_cons, PUSH);
-//
-//}
-//
-////pop
-////
-//void pop(void){
-//
-//    //FIXME: No checking...
-//    mword *temp_car = (mword*)car(TOS_0);
-//    TOS_0 = cdr(TOS_0);
-//    push_alloc(temp_car, POP);
-//
-//}
+
+}
+
+//pop
+// Like Perl's
+void pop(void){
+
+    mword *endls = _list_next_to_end((mword*)TOS_0);
+
+    mword *temp = (mword*)c(endls,1);
+    c(endls,1) = nil;
+
+    push_alloc(temp, POP);
+
+}
+
+//unshift
+// Like Perl's
+// ((a b c)) ((d e f)) push --> (d e f a b c)
+// A B unshift <--> A B swap push
+void unshift(void){
+
+    swap();
+
+    mword *endls = _list_end((mword*)TOS_1);
+    c(endls,1) = TOS_0;
+
+    zap();
+    // XXX Might get alloc-type bugs here...
+//    push_alloc(temp_cons, PUSH);
+
+}
+
+//shift
+// Like Perl's
+void shift(void){
+
+    mword *temp = (mword*)TOS_0;
+    TOS_0 = cdr(TOS_0);
+
+    c(temp,1) = nil;
+
+    push_alloc(temp, SHIFT);
+
+}
 
 void len(void){
     mword *result = _newlf(1);
@@ -209,6 +263,26 @@ mword *_ls2lf(mword *list){
     }
 
     return arr;
+
+}
+
+void ith(void){
+
+    mword *result = _ith((mword*)TOS_1, car(TOS_0));
+    zap();
+    zap();
+    push_alloc(result, ITH);
+
+}
+
+mword *_ith(mword *list, mword i){
+
+    while(i > 0){
+        i--;
+        list = (mword*)cdr(list);
+    }
+    return (mword*)car(list);
+//    return list;
 
 }
 

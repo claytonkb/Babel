@@ -237,7 +237,10 @@
         cut();          \
         break;          \
     case SLICE:         \
-        cindex();       \
+        slice();        \
+        break;          \
+    case SLICE8:        \
+        slice8();       \
         break;          \
     case MU:            \
         mu();           \
@@ -295,6 +298,9 @@
         break;          \
     case TRAV:          \
         trav();         \
+        break;          \
+    case CR:          \
+        cr();         \
         break;          \
 
 //    case B2C:           \
@@ -356,6 +362,21 @@
         break;          \
     case LS2LF:         \
         ls2lf();        \
+        break;          \
+    case ITH:           \
+        ith();          \
+        break;          \
+    case PUSH:          \
+        push();         \
+        break;          \
+    case POP:           \
+        pop();          \
+        break;          \
+    case UNSHIFT:           \
+        unshift();          \
+        break;          \
+    case SHIFT:           \
+        shift();          \
         break;          \
 
 #define util_ops        \
@@ -428,8 +449,8 @@
         loop();         \
         continue;       \
     case LAST:          \
-        last();         \
-        continue;       \
+        if(_last()) continue; \
+         break;         \
     case NEXT:          \
         next();         \
         continue;       \
