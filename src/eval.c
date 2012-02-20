@@ -36,21 +36,21 @@ void gotoop(void){
 
 }
 
-void call(void){
-
-    push_alloc_rstack((mword*)cdr(code_ptr), CALL);
-    code_ptr = car(car(stack_ptr)); // PRE STACK FIX
-//    code_ptr = car(stack_ptr);
-    zap();
-
-}
-
-void ret(void){
-
-    // FIXME: CHECK FOR EMPTY RSTACK
-    code_ptr = car(pop_rstack());
-
-}
+//void call(void){
+//
+//    push_alloc_rstack((mword*)cdr(code_ptr), CALL);
+//    code_ptr = car(car(stack_ptr)); // PRE STACK FIX
+////    code_ptr = car(stack_ptr);
+//    zap();
+//
+//}
+//
+//void ret(void){
+//
+//    // FIXME: CHECK FOR EMPTY RSTACK
+//    code_ptr = car(pop_rstack());
+//
+//}
 
 void loop(void){
 
@@ -211,7 +211,7 @@ mword _last(void){
         else if(alloc_type(RTOS_0) == LOOP){
             (mword*)code_ptr = (mword*)car(RTOS_0);
         }
-        else{
+        else{ //FIXME: Make this an exception
             (mword*)code_ptr = (mword*)car(pop_rstack());
         }
         return 1;

@@ -4,6 +4,12 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- set -----
+
+Equivalent to [0] cxr:
+
+    [3] x set --> x now has 3
+
 ----- parsing -----
 
 Use alt/back. 
