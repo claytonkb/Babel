@@ -194,7 +194,7 @@ void exha(void){
     zap();
 
     push_alloc(result, EXHA);
-    
+
 }
 
 mword *_exha(mword *hash_table, mword *hash){

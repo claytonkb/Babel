@@ -439,17 +439,11 @@
     case GOTO:          \
         gotoop();       \
         continue;       \
-    case CALL:          \
-        call();         \
-        continue;       \
-    case RET:           \
-        ret();          \
-        continue;       \
     case LOOP:          \
         loop();         \
         continue;       \
     case LAST:          \
-        if(_last()) continue; \
+         last();        \
          break;         \
     case NEXT:          \
         next();         \

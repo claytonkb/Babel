@@ -63,6 +63,9 @@ void loop(void){
 //
 //    push_rstack((mword*)cdr(code_ptr));
 
+    // return RTOS-1
+    // body   RTOS-0
+
     mword temp_TOS_0 = TOS_0;
     zap();
 
@@ -77,12 +80,12 @@ void loop(void){
 
 }
 
-void last(void){
-    mword *discard = (mword*)car(pop_rstack());
-    code_ptr = nil;
-}
+//void last(void){
+//    mword *discard = (mword*)car(pop_rstack());
+//    code_ptr = nil;
+//}
 
-mword _last(void){
+mword _end_of_code(void){
 
     mword* discard;
 
@@ -92,17 +95,6 @@ mword _last(void){
             up();
         }
         if(alloc_type(RTOS_0) == TIMES){
-//            if(car(car(RTOS_2)) > 1){
-//                c((mword*)car(RTOS_2),0) = car(car(RTOS_2)) - 1;
-//                (mword*)code_ptr = (mword*)car(RTOS_0);
-//            }
-//            else{
-//                discard = pop_rstack();
-//                (mword*)code_ptr = (mword*)car(pop_rstack());
-//                discard = pop_rstack();
-//            }
-//                d(car(car(car(RTOS_0))))
-//                            die
             if(car(car(car(RTOS_0))) > 1){
                 c((mword*)car(car(RTOS_0)),0) = car(car(car(RTOS_0))) - 1;
                 (mword*)code_ptr = (mword*)car(cdr(car((RTOS_0))));
@@ -112,17 +104,6 @@ mword _last(void){
             }
         }
         else if(alloc_type(RTOS_0) == WHILEOP){
-//            if(!is_false((mword*)TOS_0)){
-//                zap();
-//                (mword*)code_ptr = (mword*)car(RTOS_0);
-//                push_alloc_rstack((mword*)car(RTOS_2), 0);
-//            }
-//            else{
-//                zap();
-//                discard = pop_rstack();
-//                (mword*)code_ptr = (mword*)car(pop_rstack());
-//                discard = pop_rstack();
-//            }
             if(car(car(car(RTOS_0)))){ // goto cond_block
                 (mword*)code_ptr = (mword*)car(cdr(cdr(car(RTOS_0))));
                 c((mword*)car(car(RTOS_0)),0) = 0;
@@ -142,65 +123,24 @@ mword _last(void){
         }
         else if(alloc_type(RTOS_0) == EACH){
 
-//            if(cdr(car(RTOS_2)) != nil){
-//                c((mword*)RTOS_2,0) = cdr(car(RTOS_2));
-//                push_alloc((mword*)car(car(RTOS_2)),EACH);
-//                (mword*)code_ptr = (mword*)car(RTOS_0);
-//            }
-//            else{
-//                discard = pop_rstack();
-//                (mword*)code_ptr = (mword*)car(pop_rstack());
-//                discard = pop_rstack();
-//            }
-
-//            d(car(car(car(car(car(RTOS_0))))))
-//            d(car(car(car(cdr(car(car(RTOS_0)))))))
-//
-
             if(cdr(car(car(RTOS_0))) != nil){
                 c((mword*)car(RTOS_0),0) = cdr(car(car(RTOS_0)));
-//                d(car(car(car(car(car(RTOS_0))))))
                 push_alloc((mword*)car(car(car(RTOS_0))), EACH);
-//                d(car(car(TOS_0)))
-//                        die
                 code_ptr = car(cdr(car(RTOS_0)));
-//                d(car(car(code_ptr)));
-//                die
             }
             else{
                 code_ptr = car(cdr(cdr(car(RTOS_0))));
                 discard = pop_rstack();
-//                d(car(code_ptr))
-//                    d(nil)
-//                die
             }
         }
         else if(alloc_type(RTOS_0) == EACHAR){
 
-//            if(car(car(RTOS_3)) < size((mword*)car(RTOS_2))-1){
-//                *((mword*)car(RTOS_3)) = car(car(RTOS_3)) + 1;
-//                push_alloc((mword*)c((mword*)car(RTOS_2),car(car(RTOS_3))),EACHAR);
-//                (mword*)code_ptr = (mword*)car(RTOS_0);
-//            }
-//            else{
-//                discard = pop_rstack();
-//                (mword*)code_ptr = (mword*)car(pop_rstack());
-//                discard = pop_rstack();
-//                discard = pop_rstack();
-//            }
-
-//            d(nil)
-//            d(size((mword*)(car(cdr(car(RTOS_0))))))
-
             if(car(car(car(RTOS_0))) < size((mword*)car(cdr(car(RTOS_0))))-1){
+
                 c((mword*)car(car(RTOS_0)),0) = car(car(car(RTOS_0))) + 1;
                 push_alloc((mword*)c((mword*)car(cdr(car(RTOS_0))),car(car(car(RTOS_0)))),EACHAR);
                 code_ptr = car(cdr(cdr(car(RTOS_0))));
 
-//                die
-//                c((mword*)car(RTOS_0),0) = cdr(car(car(RTOS_0)));
-//                push_alloc((mword*)car(car(car(RTOS_0))), EACH);
-//                code_ptr = car(cdr(car(RTOS_0)));
             }
             else{
                 code_ptr = car(cdr(cdr(cdr(car(RTOS_0)))));
@@ -209,7 +149,7 @@ mword _last(void){
 
         }
         else if(alloc_type(RTOS_0) == LOOP){
-            (mword*)code_ptr = (mword*)car(RTOS_0);
+            (mword*)code_ptr = (mword*)car(car((RTOS_0)));
         }
         else{ //FIXME: Make this an exception
             (mword*)code_ptr = (mword*)car(pop_rstack());
@@ -221,9 +161,91 @@ mword _last(void){
 
 }
 
+void last(void){
+
+    mword* discard;
+
+    if(!rstack_empty){
+        while(  alloc_type(RTOS_0) == DOWN ||
+                alloc_type(RTOS_0) == NEST){
+            up();
+        }
+        if(alloc_type(RTOS_0) == TIMES){
+//            if(car(car(car(RTOS_0))) > 1){
+//                c((mword*)car(car(RTOS_0)),0) = car(car(car(RTOS_0))) - 1;
+//                (mword*)code_ptr = (mword*)car(cdr(car((RTOS_0))));
+//            }
+//            else{
+                (mword*)code_ptr = (mword*)car(cdr(cdr(car(pop_rstack()))));
+//            }
+        }
+        else if(alloc_type(RTOS_0) == WHILEOP){
+//            if(car(car(car(RTOS_0)))){ // goto cond_block
+//                (mword*)code_ptr = (mword*)car(cdr(cdr(car(RTOS_0))));
+//                c((mword*)car(car(RTOS_0)),0) = 0;
+//            }
+//            else{ // check TOS; if true, goto loop body, else last
+//                if(!is_false((mword*)TOS_0)){
+//                    zap();
+//                    (mword*)code_ptr = (mword*)car(cdr(car(RTOS_0)));
+//                    c((mword*)car(car(RTOS_0)),0) = 1;
+//                    //push_alloc_rstack((mword*)car(RTOS_2), 0);
+//                }
+//                else{
+                    (mword*)code_ptr = (mword*)car(cdr(cdr(cdr(car(RTOS_0)))));
+                    discard = pop_rstack();
+//                }
+//            }
+        }
+        else if(alloc_type(RTOS_0) == EACH){
+
+//            if(cdr(car(car(RTOS_0))) != nil){
+//                c((mword*)car(RTOS_0),0) = cdr(car(car(RTOS_0)));
+//                push_alloc((mword*)car(car(car(RTOS_0))), EACH);
+//                code_ptr = car(cdr(car(RTOS_0)));
+//            }
+//            else{
+                code_ptr = car(cdr(cdr(car(RTOS_0))));
+                discard = pop_rstack();
+//            }
+        }
+        else if(alloc_type(RTOS_0) == EACHAR){
+
+//            if(car(car(car(RTOS_0))) < size((mword*)car(cdr(car(RTOS_0))))-1){
+//
+//                c((mword*)car(car(RTOS_0)),0) = car(car(car(RTOS_0))) + 1;
+//                push_alloc((mword*)c((mword*)car(cdr(car(RTOS_0))),car(car(car(RTOS_0)))),EACHAR);
+//                code_ptr = car(cdr(cdr(car(RTOS_0))));
+//
+//            }
+//            else{
+                code_ptr = car(cdr(cdr(cdr(car(RTOS_0)))));
+                discard = pop_rstack();
+//            }
+
+        }
+        else if(alloc_type(RTOS_0) == LOOP){
+            die
+            (mword*)code_ptr = (mword*)car(cdr(car((RTOS_0))));
+            discard = pop_rstack();
+        }
+        else if(alloc_type(RTOS_0) == EVAL){
+            (mword*)code_ptr = (mword*)car(pop_rstack());
+            last(); //This is needed for conditional loop breaks
+            // You don't need last to break out of an eval, just close the code list and you'll break out
+        }
+        else{ //FIXME: Make this an exception
+            (mword*)code_ptr = (mword*)car(pop_rstack());
+        }
+    }
+    else{ //XXX break from interpreter?
+        code_ptr = cdr(code_ptr); //Do nothing
+    }
+    die
+
+}
+
 void next(void){
-    (mword*)code_ptr = (mword*)car(pop_rstack());
-//    code_ptr = nil;
 }
 
 // (body) (cond) while

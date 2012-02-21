@@ -178,7 +178,7 @@ void bvm_interp(void){
     while(global_steps--){//FIXME: This is not correct long-term
 
         if(car(code_ptr) == (mword)nil){
-            if(_last()) continue;
+            if(_end_of_code()) continue;
             break;
 //            if(!rstack_empty){
 //                while(alloc_type(RTOS_0) == DOWN){
