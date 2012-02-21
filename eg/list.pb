@@ -1,38 +1,38 @@
 code:
-   (("car:\n") <<
+   (("car:\n")      <<
     ((1 2 3))       car         disp !
 
-    ("cdr:\n") <<
+    ("cdr:\n")      <<
     ((1 2 3))       cdr         disp !
 
-    ("cons:\n") <<
+    ("cons:\n")     <<
     ((1)) ((2 3))   cons dup    disp !
 
-    ("uncons:\n") <<
+    ("uncons:\n")   <<
                     uncons      disp !   
                                 disp !
 
-    ("uncons:\n") <<
+    ("uncons:\n")   <<
     (((1) 2 3))     uncons      disp ! 
                                 disp !
 
-    ("ar2ls:\n") <<
+    ("ar2ls:\n")    <<
     [[1 2 3]]       ar2ls dup   disp !
 
-    ("bons:\n") <<
+    ("bons:\n")     <<
                     bons        disp !
 
-    ("push:\n") <<
+    ("push:\n")     <<
     ((1 2)) ((3))   push dup    disp !
 
-    ("pop:\n") <<
+    ("pop:\n")      <<
                     pop         disp !
                                 disp !
 
-    ("unshift:\n") <<
+    ("unshift:\n")  <<
     ((2 3)) ((1))   unshift dup disp !
 
-    ("shift:\n") <<
+    ("shift:\n")    <<
                     shift       disp !
                                 disp !)
 
