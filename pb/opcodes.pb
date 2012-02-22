@@ -434,4 +434,5 @@ ls2ar:          {0x1f8}
 trav:           {0x1f9}
 ith:            {0x1fa}
 cr:             {0x1fb}
+break:          {0x1fc}
 

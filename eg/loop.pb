@@ -3,10 +3,10 @@ code: (
             (( ("Type something\n> ") <<
             >> dup
             ("quit") ==
-                (( last ))
+                (( break ))
                 ((  ("You typed: ") <<
                 cr << ))
             ? ! ))
-        loop
-        ("Done.") <<)
+        loop   
+        ("Done.") << die)
 

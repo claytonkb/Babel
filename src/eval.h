@@ -17,6 +17,7 @@ void times(void);
 void dieop(void);
 void eachar(void);
 mword _end_of_code(void);
+void breakop(void);
 
 #define WHILE_BODY 0
 #define COND_BLOCK 1

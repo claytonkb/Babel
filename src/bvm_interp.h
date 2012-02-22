@@ -444,7 +444,7 @@
         continue;       \
     case LAST:          \
          last();        \
-         break;         \
+         continue;         \
     case NEXT:          \
         next();         \
         continue;       \
@@ -462,6 +462,9 @@
         continue;       \
     case DIE:           \
         dieop();        \
+        continue;       \
+    case BREAKOP:       \
+        breakop();      \
         continue;       \
 
 #define hash_ops        \

@@ -198,7 +198,6 @@ void last(void){
 //            }
         }
         else if(alloc_type(RTOS_0) == EACH){
-
 //            if(cdr(car(car(RTOS_0))) != nil){
 //                c((mword*)car(RTOS_0),0) = cdr(car(car(RTOS_0)));
 //                push_alloc((mword*)car(car(car(RTOS_0))), EACH);
@@ -225,24 +224,34 @@ void last(void){
 
         }
         else if(alloc_type(RTOS_0) == LOOP){
-            die
+            printf("A!\n");
             (mword*)code_ptr = (mword*)car(cdr(car((RTOS_0))));
+//            d(car(car(car(code_ptr))))
+//                die
             discard = pop_rstack();
         }
         else if(alloc_type(RTOS_0) == EVAL){
+            printf("B!\n");
             (mword*)code_ptr = (mword*)car(pop_rstack());
             last(); //This is needed for conditional loop breaks
             // You don't need last to break out of an eval, just close the code list and you'll break out
         }
         else{ //FIXME: Make this an exception
+            printf("C!\n");
             (mword*)code_ptr = (mword*)car(pop_rstack());
         }
     }
     else{ //XXX break from interpreter?
+            printf("D!\n");
         code_ptr = cdr(code_ptr); //Do nothing
     }
-    die
 
+
+}
+
+void breakop(void){ //FIXME: Buggy; it's cdr'ing code_ptr one too many times
+    last();
+    last();
 }
 
 void next(void){

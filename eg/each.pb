@@ -1,7 +1,7 @@
 --each.pb
 
 code:  (
-        ((car cr <<))
+        ((car cr << last))
             [[("Bob") ("John")  ("Brad") ("Gary") 
               ("Joe") ("Clark") ("Bill") ("Jerry")]]
         eachar
