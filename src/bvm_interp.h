@@ -466,6 +466,9 @@
     case BREAKOP:       \
         breakop();      \
         continue;       \
+    case CONTINUEOP:       \
+        continueop();      \
+        continue;       \
 
 #define hash_ops        \
     case INSHA:         \

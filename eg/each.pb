@@ -1,7 +1,12 @@
 --each.pb
 
 code:  (
-        ((car cr << last))
+            ((
+                dup car ("Brad") ==
+                (( break ))
+                (( car cr << ))
+                ? !
+            ))
             [[("Bob") ("John")  ("Brad") ("Gary") 
               ("Joe") ("Clark") ("Bill") ("Jerry")]]
         eachar

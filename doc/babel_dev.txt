@@ -23,9 +23,10 @@ This document is basically just a todo-list.
 
 #- refactor bvm_interp()/last()
 
-- rstack re-write
-    - Each rstack operator needs to perform a SINGLE push/pop
-      and store all its state in a list
+#- rstack re-write
+#    - Each rstack operator needs to perform a SINGLE push/pop
+#      and store all its state in a list
+    - Still buggy
 
 #- nth/ith
 #    Rename cxr
@@ -33,7 +34,7 @@ This document is basically just a todo-list.
 
 - List dev
     - append/part/reverse 
-    - trans(pose)/cart/zip/unzip/perm
+    - transpose/cart/perm
     - sort/filter/uniq
         review quick-sort (remember heaps)
         filter is a lot like while
@@ -59,7 +60,7 @@ proto_babel.pl
 #- create a separate progressive-hashing operator... phash/phash8 so we
 #don't have to type [{0 0 0 0}] every time to hash something
 
-- Implement each/loop/etc. in preparation for nested hashes
+#- Implement each/loop/etc. in preparation for nested hashes
 #    - each is (hopefully) implemented
 #    - implement loop
     - next/last have lots of bugs in them... probably need to implement

@@ -1,12 +1,11 @@
-code: (
-        ("Ctl+C to quit\n") <<
-            (( ("Type something\n> ") <<
+code:  (("Ctl+C to quit\n")             <<
+            (( ("Type something\n> ")   <<
             >> dup
             ("quit") ==
-                (( break ))
-                ((  ("You typed: ") <<
-                cr << ))
-            ? ! ))
+                (( continue ))
+                ((  ("You typed: ")     <<
+                cr                      << ))
+            ? ! ("Aha\n") << ))
         loop   
-        ("Done.") << die)
+        ("Done.")                       <<)
 

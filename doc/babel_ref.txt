@@ -1017,28 +1017,14 @@ when first encountered, I have collected them in one place here:
         
         Works for all dimensions
 
-    - zip
+    - transpose
         --
             (( 1  2  3  4 )
             (  5  6  7  8  9 )
             (  10 11 12 13 14 15 ))
-        zip
+        transpose
 
         TOS: ((1 5 10) (2 6 11) (3 7 12) (4 8 13) (nil 9 13) (nil nil 15))
-
-    - transpose
-        multi-dimensional transpose as "dimensional permutation"
-        <x,y,z> -> <y,x,z> or <x,y,z> -> <y,z,x>
-        We can restrict this to "dimensional rotation", then simplify
-        to rotation by ONE:
-        <x,y,z> -> <z,x,y>
-        repeated application of transpose operator will iterate through
-        all dimensional rotations until returning to the original
-
-        <x,y> -> <y,x> -> <x,y>
-        <x,y,z> -> <z,x,y> -> <y,z,x> -> <x,y,z>
-        <w,x,y,z> -> <z,w,x,y> -> <y,z,w,x> -> <x,y,z,w> -> <w,x,y,z>
-        etc.
 
     - sort 
     - uniq

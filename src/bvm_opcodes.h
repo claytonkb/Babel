@@ -382,4 +382,4 @@
 #define ITH         0x1fa
 #define CR          0x1fb
 #define BREAKOP     0x1fc
-
+#define CONTINUEOP  0x1fd

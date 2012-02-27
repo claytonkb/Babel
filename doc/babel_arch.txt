@@ -4,6 +4,30 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- collect -----
+
+This is a loop operator that is sort of the inverse of each. After each 
+iteration, TOS is collected into a list. The collected list will be left 
+on TOS.
+
+        ((loop_body))
+        ((cond_block))
+    collect
+
+The collect terminates when cond_block leaves false on TOS
+
+----- transpose -----
+
+    We will not have a MAP or ZIP operator
+
+    --
+        (( 1  2  3  4 )
+        (  5  6  7  8  9 )
+        (  10 11 12 13 14 15 ))
+    transpose
+
+    --> ((1 5 10) (2 6 11) (3 7 12) (4 8 13) (nil 9 14) (nil nil 15))
+
 ----- set -----
 
 Equivalent to [0] cxr:
@@ -752,12 +776,6 @@ Cartesian product:
     
     Works for all dimensions
 
-Zipping:
-    --
-        (( 1  2  3  4 )
-        (  5  6  7  8  9 )
-        (  10 11 12 13 14 15 ))
-    zip
 
     TOS: ((1 5 10) (2 6 11) (3 7 12) (4 8 13) (nil 9 13) (nil nil 15))
 
