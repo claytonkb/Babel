@@ -4,6 +4,82 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- RWX syntax -----
+
+The Babel namespace will have RWX controls.
+
+The three primary combinations of interest are:
+    Rwx
+    RWx
+    RwX
+
+Each will have a corresponding syntax -
+
+read_write_data =  (1 2 3)
+read_only_data  =: (1 2 3)
+code : `"Hello, world" <<
+
+The colon creates a code-block. There are some syntactical differences
+with the code-block. It auto-wraps the entire block in parens. 
+
+code :   `"Hello, world" <<
+code : ( `"Hello, world" << ) <-- effective meaning
+
+code : `2 `3 + %d <<
+
+----- list evaluation -----
+
+    ``! 
+    `( (1) (2) ((3) (4) * ) )
+    ...
+collect
+
+----- quick-wrap syntax -----
+
+Often, the need arises in Babel to "wrap" an item in multiple 
+parentheses. These parentheses are visually redundant (but necessary
+for semantic correctness). The quick-wrap syntax provides a less
+visually cluttered alternative:
+
+    The following are all equivalent:
+
+    (((1 2 3)))
+    `((1 2 3))
+    ``(1 2 3)
+
+    For single items, you can use the back-tick directly:
+
+    ````1
+    ((((1))))
+
+    `"Hello, world"
+    ("Hello, world")
+
+----- relative/absolute paths and namespaces -----
+
+The *ns operators will differ from the *ha operators in the following 
+ways:
+
+    - *ns operators expect a list of lookups
+    - lookup by path instead of hash
+        - This is necessary to determine local versus global lookup
+
+----- extended types and "default" namespaces -----
+
+We currently use the opcode number to set the "type" of operands on the
+stack. We can extend this by converting from opcode number to a hash-
+reference. 
+
+The hash-reference can double as a look-up into the sym_table
+as a "default namespace" for the next operator in the code-stream.
+
+What this does is confer "Ruby-like" namespace management to Babel. If
+you create put a string on TOS, then the default namespace will be
+/babel/string and the subsequent operator (say, cat) will have to be
+accessible from /babel/string.
+
+This is more of a "Babel 2.0" feature.
+
 ----- collect -----
 
 This is a loop operator that is sort of the inverse of each. After each 

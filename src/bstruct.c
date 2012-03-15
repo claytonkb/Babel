@@ -71,6 +71,7 @@ void trav(void){
 
 }
 
+
 mword *_trav(mword *tree, mword *list){
 
     if (list == (mword*)nil) return tree;
