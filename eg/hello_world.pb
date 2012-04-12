@@ -1,2 +1,2 @@
-code: ( ("Hello, world\n") pr )
+code: ( ("Hello, world\n") << )
 

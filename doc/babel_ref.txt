@@ -737,15 +737,20 @@ when first encountered, I have collected them in one place here:
     - ls2ha
     - ha2ls
 
-    - diffha
+    - diff
         Diffs the hashes on TOS
-        L R| -> (L n !R) (!L n R) (L n R)|
+        L R| -> ((L n !R) (!L n R) (L n R))|
 
         To test for sameness, check if TOS-1 and TOS-2 are both 
         nil or both not nil.
 
     - merge
-        Would be nice to have a merge operator that can "undo" diff
+        Merges a list of hashes together, key-by-key:
+
+        (A)| -> B|
+
+        Where (A) is a list of hashes and B is the resulting merged
+        hash.
 
     - hash/hash8 (%%)
         Hashes a sequence of bytes (hence the '8')

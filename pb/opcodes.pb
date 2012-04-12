@@ -207,6 +207,7 @@ cferror:    {0x0d8}
 
 fnord:          {0x100}
 bvmroot:        {0x101}
+self:           {0x101}
 root:           {0x101}
 bvmexec:        {0x102}
 babel:          {0x102}

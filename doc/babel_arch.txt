@@ -4,6 +4,78 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- immutable namespaces -----
+
+Along with the RWX syntax, we need a way to say "this namespace will
+never be moved, deleted or renamed from now to the end of time". This
+will permit namespaces to be compressed into a single hash.
+
+This will be indicated with the same syntax as is used for other
+constants:
+
+foo: --> everything BELOW this must also be immutable
+    bar:
+    baz:
+    etc:
+
+To create a mutable namespace:
+
+foo= --> foo itself is immutable but everything below is mutable, except etc
+    bar=
+    baz=
+    etc:
+
+Immutable namespaces cannot contain mutable namespaces. However, 
+mutable namespaces CAN contain immutable namespaces.
+
+----- namespace operator, default namespace, hash-refs -----
+
+The namespace operator sets the default namespace. If it is called with
+nil on TOS, the default namespace becomes self.
+
+    [nil] namespace     --> sets default namespace to self
+    [A] namsepace       --> sets default namespace to A
+
+The default namespace determines where hash-refs are looked up.
+
+foo:
+    bar: (when I say 'baz' here, I want it to mean /foo/baz, not /baz)
+    baz:
+baz:
+
+----- self -----
+
+#Rename bvmroot to self
+
+----- nil as a hash-ref -----
+
+----- bounding hash-refs -----
+
+----- hash-ref guts -----
+
+The actual entry in the hash for a hash-reference needs quite a bit of meta-
+data:
+
+    (value ref-count bounding R W X)
+
+----- linking ------
+
+Linking is solved by consistent use of hash-refs. For example, when unloading
+a list, nil should map to THE nil. To ensure this, lists will reference 
+nil using a hash-reference instead of a direct pointer.
+
+The pass-thru field of the reference entry determines whether the load/unload
+operators will stop recursing at hash-ref boundaries; this is the same for all
+recursive Babel operators.
+
+For situations where you might want to do:
+
+    {1 2 x}
+
+... do this instead:
+
+    ( 1 2 x& ) ls2lf
+
 ----- RWX syntax -----
 
 The Babel namespace will have RWX controls.
