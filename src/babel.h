@@ -22,11 +22,15 @@ mword*      global_VM;          //Machine pointer
 //mword       global_machine_page_size;
 jmp_buf     exception_env;
 int         exception_type;
+mword*      global_nil;
 
 // CONSTANTS
 #define MWORD_SIZE sizeof(mword)
 #define MWORD_BIT_SIZE (MWORD_SIZE << 3)
 #define MWORDS(x) ((x)*MWORD_SIZE)
+
+#define STRLEN(s) (sizeof(s)-1)
+#define C2B(x)    (_c2b(x, STRLEN(x)))
 
 #define HASH_BIT_SIZE 128
 #define HASH_SIZE (HASH_BIT_SIZE/MWORD_BIT_SIZE)
@@ -53,6 +57,8 @@ int         exception_type;
 //#define size(x)      (abs(s(x))/MWORD_SIZE)
 #define size(x)      (is_href(x)?HASH_SIZE:(abs(s(x))/MWORD_SIZE))
 #define c(x,y)       (*(y + x))
+
+#define is_nil(x)   ( memcmp((x), global_nil, HASH_SIZE) == 0 )
 
 #define is_false(x) ( is_leaf(x) && car(x) == 0\
                     ||is_inte(x) && car(x) == nil)

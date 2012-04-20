@@ -121,6 +121,21 @@ void _bvm_init(mword *bvm, int argc, char **argv){
     time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
     init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
+    //Set global_nil
+    mword *hash_init = new_hash();
+    mword *nil_string = C2B("nil");
+    global_nil = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
+
+//    printf("  0x%x ", global_nil[0]);
+//    printf("0x%x ", global_nil[1]);
+//    printf("0x%x ", global_nil[2]);
+//    printf("0x%x\n", global_nil[3]);
+//
+//    mword *test_string = C2B("test");
+//    mword *test = _pearson16(hash_init, test_string, (mword)strlen((char*)test_string));
+//
+//    printf("%d\n", is_nil(test));
+
 //    internal_global_VM = bvm+1;
     internal_global_VM = bvm;
     global_VM = (mword *)cdr(internal_global_VM);

@@ -4,29 +4,25 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- parent BVM calls -----
+
+We currently have the bvmbreak operator which allows an "exit" to the 
+parent BVM. We want a way to be able to invoke parent BVM functions.
+
+- Rename bvmbreak to summon
+
+We can treat a bvmbreak as any kind of exception that cannot be handled
+by the current BVM and causes an exit - a hash-reference is pushed on
+the stack to indicate the exception type. So, to invoke a parent 
+function:
+
+gc& summon  --> Summons the garbage-collector
+
 ----- immutable namespaces -----
 
-Along with the RWX syntax, we need a way to say "this namespace will
-never be moved, deleted or renamed from now to the end of time". This
-will permit namespaces to be compressed into a single hash.
+Need a syntax for this.
 
-This will be indicated with the same syntax as is used for other
-constants:
-
-foo: --> everything BELOW this must also be immutable
-    bar:
-    baz:
-    etc:
-
-To create a mutable namespace:
-
-foo= --> foo itself is immutable but everything below is mutable, except etc
-    bar=
-    baz=
-    etc:
-
-Immutable namespaces cannot contain mutable namespaces. However, 
-mutable namespaces CAN contain immutable namespaces.
+Immutability of namespaces is orthogonal to RWX of the namespace contents.
 
 ----- namespace operator, default namespace, hash-refs -----
 
@@ -49,7 +45,18 @@ baz:
 
 ----- nil as a hash-ref -----
 
+Note: We still need at least ONE nil present in the interpreter - this
+nil is created at reset and is never destroyed and is called "global_nil".
+
+It can be used across threads but not across processes.
+
 ----- bounding hash-refs -----
+
+A hash-ref may be either bounding or non-bounding. This determines whether
+Babel's recursive built-ins will continue recursing (non-bounding) or not 
+(bounding).
+
+This is planned as a Babel 2.0 feature...
 
 ----- hash-ref guts -----
 
@@ -61,10 +68,10 @@ data:
 ----- linking ------
 
 Linking is solved by consistent use of hash-refs. For example, when unloading
-a list, nil should map to THE nil. To ensure this, lists will reference 
-nil using a hash-reference instead of a direct pointer.
+a list, nil is a hash-ref so it doesn't need to be unloaded. To ensure this, 
+lists will reference nil using a hash-reference instead of a direct pointer.
 
-The pass-thru field of the reference entry determines whether the load/unload
+The bounding field of the reference entry determines whether the load/unload
 operators will stop recursing at hash-ref boundaries; this is the same for all
 recursive Babel operators.
 
@@ -101,8 +108,9 @@ code : `2 `3 + %d <<
 
 ----- list evaluation -----
 
+WRONG:
     ``! 
-    `( (1) (2) ((3) (4) * ) )
+    `( `1 `2 ( `3 `4 * ) )
     ...
 collect
 
@@ -150,7 +158,7 @@ you create put a string on TOS, then the default namespace will be
 /babel/string and the subsequent operator (say, cat) will have to be
 accessible from /babel/string.
 
-This is more of a "Babel 2.0" feature.
+This is planned as a Babel 2.0 feature.
 
 ----- collect -----
 
