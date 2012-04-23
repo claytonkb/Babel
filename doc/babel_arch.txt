@@ -4,6 +4,80 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- eval of namespaces -----
+
+`"foo : 3" compile load !
+
+What happens?
+
+This probably goes back to the whole issue of creating a BVM - what does
+it mean for something to be a BVM?
+
+How come I can eval this:
+
+    `(foo 3 set) !
+
+But not this:
+
+    `"foo = 3" compile load !
+
+?
+
+----- local/global namespace look-up -----
+
+In a given "loaded scope", need a way to make everything in that scope
+relative to its own base, rather than the sym_table.
+
+By default, lookup is in the sym_table. Need a syntax to say "don't 
+start at the sym_table, start wherever it is I was loaded at".
+
+This should be done with RELATIVE ADDRESSING:
+
+a:
+    d:
+    e:
+    f:
+        g:
+        h: ./g --> Note that . refers to F not H
+        i: ../e
+        j: ../../a --> etc.
+b:
+c:
+
+----- BHIS -----
+
+Big Hairy Indexing Syntax
+
+Serious syntactic issues with this:
+`({foo/bar} {baz/bop} (3 5) (7 11) {biz}) @
+
+BUT
+
+we could make it built-in
+
+/foo/bar --> This is just a plain, undecorated variable name
+            no fancy stuff - flat lookup in single hash table
+/foo{bar} --> Two steps, first look-up in the immutable hash-table
+            then look-up in a mutable hash-table
+/foo(1) --> look up immutable, then look up list
+
+/foo(1)(3) --> look up immutable, then perform a trav
+
+/foo[1] --> look up immutable, then array look-up
+
+/foo[1][3] --> look up immutable, then perform a walk
+
+/foo{bar}(2)(4){baz}[6][8]{bop} -- etc.
+
+Need syntactic way to distinguish whether a lookup is mutable or immutable
+
+- Quotes or no quotes:
+
+/foo/bar{baz/bop} --> two lookups in immutable namespaces
+
+/foo/bar{"baz/bop"} --> one lookup in immutable namespace, one in mutable
+                        namespace
+
 ----- parent BVM calls -----
 
 We currently have the bvmbreak operator which allows an "exit" to the 
@@ -23,6 +97,17 @@ gc& summon  --> Summons the garbage-collector
 Need a syntax for this.
 
 Immutability of namespaces is orthogonal to RWX of the namespace contents.
+
+Determined by use of curly brackets:
+
+foo : 3 --> const, immutable
+foo = 3 --> variable, immutable
+{'foo' 3} --> variable, mutable
+
+const, mutable doesn't make any sense
+
+You can insert into immutable namespaces but no moving/deleting or
+recursive copy (?)
 
 ----- namespace operator, default namespace, hash-refs -----
 
