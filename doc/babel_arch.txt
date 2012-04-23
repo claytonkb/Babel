@@ -109,6 +109,20 @@ const, mutable doesn't make any sense
 You can insert into immutable namespaces but no moving/deleting or
 recursive copy (?)
 
+----- parent BVM calls -----
+
+We currently have the bvmbreak operator which allows an "exit" to the 
+parent BVM. We want a way to be able to invoke parent BVM functions.
+
+- Rename bvmbreak to summon
+
+We can treat a bvmbreak as any kind of exception that cannot be handled
+by the current BVM and causes an exit - a hash-reference is pushed on
+the stack to indicate the exception type. So, to invoke a parent 
+function:
+
+gc& summon  --> Summons the garbage-collector
+
 ----- namespace operator, default namespace, hash-refs -----
 
 The namespace operator sets the default namespace. If it is called with
