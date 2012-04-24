@@ -47,7 +47,7 @@ my $sections =      get_sections    ( \@asm_file );
 
                     assemble        ( $sections, $sections->{'main'} );
                     linkit          ( $sections, 'main', $obj_out, 0 );
-print Dumper($sections) and die;
+print Dumper($sections);
                     send_obj        ( $proj_name, $obj_out, $sections);
 
 #print Dumper($sections);
@@ -107,7 +107,7 @@ sub linkit{
     my $curr_ptr = shift;
 #    my $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
     my $end_ptr;
-#   
+   
     if($sections->{$curr_section}{bin}[0] != 0){
         $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
     }
