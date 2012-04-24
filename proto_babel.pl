@@ -44,10 +44,10 @@ while($#ARGV>-1){
                     clean           ( \@asm_file );
 my $sections =      get_sections    ( \@asm_file );
                     section_parse   ( $sections->{$_}) for (keys %{$sections});
-#print Dumper($sections) and die;
 
                     assemble        ( $sections, $sections->{'main'} );
                     linkit          ( $sections, 'main', $obj_out, 0 );
+print Dumper($sections) and die;
                     send_obj        ( $proj_name, $obj_out, $sections);
 
 #print Dumper($sections);
@@ -105,7 +105,15 @@ sub linkit{
     my $curr_section = shift;
     my $obj_out = shift;
     my $curr_ptr = shift;
-    my $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
+#    my $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
+    my $end_ptr;
+#   
+    if($sections->{$curr_section}{bin}[0] != 0){
+        $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
+    }
+    else{
+        $end_ptr = $curr_ptr + $HASH_SIZE + 1;
+    }
 
     if(!defined $sections->{$curr_section}{obj_ptr}){
         $sections->{$curr_section}{obj_ptr} = $curr_ptr+1;
@@ -154,6 +162,11 @@ sub assemble{
     if($this_section->{obj}[0] eq "LEAF_ARR"){
         push @{$this_section->{bin}}, 0;
         $this_section->{bin}[0] = assemble_leaf($sections, $this_section) * $MWORD_SIZE;
+    }
+    if($this_section->{obj}[0] eq "HASH_REF"){
+        push @{$this_section->{bin}}, (0, 0xface, 0xface, 0xface, 0xface);
+#        $count++;
+#        next;
     }
     else{
         push @{$this_section->{bin}}, 0;
@@ -418,6 +431,19 @@ sub section_parse{
         return;
     }
 
+    my @hash = is_hash_ref($section);
+    if($#hash > -1){
+        $section->{obj} = ["HASH_REF", @hash];
+#        push @{$obj}, ["HASH_REF", @hash];
+#my $j;
+#for($j=$#hash;$j>=0;$j--){
+#    printf("%02x", $hash[$j]);
+#}
+#print "\n";
+#die;
+        return;
+    }
+
     if(is_interior_array_begin($section)){
 #        $section->{typ} = "interior_arr";
         $section->{obj} = ["INTERIOR_ARR"];
@@ -613,6 +639,18 @@ sub list_interior_array{
         $new_array_ref = ["LEAF_ARR"];
         leaf_array($section, $new_array_ref);
         push @{$obj}, $new_array_ref;
+        goto DONE;
+    }
+
+    my @hash = is_hash_ref($section);
+    if($#hash > -1){
+        push @{$obj}, ["HASH_REF", @hash];
+#my $j;
+#for($j=$#hash;$j>=0;$j--){
+#    printf("%02x", $hash[$j]);
+#}
+#print "\n";
+#die;
         goto DONE;
     }
 
