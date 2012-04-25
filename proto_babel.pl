@@ -47,7 +47,7 @@ my $sections =      get_sections    ( \@asm_file );
 
                     assemble        ( $sections, $sections->{'main'} );
                     linkit          ( $sections, 'main', $obj_out, 0 );
-print Dumper($sections);
+#print Dumper($sections);
                     send_obj        ( $proj_name, $obj_out, $sections);
 
 #print Dumper($sections);
@@ -163,8 +163,14 @@ sub assemble{
         push @{$this_section->{bin}}, 0;
         $this_section->{bin}[0] = assemble_leaf($sections, $this_section) * $MWORD_SIZE;
     }
-    if($this_section->{obj}[0] eq "HASH_REF"){
-        push @{$this_section->{bin}}, (0, 0xface, 0xface, 0xface, 0xface);
+    elsif($this_section->{obj}[0] eq "HASH_REF"){
+        push    @{$this_section->{bin}}, @{$this_section->{obj}};
+        shift   @{$this_section->{bin}};
+        unshift @{$this_section->{bin}}, 0;
+#        push @{$this_section->{bin}}, $this_section->{obj}[1];
+#        push @{$this_section->{bin}}, $this_section->{obj}[2];
+#        push @{$this_section->{bin}}, $this_section->{obj}[3];
+#        push @{$this_section->{bin}}, $this_section->{obj}[4];
 #        $count++;
 #        next;
     }
@@ -369,7 +375,8 @@ sub get_sections{
     $sections->{'nil'}{asmd} = 0;
     $sections->{'nil'}{bin_ptr} = undef;
     $sections->{'nil'}{bin} = [];
-    push @{$sections->{'nil'}{src}}, "[nil nil]";
+#    push @{$sections->{'nil'}{src}}, "[nil nil]";
+    push @{$sections->{'nil'}{src}}, "nil&";
 
     for(@{$asm_file}){
 #        if(/^([a-zA-Z0-9_]+):/){
@@ -437,7 +444,7 @@ sub section_parse{
 #        push @{$obj}, ["HASH_REF", @hash];
 #my $j;
 #for($j=$#hash;$j>=0;$j--){
-#    printf("%02x", $hash[$j]);
+#    printf("%08x", $hash[$j]);
 #}
 #print "\n";
 #die;
@@ -832,10 +839,32 @@ sub is_hash_ref{
         $section->{ptr} += length $1;
 #        $string =~ /^\s*([A-Za-z_][A-Za-z_0-9]*)&/;
         $string =~ /^\s*($section_name)&/;
-        return Hash::Pearson16::pearson16_hash($1);
+        return bytes_to_mwords(Hash::Pearson16::pearson16_hash($1));
     }
 
     return ();
+
+}
+
+sub bytes_to_mwords{
+
+    my @bytes = @_;
+    my @mwords;
+    my $temp=0;
+
+    for(my $i=0; $i<=$#bytes; $i++){
+#        printf("%02x ", $bytes[$i]);
+        if( (($i % $MWORD_SIZE) == 0) and ($i != 0) ){
+            push @mwords, $temp;
+            $temp=0;
+        }
+        $temp = $temp | ( $bytes[$i] << (($i % $MWORD_SIZE) * 8) ); #8 bits per byte
+    }
+    push @mwords, $temp;
+#    printf("%08x ", $_) for @mwords;
+#    die;
+
+    return @mwords;
 
 }
 

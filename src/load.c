@@ -98,6 +98,7 @@ mword *_load(mword *tree, mword tree_size){//, mword offset){
 
     return load_tree(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
 
+
 //    mword *tree = global_VM-1;
 //    load_tree_reset(tree, 1*MWORD_SIZE);
 //    clean_tree(tree+1);
@@ -122,7 +123,7 @@ mword *load_tree(
     }
 
     int num_elem = size(tree+offset);
-    
+
     mword *new_arr;
 
     if(is_inte(tree+offset)){

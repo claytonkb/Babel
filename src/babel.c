@@ -24,9 +24,7 @@ int main(int argc, char **argv){
 //    _load((mword*)bbl);
 //    bvm_init(bbl);
 //    init_global_argv(argc, argv);
-
     _bvm_init(_load((mword*)bbl,sizeof(bbl)/MWORD_SIZE),argc,argv);
-
 
     global_steps = (mword) -1;
     _bvmexec(internal_global_VM);
