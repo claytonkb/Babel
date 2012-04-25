@@ -43,7 +43,7 @@ mword *_slurp(char *filename){ // FIXME: Lots of bad things in here...
     size_t result;
     long file_mword_size;
 
-    pFile = fopen ( filename , "rb" );
+    pFile = fopen ( (char*)_b2c((mword*)filename) , "rb" );
     if (pFile==NULL) {//fputs ("File error",stderr); exit (1);}
         printf("%s\n", filename);
         except("_slurp: file error", __FILE__, __LINE__);

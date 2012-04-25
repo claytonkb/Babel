@@ -104,7 +104,7 @@ mword *_c2b(char *string, mword max_safe_length){
 
     mword length, char_length, last_mword;
 
-    //strlen,strcpy are unsafe, use memchr instead:
+    //strlen is unsafe, use memchr instead:
     void *null_term = memchr(string, 0, (size_t)max_safe_length);
 
     if(null_term == NULL){

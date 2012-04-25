@@ -47,8 +47,8 @@ void bvmstep(void){
 
 void bvmexec(void){
 
-    bbl2gv();
-    die
+//    bbl2gv();
+//    die
 
     global_steps = (mword) -1;
     _bvmstep((mword*)TOS_0);
