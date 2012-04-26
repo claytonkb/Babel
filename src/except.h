@@ -4,7 +4,7 @@
 #ifndef EXCEPT_H
 #define EXCEPT_H
 
-void except(char *message, char *file, int line);
+//void except(char *message, char *file, int line);
 
 #endif //EXCEPT_H
 

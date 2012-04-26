@@ -383,3 +383,8 @@
 #define CR          0x1fb
 #define BREAKOP     0x1fc
 #define CONTINUEOP  0x1fd
+
+#endif //BVM_OPCODES_H
+
+// Clayton Bauman 2011
+

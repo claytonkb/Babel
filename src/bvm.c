@@ -28,315 +28,323 @@
 #include "alloc.h"
 #include "ref.h"
 
-void bvmstep(void){
-
-//    global_steps = car(TOS_0);
+//void bvmstep(void){
+//
+////    global_steps = car(TOS_0);
+////    zap();
+////
+////    mword *bvm = (mword*)TOS_0;
+////    zap();
+////
+////    _bvmstep(bvm);
+//
+//    global_steps = (mword)car(TOS_0);
 //    zap();
 //
-//    mword *bvm = (mword*)TOS_0;
+//    _bvmstep((mword*)TOS_0);
+//
+//}
+//
+//void bvmexec(void){
+//
+////    bbl2gv();
+////    die
+//
+//    global_steps = (mword) -1;
+//    _bvmstep((mword*)TOS_0);
 //    zap();
 //
-//    _bvmstep(bvm);
-
-    global_steps = car(TOS_0);
-    zap();
-
-    _bvmstep((mword*)TOS_0);
-
-}
-
-void bvmexec(void){
-
-//    bbl2gv();
-//    die
-
-    global_steps = (mword) -1;
-    _bvmstep((mword*)TOS_0);
-    zap();
-
-}
-
-void _bvmstep(mword *bvm){
-
+//}
+//
+//void _bvmstep(mword *bvm){
+//
+////    mword *saved_bvm = internal_global_VM;
+////    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
+////
+////    internal_global_VM = bvm;
+////    global_VM = (mword *)cdr(internal_global_VM);
+////    (mword*)global_argv = saved_global_argv;  //FIXME
+////
+////    bvm_interp();
+////
+//////    mword *after_interp_global_VM = internal_global_VM;
+////
+////    internal_global_VM = saved_bvm;
+////    global_VM = (mword*)cdr(internal_global_VM);
+////
+//////    push_alloc(after_interp_global_VM, BVMKILL); //FIXME: Appropriating BVMKILL...
+//
 //    mword *saved_bvm = internal_global_VM;
 //    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
 //
 //    internal_global_VM = bvm;
 //    global_VM = (mword *)cdr(internal_global_VM);
-//    (mword*)global_argv = saved_global_argv;  //FIXME
 //
-//    bvm_interp();
+////FIXME NIL-CONVERSION:
+////    (mword*)global_argv = saved_global_argv;  //FIXME
 //
-////    mword *after_interp_global_VM = internal_global_VM;
+////    bvm_interp();
+//    bvm_interp2();
 //
 //    internal_global_VM = saved_bvm;
 //    global_VM = (mword*)cdr(internal_global_VM);
 //
-////    push_alloc(after_interp_global_VM, BVMKILL); //FIXME: Appropriating BVMKILL...
-
-    mword *saved_bvm = internal_global_VM;
-    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
-
-    internal_global_VM = bvm;
-    global_VM = (mword *)cdr(internal_global_VM);
-    (mword*)global_argv = saved_global_argv;  //FIXME
-
-//    bvm_interp();
-    bvm_interp2();
-
-    internal_global_VM = saved_bvm;
-    global_VM = (mword*)cdr(internal_global_VM);
-
-}
-
-
-void _bvmexec(mword *bvm){
-
-    mword *saved_bvm = internal_global_VM;
-    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
-
-    internal_global_VM = bvm;
-    global_VM = (mword *)cdr(internal_global_VM);
-    (mword*)global_argv = saved_global_argv;  //FIXME
-
-    bvm_interp();
-
-    internal_global_VM = saved_bvm;
-    global_VM = (mword*)cdr(internal_global_VM);
-
-}
-
-void _bvm_init(mword *bvm, int argc, char **argv){
-
-    pearson16_init();
-
-    time_t rawtime;
-    char time_string[30];
-    time( &rawtime );    
-    strcpy( time_string, ctime(&rawtime) );
-    mword *time_string_key = _c2b(time_string, 30);
-
-    // FIXME: strcpy and strlen... get rid
-    // This needs to be enhanced to look in the hidden section for a 
-    // pre-defined seed, it should also save the value it used in the
-    // hidden section
-    mword *time_hash = new_hash();
-    mword *hash_init = new_hash();
-    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
-    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
-
-    //Set global_nil
-    mword *hash_init = new_hash();
-    mword *nil_string = C2B("nil");
-    global_nil = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
-
-//    printf("  0x%x ", global_nil[0]);
-//    printf("0x%x ", global_nil[1]);
-//    printf("0x%x ", global_nil[2]);
-//    printf("0x%x\n", global_nil[3]);
+//}
 //
-//    mword *test_string = C2B("test");
-//    mword *test = _pearson16(hash_init, test_string, (mword)strlen((char*)test_string));
-//
-//    printf("%d\n", is_nil(test));
-
-//    internal_global_VM = bvm+1;
-    internal_global_VM = bvm;
-    global_VM = (mword *)cdr(internal_global_VM);
-
-    init_global_argv(argc, argv);
-
-}
-
-////bvm_init
 ////
-void bvm_init(mword *bvm){
-
-    pearson16_init();
-
-    time_t rawtime;
-    char time_string[30];
-    time( &rawtime );    
-    strcpy( time_string, ctime(&rawtime) );
-    mword *time_string_key = _c2b(time_string, 30);
-
-    // FIXME: strcpy and strlen... get rid
-    // This needs to be enhanced to look in the hidden section for a 
-    // pre-defined seed, it should also save the value it used in the
-    // hidden section
-    mword *time_hash = new_hash();
-    mword *hash_init = new_hash();
-    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
-    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
-
-//    internal_global_VM = bvm+1;
-    internal_global_VM = bvm;
-    global_VM = (mword *)cdr(internal_global_VM);
-
-}
-
-//bvm_check
+//void _bvmexec(mword *bvm){
 //
-// Checks the "spine" of a BVM
+//    mword *saved_bvm = internal_global_VM;
+//    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
 //
-void bvm_check(void){
-   
-    //Check size of BVM
-//    if(global_machine_page_size < SMALLEST_VALID_BVM){
-//        except("bvm_check: the loaded file is smaller than SMALLEST_VALID_BVM", __FILE__, __LINE__);
-//    }
+//    internal_global_VM = bvm;
+//    global_VM = (mword *)cdr(internal_global_VM);
 //
-}
-
-//bvm_interp
+//// FIXME NIL-CONVERSION:
+////    (mword*)global_argv = saved_global_argv;  //FIXME
 //
-void bvm_interp(void){
-
-    mword* discard;
-
-    while(global_steps--){//FIXME: This is not correct long-term
-
-        if(car(code_ptr) == (mword)nil){
-            if(_end_of_code()) continue;
-            break;
-//            if(!rstack_empty){
-//                while(alloc_type(RTOS_0) == DOWN){
-//                    up();
-//                }
-//                if(alloc_type(RTOS_0) == NEST){
-//                    up();
-//                }
-//                if(alloc_type(RTOS_0) == TIMES){
-//                    if(car(car(RTOS_2)) > 1){
-//                        c((mword*)car(RTOS_2),0) = car(car(RTOS_2)) - 1;
-//                        (mword*)code_ptr = (mword*)car(RTOS_0);
-//                    }
-//                    else{
-//                        discard = pop_rstack();
-//                        (mword*)code_ptr = (mword*)car(pop_rstack());
-//                        discard = pop_rstack();
-//                    }
-//                }
-//                else if(alloc_type(RTOS_0) == WHILEOP){
-//                    if(!is_false((mword*)TOS_0)){
-//                        zap();
-//                        (mword*)code_ptr = (mword*)car(RTOS_0);
-//                        push_alloc_rstack((mword*)car(RTOS_2), 0);
-//                    }
-//                    else{
-//                        zap();
-//                        discard = pop_rstack();
-//                        (mword*)code_ptr = (mword*)car(pop_rstack());
-//                        discard = pop_rstack();
-//                    }
-//                }
-//                else if(alloc_type(RTOS_0) == EACH){
-//                    if(cdr(car(RTOS_2)) != nil){
-//                        c((mword*)RTOS_2,0) = cdr(car(RTOS_2));
-//                        push_alloc((mword*)car(car(RTOS_2)),EACH);
-//                        (mword*)code_ptr = (mword*)car(RTOS_0);
-//                    }
-//                    else{
-//                        discard = pop_rstack();
-//                        (mword*)code_ptr = (mword*)car(pop_rstack());
-//                        discard = pop_rstack();
-//                    }
-//                }
-//                else if(alloc_type(RTOS_0) == EACHAR){
-//                    if(car(car(RTOS_3)) < size((mword*)car(RTOS_2))-1){
-//                        *((mword*)car(RTOS_3)) = car(car(RTOS_3)) + 1;
-//                        push_alloc((mword*)c((mword*)car(RTOS_2),car(car(RTOS_3))),EACHAR);
-//                        (mword*)code_ptr = (mword*)car(RTOS_0);
-//                    }
-//                    else{
-//                        discard = pop_rstack();
-//                        (mword*)code_ptr = (mword*)car(pop_rstack());
-//                        discard = pop_rstack();
-//                        discard = pop_rstack();
-//                    }
-//                }
-//                else if(alloc_type(RTOS_0) == LOOP){
-//                    (mword*)code_ptr = (mword*)car(RTOS_0);
-//                }
-//                else{
-//                    (mword*)code_ptr = (mword*)car(pop_rstack());
-//                }
-//                continue;
-//            }
-//            else{
-//                break;
-//            }
-        }
-
-        if( is_inte((mword *)car(code_ptr)) ){
-            push_alloc((mword*)car(car(code_ptr)), SELF_ALLOC);
-        }
-        else if( is_leaf((mword *)car(code_ptr)) ){
-            opcode_switch(car(car(code_ptr)))
-        }
-        else if( is_href((mword *)car(code_ptr)) ){ //FIXME: Implement href operator calls!
-            except("bvm_interp: hash-reference detected in code", __FILE__, __LINE__);
-        }
-        else{
-            except("bvm_interp: error detected during execution", __FILE__, __LINE__);
-        }
-
-        code_ptr = cdr(code_ptr);
-
-    }
-
-}
-
-
-void bvm_interp2(void){
-
-    mword* discard;
-
-    while(global_steps--){//FIXME: This is not correct long-term
-
-//        if(car(code_ptr) == (mword)nil){
-        if(is_nil((mword*)car(code_ptr))){
-            if(_end_of_code()) continue;
-            break;
-        }
-
-        if( is_inte((mword *)car(code_ptr)) ){
-            push_alloc((mword*)car(car(code_ptr)), SELF_ALLOC);
-        }
-        else if( is_leaf((mword *)car(code_ptr)) ){
-            opcode_switch(car(car(code_ptr)))
-        }
-        else if( is_href((mword *)car(code_ptr)) ){ //FIXME: Implement href operator calls!
-            except("bvm_interp: hash-reference detected in code", __FILE__, __LINE__);
-        }
-        else{
-            except("bvm_interp: error detected during execution", __FILE__, __LINE__);
-        }
-
-        code_ptr = cdr(code_ptr);
-
-    }
-
-}
-
-void bvmroot(void){
-
-    push_alloc(global_VM, BVMROOT);
-
-}
-
-//#ifdef DEBUG
+//    bvm_interp();
 //
-//void internal_bvmroot(void){
-//
-//    push_alloc(internal_global_VM, INTERNAL_BVMROOT);
+//    internal_global_VM = saved_bvm;
+//    global_VM = (mword*)cdr(internal_global_VM);
 //
 //}
 //
-//#endif
+//void _bvm_init(mword *bvm, int argc, char **argv){
+//
+//    pearson16_init();
+//
+//    time_t rawtime;
+//    char time_string[30];
+//    time( &rawtime );    
+//    strcpy( time_string, ctime(&rawtime) );
+//    mword *time_string_key = _c2b(time_string, 30);
+//
+//    // FIXME: strcpy and strlen... get rid
+//    // This needs to be enhanced to look in the hidden section for a 
+//    // pre-defined seed, it should also save the value it used in the
+//    // hidden section
+//    mword *time_hash = new_hash();
+//    mword *hash_init = new_hash();
+//    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
+//    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
+//
+//    //Set global_nil
+//    mword *hash_init = new_hash();
+//    mword *nil_string = C2B("nil");
+//    global_nil = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
+//
+////    printf("  0x%x ", global_nil[0]);
+////    printf("0x%x ", global_nil[1]);
+////    printf("0x%x ", global_nil[2]);
+////    printf("0x%x\n", global_nil[3]);
+////
+////    mword *test_string = C2B("test");
+////    mword *test = _pearson16(hash_init, test_string, (mword)strlen((char*)test_string));
+////
+////    printf("%d\n", is_nil(test));
+//
+////    internal_global_VM = bvm+1;
+//    internal_global_VM = bvm;
+//    global_VM = (mword *)cdr(internal_global_VM);
+//
+//    init_global_argv(argc, argv);
+//
+//}
+//
+//////bvm_init
+//////
+//void bvm_init(mword *bvm){
+//
+//    pearson16_init();
+//
+//    time_t rawtime;
+//    char time_string[30];
+//    time( &rawtime );    
+//    strcpy( time_string, ctime(&rawtime) );
+//    mword *time_string_key = _c2b(time_string, 30);
+//
+//    // FIXME: strcpy and strlen... get rid
+//    // This needs to be enhanced to look in the hidden section for a 
+//    // pre-defined seed, it should also save the value it used in the
+//    // hidden section
+//    mword *time_hash = new_hash();
+//    mword *hash_init = new_hash();
+//    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
+//    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
+//
+////    internal_global_VM = bvm+1;
+//    internal_global_VM = bvm;
+//    global_VM = (mword *)cdr(internal_global_VM);
+//
+//}
+//
+////bvm_check
+////
+//// Checks the "spine" of a BVM
+////
+//void bvm_check(void){
+//   
+//    //Check size of BVM
+////    if(global_machine_page_size < SMALLEST_VALID_BVM){
+////        except("bvm_check: the loaded file is smaller than SMALLEST_VALID_BVM", __FILE__, __LINE__);
+////    }
+////
+//}
+//
+////bvm_interp
+////
+//void bvm_interp(void){
+////
+////    mword* discard;
+////
+////    while(global_steps--){//FIXME: This is not correct long-term
+////
+////        if(car(code_ptr) == (mword)nil){
+////            if(_end_of_code()) continue;
+////            break;
+//////            if(!rstack_empty){
+//////                while(alloc_type(RTOS_0) == DOWN){
+//////                    up();
+//////                }
+//////                if(alloc_type(RTOS_0) == NEST){
+//////                    up();
+//////                }
+//////                if(alloc_type(RTOS_0) == TIMES){
+//////                    if(car(car(RTOS_2)) > 1){
+//////                        c((mword*)car(RTOS_2),0) = car(car(RTOS_2)) - 1;
+//////                        (mword*)code_ptr = (mword*)car(RTOS_0);
+//////                    }
+//////                    else{
+//////                        discard = pop_rstack();
+//////                        (mword*)code_ptr = (mword*)car(pop_rstack());
+//////                        discard = pop_rstack();
+//////                    }
+//////                }
+//////                else if(alloc_type(RTOS_0) == WHILEOP){
+//////                    if(!is_false((mword*)TOS_0)){
+//////                        zap();
+//////                        (mword*)code_ptr = (mword*)car(RTOS_0);
+//////                        push_alloc_rstack((mword*)car(RTOS_2), 0);
+//////                    }
+//////                    else{
+//////                        zap();
+//////                        discard = pop_rstack();
+//////                        (mword*)code_ptr = (mword*)car(pop_rstack());
+//////                        discard = pop_rstack();
+//////                    }
+//////                }
+//////                else if(alloc_type(RTOS_0) == EACH){
+//////                    if(cdr(car(RTOS_2)) != nil){
+//////                        c((mword*)RTOS_2,0) = cdr(car(RTOS_2));
+//////                        push_alloc((mword*)car(car(RTOS_2)),EACH);
+//////                        (mword*)code_ptr = (mword*)car(RTOS_0);
+//////                    }
+//////                    else{
+//////                        discard = pop_rstack();
+//////                        (mword*)code_ptr = (mword*)car(pop_rstack());
+//////                        discard = pop_rstack();
+//////                    }
+//////                }
+//////                else if(alloc_type(RTOS_0) == EACHAR){
+//////                    if(car(car(RTOS_3)) < size((mword*)car(RTOS_2))-1){
+//////                        *((mword*)car(RTOS_3)) = car(car(RTOS_3)) + 1;
+//////                        push_alloc((mword*)c((mword*)car(RTOS_2),car(car(RTOS_3))),EACHAR);
+//////                        (mword*)code_ptr = (mword*)car(RTOS_0);
+//////                    }
+//////                    else{
+//////                        discard = pop_rstack();
+//////                        (mword*)code_ptr = (mword*)car(pop_rstack());
+//////                        discard = pop_rstack();
+//////                        discard = pop_rstack();
+//////                    }
+//////                }
+//////                else if(alloc_type(RTOS_0) == LOOP){
+//////                    (mword*)code_ptr = (mword*)car(RTOS_0);
+//////                }
+//////                else{
+//////                    (mword*)code_ptr = (mword*)car(pop_rstack());
+//////                }
+//////                continue;
+//////            }
+//////            else{
+//////                break;
+//////            }
+////        }
+////
+////        if( is_inte((mword *)car(code_ptr)) ){
+////            push_alloc((mword*)car(car(code_ptr)), SELF_ALLOC);
+////        }
+////        else if( is_leaf((mword *)car(code_ptr)) ){
+////            opcode_switch(car(car(code_ptr)))
+////        }
+////        else if( is_href((mword *)car(code_ptr)) ){ //FIXME: Implement href operator calls!
+////            except("bvm_interp: hash-reference detected in code", __FILE__, __LINE__);
+////        }
+////        else{
+////            except("bvm_interp: error detected during execution", __FILE__, __LINE__);
+////        }
+////
+////        code_ptr = cdr(code_ptr);
+////
+////    }
+//
+//}
 
+//
+bvm_cache *bvm_interp(bvm_cache *this_bvm){
 
-void bbl2gv(void){
+    while(this_bvm->steps--){//FIXME: This is not correct long-term
+
+//        if(car(code_ptr) == (mword)nil){
+        if(is_nil((mword*)car(this_bvm->code_ptr))){
+//            if(_end_of_code()) continue;
+            break;
+        }
+
+        if( is_inte(car(this_bvm->code_ptr)) ){
+//            printf("inte\n");
+//            die
+            push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), SELF_ALLOC);
+        }
+        else if( is_leaf(car(this_bvm->code_ptr)) ){
+            opcode_switch(car(car(this_bvm->code_ptr)));
+        }
+        else if( is_href(car(this_bvm->code_ptr)) ){ //TODO: Implement href operator calls!
+            error("bvm_interp: hash-reference detected in code");
+        }
+        else{
+            error("bvm_interp: error detected during execution");
+        }
+
+        this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
+
+    }
+
+    return this_bvm;
+
+}
+
+//void bvmroot(void){
+//
+//    push_alloc(global_VM, BVMROOT);
+//
+//}
+//
+////#ifdef DEBUG
+////
+////void internal_bvmroot(void){
+////
+////    push_alloc(internal_global_VM, INTERNAL_BVMROOT);
+////
+////}
+////
+////#endif
+//
+//
+void bbl2gv(mword *tree){
+
+    int i;
 
     printf("digraph babel {\nnode [shape=record];\n");
     printf("graph [rankdir = \"LR\"];\n");
@@ -344,12 +352,25 @@ void bbl2gv(void){
 //        d(global_VM)
 //        d(car(car(car(stack_ptr))))
 //        die
-        tree_bbl2gv((mword*)global_VM);
+//        tree_bbl2gv((mword*)global_VM);
+    if( is_nil(tree) ){
+        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
+        for(i=0; i<HASH_SIZE; i++){
+            printf("<f%d> %x", i, *(mword *)(tree+i));
+            if(i<(HASH_SIZE-1)){
+                printf("|");
+            }
+        }
+        printf("\"];\n");
+    }
+    else{
+        tree_bbl2gv(tree);
+    }
 
     printf("}\n");
 
-    clean_tree((mword*)global_VM);
-    zap();
+    clean_tree(tree);
+//    zap();
 
 }
 
@@ -387,38 +408,38 @@ mword tree_bbl2gv(mword *tree){
 
         printf("\"s%08x\" [shape=record,label=\"", (mword)tree);
         for(i=0; i<num_elem; i++){
-            if(i==0){
-                if(tree == (mword*)code_list){
-                    printf("<f0> code_list");
-                }
-                else if(tree == (mword*)data_list){
-                    printf("<f0> data_list");
-                }
-                else if(tree == (mword*)stack_list){
-                    printf("<f0> stack_list");
-                }
-                else if(tree == (mword*)rstack_list){
-                    printf("<f0> rstack_list");
-                }
-                else if(tree == (mword*)jump_table){
-                    printf("<f0> jmp_table");
-                }
-                else if(tree == (mword*)sym_table){
-                    printf("<f0> sym_table");
-                }
-                else if(tree == (mword*)nada){
-                    printf("<f0> nada");
-                }
-                else if(tree == (mword*)nil){
-                    printf("<f0> nil");
-                }
-                else{
-                    printf("<f0> 0");
-                }            
-            }
-            else{
+//            if(i==0){
+//                if(tree == (mword*)code_list){
+//                    printf("<f0> code_list");
+//                }
+//                else if(tree == (mword*)data_list){
+//                    printf("<f0> data_list");
+//                }
+//                else if(tree == (mword*)stack_list){
+//                    printf("<f0> stack_list");
+//                }
+//                else if(tree == (mword*)rstack_list){
+//                    printf("<f0> rstack_list");
+//                }
+//                else if(tree == (mword*)jump_table){
+//                    printf("<f0> jmp_table");
+//                }
+//                else if(tree == (mword*)sym_table){
+//                    printf("<f0> sym_table");
+//                }
+//                else if(tree == (mword*)nada){
+//                    printf("<f0> nada");
+//                }
+//                else if(tree == (mword*)nil){
+//                    printf("<f0> nil");
+//                }
+//                else{
+//                    printf("<f0> 0");
+//                }            
+//            }
+//            else{
                 printf("<f%d> %d", i, i);
-            }
+//            }
             if(i<(num_elem-1)){
                 printf("|");
             }
@@ -426,7 +447,8 @@ mword tree_bbl2gv(mword *tree){
         printf("\"];\n");
 
         for(i=0; i<num_elem; i++){
-            if(*(mword *)(tree+i) == nil && tree != (mword*)nada){
+//            if(*(mword *)(tree+i) == nil && tree != (mword*)nada){
+            if(is_nil((mword *)(tree+i))){// == nil && tree != (mword*)nada){
                 continue;
             }
             printf("\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)tree, i, *(mword *)(tree+i));
@@ -449,251 +471,251 @@ mword tree_bbl2gv(mword *tree){
 
 }
 
-
-void _bbl2gv(void){
-
-    // Figure out buffer size
-    // Base size 2kb (size of minimal minimal.pb.bbl when converted to gv)
-    // 32 * _mu
-    mword initial_buf_size = (1<<11) + (32 * _mu((mword*)TOS_0));
-    clean_tree((mword*)TOS_0);
-    char *buffer = malloc(initial_buf_size);
-
-    mword buf_size=0;
-
-    buf_size += sprintf(buffer+buf_size, "digraph babel {\nnode [shape=record];\n");
-
-    buf_size += sprintf(buffer+buf_size, "graph [rankdir = \"LR\"];\n");
-    
-//        d(global_VM)
-//        d(car(car(car(stack_ptr))))
-//        die
-        buf_size += _tree_bbl2gv((mword*)TOS_0, buffer+buf_size);
-
-    buf_size += sprintf(buffer+buf_size, "}\n");
-    //buf_size now contains the final string size of the entire graphviz string
-
-    clean_tree((mword*)TOS_0);
-    zap();
-
-    mword last_mword = alignment_word8(buf_size);
-    mword length = (buf_size / MWORD_SIZE) + 1;
-
-    if(buf_size % MWORD_SIZE != 0){
-        length++;
-    }
-
-//    d(char_length)
-//    d(length)
-
-    mword *result = _newlf(length);
-    memcpy(result, buffer, buf_size);
-    c(result,length-1) = last_mword;
-    free(buffer);
-
-    push_alloc(result,BBL2GV);
-
-}
-
-
-// Returns 
 //
-mword _tree_bbl2gv(mword *tree, char *buffer){
-
-    int i;
-    mword buf_size=0;
-
-    if( s(tree) & (MWORD_SIZE-1) ){
-        return 0;
-    }
-
-    int num_elem = size(tree);
-//    count = num_elem + 1;
-
-
-    if( is_href(tree) ){
-//        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
+//void _bbl2gv(void){
+//
+//    // Figure out buffer size
+//    // Base size 2kb (size of minimal minimal.pb.bbl when converted to gv)
+//    // 32 * _mu
+//    mword initial_buf_size = (1<<11) + (32 * _mu((mword*)TOS_0));
+//    clean_tree((mword*)TOS_0);
+//    char *buffer = malloc(initial_buf_size);
+//
+//    mword buf_size=0;
+//
+//    buf_size += sprintf(buffer+buf_size, "digraph babel {\nnode [shape=record];\n");
+//
+//    buf_size += sprintf(buffer+buf_size, "graph [rankdir = \"LR\"];\n");
+//    
+////        d(global_VM)
+////        d(car(car(car(stack_ptr))))
+////        die
+//        buf_size += _tree_bbl2gv((mword*)TOS_0, buffer+buf_size);
+//
+//    buf_size += sprintf(buffer+buf_size, "}\n");
+//    //buf_size now contains the final string size of the entire graphviz string
+//
+//    clean_tree((mword*)TOS_0);
+//    zap();
+//
+//    mword last_mword = alignment_word8(buf_size);
+//    mword length = (buf_size / MWORD_SIZE) + 1;
+//
+//    if(buf_size % MWORD_SIZE != 0){
+//        length++;
+//    }
+//
+////    d(char_length)
+////    d(length)
+//
+//    mword *result = _newlf(length);
+//    memcpy(result, buffer, buf_size);
+//    c(result,length-1) = last_mword;
+//    free(buffer);
+//
+//    push_alloc(result,BBL2GV);
+//
+//}
+//
+//
+//// Returns 
+////
+//mword _tree_bbl2gv(mword *tree, char *buffer){
+//
+//    int i;
+//    mword buf_size=0;
+//
+//    if( s(tree) & (MWORD_SIZE-1) ){
+//        return 0;
+//    }
+//
+//    int num_elem = size(tree);
+////    count = num_elem + 1;
+//
+//
+//    if( is_href(tree) ){
+////        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
+////        for(i=0; i<HASH_SIZE; i++){
+////            printf("<f%d> %x", i, *(mword *)(tree+i));
+////            if(i<(HASH_SIZE-1)){
+////                printf("|");
+////            }
+////        }
+////        printf("\"];\n");
+////        return 0;
+//
+//        buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)tree);
 //        for(i=0; i<HASH_SIZE; i++){
-//            printf("<f%d> %x", i, *(mword *)(tree+i));
+//            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(tree+i));
 //            if(i<(HASH_SIZE-1)){
-//                printf("|");
+//                buf_size += sprintf(buffer+buf_size, "|");
 //            }
 //        }
-//        printf("\"];\n");
-//        return 0;
-
-        buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)tree);
-        for(i=0; i<HASH_SIZE; i++){
-            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(tree+i));
-            if(i<(HASH_SIZE-1)){
-                buf_size += sprintf(buffer+buf_size, "|");
-            }
-        }
-        buf_size += sprintf(buffer+buf_size, "\"];\n");
-
-    }
-    else if(is_inte(tree)){
-        s(tree) |= 0x1;
-
-        buf_size += sprintf(buffer+buf_size, "\"s%08x\" [shape=record,label=\"", (mword)tree);
-        for(i=0; i<num_elem; i++){
-            if(i==0){
-                if(tree == (mword*)code_list){
-                    buf_size += sprintf(buffer+buf_size, "<f0> code_list");
-                }
-                else if(tree == (mword*)data_list){
-                    buf_size += sprintf(buffer+buf_size, "<f0> data_list");
-                }
-                else if(tree == (mword*)stack_list){
-                    buf_size += sprintf(buffer+buf_size, "<f0> stack_list");
-                }
-                else if(tree == (mword*)rstack_list){
-                    buf_size += sprintf(buffer+buf_size, "<f0> rstack_list");
-                }
-                else if(tree == (mword*)jump_table){
-                    buf_size += sprintf(buffer+buf_size, "<f0> jmp_table");
-                }
-                else if(tree == (mword*)sym_table){
-                    buf_size += sprintf(buffer+buf_size, "<f0> sym_table");
-                }
-                else if(tree == (mword*)nada){
-                    buf_size += sprintf(buffer+buf_size, "<f0> nada");
-                }
-                else if(tree == (mword*)nil){
-                    buf_size += sprintf(buffer+buf_size, "<f0> nil");
-                }
-                else{
-                    buf_size += sprintf(buffer+buf_size, "<f0> 0");
-                }            
-            }
-            else{
-                buf_size += sprintf(buffer+buf_size, "<f%d> %d", i, i);
-            }
-            if(i<(num_elem-1)){
-                buf_size += sprintf(buffer+buf_size, "|");
-            }
-        }
-        buf_size += sprintf(buffer+buf_size, "\"];\n");
-
-        for(i=0; i<num_elem; i++){
-            if(*(mword *)(tree+i) == nil && tree != (mword*)nada){
-                continue;
-            }
-            buf_size += sprintf(buffer+buf_size, "\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)tree, i, *(mword *)(tree+i));
-            buf_size += _tree_bbl2gv((mword *)*(tree+i), buffer+buf_size);
-        }
-
-    }
-    else{ // is_leaf
-        buf_size += sprintf(buffer+buf_size, "s%08x [style=bold,shape=record,label=\"", (mword)tree);
-        for(i=0; i<num_elem; i++){
-            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(tree+i));
-            if(i<(num_elem-1)){
-                buf_size += sprintf(buffer+buf_size, "|");
-            }
-        }
-        buf_size += sprintf(buffer+buf_size, "\"];\n");
-    }
-
-    s(tree) |= 0x1;
-
-    return buf_size;
-
-}
-
-
-void bbl2str(void){
-
-    // Figure out buffer size
-    mword initial_buf_size = (16 * _mu((mword*)TOS_0));
-    clean_tree((mword*)TOS_0);
-    char *buffer = malloc(initial_buf_size);
-
-    mword buf_size=0;
-
-//    buf_size += sprintf(buffer+buf_size, "digraph babel {\nnode [shape=record];\n");
-
-//    buf_size += sprintf(buffer+buf_size, "graph [rankdir = \"LR\"];\n");
-    
-//        d(global_VM)
-//        d(car(car(car(stack_ptr))))
-//        die
-        buf_size += tree_bbl2str((mword*)TOS_0, buffer+buf_size);
-
-//    buf_size += sprintf(buffer+buf_size, "}\n");
-    //buf_size now contains the final string size of the entire graphviz string
-
-    clean_tree((mword*)TOS_0);
-    zap();
-
-    mword last_mword = alignment_word8(buf_size);
-    mword length = (buf_size / MWORD_SIZE) + 1;
-
-    if(buf_size % MWORD_SIZE != 0){
-        length++;
-    }
-
-//    d(char_length)
-//    d(length)
-
-    mword *result = _newlf(length);
-    memcpy(result, buffer, buf_size);
-    c(result,length-1) = last_mword;
-    free(buffer);
-
-    push_alloc(result,BBL2STR);
-
-}
-
-
-// Returns 
+//        buf_size += sprintf(buffer+buf_size, "\"];\n");
 //
-mword tree_bbl2str(mword *tree, char *buffer){
-
-    int i;
-    mword buf_size=0;
-
-    if( s(tree) & (MWORD_SIZE-1) ){
-        return 0;
-    }
-
-    int num_elem = size(tree);
-//    count = num_elem + 1;
-
-    s(tree) |= 0x1;
-
-    if(is_inte(tree)){
-
+//    }
+//    else if(is_inte(tree)){
+//        s(tree) |= 0x1;
+//
 //        buf_size += sprintf(buffer+buf_size, "\"s%08x\" [shape=record,label=\"", (mword)tree);
-        buf_size += sprintf(buffer+buf_size, "[ ");
-
-        for(i=0; i<num_elem; i++){
+//        for(i=0; i<num_elem; i++){
+//            if(i==0){
+//                if(tree == (mword*)code_list){
+//                    buf_size += sprintf(buffer+buf_size, "<f0> code_list");
+//                }
+//                else if(tree == (mword*)data_list){
+//                    buf_size += sprintf(buffer+buf_size, "<f0> data_list");
+//                }
+//                else if(tree == (mword*)stack_list){
+//                    buf_size += sprintf(buffer+buf_size, "<f0> stack_list");
+//                }
+//                else if(tree == (mword*)rstack_list){
+//                    buf_size += sprintf(buffer+buf_size, "<f0> rstack_list");
+//                }
+//                else if(tree == (mword*)jump_table){
+//                    buf_size += sprintf(buffer+buf_size, "<f0> jmp_table");
+//                }
+//                else if(tree == (mword*)sym_table){
+//                    buf_size += sprintf(buffer+buf_size, "<f0> sym_table");
+//                }
+//                else if(tree == (mword*)nada){
+//                    buf_size += sprintf(buffer+buf_size, "<f0> nada");
+//                }
+//                else if(tree == (mword*)nil){
+//                    buf_size += sprintf(buffer+buf_size, "<f0> nil");
+//                }
+//                else{
+//                    buf_size += sprintf(buffer+buf_size, "<f0> 0");
+//                }            
+//            }
+//            else{
+//                buf_size += sprintf(buffer+buf_size, "<f%d> %d", i, i);
+//            }
+//            if(i<(num_elem-1)){
+//                buf_size += sprintf(buffer+buf_size, "|");
+//            }
+//        }
+//        buf_size += sprintf(buffer+buf_size, "\"];\n");
+//
+//        for(i=0; i<num_elem; i++){
 //            if(*(mword *)(tree+i) == nil && tree != (mword*)nada){
 //                continue;
 //            }
 //            buf_size += sprintf(buffer+buf_size, "\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)tree, i, *(mword *)(tree+i));
-            buf_size += tree_bbl2str((mword *)*(tree+i), buffer+buf_size);
-        }
-
-        buf_size += sprintf(buffer+buf_size, "] ");
-
-    }
-    else{ // is_leaf
+//            buf_size += _tree_bbl2gv((mword *)*(tree+i), buffer+buf_size);
+//        }
+//
+//    }
+//    else{ // is_leaf
 //        buf_size += sprintf(buffer+buf_size, "s%08x [style=bold,shape=record,label=\"", (mword)tree);
-        buf_size += sprintf(buffer+buf_size, "{ ");
-        for(i=0; i<num_elem; i++){
-            buf_size += sprintf(buffer+buf_size, "0x%x ", *(mword *)(tree+i));
+//        for(i=0; i<num_elem; i++){
+//            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(tree+i));
 //            if(i<(num_elem-1)){
 //                buf_size += sprintf(buffer+buf_size, "|");
 //            }
-        }
-        buf_size += sprintf(buffer+buf_size, "} ");
-    }
-
-    return buf_size;
-
-}
-
+//        }
+//        buf_size += sprintf(buffer+buf_size, "\"];\n");
+//    }
+//
+//    s(tree) |= 0x1;
+//
+//    return buf_size;
+//
+//}
+//
+//
+//void bbl2str(void){
+//
+//    // Figure out buffer size
+//    mword initial_buf_size = (16 * _mu((mword*)TOS_0));
+//    clean_tree((mword*)TOS_0);
+//    char *buffer = malloc(initial_buf_size);
+//
+//    mword buf_size=0;
+//
+////    buf_size += sprintf(buffer+buf_size, "digraph babel {\nnode [shape=record];\n");
+//
+////    buf_size += sprintf(buffer+buf_size, "graph [rankdir = \"LR\"];\n");
+//    
+////        d(global_VM)
+////        d(car(car(car(stack_ptr))))
+////        die
+//        buf_size += tree_bbl2str((mword*)TOS_0, buffer+buf_size);
+//
+////    buf_size += sprintf(buffer+buf_size, "}\n");
+//    //buf_size now contains the final string size of the entire graphviz string
+//
+//    clean_tree((mword*)TOS_0);
+//    zap();
+//
+//    mword last_mword = alignment_word8(buf_size);
+//    mword length = (buf_size / MWORD_SIZE) + 1;
+//
+//    if(buf_size % MWORD_SIZE != 0){
+//        length++;
+//    }
+//
+////    d(char_length)
+////    d(length)
+//
+//    mword *result = _newlf(length);
+//    memcpy(result, buffer, buf_size);
+//    c(result,length-1) = last_mword;
+//    free(buffer);
+//
+//    push_alloc(result,BBL2STR);
+//
+//}
+//
+//
+//// Returns 
+////
+//mword tree_bbl2str(mword *tree, char *buffer){
+//
+//    int i;
+//    mword buf_size=0;
+//
+//    if( s(tree) & (MWORD_SIZE-1) ){
+//        return 0;
+//    }
+//
+//    int num_elem = size(tree);
+////    count = num_elem + 1;
+//
+//    s(tree) |= 0x1;
+//
+//    if(is_inte(tree)){
+//
+////        buf_size += sprintf(buffer+buf_size, "\"s%08x\" [shape=record,label=\"", (mword)tree);
+//        buf_size += sprintf(buffer+buf_size, "[ ");
+//
+//        for(i=0; i<num_elem; i++){
+////            if(*(mword *)(tree+i) == nil && tree != (mword*)nada){
+////                continue;
+////            }
+////            buf_size += sprintf(buffer+buf_size, "\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)tree, i, *(mword *)(tree+i));
+//            buf_size += tree_bbl2str((mword *)*(tree+i), buffer+buf_size);
+//        }
+//
+//        buf_size += sprintf(buffer+buf_size, "] ");
+//
+//    }
+//    else{ // is_leaf
+////        buf_size += sprintf(buffer+buf_size, "s%08x [style=bold,shape=record,label=\"", (mword)tree);
+//        buf_size += sprintf(buffer+buf_size, "{ ");
+//        for(i=0; i<num_elem; i++){
+//            buf_size += sprintf(buffer+buf_size, "0x%x ", *(mword *)(tree+i));
+////            if(i<(num_elem-1)){
+////                buf_size += sprintf(buffer+buf_size, "|");
+////            }
+//        }
+//        buf_size += sprintf(buffer+buf_size, "} ");
+//    }
+//
+//    return buf_size;
+//
+//}
+//
 
 // Clayton Bauman 2011
 

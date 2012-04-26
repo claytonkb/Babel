@@ -4,8 +4,9 @@
 -- unhandled exceptions and as a debug console. This is just a stub for
 -- now
 
-code:
-    (argv [0] cxr
-     slurp load
-     babel)
-
+main:
+    ( [0xdeadbeef] [0xbabeface] )
+-- die argv [0] th
+--     slurp load
+--     babel)
+--

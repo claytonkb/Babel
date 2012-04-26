@@ -16,13 +16,28 @@ typedef void(*std_fn_ptr)(void);
 typedef unsigned mword;
 typedef signed   smword;
 
+typedef struct {
+    mword *hidden;
+    mword *sym_table;
+    mword *code_ptr;
+    mword *stack_ptr;
+    mword *rstack_ptr;
+    mword *jump_table;
+    mword thread_id;
+    mword *argv;
+    mword steps;
+} bvm_cache;
+
+mword*      nil;
+
+bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
+
 // GLOBALS
-mword*      internal_global_VM; //Interpreter-visible machine pointer
-mword*      global_VM;          //Machine pointer
-//mword       global_machine_page_size;
-jmp_buf     exception_env;
-int         exception_type;
-mword*      global_nil;
+//mword*      internal_global_VM; //Interpreter-visible machine pointer
+//mword*      global_VM;          //Machine pointer
+////mword       global_machine_page_size;
+//jmp_buf     exception_env;
+//int         exception_type;
 
 // CONSTANTS
 #define MWORD_SIZE sizeof(mword)
@@ -37,84 +52,88 @@ mword*      global_nil;
 
 #define BITS_PER_BYTE 8
 
+#define ROOT_INTERP_THREAD 0
+
 #define WINDOWS
 //#define STAR_NIX
 
-// This should be set to 3 for 64-bit compilation...
+// XXX This should be set to 3 for 64-bit compilation...
 // I can't find a simple/direct way to connect this to MWORD_SIZE
 // so it has to be defined independently
 #define LOG_MWORD_SIZE 2
 
 // UTILITIES
 
-#define s(x)         (*(x-1))
-#define is_leaf(x)   ((int)s(x) >  0)
-#define is_inte(x)   ((int)s(x) <  0)
-#define is_href(x)   ((int)s(x) == 0)
-//#define is_nleaf(x)  ((int)s(x) <= 0)
-//#define is_ninte(x)  ((int)s(x) >= 0)
-//#define is_nhref(x)  ((int)s(x) != 0)
-//#define size(x)      (abs(s(x))/MWORD_SIZE)
+#define s(x)         (*((mword*)x-1))
+#define is_leaf(x)   ((int)s((mword*)x) >  0)
+#define is_inte(x)   ((int)s((mword*)x) <  0)
+#define is_href(x)   ((int)s((mword*)x) == 0)
+
 #define size(x)      (is_href(x)?HASH_SIZE:(abs(s(x))/MWORD_SIZE))
 #define c(x,y)       (*(y + x))
 
-#define is_nil(x)   ( memcmp((x), global_nil, HASH_SIZE) == 0 )
+#define is_nil(x)   ( is_href(x) ? (memcmp((x), nil, HASH_SIZE) == 0) : 0 )
 
 #define is_false(x) ( is_leaf(x) && car(x) == 0\
-                    ||is_inte(x) && car(x) == nil)
+                    ||is_inte(x) && is_nil(car(x)))
 
-//((is_inte(x) && x == (mword*)nil \
-//                    ||is_leaf(x) && x == 0) ? 0 : 1)
+#define car(x)      c((mword*)x,0)
+#define cdr(x)      c((mword*)x,1)
 
-#define car(x)      c((mword *)x,0)
-#define cdr(x)      c((mword *)x,1)
-#define cadr(x)     car(cdr(x))
-#define caddr(x)    car(cdr(cdr(x)))
+//nil-safe car/cdr:
+#define scar(x)     (is_nil(x) ? nil : car(x))
+#define scdr(x)     (is_nil(x) ? nil : cdr(x))
+
 #define cons(a,b,c) car(a) = (mword)(b); cdr(a) = (mword)(c);
 
-//#define TOS_0         car(car(cdr(car(stack_ptr))))
-//#define TOS_1     car(car(cdr(car(cdr(stack_ptr)))))
-//#define TOS_2 car(car(cdr(car(cdr(cdr(stack_ptr))))))
+//XXX we may yet need a generally hash-ref-safe car/cdr
 
-#define TOS_0             car(car(stack_ptr))
-#define TOS_1         car(car(cdr(stack_ptr)))
-#define TOS_2     car(car(cdr(cdr(stack_ptr))))
-
-#define RTOS_0             car(rstack_ptr)
-#define RTOS_1         car(cdr(rstack_ptr))
-#define RTOS_2     car(cdr(cdr(rstack_ptr)))
-#define RTOS_3 car(cdr(cdr(cdr(rstack_ptr))))
-#define alloc_type(x) car(car(cdr(x))) 
-
-#define global_argv car(internal_global_VM)
-
-#define code_list   global_VM
-#define data_list   cdr(code_list)
-#define stack_list  cdr(data_list)
-#define rstack_list cdr(stack_list)
-#define jump_table  cdr(rstack_list)
-#define sym_table   cdr(jump_table)
-#define nada        cdr(sym_table)
-#define nil         cdr(nada)
-#define null        car(nada)
-
-#define code_ptr    car(code_list)
-#define stack_ptr   car(stack_list)
-#define rstack_ptr  car(rstack_list)
-#define jump_ptr    car(jump_table)
-#define sym_ptr     car(sym_table)
-
-#define code_empty   ((mword)  code_ptr == nil)
-#define stack_empty  ((mword) stack_ptr == nil)
-#define rstack_empty ((mword)rstack_ptr == nil)
-#define jmp_empty    ((mword)  jump_ptr == nil)
-#define sym_empty    ((mword)   sym_ptr == nil)
-
-#define machine_empty (        code_empty   \
-                            && stack_empty  \
-                            && rstack_empty \
-                            && jmp_empty    \
-                            && sym_empty        )
+//#define cadr(x)     car(cdr(x))
+//#define caddr(x)    car(cdr(cdr(x)))
+//
+////#define TOS_0         car(car(cdr(car(stack_ptr))))
+////#define TOS_1     car(car(cdr(car(cdr(stack_ptr)))))
+////#define TOS_2 car(car(cdr(car(cdr(cdr(stack_ptr))))))
+//
+//#define TOS_0             car(car(stack_ptr))
+//#define TOS_1         car(car(cdr(stack_ptr)))
+//#define TOS_2     car(car(cdr(cdr(stack_ptr))))
+//
+//#define RTOS_0             car(rstack_ptr)
+//#define RTOS_1         car(cdr(rstack_ptr))
+//#define RTOS_2     car(cdr(cdr(rstack_ptr)))
+//#define RTOS_3 car(cdr(cdr(cdr(rstack_ptr))))
+//#define alloc_type(x) car(car(cdr(x))) 
+//
+//#define global_argv car(internal_global_VM)
+//
+//#define code_list   global_VM
+//#define data_list   cdr(code_list)
+//#define stack_list  cdr(data_list)
+//#define rstack_list cdr(stack_list)
+//#define jump_table  cdr(rstack_list)
+//#define sym_table   cdr(jump_table)
+//#define nada        cdr(sym_table)
+////#define nil         cdr(nada)
+//#define null        car(nada)
+//
+//#define code_ptr    car(code_list)
+//#define stack_ptr   car(stack_list)
+//#define rstack_ptr  car(rstack_list)
+//#define jump_ptr    car(jump_table)
+//#define sym_ptr     car(sym_table)
+//
+//#define code_empty   ((mword)  code_ptr == nil)
+//#define stack_empty  ((mword) stack_ptr == nil)
+//#define rstack_empty ((mword)rstack_ptr == nil)
+//#define jmp_empty    ((mword)  jump_ptr == nil)
+//#define sym_empty    ((mword)   sym_ptr == nil)
+//
+//#define machine_empty (        code_empty   \
+//                            && stack_empty  \
+//                            && rstack_empty \
+//                            && jmp_empty    \
+//                            && sym_empty        )
 
 // DEBUG
 #define DIE_CODE 1

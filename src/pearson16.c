@@ -10,48 +10,48 @@
 #include "array.h"
 #include "except.h"
 
-// init_hash key phash8
-void phash8(void){
-
-    mword* result = _pearson16((mword*)TOS_1, (mword*)TOS_0, _arlen8((mword*)TOS_0));
-
-    zap();
-    zap();
-    push_alloc((mword*)result, PHASH8);
-
-}
-
-// init_hash key phash
-void phash(void){
-
-    mword* result = _pearson16((mword*)TOS_1, (mword*)TOS_0, size((mword*)TOS_0)*MWORD_SIZE);
-
-    zap();
-    zap();
-    push_alloc((mword*)result, PHASH);
-
-}
-
-// key hash8
-void hash8(void){
-
-    mword* result = _pearson16(_newlfz(HASH_SIZE), (mword*)TOS_0, _arlen8((mword*)TOS_0));
-
-    zap();
-    push_alloc((mword*)result, HASH8);
-
-}
-
-// key hash
-void hash(void){
-
-    mword* result = _pearson16(_newlfz(HASH_SIZE), (mword*)TOS_0, size((mword*)TOS_0)*MWORD_SIZE);
-
-    zap();
-    push_alloc((mword*)result, HASH);
-
-}
-
+//// init_hash key phash8
+//void phash8(void){
+//
+//    mword* result = _pearson16((mword*)TOS_1, (mword*)TOS_0, _arlen8((mword*)TOS_0));
+//
+//    zap();
+//    zap();
+//    push_alloc((mword*)result, PHASH8);
+//
+//}
+//
+//// init_hash key phash
+//void phash(void){
+//
+//    mword* result = _pearson16((mword*)TOS_1, (mword*)TOS_0, size((mword*)TOS_0)*MWORD_SIZE);
+//
+//    zap();
+//    zap();
+//    push_alloc((mword*)result, PHASH);
+//
+//}
+//
+//// key hash8
+//void hash8(void){
+//
+//    mword* result = _pearson16(_newlfz(HASH_SIZE), (mword*)TOS_0, _arlen8((mword*)TOS_0));
+//
+//    zap();
+//    push_alloc((mword*)result, HASH8);
+//
+//}
+//
+//// key hash
+//void hash(void){
+//
+//    mword* result = _pearson16(_newlfz(HASH_SIZE), (mword*)TOS_0, size((mword*)TOS_0)*MWORD_SIZE);
+//
+//    zap();
+//    push_alloc((mword*)result, HASH);
+//
+//}
+//
 
 
 // This is a 16-byte version of Pearson's hash
@@ -110,7 +110,7 @@ mword *new_hash(void){
 
     mword *ptr = malloc( MWORDS(HASH_SIZE+1) );
     if(ptr == NULL){
-        except("new_hash: malloc returned NULL", __FILE__, __LINE__);
+        error("new_hash: malloc returned NULL");
     }
 
     ptr[0] = HASH_SIZE * MWORD_SIZE;

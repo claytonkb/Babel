@@ -10,22 +10,22 @@
 #include "bvm.h"
 #include "list.h"
 
-void newref(void){
-
-    mword *result = _newref((mword*)TOS_0);
-    zap();
-    push_alloc(result, NEWREF);
-
-}
+//void newref(void){
+//
+//    mword *result = _newref((mword*)TOS_0);
+//    zap();
+//    push_alloc(result, NEWREF);
+//
+//}
 
 mword *_newref(mword *hash){
 
     if(size(hash) != HASH_SIZE)
-        except("_newref: size(hash) != HASH_SIZE", __FILE__, __LINE__);
+        error("_newref: size(hash) != HASH_SIZE");
 
     mword *ptr = malloc( MWORDS(HASH_SIZE+1) );
     if(ptr == NULL){
-        except("_newlf: malloc returned NULL", __FILE__, __LINE__);
+        error("_newlf: malloc returned NULL");
     }
 
     ptr[0] = 0;
@@ -37,16 +37,16 @@ mword *_newref(mword *hash){
 
 }
 
-void ishref(void){
-
-    mword *result    = new_atom();
-    
-    *result = is_href((mword*)TOS_0);
-
-    zap();
-    push_alloc(result, ISHREF);
-
-}
+//void ishref(void){
+//
+//    mword *result    = new_atom();
+//    
+//    *result = is_href((mword*)TOS_0);
+//
+//    zap();
+//    push_alloc(result, ISHREF);
+//
+//}
 
 // Clayton Bauman 2012
 
