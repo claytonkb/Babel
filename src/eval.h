@@ -17,6 +17,7 @@ void times(void);
 void dieop(void);
 void eachar(void);
 mword _end_of_code(void);
+mword _end_of_code2(void);
 void breakop(void);
 void continueop(void);
 

@@ -61,14 +61,19 @@ void cdrindex(void){
 
 }
 
+//FIXME - This operator originally took the car of TOS to determine
+//if this was nil, rather than looking at TOS directly. The change
+//may result in OBO errors in lists. The root issue here is that
+//car() and cdr() can't handle hash-refs. This will have to be fixed.
 void isnil(void){
 
 //    printf(((char*)TOS_0), c(0,(mword*)TOS_1));
 
-
     mword *result    = new_atom();
     
-    *result = ( (mword)car(TOS_0) == (mword)nil );
+//    *result = ( (mword)car(TOS_0) == (mword)nil );
+//    *result = is_nil((mword*)car(TOS_0));
+    *result = is_nil((mword*)TOS_0);
 
 
     zap();
@@ -124,7 +129,7 @@ void list_end(void){
 
 mword *_list_end(mword *list){
 
-    while(cdr(list) != nil){
+    while(cdr(list) != nil){ //Breaks due to car/cdr can't handle hash-refs
         list = (mword*)cdr(list);
     }
     return list;
@@ -197,7 +202,8 @@ void shift(void){
 
 }
 
-void len(void){
+//NIL-CONVERSION DONE
+void len(void){ 
     mword *result = _newlf(1);
     *result = _len((mword*)TOS_0);
     zap();
@@ -205,9 +211,11 @@ void len(void){
 
 }
 
+//NIL-CONVERSION DONE
 mword _len(mword *list){
     mword length = 0;
-    while(list != (mword*)nil){
+//    while(list != (mword*)nil){
+    while(!is_nil(list)){
         length++;
         list = (mword*)cdr(list);
     }

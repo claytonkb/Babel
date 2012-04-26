@@ -81,7 +81,8 @@ void _bvmstep(mword *bvm){
     global_VM = (mword *)cdr(internal_global_VM);
     (mword*)global_argv = saved_global_argv;  //FIXME
 
-    bvm_interp();
+//    bvm_interp();
+    bvm_interp2();
 
     internal_global_VM = saved_bvm;
     global_VM = (mword*)cdr(internal_global_VM);
@@ -265,6 +266,38 @@ void bvm_interp(void){
 //            else{
 //                break;
 //            }
+        }
+
+        if( is_inte((mword *)car(code_ptr)) ){
+            push_alloc((mword*)car(car(code_ptr)), SELF_ALLOC);
+        }
+        else if( is_leaf((mword *)car(code_ptr)) ){
+            opcode_switch(car(car(code_ptr)))
+        }
+        else if( is_href((mword *)car(code_ptr)) ){ //FIXME: Implement href operator calls!
+            except("bvm_interp: hash-reference detected in code", __FILE__, __LINE__);
+        }
+        else{
+            except("bvm_interp: error detected during execution", __FILE__, __LINE__);
+        }
+
+        code_ptr = cdr(code_ptr);
+
+    }
+
+}
+
+
+void bvm_interp2(void){
+
+    mword* discard;
+
+    while(global_steps--){//FIXME: This is not correct long-term
+
+//        if(car(code_ptr) == (mword)nil){
+        if(is_nil((mword*)car(code_ptr))){
+            if(_end_of_code()) continue;
+            break;
         }
 
         if( is_inte((mword *)car(code_ptr)) ){

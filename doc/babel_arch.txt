@@ -4,6 +4,10 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- car/cdr with hash-refs -----
+
+car() and cdr() can't handle hash-refs. This will have to be fixed.
+
 ----- eval of namespaces -----
 
 `"foo : 3" compile load !

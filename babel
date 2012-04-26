@@ -9,7 +9,7 @@ my $bbl_file_name = shift;
 my $bbl_args = "";
 $bbl_args = join ' ', @ARGV if ($#ARGV > -1);
 
-system("perl proto_babel_old.pl $bbl_file_name pb/header.pb pb/opcodes.pb");
+system("perl proto_babel.pl $bbl_file_name pb/new_header.pb pb/opcodes.pb");
 
 system("bin/babel.exe $bbl_file_name.bbl $bbl_args");
 

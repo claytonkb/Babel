@@ -24,6 +24,7 @@ void bbl2str(void);
 mword tree_bbl2str(mword *tree, char *buffer);
 void bvmstep(void);
 void _bvmstep(mword *bvm);
+void bvm_interp2(void);
 
 
 mword global_steps;
