@@ -407,39 +407,39 @@
 //        break;          \
 //
 #define stack_ops       \
+    case ZAP:           \
+        hard_zap(this_bvm);          \
+        break;          \
+    case SWAP:          \
+        swap(this_bvm);         \
+        break;          \
+    case SEL:           \
+        sel(this_bvm);          \
+        break;          \
+    case DUP:           \
+        dup(this_bvm);          \
+        break;          \
+    case DEPTH:         \
+        depth(this_bvm);        \
+        break;          \
+    case CLEAR:         \
+        clear(this_bvm);        \
+        break;          \
+    case GIVE:          \
+        give(this_bvm);         \
+        break;          \
+    case TAKE:          \
+        take(this_bvm);         \
+        break;          \
 
-//    case ZAP:           \
-//        zap();          \
-//        break;          \
-//    case SEL:           \
-//        sel();          \
-//        break;          \
-//    case DUP:           \
-//        dup();          \
-//        break;          \
-//    case SWAP:          \
-//        swap();         \
-//        break;          \
 //    case DOWN:          \
 //        down();         \
 //        break;          \
 //    case UP:            \
 //        up();           \
 //        break;          \
-//    case TAKE:          \
-//        take();         \
-//        break;          \
-//    case GIVE:          \
-//        give();         \
-//        break;          \
-//    case DEPTH:         \
-//        depth();        \
-//        break;          \
 //    case NEST:          \
 //        nest();         \
-//        break;          \
-//    case CLEAR:         \
-//        clear();        \
 //        break;          \
 //
 //

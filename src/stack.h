@@ -4,8 +4,18 @@
 #ifndef STACK_H
 #define STACK_H
 
-bvm_cache *hard_zap(bvm_cache *this_bvm);
+bvm_cache *hard_zap     (bvm_cache *this_bvm);
+bvm_cache *swap         (bvm_cache *this_bvm);
+bvm_cache *sel          (bvm_cache *this_bvm);
+bvm_cache *dup          (bvm_cache *this_bvm);
+bvm_cache *depth        (bvm_cache *this_bvm);
+bvm_cache *clear        (bvm_cache *this_bvm);
+bvm_cache *give         (bvm_cache *this_bvm);
+bvm_cache *take         (bvm_cache *this_bvm);
+
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type);
+void give_tree(bvm_cache *this_bvm, mword *list);
+mword *rtake(bvm_cache *this_bvm, mword count);
 
 //#include "list.h"
 //

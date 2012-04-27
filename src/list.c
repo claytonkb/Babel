@@ -233,17 +233,18 @@ inline mword *new_atom(void){
 //
 //}
 //
-////NIL-CONVERSION DONE
-//mword _len(mword *list){
-//    mword length = 0;
-////    while(list != (mword*)nil){
-//    while(!is_nil(list)){
-//        length++;
-//        list = (mword*)cdr(list);
-//    }
-//    return length;
-//}
-//
+
+//NIL-CONVERSION DONE
+mword _len(mword *list){
+    mword length = 0;
+//    while(list != (mword*)nil){
+    while(!is_nil(list)){
+        length++;
+        list = (mword*)cdr(list);
+    }
+    return length;
+}
+
 //
 //void bons(void){
 //

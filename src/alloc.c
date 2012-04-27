@@ -17,7 +17,7 @@
 //
 //void _free_op(mword *mem){
 //
-//    free(mem-1);
+//    bfree(mem-1);
 //
 //}
 //

@@ -17,7 +17,7 @@ inline mword *new_atom(void);
 ////void push(void);
 ////void pop(void);
 //void len(void);
-//mword _len(mword *list);
+mword _len(mword *list);
 //void bons(void);
 //mword *_bons(mword *list);
 //void ls2lf(void);

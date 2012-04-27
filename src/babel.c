@@ -23,6 +23,9 @@ int main(int argc, char **argv){
 
     interp_init(&root_bvm, argc, argv);
 
+//    bbl2gv(root_bvm.code_ptr);
+//    die
+//
     discard = bvm_interp(&root_bvm);
 
     bbl2gv(root_bvm.stack_ptr);
@@ -44,12 +47,13 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
 
     pearson16_init();    //Babel hash-function init
 
-    //Initialize nil
+    //initialize nil
     mword *hash_init  = new_hash();
     mword *nil_string = C2B("nil");
     nil               = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
     nil = _newref(nil);
 
+    //initialize root_bvm
     root_bvm->hidden        = nil;
     root_bvm->sym_table     = nil;
     root_bvm->code_ptr      = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
@@ -57,8 +61,9 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
     root_bvm->rstack_ptr    = nil;
     root_bvm->jump_table    = nil;
     root_bvm->thread_id     = ROOT_INTERP_THREAD;
-    root_bvm->steps         = (mword)2;
+    root_bvm->steps         = (mword)-1;
 
+    //initialize argv
     //XXX This will change when we add CLI processing:
     #define NUM_BABEL_INTERP_ARGS 1 
     if(argc <= NUM_BABEL_INTERP_ARGS){

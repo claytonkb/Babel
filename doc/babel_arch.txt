@@ -4,9 +4,20 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- bstruct.c stuff -----
+
+Need to move bbl2gv() and related functions to bstruct.c
+
+Also, need to implement an is_bstruct() that can check a relative-offset
+bstruct.
+
 ----- car/cdr with hash-refs -----
 
 car() and cdr() can't handle hash-refs. This will have to be fixed.
+
+for nil-safety, use scar() and scdr()
+
+may use hcar() and hcdr() for general hash-ref-safety
 
 ----- eval of namespaces -----
 

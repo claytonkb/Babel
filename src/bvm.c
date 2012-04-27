@@ -294,11 +294,11 @@
 //
 bvm_cache *bvm_interp(bvm_cache *this_bvm){
 
+    bvm_cache *discard;
+
     while(this_bvm->steps--){//FIXME: This is not correct long-term
 
-//        if(car(code_ptr) == (mword)nil){
-        if(is_nil((mword*)car(this_bvm->code_ptr))){
-//            if(_end_of_code()) continue;
+        if(is_nil((mword*)scar(this_bvm->code_ptr))){
             break;
         }
 
@@ -353,19 +353,20 @@ void bbl2gv(mword *tree){
 //        d(car(car(car(stack_ptr))))
 //        die
 //        tree_bbl2gv((mword*)global_VM);
-    if( is_nil(tree) ){
-        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
-        for(i=0; i<HASH_SIZE; i++){
-            printf("<f%d> %x", i, *(mword *)(tree+i));
-            if(i<(HASH_SIZE-1)){
-                printf("|");
-            }
-        }
-        printf("\"];\n");
-    }
-    else{
+
+//    if( is_nil(tree) ){
+//        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
+//        for(i=0; i<HASH_SIZE; i++){
+//            printf("<f%d> %x", i, *(mword *)(tree+i));
+//            if(i<(HASH_SIZE-1)){
+//                printf("|");
+//            }
+//        }
+//        printf("\"];\n");
+//    }
+//    else{
         tree_bbl2gv(tree);
-    }
+//    }
 
     printf("}\n");
 
@@ -395,6 +396,7 @@ mword tree_bbl2gv(mword *tree){
             }
         }
         printf("\"];\n");
+        s(tree) |= 0x1;
         return 0;
     }
 
@@ -408,38 +410,7 @@ mword tree_bbl2gv(mword *tree){
 
         printf("\"s%08x\" [shape=record,label=\"", (mword)tree);
         for(i=0; i<num_elem; i++){
-//            if(i==0){
-//                if(tree == (mword*)code_list){
-//                    printf("<f0> code_list");
-//                }
-//                else if(tree == (mword*)data_list){
-//                    printf("<f0> data_list");
-//                }
-//                else if(tree == (mword*)stack_list){
-//                    printf("<f0> stack_list");
-//                }
-//                else if(tree == (mword*)rstack_list){
-//                    printf("<f0> rstack_list");
-//                }
-//                else if(tree == (mword*)jump_table){
-//                    printf("<f0> jmp_table");
-//                }
-//                else if(tree == (mword*)sym_table){
-//                    printf("<f0> sym_table");
-//                }
-//                else if(tree == (mword*)nada){
-//                    printf("<f0> nada");
-//                }
-//                else if(tree == (mword*)nil){
-//                    printf("<f0> nil");
-//                }
-//                else{
-//                    printf("<f0> 0");
-//                }            
-//            }
-//            else{
-                printf("<f%d> %d", i, i);
-//            }
+            printf("<f%d> %d", i, i);
             if(i<(num_elem-1)){
                 printf("|");
             }
@@ -448,7 +419,7 @@ mword tree_bbl2gv(mword *tree){
 
         for(i=0; i<num_elem; i++){
 //            if(*(mword *)(tree+i) == nil && tree != (mword*)nada){
-            if(is_nil((mword *)(tree+i))){// == nil && tree != (mword*)nada){
+            if(is_nil((mword *)scar(tree+i))){// == nil && tree != (mword*)nada){
                 continue;
             }
             printf("\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)tree, i, *(mword *)(tree+i));

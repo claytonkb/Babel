@@ -8,6 +8,7 @@
 #include "bstruct.h"
 #include "bvm_opcodes.h"
 #include "array.h"
+#include "alloc.h"
 
 //mword *cons_alloc(mword *car, mword *cdr){
 //
@@ -61,20 +62,23 @@ void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 bvm_cache *hard_zap(bvm_cache *this_bvm){
 
 //    if(stack_ptr == nil){
-//        return;
-//    }
-//
-//    //TODO: Implement this... currently, we are leaking memory
-//    //operand_dealloc(car(cdr(car(stack_ptr))));
-//
-//    mword *temp_stack_ptr = (mword*)cdr(stack_ptr);
-//
-//    free((mword*)(car(cdr(car(stack_ptr)))-1));
-//    free((mword*)(cdr(car(stack_ptr))-1));
-//    free((mword*)(car(stack_ptr)-1));
-//    free((mword*)(stack_ptr-1));
-//
-//    (mword*)stack_ptr = temp_stack_ptr;
+    if(is_nil(this_bvm->stack_ptr)){
+        return this_bvm;
+    }
+
+    //TODO: Implement this... currently, we are leaking memory
+    //operand_dealloc(car(cdr(car(stack_ptr))));
+
+    mword *temp_stack_ptr = (mword*)cdr(this_bvm->stack_ptr);
+
+    bfree((mword*)car(cdr(car(this_bvm->stack_ptr))));
+    bfree((mword*)cdr(car(this_bvm->stack_ptr)));
+    bfree((mword*)car(this_bvm->stack_ptr));
+    bfree((mword*)this_bvm->stack_ptr);
+
+    this_bvm->stack_ptr = temp_stack_ptr;
+
+    return this_bvm;
 
 }
 
@@ -115,80 +119,92 @@ bvm_cache *hard_zap(bvm_cache *this_bvm){
 //
 //}
 //
-////
-////
-//void sel(void){
-//
-//    mword select = car(TOS_2);
-//
-////    zap();
-//    cdr(cdr(stack_ptr)) = cdr(cdr(cdr(stack_ptr)));
-//
-//    //TODO: Add behavior for nil
-//    if(!select){
-//        zap();
-//    }
-//    else{
-//        cdr(stack_ptr) = cdr(cdr(stack_ptr));
-//    }
-//
-//}
-//
-////
-////
-//void dup(void){
-//
-//    mword *result;
-//    if(is_leaf((mword*)TOS_0)){
-//        result = _newlf(size((mword*)TOS_0));
-//    }
-//    else{
-//        result = _newin(size((mword*)TOS_0));
-//    }    
-//
-//    //TODO: memcpy!
-//    mword i;
-//    for(    i=0;
-//            i<size((mword*)TOS_0);
-//            i++
-//        ){
-//
-//        c(result,i) = c((mword*)TOS_0,i);
-//
-//    }    
-//
-//    push_alloc(result, DUP);
-//
-//}
+
 //
 //
-////
-////
-//void swap(void){
+bvm_cache *sel(bvm_cache *this_bvm){
+
+    mword *select = (mword*)TOS_2(this_bvm);
+
+    // stack_ptr -> A -> B -> C -> D
+    // B->D
+    // FIXME: mem leak
+    mword *temp = (mword*)cdr(this_bvm->stack_ptr);
+    cdr(temp) = cdr(cdr(temp));
+
+    if(is_false(select)){
+        hard_zap(this_bvm);
+    }
+    else{
+        hard_zap(
+        swap(this_bvm));
+    }
+
+    return this_bvm;
+
+}
+
 //
-//    // z -> A -> B -> C
-//    // 
-//    // z -> B
-//    // B -> A
-//    // A -> C
 //
-//    if( 
-//        stack_ptr           == nil
-//            ||
-//        cdr(stack_ptr)      == nil
-//    ){
-//        return;
-//    }
+bvm_cache *dup(bvm_cache *this_bvm){
+
+    mword *result;
+
+    if(is_leaf((mword*)TOS_0(this_bvm))){
+        result = _newlf(size((mword*)TOS_0(this_bvm)));
+    }
+    else{
+        result = _newin(size((mword*)TOS_0(this_bvm)));
+    }    
+
+    //TODO: memcpy!
+    mword i;
+    for(    i=0;
+            i<size((mword*)TOS_0(this_bvm));
+            i++
+        ){
+
+        c(result,i) = c((mword*)TOS_0(this_bvm),i);
+
+    }    
+
+    push_alloc(this_bvm, result, DUP);
+
+    return this_bvm;
+
+}
+
 //
-//    mword *tempA =     (mword*)cdr(stack_ptr);
-//    mword *tempB = (mword*)cdr(cdr(stack_ptr));
-//
-//        cdr(cdr(stack_ptr)) = stack_ptr;
-//    (mword*)cdr(stack_ptr)  = tempB;
-//        (mword*)stack_ptr   = tempA;
-//
-//}
-//
+bvm_cache *swap(bvm_cache *this_bvm){
+
+    // stack_ptr -> A -> B -> C
+    // 
+    // stack_ptr -> B
+    // B -> A
+    // A -> C
+
+    // stack must have two items on it - depth() could be used here, 
+    // but we don't need to take the length of the stack; this is faster:
+    if( 
+        is_nil(this_bvm->stack_ptr)
+            ||
+        is_nil(scdr(this_bvm->stack_ptr))
+    ){
+        return;
+    }
+
+    mword *A = this_bvm->stack_ptr;
+    mword *B = (mword*)cdr(this_bvm->stack_ptr);
+    mword *C = (mword*)scdr(B);
+
+    this_bvm->stack_ptr = B;
+    (mword*)cdr(B) = A;
+    (mword*)cdr(A) = C;
+
+    return this_bvm;
+
+}
+
 //void down(void){
 //
 //    push_alloc_rstack((mword*)TOS_0,DOWN);
@@ -206,70 +222,82 @@ bvm_cache *hard_zap(bvm_cache *this_bvm){
 //    }
 //
 //}
-//
-//void take(void){
-//
-//    mword count = car(TOS_0);
+
+//FIXME: This is wrong, just do an iterative pop()
+bvm_cache *take(bvm_cache *this_bvm){
+
+    mword count = car(TOS_0(this_bvm));
 //    mword *temp;
+
+    hard_zap(this_bvm);
+
+    mword *result = rtake(this_bvm, count);
+
+    push_alloc(this_bvm, result, TAKE);
+
+}
+
 //
-//    zap();
+mword *rtake(bvm_cache *this_bvm, mword count){
+
+    if(count == 0)
+        return nil;
+
+    mword *A = new_cons();
+    mword *B = (mword*)car(car(this_bvm->stack_ptr));
+
+    hard_zap(this_bvm);
+
+    cons(   A,
+            B,
+            rtake(this_bvm,count-1));
+
+    return A;
+
+}
+
 //
-//    mword *result = take_tree((mword*)stack_ptr,count);
+bvm_cache *depth(bvm_cache *this_bvm){
+
+    mword *result = new_atom();
+    *result = _len((mword*)this_bvm->stack_ptr);
+
+    push_alloc(this_bvm, result, DEPTH);
+    
+    return this_bvm;
+
+}
+
+bvm_cache *give(bvm_cache *this_bvm){
+
+    mword *list = (mword*)TOS_0(this_bvm);
+
+    hard_zap(this_bvm);
+
+    give_tree(this_bvm,(mword*)list);
+
+}
+
+void give_tree(bvm_cache *this_bvm, mword *list){
+
+    if(is_nil(list))
+        return;
+
+    give_tree(this_bvm,(mword*)cdr(list));
+
+    push_alloc(this_bvm, (mword*)car(list), GIVE);
+
+}
+
 //
-//    push_alloc(result,TAKE);
-//
-//}
-//
-//mword *take_tree(mword *stack, mword count){
-//
-//    if(count == 0)
-//        return (mword*)nil;
-//
-//    mword *temp = new_cons();
-//    cons(temp,car(car(stack)),take_tree((mword*)cdr(stack),count-1));
-//
-//    return temp;
-//
-//}
-//
-//void depth(void){
-//
-//    mword *result = new_atom();
-//    *result = _len((mword*)stack_ptr);
-//
-//    push_alloc(result, DEPTH);
-//
-//}
-//
-//void give(void){
-//
-//    mword *list = (mword*)TOS_0;
-//
-//    zap();
-//
-//    give_tree((mword*)list);
-//
-//}
-//
-//void give_tree(mword *list){
-//
-//    if(list == (mword*)nil)
-//        return;
-//
-//    give_tree((mword*)cdr(list));
-//
-//    push_alloc((mword*)car(list),GIVE);
-//
-//}
-//
-//void clear(void){
-//
-//    while(TOS_0 != nil){
-//        zap();
-//    }
-//
-//}
-//
+bvm_cache *clear(bvm_cache *this_bvm){
+
+    while(!is_nil((mword*)TOS_0(this_bvm))){
+        hard_zap(this_bvm);
+    }
+
+}
+
 //void nest(void){
 //
 //    mword *new_stack = (mword*)TOS_0;
