@@ -325,6 +325,34 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
 
 }
 
+//
+bvm_cache *babelop(bvm_cache *this_bvm){
+
+    bvm_cache new_bvm;
+
+    //initialize bvm
+    new_bvm.hidden        = nil;
+    new_bvm.sym_table     = nil;
+    new_bvm.code_ptr      = (mword*)TOS_0(this_bvm);
+    new_bvm.stack_ptr     = nil; //FIXME allow stack to be init'd
+    new_bvm.rstack_ptr    = nil;
+    new_bvm.jump_table    = nil;
+    new_bvm.thread_id     = this_bvm->thread_id+1;
+    new_bvm.steps         = (mword)-1;
+
+    //FIXME: pearson_init and argv
+
+    hard_zap(this_bvm);
+
+    bvm_interp(&new_bvm);
+
+    //FIXME - push stack of new_bvm onto this_bvm when bvm_interp returns
+    //push_alloc(this_bvm, new_bvm.stack_ptr, BVMEXEC);
+
+    return this_bvm;
+
+}
+
 //void bvmroot(void){
 //
 //    push_alloc(global_VM, BVMROOT);
@@ -340,7 +368,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
 ////}
 ////
 ////#endif
-//
+
 //
 void bbl2gv(mword *tree){
 
@@ -349,34 +377,16 @@ void bbl2gv(mword *tree){
     printf("digraph babel {\nnode [shape=record];\n");
     printf("graph [rankdir = \"LR\"];\n");
 
-//        d(global_VM)
-//        d(car(car(car(stack_ptr))))
-//        die
-//        tree_bbl2gv((mword*)global_VM);
-
-//    if( is_nil(tree) ){
-//        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
-//        for(i=0; i<HASH_SIZE; i++){
-//            printf("<f%d> %x", i, *(mword *)(tree+i));
-//            if(i<(HASH_SIZE-1)){
-//                printf("|");
-//            }
-//        }
-//        printf("\"];\n");
-//    }
-//    else{
-        tree_bbl2gv(tree);
-//    }
+    tree_bbl2gv(tree);
 
     printf("}\n");
 
-    clean_tree(tree);
-//    zap();
+    rclean(tree);
 
 }
 
 
-// Returns 
+//  
 //
 mword tree_bbl2gv(mword *tree){
 

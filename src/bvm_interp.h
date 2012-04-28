@@ -184,6 +184,9 @@
 //        break;          \
 //
 #define io_ops          \
+    case SLURP:         \
+        slurp_mword(this_bvm);  \
+        break;          \
 
 //    case CPRINTF:       \
 //        cprintf();      \
@@ -192,10 +195,7 @@
 //        cprints();      \
 //        break;          \
 //    case SLURP8:        \
-//        slurp();        \
-//        break;          \
-//    case SLURP:         \
-//        slurp_mword();  \
+//        slurp(this_bvm);        \
 //        break;          \
 //    case SPIT8:         \
 //        spit();         \
@@ -218,6 +218,9 @@
 //
 //
 #define array_ops       \
+    case CXR:           \
+        cxr(this_bvm);          \
+        break;          \
 
 //    case SFIELD:        \
 //        sfield();       \
@@ -287,9 +290,6 @@
 //        break;          \
 //    case TRUNC:         \
 //        trunc();        \
-//        break;          \
-//    case CXR:           \
-//        cxr();          \
 //        break;          \
 //    case PASTE:         \
 //        wr();           \
@@ -389,15 +389,15 @@
 //        break;          \
 //
 #define util_ops        \
+    case ARGVOP:        \
+        argvop(this_bvm);       \
+        break;          \
 
 //    case RAND:          \
 //        randop();       \
 //        break;          \
 //    case SLEEP:         \
 //        sleepop();      \
-//        break;          \
-//    case ARGVOP:        \
-//        argvop();       \
 //        break;          \
 //    case FNORD:         \
 //        NSA_BACKDOOR    \
@@ -516,6 +516,15 @@
 //        break;          \
 //
 #define bvm_ops         \
+    case BBL2GV:        \
+        bbl2gv(this_bvm->stack_ptr);      \
+        break;          \
+    case LOAD:          \
+        load(this_bvm);         \
+        break;          \
+    case BVMEXEC:       \
+        babelop(this_bvm);      \
+        break;          \
 
 //    case BVMROOT:       \
 //        bvmroot();      \
@@ -526,17 +535,11 @@
 //    case BBL2STR:       \
 //        bbl2str();      \
 //        break;          \
-//    case LOAD:          \
-//        load();         \
-//        break;          \
 //    case UNLOAD:        \
 //        unload();       \
 //        break;          \
 //    case BVMBR:         \
 //        return;         \
-//    case BVMEXEC:       \
-//        bvmexec();      \
-//        break;          \
 //    case BVMKILL:       \
 //        bvmstep();      \
 //        break;          \

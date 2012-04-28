@@ -19,20 +19,14 @@
 int main(int argc, char **argv){
 
     bvm_cache root_bvm;
-    bvm_cache *discard;
 
     interp_init(&root_bvm, argc, argv);
 
-//    bbl2gv(root_bvm.code_ptr);
-//    die
-//
-    discard = bvm_interp(&root_bvm);
+    bvm_interp(&root_bvm);
 
-    bbl2gv(root_bvm.stack_ptr);
-
-//If this is the root instance, the stack can be sent to STDOUT. Each
-//element on the stack will be pop'd and then sent as UTF-8 text (i.e.
-//stdout8). The user must request this behavior with a switch.
+    //If this is the root instance, the stack can be sent to STDOUT. Each
+    //element on the stack will be pop'd and then sent as UTF-8 text (i.e.
+    //stdout8). The user must request this behavior with a switch.
 
     return 0;
 
@@ -51,7 +45,7 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
     mword *hash_init  = new_hash();
     mword *nil_string = C2B("nil");
     nil               = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
-    nil = _newref(nil);
+    nil               = _newref(nil);
 
     //initialize root_bvm
     root_bvm->hidden        = nil;
@@ -84,39 +78,37 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
         }
     }
 
-//    printf("%s\n", c((mword*)root_bvm->argv, 0));
-
-//TODO
-//- Check stdin
-//    - if non-empty:
-//        read and place lines on stack
-//        unless user uses a switch to say "don't do this"
-//    - If empty, check command-line
-//        perform CLI auto-parse:
-//            TOS contains a list of all default arguments - if no default
-//            arguments, nil
-//            TOS-1 contains a hash with each CLI parameter and the 
-//            argument following it, if any. Can handle --switch,
-//            -switch=1, etc. Can't handle flags but those can be 
-//            decoded by hand.
-//        unless user uses a switch to say "don't do this"
+    //TODO
+    //- Check stdin
+    //    - if non-empty:
+    //        read and place lines on stack
+    //        unless user uses a switch to say "don't do this"
+    //    - If empty, check command-line
+    //        perform CLI auto-parse:
+    //            TOS contains a list of all default arguments - if no default
+    //            arguments, nil
+    //            TOS-1 contains a hash with each CLI parameter and the 
+    //            argument following it, if any. Can handle --switch,
+    //            -switch=1, etc. Can't handle flags but those can be 
+    //            decoded by hand.
+    //        unless user uses a switch to say "don't do this"
 
     //TODO: Configure root BVM resource limits (hidden)
 
-//    time_t rawtime;
-//    char time_string[30];
-//    time( &rawtime );    
-//    strcpy( time_string, ctime(&rawtime) );
-//    mword *time_string_key = _c2b(time_string, 30);
-//
-//    // FIXME: strcpy and strlen... get rid
-//    // This needs to be enhanced to look in the hidden section for a 
-//    // pre-defined seed, it should also save the value it used in the
-//    // hidden section
-//    mword *time_hash = new_hash();
-//    mword *hash_init = new_hash();
-//    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
-//    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
+    //    time_t rawtime;
+    //    char time_string[30];
+    //    time( &rawtime );    
+    //    strcpy( time_string, ctime(&rawtime) );
+    //    mword *time_string_key = _c2b(time_string, 30);
+    //
+    //    // FIXME: strcpy and strlen... get rid
+    //    // This needs to be enhanced to look in the hidden section for a 
+    //    // pre-defined seed, it should also save the value it used in the
+    //    // hidden section
+    //    mword *time_hash = new_hash();
+    //    mword *hash_init = new_hash();
+    //    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
+    //    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
 }
 

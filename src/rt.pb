@@ -5,8 +5,7 @@
 -- now
 
 main:
-    ( [0xdead] [0xbeef] [0xbabe] [0xface] (2) take )
--- die argv [0] th
---     slurp load
---     babel)
---
+    ( argv [0] th
+    slurp load 
+    babel )
+

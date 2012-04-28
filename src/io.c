@@ -94,38 +94,41 @@ mword *_slurp(mword *filename){ // FIXME: Lots of bad things in here...
 
 }
 
-////slurp
-////
-//void slurp(void){
+//slurp
 //
-////    mword *temp_cons = new_cons();
-////    mword *filename = _b2c((mword*)TOS_0);
-////    mword *result   = _slurp((char*)filename);
-//    mword *result   = _slurp((char*)TOS_0);
-//
-////    cons(temp_cons, result, nil);
-//
-//    zap();
-//    push_alloc(result, SLURP8);
-//
-//}
+bvm_cache *slurp(bvm_cache *this_bvm){
 
-////
-//void slurp_mword(void){
+//    mword *temp_cons = new_cons();
+//    mword *filename = _b2c((mword*)TOS_0);
+//    mword *result   = _slurp((char*)filename);
+
+    mword *result   = _slurp((mword*)car(TOS_0(this_bvm)));
+
+    //    cons(temp_cons, result, nil);
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, SLURP8);
+
+}
+
+//slurp_mword
 //
-////    mword *temp_cons = new_cons();
-////    mword *filename = _b2c((mword*)TOS_0);
-////    mword *result   = _slurp((char*)filename);
-//    mword *result   = _slurp((char*)TOS_0);
-//
-//    _trunc(result, size(result)-1);
-//
-////    cons(temp_cons, result, nil);
-//
-//    zap();
-//    push_alloc(result, SLURP);
-//
-//}
+bvm_cache *slurp_mword(bvm_cache *this_bvm){
+
+//    mword *temp_cons = new_cons();
+//    mword *filename = _b2c((mword*)TOS_0);
+//    mword *result   = _slurp((char*)filename);
+
+    mword *result   = _slurp((mword*)TOS_0(this_bvm));
+
+    _trunc(result, size(result)-1);
+
+//    cons(temp_cons, result, nil);
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, SLURP);
+
+}
 
 //void spit(void){
 //

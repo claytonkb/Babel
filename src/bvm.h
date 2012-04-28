@@ -4,6 +4,11 @@
 #ifndef BVM_H
 #define BVM_H
 
+void bbl2gv(mword *tree);
+mword tree_bbl2gv(mword *tree);
+bvm_cache *babelop(bvm_cache *this_bvm);
+bvm_cache *bvm_interp(bvm_cache *this_bvm);
+
 //#include "list.h"
 //
 //void bvmexec(void);
@@ -18,15 +23,12 @@
 ////#ifdef DEBUG
 ////void internal_bvmroot(void);
 ////#endif
-void bbl2gv(mword *tree);
-mword tree_bbl2gv(mword *tree);
 //void _bbl2gv(void);
 //mword _tree_bbl2gv(mword *tree, char *buffer);
 //void bbl2str(void);
 //mword tree_bbl2str(mword *tree, char *buffer);
 //void bvmstep(void);
 //void _bvmstep(mword *bvm);
-bvm_cache *bvm_interp(bvm_cache *this_bvm);
 
 //
 //

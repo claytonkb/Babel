@@ -4,6 +4,8 @@
 #ifndef BSTRUCT_H
 #define BSTRUCT_H
 
+void rclean(mword *tree);
+
 //#include "list.h"
 //
 //void wr(void);

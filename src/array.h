@@ -4,6 +4,8 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
+bvm_cache *cxr(bvm_cache *this_bvm);
+
 //#include "list.h"
 //
 //void sfield(void);
@@ -25,7 +27,7 @@ inline mword _arlen8(mword *string);
 //void trunc(void);
 mword alignment_word8(mword size8);
 mword dec_alignment_word8(mword alignment_word);
-//void _trunc(mword *operand, mword new_size);
+void _trunc(mword *operand, mword new_size);
 //void cxr(void);
 //void save(void);
 //void arcat(void);

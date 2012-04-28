@@ -62,13 +62,14 @@
 //    }
 //
 //}
+
 //
-//void argvop(void){
-//
-//    push_alloc((mword*)global_argv, ARGVOP);
-//
-//}
-//
+bvm_cache *argvop(bvm_cache *this_bvm){
+
+    push_alloc(this_bvm, this_bvm->argv, ARGVOP);
+
+}
+
 //void mword_sizeop(void){
 //
 //    mword *result    = new_atom();

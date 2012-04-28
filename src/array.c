@@ -9,6 +9,7 @@
 #include "bstruct.h"
 #include "bvm_opcodes.h"
 #include "except.h"
+#include "bvm.h"
 
 //void sfield(void){
 //
@@ -161,17 +162,19 @@ inline mword *_newin_blank(mword size){
 //
 //}
 //
-//void cxr(void){
-//
-////    mword *car_TOS_0 = (mword*)car(TOS_0);
-//    mword *temp = (mword*)c((mword*)TOS_1, (mword)car(TOS_0));
-//
-//    zap();
-//    zap();
-//    push_alloc(temp, CXR);
-//
-//}
-//
+bvm_cache *cxr(bvm_cache *this_bvm){
+
+    mword *temp = (mword*)c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
+
+    hard_zap(this_bvm);
+    hard_zap(this_bvm);
+
+    push_alloc(this_bvm, temp, CXR);
+
+    return this_bvm;
+
+}
+
 //
 //mword _cxr8(mword *val, mword bit){
 //}
@@ -448,24 +451,25 @@ inline mword _arlen8(mword *string){
 //    zap();
 //
 //}
+
+// 
 //
-//// 
-////
-//void _trunc(mword *operand, mword new_size){
-//
-////    mword *result    = new_atom();
-//
-//    if(is_leaf(operand)){
-//        s(operand) = (new_size*MWORD_SIZE);
-//    }
-//    else{ //is_inte
-//        s(operand) = (int)-1*(new_size*MWORD_SIZE);
-//    }
-//
-////    push_alloc(result, SFIELD);
-//
-//}
-//
+void _trunc(mword *operand, mword new_size){
+
+//    mword *result    = new_atom();
+
+    if(is_leaf(operand)){
+        s(operand) = (new_size*MWORD_SIZE);
+    }
+    else if(is_inte(operand)){ //is_inte
+        s(operand) = (int)-1*(new_size*MWORD_SIZE);
+    }
+    //hash-refs can't be trunc'd
+
+//    push_alloc(result, SFIELD);
+
+}
+
 ////FIXME: The array-8 alignment word is completely broken and needs to be
 ////fixed. In the current form, converting from a Babel-string to C-style
 ////string requires a lot of work but if the alignment word def'n is

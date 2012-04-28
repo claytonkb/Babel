@@ -17,6 +17,15 @@ typedef unsigned mword;
 typedef signed   smword;
 
 typedef struct {
+    mword *alloc_atom;
+    mword *alloc_cons;
+    mword *alloc_hash;
+    mword *alloc_stack;
+    mword *alloc_rstack;
+    mword *alloc_unmanaged;
+} alloc;
+
+typedef struct {
     mword *hidden;
     mword *sym_table;
     mword *code_ptr;
@@ -26,6 +35,7 @@ typedef struct {
     mword thread_id;
     mword *argv;
     mword steps;
+    alloc machine;
 } bvm_cache;
 
 mword*      nil;
@@ -49,6 +59,9 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 
 #define HASH_BIT_SIZE 128
 #define HASH_SIZE (HASH_BIT_SIZE/MWORD_BIT_SIZE)
+
+// IA32 uses 4k pages and multiples...
+#define ALLOC_PAGE_SIZE 4096
 
 #define BITS_PER_BYTE 8
 

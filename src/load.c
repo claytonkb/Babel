@@ -20,18 +20,21 @@
 ////    clean_tree(global_VM);
 ////
 ////}
+
 //
-//void load(void){
-//
-//    mword *result = _load((mword*)TOS_0, size((mword*)TOS_0));
-//    zap();
-//    push_alloc(result, LOAD);
-//
-////    _load((mword*)TOS_0);
-////    TOS_0 = TOS_0 + MWORD_SIZE;
-//
-//}
-//
+bvm_cache *load(bvm_cache *this_bvm){
+
+    mword *result = _load((mword*)TOS_0(this_bvm), size((mword*)TOS_0(this_bvm)));
+
+    hard_zap(this_bvm);
+
+    push_alloc(this_bvm, result, LOAD);
+
+//    _load((mword*)TOS_0);
+//    TOS_0 = TOS_0 + MWORD_SIZE;
+
+}
+
 ////void _load(mword *tree){//, mword offset){
 ////
 //////    mword *tree = global_VM-1;
@@ -190,26 +193,6 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword *elem){
     }
 
     return (mword*)-1;
-
-}
-
-void clean_tree(mword *tree){
-
-    int i;
-
-    if( !(s(tree) & (MWORD_SIZE-1)) ){ //Already cleaned
-        return;
-    }
-
-    s(tree) = s(tree) & ~(MWORD_SIZE-1); //Mark clean
-
-    if( is_inte(tree) ){
-
-        for(i=0; i<size(tree); i++){
-            clean_tree((mword *)*(tree+i));
-        }
-
-    }
 
 }
 

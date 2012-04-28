@@ -1016,3 +1016,30 @@ sub str2vec {
 
 }
 
+sub insert_babel_hash{
+
+    my $hash_table  = shift;
+    my $hash        = shift;
+    my $key         = shift;
+    my $val         = shift;
+
+    if($#{$hash_ref} < 0){
+        my $cons_side = bit_select($hash,0);
+        my $new_ref =   [ [ "HASH_REF", @{$hash} ],
+                        [ [ "INTERIOR_ARR", [$val]],
+                        [ [ "LEAF_ARR", ["STRING", "$key"]],
+                        [ [ "LEAF_ARR", ["NUMERIC", 0]], 
+                        ["LABEL","nil"] ]]]];
+    }
+
+}
+
+sub bit_select{
+
+    my $val = shift;
+    my $bit_place = shift;
+
+    return (($val & (1 << $bit_place)) >> $bit_place);
+
+}
+

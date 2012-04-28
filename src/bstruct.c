@@ -11,6 +11,27 @@
 #include "list.h"
 #include "except.h"
 
+// recursively cleans a bstruct after traversal
+void rclean(mword *tree){
+
+    int i;
+
+    if( !(s(tree) & (MWORD_SIZE-1)) ){ //Already cleaned
+        return;
+    }
+
+    s(tree) = s(tree) & ~(MWORD_SIZE-1); //Mark clean
+
+    if( is_inte(tree) ){
+
+        for(i=0; i<size(tree); i++){
+            rclean((mword *)*(tree+i));
+        }
+
+    }
+
+}
+
 //void wr(void){
 //
 //    _wr((mword*)TOS_1,(mword*)TOS_0,(mword*)TOS_2);

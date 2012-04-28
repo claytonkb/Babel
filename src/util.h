@@ -4,6 +4,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+bvm_cache *argvop(bvm_cache *this_bvm);
+
 //#include "list.h"
 //
 //void randop(void);
