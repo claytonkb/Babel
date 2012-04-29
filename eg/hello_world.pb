@@ -1,2 +1,2 @@
-code: ( ("Hello, world\n") << )
+main: ( ("Hello, world\n") << )
 

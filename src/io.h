@@ -6,6 +6,7 @@
 
 bvm_cache *stdoutop8(bvm_cache *this_bvm);
 void _stdoutop8(mword *string);
+
 mword *_slurp(mword *filename);
 bvm_cache *slurp(bvm_cache *this_bvm);
 bvm_cache *slurp_mword(bvm_cache *this_bvm);

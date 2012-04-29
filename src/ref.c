@@ -18,6 +18,7 @@
 //
 //}
 
+//
 mword *_newref(mword *hash){
 
     if(size(hash) != HASH_SIZE)
@@ -25,13 +26,13 @@ mword *_newref(mword *hash){
 
     mword *ptr = malloc( MWORDS(HASH_SIZE+1) );
     if(ptr == NULL){
-        error("_newlf: malloc returned NULL");
+        error("_newref: malloc returned NULL");
     }
 
     ptr[0] = 0;
     mword *result = (ptr+1);
 
-    memcpy(result, hash, MWORDS(HASH_SIZE) );
+    memcpy( result, hash, MWORDS(HASH_SIZE) );
 
     return result;
 

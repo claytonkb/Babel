@@ -56,7 +56,6 @@
 //}
 
 //
-//
 inline mword *_newlf(mword size){
 
     mword *ptr = malloc( MWORDS(size+1) );
@@ -70,25 +69,23 @@ inline mword *_newlf(mword size){
 
 }
 
-////
-////
-//inline mword *_newlf(mword size){
 //
-//    mword *ptr = malloc( MWORDS(size+1) );
-//    if(ptr == NULL){
-//        except("_newlf: malloc returned NULL", __FILE__, __LINE__);
-//    }
+mword *_newlfz(mword size){
+
+    mword *ptr = malloc( MWORDS(size+1) );
+    if(ptr == NULL){
+        error("_newlfz: malloc returned NULL");
+    }
+
+    memset((char*)ptr,0,MWORDS(size+1));
+    ptr[0] = size * MWORD_SIZE;
+
+    return ptr+1;
+
+}
+
 //
-//    memset((char*)ptr,0,MWORDS(size+1));
-//    ptr[0] = size * MWORD_SIZE;
-//
-//    return ptr+1;
-//
-//}
-//
-////
-////
-inline mword *_newin(mword size){
+mword *_newin(mword size){
 
     mword *ptr = malloc( MWORDS(size+1) );
     if(ptr == NULL){
@@ -178,15 +175,15 @@ bvm_cache *cxr(bvm_cache *this_bvm){
 //
 //mword _cxr8(mword *val, mword bit){
 //}
+
 //
-//mword _cxr1(mword *val, mword bit){
-//    mword mword_select = bit/(MWORD_BIT_SIZE);
-//    mword bit_offset = bit % MWORD_BIT_SIZE;
-//    if(mword_select > size(val)-1)
-//         except("_cxr1 error:", __FILE__, __LINE__);
-//    return (c(val,mword_select) & (1<<bit_offset)) >> bit_offset;
-//}
-//
+mword _cxr1(mword *val, mword bit){
+    mword mword_select = bit/(MWORD_BIT_SIZE);
+    mword bit_offset = bit % MWORD_BIT_SIZE;
+    if(mword_select > size(val)-1) error("_cxr1 error");
+    return (c(val,mword_select) & (1<<bit_offset)) >> bit_offset;
+}
+
 //
 ////w
 ////
@@ -369,7 +366,7 @@ bvm_cache *cxr(bvm_cache *this_bvm){
 //    
 //}
 
-//
+// 
 inline mword _arlen8(mword *string){
 
     mword strsize = size(string) - 1;
@@ -695,20 +692,21 @@ mword dec_alignment_word8(mword alignment_word){
 //    push_alloc(result, ARCMP);
 //
 //}
+
 //
-//int _arcmp(mword *left, mword *right){
-//
-//    if(size(left) > size(right)){
-//        return 1;
-//    }
-//    else if(size(left) < size(right)){
-//        return -1;
-//    }
-//
-//    return memcmp(left, right, size(left)*MWORD_SIZE);
-//
-//}
-//
+int _arcmp(mword *left, mword *right){
+
+    if(size(left) > size(right)){
+        return 1;
+    }
+    else if(size(left) < size(right)){
+        return -1;
+    }
+
+    return memcmp(left, right, size(left)*MWORD_SIZE);
+
+}
+
 //// TODO leaf arrays
 //void ar2ls(void){
 //

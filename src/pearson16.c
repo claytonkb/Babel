@@ -31,17 +31,24 @@
 //    push_alloc((mword*)result, PHASH);
 //
 //}
+
+// key hash8
+bvm_cache *hash8(bvm_cache *this_bvm){
+
+    mword *result = _hash8((mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, (mword*)result, HASH8);
+
+}
+
 //
-//// key hash8
-//void hash8(void){
-//
-//    mword* result = _pearson16(_newlfz(HASH_SIZE), (mword*)TOS_0, _arlen8((mword*)TOS_0));
-//
-//    zap();
-//    push_alloc((mword*)result, HASH8);
-//
-//}
-//
+mword *_hash8(mword *key){
+
+    return _pearson16(_newlfz(HASH_SIZE), key, _arlen8(key));
+
+}
+
 //// key hash
 //void hash(void){
 //

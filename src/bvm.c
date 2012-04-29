@@ -151,7 +151,7 @@
 //    init_global_argv(argc, argv);
 //
 //}
-//
+
 //////bvm_init
 //////
 //void bvm_init(mword *bvm){
@@ -178,20 +178,8 @@
 //    global_VM = (mword *)cdr(internal_global_VM);
 //
 //}
-//
-////bvm_check
-////
-//// Checks the "spine" of a BVM
-////
-//void bvm_check(void){
-//   
-//    //Check size of BVM
-////    if(global_machine_page_size < SMALLEST_VALID_BVM){
-////        except("bvm_check: the loaded file is smaller than SMALLEST_VALID_BVM", __FILE__, __LINE__);
-////    }
-////
-//}
-//
+
+//DEPRECATED:
 ////bvm_interp
 ////
 //void bvm_interp(void){
@@ -369,334 +357,88 @@ bvm_cache *babelop(bvm_cache *this_bvm){
 ////
 ////#endif
 
+////DEPRECATED
+//void bbl2gv(mword *tree){
 //
-void bbl2gv(mword *tree){
-
-    int i;
-
-    printf("digraph babel {\nnode [shape=record];\n");
-    printf("graph [rankdir = \"LR\"];\n");
-
-    tree_bbl2gv(tree);
-
-    printf("}\n");
-
-    rclean(tree);
-
-}
-
-
-//  
+//    int i;
 //
-mword tree_bbl2gv(mword *tree){
-
-    int i;
-//    mword count = 0;
-
-    if( s(tree) & (MWORD_SIZE-1) ){
-        return 0;
-    }
-
-    if( is_href(tree) ){
-        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
-        for(i=0; i<HASH_SIZE; i++){
-            printf("<f%d> %x", i, *(mword *)(tree+i));
-            if(i<(HASH_SIZE-1)){
-                printf("|");
-            }
-        }
-        printf("\"];\n");
-        s(tree) |= 0x1;
-        return 0;
-    }
-
-    int num_elem = size(tree);
-
-//    count = num_elem + 1;
-
-    s(tree) |= 0x1;
-
-    if(is_inte(tree)){
-
-        printf("\"s%08x\" [shape=record,label=\"", (mword)tree);
-        for(i=0; i<num_elem; i++){
-            printf("<f%d> %d", i, i);
-            if(i<(num_elem-1)){
-                printf("|");
-            }
-        }
-        printf("\"];\n");
-
-        for(i=0; i<num_elem; i++){
-//            if(*(mword *)(tree+i) == nil && tree != (mword*)nada){
-            if(is_nil((mword *)scar(tree+i))){// == nil && tree != (mword*)nada){
-                continue;
-            }
-            printf("\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)tree, i, *(mword *)(tree+i));
-            tree_bbl2gv((mword *)*(tree+i));
-        }
-
-    }
-    else{ // is_leaf
-        printf("s%08x [style=bold,shape=record,label=\"", (mword)tree);
-        for(i=0; i<num_elem; i++){
-            printf("<f%d> %x", i, *(mword *)(tree+i));
-            if(i<(num_elem-1)){
-                printf("|");
-            }
-        }
-        printf("\"];\n");
-    }
-
-//    return count;
-
-}
-
+//    printf("digraph babel {\nnode [shape=record];\n");
+//    printf("graph [rankdir = \"LR\"];\n");
 //
-//void _bbl2gv(void){
+//    tree_bbl2gv(tree);
 //
-//    // Figure out buffer size
-//    // Base size 2kb (size of minimal minimal.pb.bbl when converted to gv)
-//    // 32 * _mu
-//    mword initial_buf_size = (1<<11) + (32 * _mu((mword*)TOS_0));
-//    clean_tree((mword*)TOS_0);
-//    char *buffer = malloc(initial_buf_size);
+//    printf("}\n");
 //
-//    mword buf_size=0;
-//
-//    buf_size += sprintf(buffer+buf_size, "digraph babel {\nnode [shape=record];\n");
-//
-//    buf_size += sprintf(buffer+buf_size, "graph [rankdir = \"LR\"];\n");
-//    
-////        d(global_VM)
-////        d(car(car(car(stack_ptr))))
-////        die
-//        buf_size += _tree_bbl2gv((mword*)TOS_0, buffer+buf_size);
-//
-//    buf_size += sprintf(buffer+buf_size, "}\n");
-//    //buf_size now contains the final string size of the entire graphviz string
-//
-//    clean_tree((mword*)TOS_0);
-//    zap();
-//
-//    mword last_mword = alignment_word8(buf_size);
-//    mword length = (buf_size / MWORD_SIZE) + 1;
-//
-//    if(buf_size % MWORD_SIZE != 0){
-//        length++;
-//    }
-//
-////    d(char_length)
-////    d(length)
-//
-//    mword *result = _newlf(length);
-//    memcpy(result, buffer, buf_size);
-//    c(result,length-1) = last_mword;
-//    free(buffer);
-//
-//    push_alloc(result,BBL2GV);
+//    rclean(tree);
 //
 //}
 //
 //
-//// Returns 
+////  
 ////
-//mword _tree_bbl2gv(mword *tree, char *buffer){
+//mword tree_bbl2gv(mword *tree){
 //
 //    int i;
-//    mword buf_size=0;
+////    mword count = 0;
 //
 //    if( s(tree) & (MWORD_SIZE-1) ){
 //        return 0;
 //    }
-//
-//    int num_elem = size(tree);
-////    count = num_elem + 1;
-//
 //
 //    if( is_href(tree) ){
-////        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
-////        for(i=0; i<HASH_SIZE; i++){
-////            printf("<f%d> %x", i, *(mword *)(tree+i));
-////            if(i<(HASH_SIZE-1)){
-////                printf("|");
-////            }
-////        }
-////        printf("\"];\n");
-////        return 0;
-//
-//        buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)tree);
+//        printf("s%08x [style=dashed,shape=record,label=\"", (mword)tree);
 //        for(i=0; i<HASH_SIZE; i++){
-//            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(tree+i));
+//            printf("<f%d> %x", i, *(mword *)(tree+i));
 //            if(i<(HASH_SIZE-1)){
-//                buf_size += sprintf(buffer+buf_size, "|");
+//                printf("|");
 //            }
 //        }
-//        buf_size += sprintf(buffer+buf_size, "\"];\n");
-//
-//    }
-//    else if(is_inte(tree)){
+//        printf("\"];\n");
 //        s(tree) |= 0x1;
-//
-//        buf_size += sprintf(buffer+buf_size, "\"s%08x\" [shape=record,label=\"", (mword)tree);
-//        for(i=0; i<num_elem; i++){
-//            if(i==0){
-//                if(tree == (mword*)code_list){
-//                    buf_size += sprintf(buffer+buf_size, "<f0> code_list");
-//                }
-//                else if(tree == (mword*)data_list){
-//                    buf_size += sprintf(buffer+buf_size, "<f0> data_list");
-//                }
-//                else if(tree == (mword*)stack_list){
-//                    buf_size += sprintf(buffer+buf_size, "<f0> stack_list");
-//                }
-//                else if(tree == (mword*)rstack_list){
-//                    buf_size += sprintf(buffer+buf_size, "<f0> rstack_list");
-//                }
-//                else if(tree == (mword*)jump_table){
-//                    buf_size += sprintf(buffer+buf_size, "<f0> jmp_table");
-//                }
-//                else if(tree == (mword*)sym_table){
-//                    buf_size += sprintf(buffer+buf_size, "<f0> sym_table");
-//                }
-//                else if(tree == (mword*)nada){
-//                    buf_size += sprintf(buffer+buf_size, "<f0> nada");
-//                }
-//                else if(tree == (mword*)nil){
-//                    buf_size += sprintf(buffer+buf_size, "<f0> nil");
-//                }
-//                else{
-//                    buf_size += sprintf(buffer+buf_size, "<f0> 0");
-//                }            
-//            }
-//            else{
-//                buf_size += sprintf(buffer+buf_size, "<f%d> %d", i, i);
-//            }
-//            if(i<(num_elem-1)){
-//                buf_size += sprintf(buffer+buf_size, "|");
-//            }
-//        }
-//        buf_size += sprintf(buffer+buf_size, "\"];\n");
-//
-//        for(i=0; i<num_elem; i++){
-//            if(*(mword *)(tree+i) == nil && tree != (mword*)nada){
-//                continue;
-//            }
-//            buf_size += sprintf(buffer+buf_size, "\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)tree, i, *(mword *)(tree+i));
-//            buf_size += _tree_bbl2gv((mword *)*(tree+i), buffer+buf_size);
-//        }
-//
-//    }
-//    else{ // is_leaf
-//        buf_size += sprintf(buffer+buf_size, "s%08x [style=bold,shape=record,label=\"", (mword)tree);
-//        for(i=0; i<num_elem; i++){
-//            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(tree+i));
-//            if(i<(num_elem-1)){
-//                buf_size += sprintf(buffer+buf_size, "|");
-//            }
-//        }
-//        buf_size += sprintf(buffer+buf_size, "\"];\n");
-//    }
-//
-//    s(tree) |= 0x1;
-//
-//    return buf_size;
-//
-//}
-//
-//
-//void bbl2str(void){
-//
-//    // Figure out buffer size
-//    mword initial_buf_size = (16 * _mu((mword*)TOS_0));
-//    clean_tree((mword*)TOS_0);
-//    char *buffer = malloc(initial_buf_size);
-//
-//    mword buf_size=0;
-//
-////    buf_size += sprintf(buffer+buf_size, "digraph babel {\nnode [shape=record];\n");
-//
-////    buf_size += sprintf(buffer+buf_size, "graph [rankdir = \"LR\"];\n");
-//    
-////        d(global_VM)
-////        d(car(car(car(stack_ptr))))
-////        die
-//        buf_size += tree_bbl2str((mword*)TOS_0, buffer+buf_size);
-//
-////    buf_size += sprintf(buffer+buf_size, "}\n");
-//    //buf_size now contains the final string size of the entire graphviz string
-//
-//    clean_tree((mword*)TOS_0);
-//    zap();
-//
-//    mword last_mword = alignment_word8(buf_size);
-//    mword length = (buf_size / MWORD_SIZE) + 1;
-//
-//    if(buf_size % MWORD_SIZE != 0){
-//        length++;
-//    }
-//
-////    d(char_length)
-////    d(length)
-//
-//    mword *result = _newlf(length);
-//    memcpy(result, buffer, buf_size);
-//    c(result,length-1) = last_mword;
-//    free(buffer);
-//
-//    push_alloc(result,BBL2STR);
-//
-//}
-//
-//
-//// Returns 
-////
-//mword tree_bbl2str(mword *tree, char *buffer){
-//
-//    int i;
-//    mword buf_size=0;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){
 //        return 0;
 //    }
 //
 //    int num_elem = size(tree);
+//
 ////    count = num_elem + 1;
 //
 //    s(tree) |= 0x1;
 //
 //    if(is_inte(tree)){
 //
-////        buf_size += sprintf(buffer+buf_size, "\"s%08x\" [shape=record,label=\"", (mword)tree);
-//        buf_size += sprintf(buffer+buf_size, "[ ");
+//        printf("\"s%08x\" [shape=record,label=\"", (mword)tree);
+//        for(i=0; i<num_elem; i++){
+//            printf("<f%d> %d", i, i);
+//            if(i<(num_elem-1)){
+//                printf("|");
+//            }
+//        }
+//        printf("\"];\n");
 //
 //        for(i=0; i<num_elem; i++){
 ////            if(*(mword *)(tree+i) == nil && tree != (mword*)nada){
-////                continue;
-////            }
-////            buf_size += sprintf(buffer+buf_size, "\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)tree, i, *(mword *)(tree+i));
-//            buf_size += tree_bbl2str((mword *)*(tree+i), buffer+buf_size);
+//            if(is_nil((mword *)scar(tree+i))){// == nil && tree != (mword*)nada){
+//                continue;
+//            }
+//            printf("\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)tree, i, *(mword *)(tree+i));
+//            tree_bbl2gv((mword *)*(tree+i));
 //        }
-//
-//        buf_size += sprintf(buffer+buf_size, "] ");
 //
 //    }
 //    else{ // is_leaf
-////        buf_size += sprintf(buffer+buf_size, "s%08x [style=bold,shape=record,label=\"", (mword)tree);
-//        buf_size += sprintf(buffer+buf_size, "{ ");
+//        printf("s%08x [style=bold,shape=record,label=\"", (mword)tree);
 //        for(i=0; i<num_elem; i++){
-//            buf_size += sprintf(buffer+buf_size, "0x%x ", *(mword *)(tree+i));
-////            if(i<(num_elem-1)){
-////                buf_size += sprintf(buffer+buf_size, "|");
-////            }
+//            printf("<f%d> %x", i, *(mword *)(tree+i));
+//            if(i<(num_elem-1)){
+//                printf("|");
+//            }
 //        }
-//        buf_size += sprintf(buffer+buf_size, "} ");
+//        printf("\"];\n");
 //    }
 //
-//    return buf_size;
+////    return count;
 //
 //}
-//
 
 // Clayton Bauman 2011
 

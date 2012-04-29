@@ -6,6 +6,10 @@
 char *pearson16_byte_perm;
 mword *new_hash(void);
 void pearson16_init(void);
+
+bvm_cache *hash8(bvm_cache *this_bvm);
+mword *_hash8(mword *key);
+
 //void phash8(void);
 //void phash(void);
 //void hash8(void);

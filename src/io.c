@@ -248,26 +248,21 @@ bvm_cache *slurp_mword(bvm_cache *this_bvm){
 //
 bvm_cache *stdoutop8(bvm_cache *this_bvm){
 
-//    mword length = _arlen8((mword*)TOS_0);
-//    int i;
-//
-//    for(i = 0; i<length; i++){
-//        putchar((int)(*(char*)(TOS_0+i)));
-//    }
-//
-//    return hard_zap(this_bvm);
+    _stdoutop8((mword*)TOS_0(this_bvm));
+    return hard_zap(this_bvm);
 
 }
 
 void _stdoutop8(mword *string){
-//    mword length = _arlen8(string);
-//    int i;
-//
-//    for(i = 0; i<length; i++){
-//        putchar((int)(*(char*)(TOS_0+i)));
-//    }
-//
-//    zap();
+
+    int i;
+    mword length = _arlen8(string);
+    char *cast_string = (char*)string; //C's casting syntax sucks!
+
+    for(i=0; i<length; i++){
+        putchar((int)cast_string[i]);
+    }
+
 }
 
 //// FIXME: Make UTF-8 compliant...

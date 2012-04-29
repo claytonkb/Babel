@@ -468,7 +468,7 @@ sub section_parse{
     if(is_list_begin($section)){
 #        die "list detected\n";
         $section->{obj} = ["INTERIOR_ARR"];
-        list_interior_array($section, $section->{obj});
+        list_interior_array($section, $section->{obj},0);
         return;
     }
 
@@ -566,7 +566,7 @@ sub interior_array{
         if(is_list_begin($section)){
     #        die "list detected\n";
             $new_array_ref = ["INTERIOR_ARR"];
-            list_interior_array($section, $new_array_ref);
+            list_interior_array($section, $new_array_ref,0);
             push @{$obj}, $new_array_ref;
             next;
         }
@@ -621,6 +621,7 @@ sub list_interior_array{
 
     my $section = shift;
     my $obj = shift;
+    my $quick_wrap = shift;
     my $token;
 
 #    my $current_context;
@@ -628,9 +629,16 @@ sub list_interior_array{
 
     my $label;
 
+    if(is_quick_wrap($section)){
+        $new_array_ref = ["INTERIOR_ARR"];
+        list_interior_array($section, $new_array_ref,1);
+        push @{$obj}, $new_array_ref;
+        goto DONE;
+    }
+    
     if(is_list_begin($section)){
         $new_array_ref = ["INTERIOR_ARR"];
-        list_interior_array($section, $new_array_ref);
+        list_interior_array($section, $new_array_ref,0);
         push @{$obj}, $new_array_ref;
         goto DONE;
     }
@@ -689,13 +697,13 @@ sub list_interior_array{
 
 DONE:
 
-    if(is_list_end($section)){
+    if(is_list_end($section) or $quick_wrap ){
         push @{$obj}, ["LABEL","nil"];
         return;
     }
 
     $new_array_ref = ["INTERIOR_ARR"];
-    list_interior_array($section, $new_array_ref);
+    list_interior_array($section, $new_array_ref,0);
     push @{$obj}, $new_array_ref;
 
 }
@@ -913,6 +921,22 @@ sub is_string{
 
 }
 
+sub is_quick_wrap{
+
+    my $section = shift;
+
+    my $string = substr($section->{src}, $section->{ptr});
+
+#    $string =~ /^(\s*\{)/;
+    
+    if($string =~ /^(\s*`)/){
+        $section->{ptr} += length $1;
+        return 1;
+    }
+
+    return 0;
+}
+
 sub is_list_begin{
 
     my $section = shift;
@@ -1023,7 +1047,7 @@ sub insert_babel_hash{
     my $key         = shift;
     my $val         = shift;
 
-    if($#{$hash_ref} < 0){
+    if($#{$hash_table} < 0){
         my $cons_side = bit_select($hash,0);
         my $new_ref =   [ [ "HASH_REF", @{$hash} ],
                         [ [ "INTERIOR_ARR", [$val]],

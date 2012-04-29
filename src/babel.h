@@ -54,6 +54,13 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 #define MWORD_BIT_SIZE (MWORD_SIZE << 3)
 #define MWORDS(x) ((x)*MWORD_SIZE)
 
+// The control field consists of the LSBs of the s-field
+// The LSB of the s-field is currently defined for use in 
+// bstruct-traversal
+#define CTL_MASK (MWORD_SIZE-1)
+#define TRAVERSED(x) ((x) & CTL_MASK)
+#define MARK_TRAVERSED(x) ((x) |= 0x1)
+
 #define STRLEN(s) (sizeof(s)-1)
 #define C2B(x)    (_c2b(x, STRLEN(x)))
 

@@ -187,6 +187,9 @@
     case SLURP:         \
         slurp_mword(this_bvm);  \
         break;          \
+    case STDOUTOP8:     \
+        stdoutop8(this_bvm);    \
+        break;          \
 
 //    case CPRINTF:       \
 //        cprintf();      \
@@ -208,9 +211,6 @@
 //        break;          \
 //    case STDOUTOP:      \
 //        stdoutop();     \
-//        break;          \
-//    case STDOUTOP8:     \
-//        stdoutop8();    \
 //        break;          \
 //    case STDINLN:       \
 //        stdinln();      \
@@ -483,15 +483,18 @@
 //        continue;       \
 //
 #define hash_ops        \
+    case HASH8:         \
+        hash8(this_bvm);        \
+        break;          \
+    case INSKHA:        \
+        inskha(this_bvm);       \
+        break;          \
 
 //    case INSHA:         \
-//        insha();        \
+//        insha(this_bvm);        \
 //        break;          \
 //    case KEYSHA:        \
 //        keysha();       \
-//        break;          \
-//    case INSKHA:        \
-//        inskha();       \
 //        break;          \
 //    case LUHA:          \
 //        luha();         \
@@ -508,16 +511,13 @@
 //    case PHASH:         \
 //        phash();        \
 //        break;          \
-//    case HASH8:         \
-//        hash8();        \
-//        break;          \
 //    case HASH:          \
 //        hash();         \
 //        break;          \
 //
 #define bvm_ops         \
     case BBL2GV:        \
-        bbl2gv(this_bvm->stack_ptr);      \
+        bs2gv(this_bvm);      \
         break;          \
     case LOAD:          \
         load(this_bvm);         \
@@ -525,15 +525,15 @@
     case BVMEXEC:       \
         babelop(this_bvm);      \
         break;          \
+    case BBL2STR:       \
+        bbl2str(this_bvm);      \
+        break;          \
 
 //    case BVMROOT:       \
 //        bvmroot();      \
 //        break;          \
 //    case BBL2GV:        \
 //        _bbl2gv();      \
-//        break;          \
-//    case BBL2STR:       \
-//        bbl2str();      \
 //        break;          \
 //    case UNLOAD:        \
 //        unload();       \

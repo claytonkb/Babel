@@ -5,6 +5,15 @@
 #define BSTRUCT_H
 
 void rclean(mword *tree);
+bvm_cache *bbl2str(bvm_cache *this_bvm);
+mword rbbl2str(mword *bs, char *buffer);
+mword _mu(mword *bs);
+mword _rmu(mword *bs);
+
+bvm_cache *bs2gv(bvm_cache *this_bvm);
+mword *_bs2gv(mword *bs);
+mword rbs2gv(mword *bs, char *buffer);
+
 
 //#include "list.h"
 //

@@ -10,27 +10,239 @@
 #include "array.h"
 #include "list.h"
 #include "except.h"
+#include "io.h"
 
 // recursively cleans a bstruct after traversal
-void rclean(mword *tree){
+void rclean(mword *bs){
 
     int i;
 
-    if( !(s(tree) & (MWORD_SIZE-1)) ){ //Already cleaned
+    if( !(s(bs) & CTL_MASK) ){ //Already cleaned
         return;
     }
 
-    s(tree) = s(tree) & ~(MWORD_SIZE-1); //Mark clean
+    s(bs) = s(bs) & ~CTL_MASK; //Mark clean
 
-    if( is_inte(tree) ){
+    if( is_inte(bs) ){
 
-        for(i=0; i<size(tree); i++){
-            rclean((mword *)*(tree+i));
+        for(i=0; i<size(bs); i++){
+            rclean((mword *)*(bs+i));
         }
 
     }
 
 }
+
+// FIXME: Doesn't handle hash-refs
+bvm_cache *bbl2str(bvm_cache *this_bvm){
+
+    // Figure out buffer size
+    mword initial_buf_size = (16 * _mu((mword*)TOS_0(this_bvm)));
+    char *buffer = malloc(initial_buf_size); //FIXME: malloc
+
+    mword buf_size=0;
+
+    buf_size += rbbl2str((mword*)TOS_0(this_bvm), buffer+buf_size);
+    //buf_size now contains the final string size of the entire graphviz string
+
+    rclean((mword*)TOS_0(this_bvm));
+    hard_zap(this_bvm);
+
+    mword last_mword = alignment_word8(buf_size);
+    mword length = (buf_size / MWORD_SIZE) + 1;
+
+    if(buf_size % MWORD_SIZE != 0){
+        length++;
+    }
+
+    mword *result = _newlf(length);
+    memcpy(result, buffer, buf_size);
+    c(result,length-1) = last_mword;
+    free(buffer);
+
+    push_alloc(this_bvm,result,BBL2STR);
+
+}
+
+//
+//
+mword rbbl2str(mword *bs, char *buffer){
+
+    int i;
+    mword buf_size=0;
+    mword is_hash_ref=0;
+
+    if( TRAVERSED(s(bs)) ){
+
+        buf_size += sprintf(buffer+buf_size, " ... ");
+        return buf_size;
+
+    }
+
+    if( is_nil(bs) ){ // Don't mark nil traversed so it shows up each time
+
+        buf_size += sprintf(buffer+buf_size, " nil ");
+        return buf_size;
+
+    }
+
+    int num_entries = size(bs);
+
+    if( is_href(bs) ){
+
+        MARK_TRAVERSED(s(bs));
+
+        buf_size += sprintf(buffer+buf_size, "{{ ");
+
+        for(i=0; i<num_entries; i++){
+            buf_size += sprintf(buffer+buf_size, "0x%x ", *(mword *)(bs+i));
+        }
+
+        buf_size += sprintf(buffer+buf_size, "}} ");
+
+        return buf_size; 
+
+    }
+
+    MARK_TRAVERSED(s(bs));
+
+    if(is_inte(bs)){
+
+        buf_size += sprintf(buffer+buf_size, "[ ");
+
+        for(i=0; i<num_entries; i++){
+            buf_size += rbbl2str((mword *)*(bs+i), buffer+buf_size);
+        }
+
+        buf_size += sprintf(buffer+buf_size, "] ");
+
+    }
+    else{ // is_leaf
+
+        buf_size += sprintf(buffer+buf_size, "{ ");
+
+        for(i=0; i<num_entries; i++){
+            buf_size += sprintf(buffer+buf_size, "0x%x ", *(mword *)(bs+i));
+        }
+
+        buf_size += sprintf(buffer+buf_size, "} ");
+
+    }
+
+    return buf_size;
+
+}
+
+//
+bvm_cache *bs2gv(bvm_cache *this_bvm){
+
+    mword *result = _bs2gv((mword*)TOS_0(this_bvm));
+    hard_zap(this_bvm);
+
+    push_alloc(this_bvm,result,BBL2GV);
+
+}
+
+//Returns a string containing the Graphviz text file
+mword *_bs2gv(mword *bs){
+
+    // Figure out buffer size
+    // Safety buffer of 2kb + (32 * _mu)
+    mword initial_buf_size = (1<<11) + (32 * _mu(bs));
+    char *buffer = malloc(initial_buf_size); //FIXME: malloc
+
+    mword buf_size=0;
+
+    buf_size += sprintf(buffer+buf_size, "digraph babel {\nnode [shape=record];\n");
+    buf_size += sprintf(buffer+buf_size, "graph [rankdir = \"LR\"];\n");
+    
+    buf_size += rbs2gv(bs, buffer+buf_size);
+
+    buf_size += sprintf(buffer+buf_size, "}\n");
+    //buf_size now contains the final string size of the entire graphviz string
+
+    rclean(bs);
+
+    mword last_mword = alignment_word8(buf_size);
+    mword length = (buf_size / MWORD_SIZE) + 1;
+
+    if(buf_size % MWORD_SIZE != 0){
+        length++;
+    }
+
+    mword *result = _newlf(length);
+    memcpy(result, buffer, buf_size);
+    c(result,length-1) = last_mword;
+    free(buffer);
+
+    return result;
+
+}
+
+// Returns 
+//
+mword rbs2gv(mword *bs, char *buffer){
+
+    int i;
+    mword buf_size=0;
+
+    if( TRAVERSED(s(bs)) ){
+        return 0;
+    }
+
+    int num_entries = size(bs);
+
+    if( is_href(bs) ){
+
+        buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)bs);
+        for(i=0; i<HASH_SIZE; i++){
+            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(bs+i));
+            if(i<(HASH_SIZE-1)){
+                buf_size += sprintf(buffer+buf_size, "|");
+            }
+        }
+        buf_size += sprintf(buffer+buf_size, "\"];\n");
+
+    }
+    else if(is_inte(bs)){
+
+        MARK_TRAVERSED(s(bs));
+
+        buf_size += sprintf(buffer+buf_size, "\"s%08x\" [shape=record,label=\"", (mword)bs);
+        for(i=0; i<num_entries; i++){
+            buf_size += sprintf(buffer+buf_size, "<f%d> %d", i, i);
+            if(i<(num_entries-1)){
+                buf_size += sprintf(buffer+buf_size, "|");
+            }
+        }
+        buf_size += sprintf(buffer+buf_size, "\"];\n");
+
+        for(i=0; i<num_entries; i++){
+            if(is_nil((mword *)scar(bs+i))){
+                continue;
+            }
+            buf_size += sprintf(buffer+buf_size, "\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)bs, i, *(mword *)(bs+i));
+            buf_size += rbs2gv((mword *)*(bs+i), buffer+buf_size);
+        }
+
+    }
+    else{ // is_leaf
+        buf_size += sprintf(buffer+buf_size, "s%08x [style=bold,shape=record,label=\"", (mword)bs);
+        for(i=0; i<num_entries; i++){
+            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(bs+i));
+            if(i<(num_entries-1)){
+                buf_size += sprintf(buffer+buf_size, "|");
+            }
+        }
+        buf_size += sprintf(buffer+buf_size, "\"];\n");
+    }
+
+    MARK_TRAVERSED(s(bs));
+
+    return buf_size;
+
+}
+
 
 //void wr(void){
 //
@@ -81,17 +293,16 @@ void rclean(mword *tree){
 //
 //}
 //
-//void trav(void){
+//bvm_cache *trav(bvm_cache *this_bvm);
 //
-//    mword *result = _trav((mword*)TOS_1,(mword*)TOS_0);
+//    mword *result = _trav((mword*)TOS_1(this_bvm),(mword*)TOS_0(this_bvm));
 //
-//    zap();
-//    zap();
+//    hard_zap(this_bvm);
+//    hard_zap(this_bvm);
 //
-//    push_alloc(result, TRAV);
+//    push_alloc(this_bvm, result, TRAV);
 //
 //}
-//
 //
 //mword *_trav(mword *tree, mword *list){
 //
@@ -118,32 +329,42 @@ void rclean(mword *tree){
 ////    printf("size %d\n", size_tree(global_VM));
 //
 //}
-//
-//// Returns the size of a tree in mwords
-//mword _mu(mword *tree){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){
-//        return 0;
-//    }
-//
-//    int num_elem = size(tree);
-//    count = num_elem + 1;
-//
-//    s(tree) |= 0x1;
-//
-//    if(is_inte(tree)){
-//        for(i=0; i<num_elem; i++){
-//            count += _mu((mword *)*(tree+i));
-//        }
-//    }
-//
-//    return count;
-//
-//}
-//
+
+// Returns the size of a bstruct in mwords
+// mu -> mem usage (mnemonic: *nix du)
+mword _mu(mword *bs){
+
+    mword size = _rmu(bs);
+    rclean(bs);
+
+    return size;
+
+}
+
+mword _rmu(mword *bs){
+
+    int i;
+    mword count = 0;
+
+    if( s(bs) & CTL_MASK ){
+        return 0;
+    }
+
+    int num_elem = size(bs);
+    count = num_elem + 1;
+
+    s(bs) |= 0x1;
+
+    if(is_inte(bs)){
+        for(i=0; i<num_elem; i++){
+            count += _rmu((mword *)*(bs+i));
+        }
+    }
+
+    return count;
+
+}
+
 //void nlf(void) {
 //
 //    mword *result    = new_atom();

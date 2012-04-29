@@ -56,7 +56,6 @@ void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 
 }
 
-
 //
 //
 bvm_cache *hard_zap(bvm_cache *this_bvm){

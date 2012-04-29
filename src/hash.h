@@ -4,11 +4,17 @@
 #ifndef HASH_H
 #define HASH_H
 
-//#include "babel.h"
+#include "babel.h"
 //#include "list.h"
-//
-//#define HASH_LEVEL_SIZE     (1<<BITS_PER_BYTE)
-//
+
+#define HASH_LEVEL_SIZE     (1<<BITS_PER_BYTE)
+
+mword *new_hash_entry(mword *hash, mword *key, mword *val, mword ref_count, mword bounding);
+
+bvm_cache *inskha(bvm_cache *this_bvm);
+mword *_inskha(mword *hash_table, mword *key, mword *val);
+void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level);
+
 //mword *new_hash_entry(mword *hash, mword *val, mword *key, mword ref_count);
 //
 //void exha(void);
