@@ -9,76 +9,73 @@
 #include "mt19937ar.h"
 #include "string.h"
 #include "list.h"
+#include "bstruct.h"
 #ifdef WINDOWS
 #include <windows.h>
 #endif
 
-//void randop(void){
 //
-//    mword *result    = _newlf(car(TOS_0));
+bvm_cache *randop(bvm_cache *this_bvm){
+
+    mword num_mwords = car(TOS_0(this_bvm));
+    mword *result    = _newlf(num_mwords);
+
+    int i;
+    for(i=0;i<num_mwords;i++){
+        c(result,i) = genrand_int32();
+    }
+
+    zap(this_bvm);
+    push_alloc(this_bvm, result, RAND);
+
+    return this_bvm;
+
+}
+
+#ifdef WINDOWS
+
 //
-//    int i;
-//    for(i=0;i<car(TOS_0);i++){
-//        c(result,i) = genrand_int32();
-//    }
-//
-//    zap();
-//    push_alloc(result, RAND);
-//
-//}
-//
-//#ifdef WINDOWS
-//
-//void sleepop(void){
-//
-//    DWORD seconds = (DWORD)car(TOS_0);
-//    zap();
-//    Sleep(seconds*1000);
-//
-//}
-//
-//#endif
-//
-//void init_global_argv(int argc, char **argv){
-//
-//    #define NUM_BABEL_INTERP_ARGS 1
-//    if(argc <= NUM_BABEL_INTERP_ARGS){
-//        global_argv = nil;
-//        return;
-//    }
-//
-//    (mword*)global_argv = _newin_blank(argc-NUM_BABEL_INTERP_ARGS);
-//
-//    //Note: Each argument can be up to 64KB in size... this is unreasonably large
-//    //but could never reasonably become a design limitation in the future yet it is
-//    //still finite to protect against overflow attacks
-//    #define MAX_ARG_SIZE (1<<16)
-//    int i;
-//    for( i = NUM_BABEL_INTERP_ARGS; i < argc; i++ ){
-////        (mword*)c((mword*)global_argv, i-NUM_BABEL_INTERP_ARGS) = (mword*)argv[i];
-//        (mword*)c((mword*)global_argv, i-NUM_BABEL_INTERP_ARGS)
-//            = _c2b(argv[i], 100);
-//
-//    }
-//
-//}
+bvm_cache *sleepop(bvm_cache *this_bvm){
+
+    DWORD seconds = (DWORD)car(TOS_0(this_bvm));
+    zap(this_bvm);
+
+    Sleep(seconds*1000);
+
+    return this_bvm;
+
+}
+
+#endif
 
 //
 bvm_cache *argvop(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, this_bvm->argv, ARGVOP);
 
+    return this_bvm;
+
 }
 
-//void mword_sizeop(void){
 //
-//    mword *result    = new_atom();
+bvm_cache *mword_sizeop(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = MWORD_SIZE;
+
+    push_alloc(this_bvm, result, MWORD_SIZEOP);
+
+    return this_bvm;
+
+}
+
 //
-//    *result = MWORD_SIZE;
-//
-//    push_alloc(result, MWORD_SIZEOP);
-//
-//}
+bvm_cache *fnord(bvm_cache *this_bvm){
+
+    return this_bvm;
+
+}
 
 // Clayton Bauman 2011
 

@@ -8,37 +8,41 @@
 #include "load.h"
 #include "bstruct.h"
 
-//void free_op(void){
+// "shallow del"
+bvm_cache *free_op(bvm_cache *this_bvm){
+
+    bfree(TOS_0(this_bvm));
+    hard_zap(this_bvm);
+
+    return this_bvm;
+
+}
+
 //
-//    _free_op((mword*)TOS_0);
-//    zap();
+bvm_cache *del(bvm_cache *this_bvm){
+
+    _del((mword*)TOS_0(this_bvm));
+    hard_zap(this_bvm);
+
+    return this_bvm;
+
+}
+
 //
-//}
-//
-//void _free_op(mword *mem){
-//
-//    bfree(mem-1);
-//
-//}
-//
-//void del(void){
-//
-//    _del((mword*)TOS_0);
-//    zap();
-//
-//}
-//
-//void _del(mword *tree){
-//
-//    int i;
-//
-//    mword *del_list = _bs2ar(tree);
-//
-//    for(i=0;i<size(del_list);i++){
-//        _free_op((mword*)c(del_list,i));
-//    }
-//
-//}
+void _del(mword *bs){
+
+    int i;
+
+    mword *del_list = _bs2ar(bs);
+
+    for(i=0;i<size(del_list);i++){
+        if(!is_nil((mword*)c(del_list,i))){
+            //FIXME: It's ok to delete non-interp nil's
+            bfree((mword*)c(del_list,i));
+        }
+    }
+
+}
 
 // A "stack block" consists of 8 mwords in the present implementation
 // This can change if the format of the stack entry is changed

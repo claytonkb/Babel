@@ -9,6 +9,7 @@
 #include "bvm_opcodes.h"
 #include "array.h"
 #include "alloc.h"
+#include "bvm_stack.h"
 
 //mword *cons_alloc(mword *car, mword *cdr){
 //
@@ -39,47 +40,71 @@
 //
 //}
 
+#define STACK_ENTRY_SIZE 2
+
+#define STACK_ENTRY_VAL(x) ((mword*)c(x,0))
+#define STACK_ENTRY_TYP(x) ((mword*)c(x,1))
+
+//
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 
-    mword *temp_consA = new_cons();
-    mword *temp_consB = new_cons();
-    mword *temp_consC = new_cons();
-    mword *type       = new_atom();
+    mword *new_stack_cons  = new_cons;
+    mword *new_stack_entry = _newin(STACK_ENTRY_SIZE);
+    mword *type            = new_atom;
 
     c(type,0) = alloc_type; // alloc_type = operand for auto-alloc
+    STACK_ENTRY_VAL(new_stack_entry) = operand;
+    STACK_ENTRY_TYP(new_stack_entry) = type;
 
-    cons(temp_consA,   type,         nil);
-    cons(temp_consB,   operand,      temp_consA);
-    cons(temp_consC,   temp_consB,   this_bvm->stack_ptr);
+    cons(new_stack_cons, new_stack_entry, this_bvm->stack_ptr);
 
-    this_bvm->stack_ptr = temp_consC;
+    this_bvm->stack_ptr = new_stack_cons;
 
 }
 
 //
-//
 bvm_cache *hard_zap(bvm_cache *this_bvm){
 
-//    if(stack_ptr == nil){
     if(is_nil(this_bvm->stack_ptr)){
         return this_bvm;
     }
 
-    //TODO: Implement this... currently, we are leaking memory
-    //operand_dealloc(car(cdr(car(stack_ptr))));
-
     mword *temp_stack_ptr = (mword*)cdr(this_bvm->stack_ptr);
 
-    bfree((mword*)car(cdr(car(this_bvm->stack_ptr))));
-    bfree((mword*)cdr(car(this_bvm->stack_ptr)));
-    bfree((mword*)car(this_bvm->stack_ptr));
-    bfree((mword*)this_bvm->stack_ptr);
+    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr)));
+    bfree(car(this_bvm->stack_ptr));
+    bfree(this_bvm->stack_ptr);
 
     this_bvm->stack_ptr = temp_stack_ptr;
 
     return this_bvm;
 
 }
+
+//
+bvm_cache *zap(bvm_cache *this_bvm){
+
+    if(is_nil(this_bvm->stack_ptr)){
+        return this_bvm;
+    }
+
+    mword *temp_stack_ptr = (mword*)cdr(this_bvm->stack_ptr);
+
+    mword *val = STACK_ENTRY_VAL((mword*)car(this_bvm->stack_ptr));
+
+    zap_switch(car(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr))))
+
+    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr)));
+    bfree(car(this_bvm->stack_ptr));
+    bfree(this_bvm->stack_ptr);
+
+    this_bvm->stack_ptr = temp_stack_ptr;
+
+    return this_bvm;
+
+}
+
+// TODO: Implement a "soft zap" that performs per-operator de-allocation
 
 ////
 ////
@@ -242,7 +267,7 @@ mword *rtake(bvm_cache *this_bvm, mword count){
     if(count == 0)
         return nil;
 
-    mword *A = new_cons();
+    mword *A = new_cons;
     mword *B = (mword*)car(car(this_bvm->stack_ptr));
 
     hard_zap(this_bvm);
@@ -258,7 +283,7 @@ mword *rtake(bvm_cache *this_bvm, mword count){
 //
 bvm_cache *depth(bvm_cache *this_bvm){
 
-    mword *result = new_atom();
+    mword *result = new_atom;
     *result = _len((mword*)this_bvm->stack_ptr);
 
     push_alloc(this_bvm, result, DEPTH);

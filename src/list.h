@@ -4,34 +4,29 @@
 #ifndef LIST_H
 #define LIST_H
 
-//mword *car(mword *x);
-//mword *cdr(mword *x);
-inline mword *new_cons(void);
-inline mword *new_atom(void);
-//void carindex(void);
-//void cdrindex(void);
-//void isnil(void);
-//void consls(void);
-//mword *_consls(mword *car_field, mword *cdr_field);
-//void uncons(void);
-////void push(void);
-////void pop(void);
-//void len(void);
+bvm_cache *carindex(bvm_cache *this_bvm);
+bvm_cache *cdrindex(bvm_cache *this_bvm);
+bvm_cache *isnil(bvm_cache *this_bvm);
+bvm_cache *consls(bvm_cache *this_bvm);
+bvm_cache *uncons(bvm_cache *this_bvm);
+bvm_cache *len(bvm_cache *this_bvm);
+bvm_cache *bons(bvm_cache *this_bvm);
+bvm_cache *ls2lf(bvm_cache *this_bvm);
+bvm_cache *ith(bvm_cache *this_bvm);
+bvm_cache *list_end(bvm_cache *this_bvm);
+bvm_cache *push(bvm_cache *this_bvm);
+bvm_cache *pop(bvm_cache *this_bvm);
+bvm_cache *unshift(bvm_cache *this_bvm);
+bvm_cache *shift(bvm_cache *this_bvm);
+
+mword *_bons(mword *list);
+mword *_ls2lf(mword *list);
+mword *_ith(mword *list, mword i);
+mword *_list_end(mword *list);
+mword *_list_next_to_end(mword *list);
+mword *_consls(mword *car_field, mword *cdr_field);
 mword _len(mword *list);
-//void bons(void);
-//mword *_bons(mword *list);
-//void ls2lf(void);
-//mword *_ls2lf(mword *list);
-//void ith(void);
-//mword *_ith(mword *list, mword i);
-//void list_end(void);
-//mword *_list_end(mword *list);
-//mword *_list_next_to_end(mword *list);
-//void push(void);
-//void pop(void);
-//void unshift(void);
-//void shift(void);
-//
+
 #endif //LIST_H
 
 // Clayton Bauman 2011

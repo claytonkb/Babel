@@ -5,15 +5,11 @@
 #define UTIL_H
 
 bvm_cache *argvop(bvm_cache *this_bvm);
+bvm_cache *randop(bvm_cache *this_bvm);
+bvm_cache *fnord(bvm_cache *this_bvm);
+bvm_cache *mword_sizeop(bvm_cache *this_bvm);
+bvm_cache *sleepop(bvm_cache *this_bvm);
 
-//#include "list.h"
-//
-//void randop(void);
-//void sleepop(void);
-//void init_global_argv(int argc, char **argv);
-//void argvop(void);
-//void mword_sizeop(void);
-//
 #endif //UTIL_H
 
 // Clayton Bauman 2011

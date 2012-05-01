@@ -1,7 +1,33 @@
-main: ( `nil `"xyz" %% `0xbabeface inskha 
-             --`"abc" %% `0xdeadbeef insha )
-        dump << `"\n" << )
+--main: ( `17 `(1 (2 (3 4 (5 6) 7 (8 9) 10 ) (11 x&) ) 13) del dump << )
 
+--main: ( `0x1234 `0x4321 + `0x5678 `0x7 cushl `0xff + - $ << `"\n" << )
+
+main: ( `0x17
+        `nil 
+        `"abc" `0xaaaa inskha 
+        `"def" `0xbbbb inskha 
+--        `"ghi" `0xcccc inskha
+--        `"jkl" `0xdddd inskha 
+--        `"mno" `0xeeee inskha 
+--        `"pqr" `0xffff inskha
+        del
+        dump << )
+
+--main: ( `0x17
+--        `nil 
+--        `"abc" `0xaaaa inskha 
+--        `"def" `0xbbbb inskha 
+--        `"ghi" `0xcccc inskha
+--        `"jkl" `0xdddd inskha 
+--        `"mno" `0xeeee inskha 
+--        `"pqr" `0xffff inskha
+--        del
+--        dump << )
+--
+--main: ( `nil `"xyz" `0xbabeface inskha 
+--             `"abc" `0xdeadbeef inskha
+--        dump << `"\n" << )
+--
 
 -- code: 
 --     (("")        cr << 

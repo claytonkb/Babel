@@ -4,6 +4,41 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- READ/WRITE -----
+
+Array:
+    Read:
+        th/trav
+        `[1 2 3 4 5] `4 th --> 5
+        `[ [1 2] [3 4] [5 6] ] `(1 0) trav --> 3
+    Write:
+        set/paste
+        `7 `[1 2 3 4 5] `4 set --> [1 2 3 4 7]
+        `7 `[ [1 2] [3 4] [5 6] ] `(1 0) paste
+            --> [ [1 2] [7 4] [5 6] ]
+
+List:
+    Read:
+        ith/walk
+        `(1 2 3 4 5) `4 th --> 5
+        `( (1 2) (3 4) (5 6) ) `(1 0) trav --> 3
+    Write:
+        write
+        `7 `( (1 2) (3 4) (5 6) ) `(1 0) write
+            --> ( (1 2) (7 4) (5 6) )
+
+Hash:
+    Read:
+        lu/probe
+    Write:
+        ins
+
+Hash-reference:
+    Read: (just use it)
+    Write:
+        set
+        `0 &x set
+
 ----- bstruct.c stuff -----
 
 Need to move bbl2gv() and related functions to bstruct.c

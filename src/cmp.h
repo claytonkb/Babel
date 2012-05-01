@@ -4,19 +4,17 @@
 #ifndef CMP_H
 #define CMP_H
 
-//#include "list.h"
-//
-//void cne(void);
-//void ceq(void);
-//void cult(void);
-//void cule(void);
-//void cugt(void);
-//void cuge(void);
-//void cilt(void);
-//void cile(void);
-//void cigt(void);
-//void cige(void);
-//
+bvm_cache *cne(bvm_cache *this_bvm);
+bvm_cache *ceq(bvm_cache *this_bvm);
+bvm_cache *cult(bvm_cache *this_bvm);
+bvm_cache *cule(bvm_cache *this_bvm);
+bvm_cache *cugt(bvm_cache *this_bvm);
+bvm_cache *cuge(bvm_cache *this_bvm);
+bvm_cache *cilt(bvm_cache *this_bvm);
+bvm_cache *cile(bvm_cache *this_bvm);
+bvm_cache *cigt(bvm_cache *this_bvm);
+bvm_cache *cige(bvm_cache *this_bvm);
+
 #endif //CMP_H
 
 // Clayton Bauman 2011

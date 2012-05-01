@@ -4,29 +4,27 @@
 #ifndef LOGIC_H
 #define LOGIC_H
 
-//#include "list.h"
-//
-//void logicF0(void);
-//void logicF1(void);
-//void logicF2(void);
-//void logicF3(void);
-//void logicF4(void);
-//void logicF5(void);
-//void logicF6(void);
-//void logicF7(void);
-//void logicF8(void);
-//void logicF9(void);
-//void logicFA(void);
-//void logicFB(void);
-//void logicFC(void);
-//void cnot(void);
-//void logicFD(void);
-//void logicFE(void);
-//void logicFF(void);
-//void andop(void);
-//void orop(void);
-//void notop(void);
-//
+bvm_cache *logicF0(bvm_cache *this_bvm);
+bvm_cache *logicF1(bvm_cache *this_bvm);
+bvm_cache *logicF2(bvm_cache *this_bvm);
+bvm_cache *logicF3(bvm_cache *this_bvm);
+bvm_cache *logicF4(bvm_cache *this_bvm);
+bvm_cache *logicF5(bvm_cache *this_bvm);
+bvm_cache *logicF6(bvm_cache *this_bvm);
+bvm_cache *logicF7(bvm_cache *this_bvm);
+bvm_cache *logicF8(bvm_cache *this_bvm);
+bvm_cache *logicF9(bvm_cache *this_bvm);
+bvm_cache *logicFA(bvm_cache *this_bvm);
+bvm_cache *logicFB(bvm_cache *this_bvm);
+bvm_cache *logicFC(bvm_cache *this_bvm);
+bvm_cache *cnot(bvm_cache *this_bvm);
+bvm_cache *logicFD(bvm_cache *this_bvm);
+bvm_cache *logicFE(bvm_cache *this_bvm);
+bvm_cache *logicFF(bvm_cache *this_bvm);
+bvm_cache *andop(bvm_cache *this_bvm);
+bvm_cache *orop(bvm_cache *this_bvm);
+bvm_cache *notop(bvm_cache *this_bvm);
+
 #endif //LOGIC_H
 
 // Clayton Bauman 2011

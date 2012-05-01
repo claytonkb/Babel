@@ -58,8 +58,6 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 // The LSB of the s-field is currently defined for use in 
 // bstruct-traversal
 #define CTL_MASK (MWORD_SIZE-1)
-#define TRAVERSED(x) ((x) & CTL_MASK)
-#define MARK_TRAVERSED(x) ((x) |= 0x1)
 
 #define STRLEN(s) (sizeof(s)-1)
 #define C2B(x)    (_c2b(x, STRLEN(x)))
@@ -106,14 +104,10 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 
 #define cons(a,b,c) car(a) = (mword)(b); cdr(a) = (mword)(c);
 
-//XXX we may yet need a generally hash-ref-safe car/cdr
+#define new_cons (_newin(2))
+#define new_atom (_newlf(1))
 
-//#define cadr(x)     car(cdr(x))
-//#define caddr(x)    car(cdr(cdr(x)))
-//
-////#define TOS_0         car(car(cdr(car(stack_ptr))))
-////#define TOS_1     car(car(cdr(car(cdr(stack_ptr)))))
-////#define TOS_2 car(car(cdr(car(cdr(cdr(stack_ptr))))))
+//XXX we may yet need a generally hash-ref-safe car/cdr
 
 #define TOS_0(x)             car(car(x->stack_ptr))
 #define TOS_1(x)         car(car(cdr(x->stack_ptr)))
@@ -121,45 +115,11 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 
 #define alloc_type(x) car(car(cdr(x))) 
 
-//#define RTOS_0             car(rstack_ptr)
-//#define RTOS_1         car(cdr(rstack_ptr))
-//#define RTOS_2     car(cdr(cdr(rstack_ptr)))
-//#define RTOS_3 car(cdr(cdr(cdr(rstack_ptr))))
-//
-//#define global_argv car(internal_global_VM)
-//
-//#define code_list   global_VM
-//#define data_list   cdr(code_list)
-//#define stack_list  cdr(data_list)
-//#define rstack_list cdr(stack_list)
-//#define jump_table  cdr(rstack_list)
-//#define sym_table   cdr(jump_table)
-//#define nada        cdr(sym_table)
-////#define nil         cdr(nada)
-//#define null        car(nada)
-//
-//#define code_ptr    car(code_list)
-//#define stack_ptr   car(stack_list)
-//#define rstack_ptr  car(rstack_list)
-//#define jump_ptr    car(jump_table)
-//#define sym_ptr     car(sym_table)
-//
-//#define code_empty   ((mword)  code_ptr == nil)
-//#define stack_empty  ((mword) stack_ptr == nil)
-//#define rstack_empty ((mword)rstack_ptr == nil)
-//#define jmp_empty    ((mword)  jump_ptr == nil)
-//#define sym_empty    ((mword)   sym_ptr == nil)
-//
-//#define machine_empty (        code_empty   \
-//                            && stack_empty  \
-//                            && rstack_empty \
-//                            && jmp_empty    \
-//                            && sym_empty        )
-
 // DEBUG
 #define DIE_CODE 1
 #define QUOTEME(x) #x
 #define d(x) printf("%s %08x\n", QUOTEME(x), x);
+#define _dump(x) printf("%s\n", _bs2gv(x));
 #define die  fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);
 #define warn(x) fprintf(stderr, "WARNING: %s at %s line %d\n", x, __FILE__, __LINE__);
 #define error(x) fprintf(stderr, "ERROR: %s at %s line %d\n", x, __FILE__, __LINE__);

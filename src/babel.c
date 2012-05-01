@@ -13,6 +13,7 @@
 #include "util.h"
 #include "load.h"
 #include "ref.h"
+#include "bstruct.h"
 
 //main
 //
@@ -23,6 +24,8 @@ int main(int argc, char **argv){
     interp_init(&root_bvm, argc, argv);
 
     bvm_interp(&root_bvm);
+
+//    printf("%s\n",_bs2gv(root_bvm.stack_ptr));
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.
@@ -40,6 +43,21 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
     #include "rt.pb.c"
 
     pearson16_init();    //Babel hash-function init
+
+    time_t rawtime;
+    char time_string[30];
+    time( &rawtime );    
+    strcpy( time_string, ctime(&rawtime) );
+    mword *time_string_key = _c2b(time_string, 30);
+
+    // FIXME: strcpy and strlen... get rid
+    // This needs to be enhanced to look in the hidden section for a 
+    // pre-defined seed, it should also save the value it used in the
+    // hidden section
+    mword *time_hash = new_hash();
+    mword *hash_init = new_hash();
+    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
+    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
     //initialize nil
     mword *hash_init  = new_hash();

@@ -15,53 +15,44 @@
 
 #define opposite_side(x) ((x==0)?1:0)
 
-//void push_alloc(mword *operand, mword alloc_type){
+#define HASH_ENTRY_SIZE 5
 
-//// make hash-entry
-//mword *new_hash_entry(mword *hash, mword *val, mword *key, mword ref_count){
-//
-//    mword *href = _newref(hash);
-//    mword *ref_count_ptr = new_atom();
-//    *ref_count_ptr = ref_count;
-//
-//    mword *temp_consA = new_cons();
-//    mword *temp_consB = new_cons();
-//    mword *temp_consC = new_cons();
-//    mword *temp_consD = new_cons();
-//
-//    cons(temp_consA,  ref_count_ptr,  nil       );
-//    cons(temp_consB,  key,            temp_consA);
-//    cons(temp_consC,  val,            temp_consB);
-//    cons(temp_consD,  href,           temp_consC);
-//
-//    return temp_consD;
-//
-//}
+#define HASH_ENTRY_REF(x) ((mword*)c(x,0))
+#define HASH_ENTRY_VAL(x) ((mword*)c(x,1))
+#define HASH_ENTRY_KEY(x) ((mword*)c(x,2))
+#define HASH_ENTRY_CNT(x) ((mword*)c(x,3))
+#define HASH_ENTRY_BND(x) ((mword*)c(x,4))
 
 //
 mword *new_hash_entry(mword *hash, mword *key, mword *val, mword ref_count, mword bounding){
 
     mword *href = _newref(hash);
 
-    mword *ref_count_ptr = new_atom();
+    mword *ref_count_ptr = new_atom;
     *ref_count_ptr = ref_count;
 
-    mword *bounding_ptr = new_atom();
+    mword *bounding_ptr = new_atom;
     *bounding_ptr = bounding;
 
-    mword *hash_entry = _newin(5);
+    mword *hash_entry = _newin(HASH_ENTRY_SIZE);
 
-    (mword*)c(hash_entry,0) = href;
-    (mword*)c(hash_entry,1) = val;
-    (mword*)c(hash_entry,2) = key;
-    (mword*)c(hash_entry,3) = ref_count_ptr;
-    (mword*)c(hash_entry,4) = bounding_ptr;
+//    (mword*)c(hash_entry,0) = href;
+//    (mword*)c(hash_entry,1) = val;
+//    (mword*)c(hash_entry,2) = key;
+//    (mword*)c(hash_entry,3) = ref_count_ptr;
+//    (mword*)c(hash_entry,4) = bounding_ptr;
+
+    HASH_ENTRY_REF(hash_entry) = href;
+    HASH_ENTRY_VAL(hash_entry) = val;
+    HASH_ENTRY_KEY(hash_entry) = key;
+    HASH_ENTRY_CNT(hash_entry) = ref_count_ptr;
+    HASH_ENTRY_BND(hash_entry) = bounding_ptr;
 
     return hash_entry;
 
 }
 
-//
+// inskha - insert with key into hash
 bvm_cache *inskha(bvm_cache *this_bvm){
 
     mword *hash_table = (mword*)TOS_2(this_bvm);
@@ -74,10 +65,13 @@ bvm_cache *inskha(bvm_cache *this_bvm){
     hard_zap(this_bvm);
 //    hard_zap(this_bvm);
 
-    push_alloc(this_bvm, result, INSHA);
+    push_alloc(this_bvm, result, INSKHA);
+
+//printf("%s\n\n",_bs2gv(this_bvm->stack_ptr));
 
 }
 
+//
 mword *_inskha(mword *hash_table, mword *key, mword *val){
 
     mword *result;
@@ -89,8 +83,9 @@ mword *_inskha(mword *hash_table, mword *key, mword *val){
     if(is_nil(hash_table)){
         cons_side = _cxr1(hash,0);
         temp = new_hash_entry(hash, key, val, (mword)-1, 0);
-        result = _newin(2);
+        result = new_cons;
         c(result,cons_side) = (mword)temp;
+//printf("%s",_bs2gv(temp));
     }
     else{
         _rinskha(hash_table, hash, key, val, 0);
@@ -101,37 +96,51 @@ mword *_inskha(mword *hash_table, mword *key, mword *val){
 
 }
 
-// FIXME: Crashes on second insert, probably a scar/scdr problem
+//
 void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level){
 
-    mword cons_side = _cxr1(hash,level);
-    mword next_cons_side;
-    mword occupant_cons_side;
     mword *temp;
+    mword cons_side   = _cxr1(hash,level);
+    mword *next_level = (mword*)c(hash_table,cons_side);
 
-//printf("%s",(char*)_bs2gv(hash_table));
-//printf("\n\n");
+    // 1. cons_side = nil
+    //      insert
+    // 2. cons_side is inte AND size = 2
+    //      recurse
+    // 3. cons_side is inte AND size = HASH_ENTRY_SIZE
+    //      split and insert
 
-//    if( is_href((mword*)car(c(hash_table,cons_side))) ){
-//        if(!_arcmp((mword*)car(c(hash_table,cons_side)),hash)){
-//            car(cdr(c(hash_table,cons_side))) = (mword)val;
-//        }
-//        else{
-//            temp = (mword*)c(hash_table,cons_side);
-//            c(hash_table,cons_side) = (mword)_newin(2);
-//            next_cons_side = _cxr1((mword*)car(temp),level+1);
-//            c((mword*)c(hash_table,cons_side),next_cons_side) = (mword)temp;
-//            _rinsha((mword*)c(hash_table,cons_side), hash, val, level+1);
-//        }
-//    }
-////    else if(c(hash_table,cons_side) == nil){
-//    else if(is_nil((mword*)c(hash_table,cons_side))){
-//        temp = new_hash_entry(hash, val, nil, (mword)-1);
-//        c(hash_table,cons_side) = (mword)temp;
-//    }
-//    else{
-//        _rinsha((mword*)c(hash_table,cons_side), hash, val, level+1);
-//    }
+//    printf("%x\n",s(next_level));
+
+    if(is_nil(next_level)){
+
+        (mword*)c(hash_table,cons_side) 
+            = new_hash_entry(hash, key, val, (mword)-1, 0);
+
+    }
+    else if(is_inte(next_level) && size(next_level) == 2){
+
+        _rinskha((mword*)c(hash_table,cons_side), hash, key, val, level+1);
+
+    }
+    else if(is_inte(next_level) && size(next_level) == HASH_ENTRY_SIZE){
+
+        mword *colliding_hash_ref           = HASH_ENTRY_REF(next_level);
+        mword colliding_next_cons_side      = _cxr1(colliding_hash_ref,level+1);
+
+        temp = new_cons;
+        (mword *)c(temp,colliding_next_cons_side) = next_level;
+
+        (mword*)c(hash_table,cons_side)     = temp;
+
+        _rinskha((mword*)c(hash_table,cons_side), hash, key, val, level+1);
+
+    }
+    else{
+        //printf("%s",_bs2gv(next_level));
+        //die
+        error("_rinskha: Error inserting into hash");
+    }
 
 }
 

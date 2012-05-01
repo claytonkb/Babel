@@ -16,6 +16,7 @@
 void rclean(mword *bs){
 
     int i;
+    mword bs_size;
 
     if( !(s(bs) & CTL_MASK) ){ //Already cleaned
         return;
@@ -24,8 +25,8 @@ void rclean(mword *bs){
     s(bs) = s(bs) & ~CTL_MASK; //Mark clean
 
     if( is_inte(bs) ){
-
-        for(i=0; i<size(bs); i++){
+        int num_elem = size(bs);
+        for(i=0; i<num_elem; i++){
             rclean((mword *)*(bs+i));
         }
 
@@ -46,7 +47,8 @@ bvm_cache *bbl2str(bvm_cache *this_bvm){
     //buf_size now contains the final string size of the entire graphviz string
 
     rclean((mword*)TOS_0(this_bvm));
-    hard_zap(this_bvm);
+//    hard_zap(this_bvm);
+    zap(this_bvm);
 
     mword last_mword = alignment_word8(buf_size);
     mword length = (buf_size / MWORD_SIZE) + 1;
@@ -62,6 +64,8 @@ bvm_cache *bbl2str(bvm_cache *this_bvm){
 
     push_alloc(this_bvm,result,BBL2STR);
 
+    return this_bvm;
+
 }
 
 //
@@ -72,7 +76,7 @@ mword rbbl2str(mword *bs, char *buffer){
     mword buf_size=0;
     mword is_hash_ref=0;
 
-    if( TRAVERSED(s(bs)) ){
+    if( TRAVERSED(bs) ){
 
         buf_size += sprintf(buffer+buf_size, " ... ");
         return buf_size;
@@ -90,7 +94,7 @@ mword rbbl2str(mword *bs, char *buffer){
 
     if( is_href(bs) ){
 
-        MARK_TRAVERSED(s(bs));
+        MARK_TRAVERSED(bs);
 
         buf_size += sprintf(buffer+buf_size, "{{ ");
 
@@ -104,7 +108,7 @@ mword rbbl2str(mword *bs, char *buffer){
 
     }
 
-    MARK_TRAVERSED(s(bs));
+    MARK_TRAVERSED(bs);
 
     if(is_inte(bs)){
 
@@ -136,10 +140,16 @@ mword rbbl2str(mword *bs, char *buffer){
 //
 bvm_cache *bs2gv(bvm_cache *this_bvm){
 
-    mword *result = _bs2gv((mword*)TOS_0(this_bvm));
-    hard_zap(this_bvm);
+//    _dump(this_bvm->stack_ptr)
+//        die
 
+    mword *result = _bs2gv((mword*)TOS_0(this_bvm));
+
+    zap(this_bvm);
+    
     push_alloc(this_bvm,result,BBL2GV);
+
+    return this_bvm;
 
 }
 
@@ -147,15 +157,15 @@ bvm_cache *bs2gv(bvm_cache *this_bvm){
 mword *_bs2gv(mword *bs){
 
     // Figure out buffer size
-    // Safety buffer of 2kb + (32 * _mu)
+    // Safety buffer of 2kb + (32 * _mu) XXX: WHY 32??
     mword initial_buf_size = (1<<11) + (32 * _mu(bs));
-    char *buffer = malloc(initial_buf_size); //FIXME: malloc
 
+    char *buffer = malloc(initial_buf_size); //FIXME: malloc
     mword buf_size=0;
 
     buf_size += sprintf(buffer+buf_size, "digraph babel {\nnode [shape=record];\n");
     buf_size += sprintf(buffer+buf_size, "graph [rankdir = \"LR\"];\n");
-    
+
     buf_size += rbs2gv(bs, buffer+buf_size);
 
     buf_size += sprintf(buffer+buf_size, "}\n");
@@ -179,21 +189,19 @@ mword *_bs2gv(mword *bs){
 
 }
 
-// Returns 
 //
 mword rbs2gv(mword *bs, char *buffer){
 
     int i;
     mword buf_size=0;
 
-    if( TRAVERSED(s(bs)) ){
+    if( TRAVERSED(bs) ){
         return 0;
     }
 
     int num_entries = size(bs);
 
     if( is_href(bs) ){
-
         buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)bs);
         for(i=0; i<HASH_SIZE; i++){
             buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(bs+i));
@@ -206,7 +214,7 @@ mword rbs2gv(mword *bs, char *buffer){
     }
     else if(is_inte(bs)){
 
-        MARK_TRAVERSED(s(bs));
+        MARK_TRAVERSED(bs);
 
         buf_size += sprintf(buffer+buf_size, "\"s%08x\" [shape=record,label=\"", (mword)bs);
         for(i=0; i<num_entries; i++){
@@ -237,7 +245,7 @@ mword rbs2gv(mword *bs, char *buffer){
         buf_size += sprintf(buffer+buf_size, "\"];\n");
     }
 
-    MARK_TRAVERSED(s(bs));
+    MARK_TRAVERSED(bs);
 
     return buf_size;
 
@@ -346,19 +354,21 @@ mword _rmu(mword *bs){
     int i;
     mword count = 0;
 
-    if( s(bs) & CTL_MASK ){
+    if( TRAVERSED(bs) ){
         return 0;
     }
 
     int num_elem = size(bs);
     count = num_elem + 1;
 
-    s(bs) |= 0x1;
-
     if(is_inte(bs)){
+        MARK_TRAVERSED(bs);
         for(i=0; i<num_elem; i++){
             count += _rmu((mword *)*(bs+i));
         }
+    }
+    else{
+        MARK_TRAVERSED(bs);
     }
 
     return count;
@@ -381,39 +391,46 @@ mword _rmu(mword *bs){
 ////    clean_tree(global_VM);
 //
 //}
+
+mword _nlf(mword *bs){
+
+    mword size = _rnlf(bs);
+    rclean(bs);
+
+    return size;
+
+}
+
 //
-//// Returns 
-//mword _nlf(mword *tree){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){
-//        return 0;
-//    }
-//
-//    int num_elem = size(tree);
-////    count = num_elem + 1;
-//
-//    if(is_inte(tree)){
-//        s(tree) |= 0x1;
-//        for(i=0; i<num_elem; i++){
-//            count += _nlf((mword *)*(tree+i));
-//        }
-//    }
-//    else if(is_href(tree)){
-//        count = 0;
-//    }
-//    else if(is_leaf(tree)){ // is_leaf
-//        count = 1;
-//    }
-//
-//    s(tree) |= 0x1;
-//
-//    return count;
-//
-//}
-//
+mword _rnlf(mword *bs){
+
+    int i;
+    mword count = 0;
+
+    if( TRAVERSED(bs) ){
+        return 0;
+    }
+
+    if(is_inte(bs)){
+        int num_elem = size(bs);
+        MARK_TRAVERSED(bs);
+        for(i=0; i<num_elem; i++){
+            count += _rnlf((mword *)*(bs+i));
+        }
+    }
+    else if(is_href(bs)){
+        MARK_TRAVERSED(bs);
+        count = 0;
+    }
+    else if(is_leaf(bs)){ // is_leaf
+        MARK_TRAVERSED(bs);
+        count = 1;
+    }
+
+    return count;
+
+}
+
 //void nhref(void) {
 //
 //    mword *result    = new_atom();
@@ -429,39 +446,47 @@ mword _rmu(mword *bs){
 ////    clean_tree(global_VM);
 //
 //}
+
+mword _nhref(mword *bs){
+
+    mword size = _rnhref(bs);
+    rclean(bs);
+
+    return size;
+
+}
+
 //
-//// Returns 
-//mword _nhref(mword *tree){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){
-//        return 0;
-//    }
-//
-//    int num_elem = size(tree);
-////    count = num_elem + 1;
-//
-//    if(is_inte(tree)){
-//        s(tree) |= 0x1;
-//        for(i=0; i<num_elem; i++){
-//            count += _nhref((mword *)*(tree+i));
-//        }
-//    }
-//    else if(is_href(tree)){ // is_leaf
-//        count = 1;
-//    }
-//    else if(is_leaf(tree)){ // is_leaf
-//        count = 0;
-//    }
-//
-//    s(tree) |= 0x1;
-//
-//    return count;
-//
-//}
-//
+mword _rnhref(mword *bs){
+
+    int i;
+    mword count = 0;
+
+    if( TRAVERSED(bs) ){
+        return 0;
+    }
+
+    if(is_inte(bs)){
+        int num_elem = size(bs);
+        MARK_TRAVERSED(bs);
+        for(i=0; i<num_elem; i++){
+            count += _rnhref((mword *)*(bs+i));
+        }
+    }
+    else if(is_href(bs)){
+        MARK_TRAVERSED(bs);
+        count = 1;
+    }
+    else if(is_leaf(bs)){
+        MARK_TRAVERSED(bs);
+        count = 0;
+    }
+
+
+    return count;
+
+}
+
 //
 //void nin(void) {
 //
@@ -479,36 +504,45 @@ mword _rmu(mword *bs){
 ////    clean_tree(global_VM);
 //
 //}
+
 //
-//// Returns 
-//mword _nin(mword *tree){
+mword _nin(mword *bs){
+
+    mword size = _rnin(bs);
+    rclean(bs);
+
+    return size;
+
+}
+
+
 //
-//    int i;
-//    mword count = 0;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){
-//        return 0;
-//    }
-//
-//    int num_elem = size(tree);
-////    count = num_elem + 1;
-//
-//    s(tree) |= 0x1;
-//
-//    if(is_leaf(tree) || is_href(tree)){
-//        count = 0;
-//    }
-//    else{
-//        for(i=0; i<num_elem; i++){
-//            count += _nin((mword *)*(tree+i));
-//        }
-//        count++;
-//    }
-//
-//    return count;
-//
-//}
-//
+mword _rnin(mword *bs){
+
+    int i;
+    mword count = 0;
+
+    if( TRAVERSED(bs) ){
+        return 0;
+    }
+
+    if(is_leaf(bs) || is_href(bs)){
+        MARK_TRAVERSED(bs);
+        count = 0;
+    }
+    else{
+        int num_elem = size(bs);
+        MARK_TRAVERSED(bs);
+        for(i=0; i<num_elem; i++){
+            count += _rnin((mword *)*(bs+i));
+        }
+        count++;
+    }
+
+    return count;
+
+}
+
 //
 //void nva(void) {
 //
@@ -606,61 +640,62 @@ mword _rmu(mword *bs){
 //    load();
 //
 //}
+
 //
-//void span(void){
-//
-//    mword *result = _bs2ar((mword*)TOS_0);
-//
-//    zap();
-//
-//    push_alloc(result, SPAN);
-//
-//}
-//
-////Creates interior array with one pointer to each array
-////in a bstruct
-////TODO: Look into re-writing load/unload to utilize bs2ar...
-//mword *_bs2ar(mword *tree){
-//
-//    mword num_arrays = _nin(tree);
-//    clean_tree(tree);
-//    num_arrays += _nlf(tree);
-//    clean_tree(tree);
-//    num_arrays += _nhref(tree);
-//    clean_tree(tree);
-//
-//    mword *arr_list = _newin(num_arrays);
-//    mword offset = 0;
-//
-//    bs2ar_tree(tree, arr_list, &offset);
-//    clean_tree(tree);
-//
-//    return arr_list;
-//
-//}
-//
-//void bs2ar_tree(mword *tree, mword *arr_list, mword *offset){
-//
-//    int i;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){ //Already dumped
-//        return;
-//    }
-//
-//    int num_elem = size(tree);
-//    
-//    s(tree) |= 0x1; //Mark dumped
-//
-//    c(arr_list,*offset) = (mword)tree;
-//    *offset = *offset+1;
-//
-//    if(is_inte(tree)){
-//        for(i=0; i<num_elem; i++){
-//            bs2ar_tree((mword*)c(tree,i),arr_list,offset);
-//        }
-//    }
-//
-//}
+bvm_cache *span(bvm_cache *this_bvm){
+
+    mword *result = _bs2ar((mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+
+    push_alloc(this_bvm, result, SPAN);
+
+    return this_bvm;
+
+}
+
+//Creates an interior array with one pointer to each array
+//in a bstruct
+//TODO: Look into re-writing load/unload to utilize bs2ar...
+mword *_bs2ar(mword *bs){
+
+    mword num_arrays  = _nin  (bs);
+          num_arrays += _nlf  (bs);
+          num_arrays += _nhref(bs);
+
+    mword *arr_list = _newin(num_arrays);
+    mword offset = 0;
+
+    rbs2ar(bs, arr_list, &offset);
+    rclean(bs);
+
+    return arr_list;
+
+}
+
+void rbs2ar(mword *bs, mword *arr_list, mword *offset){
+
+    int i;
+
+    if( TRAVERSED(bs) ){ //Already dumped
+        return;
+    }
+
+    int num_elem = size(bs);
+    
+    c(arr_list,*offset) = (mword)bs;
+    *offset = *offset+1;
+
+    if(is_inte(bs)){
+        MARK_TRAVERSED(bs);
+        for(i=0; i<num_elem; i++){
+            rbs2ar((mword*)c(bs,i),arr_list,offset);
+        }
+    }
+
+    MARK_TRAVERSED(bs);
+
+}
 
 // Clayton Bauman 2012
 

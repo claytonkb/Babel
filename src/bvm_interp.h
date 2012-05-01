@@ -7,13 +7,12 @@
 #include "bvm.h"
 #include "list.h"
 
-//#define THEY_WISH //FNORD FNORD
-//
 #define opcode_switch(x)    \
     switch(x){              \
         arith_ops           \
         io_ops              \
         array_ops           \
+        bstruct_ops         \
         list_ops            \
         stack_ops           \
         eval_ops            \
@@ -30,159 +29,152 @@
             break;          \
     }                       \
 
-////FIXME: SWITCH DEFAULT ABOVE SEEMS TO BE BROKEN...
-//
 #define arith_ops       \
+    case CUADD:         \
+        cuadd(this_bvm);        \
+        break;          \
+    case CUSUB:         \
+        cusub(this_bvm);        \
+        break;          \
+    case CIADD:         \
+        ciadd(this_bvm);        \
+        break;          \
+    case CISUB:         \
+        cisub(this_bvm);        \
+        break;          \
+    case CIABS:         \
+        ciabs(this_bvm);        \
+        break;          \
+    case CUMUL:         \
+        cumul(this_bvm);        \
+        break;          \
+    case CUDIV:         \
+        cudiv(this_bvm);        \
+        break;          \
+    case CUREM:         \
+        curem(this_bvm);        \
+        break;          \
+    case CIMUL:         \
+        cimul(this_bvm);        \
+        break;          \
+    case CIDIV:         \
+        cidiv(this_bvm);        \
+        break;          \
+    case CIREM:         \
+        cirem(this_bvm);        \
+        break;          \
 
-//    case CUADD:         \
-//        cuadd();        \
-//        break;          \
-//    case CUSUB:         \
-//        cusub();        \
-//        break;          \
-//    case CIADD:         \
-//        ciadd();        \
-//        break;          \
-//    case CISUB:         \
-//        cisub();        \
-//        break;          \
-//    case CIABS:         \
-//        ciabs();        \
-//        break;          \
-//    case CUMUL:         \
-//        cumul();        \
-//        break;          \
-//    case CUDIV:         \
-//        cudiv();        \
-//        break;          \
-//    case CUREM:         \
-//        curem();        \
-//        break;          \
-//    case CIMUL:         \
-//        cimul();        \
-//        break;          \
-//    case CIDIV:         \
-//        cidiv();        \
-//        break;          \
-//    case CIREM:         \
-//        cirem();        \
-//        break;          \
-//
 #define shift_ops       \
+      case CUSHL:       \
+        cushl(this_bvm);        \
+        break;          \
+      case CUSHR:       \
+        cushr(this_bvm);        \
+        break;          \
+      case CASHR:       \
+        cashr(this_bvm);        \
+        break;          \
+      case CUROL:       \
+        curol(this_bvm);        \
+        break;          \
+      case CUROR:       \
+        curor(this_bvm);        \
+        break;          \
 
-//      case CUSHL:       \
-//        cushl();        \
-//        break;          \
-//      case CUSHR:       \
-//        cushr();        \
-//        break;          \
-//      case CASHR:       \
-//        cashr();        \
-//        break;          \
-//      case CUROL:       \
-//        curol();        \
-//        break;          \
-//      case CUROR:       \
-//        curor();        \
-//        break;          \
-//
 #define logic_ops       \
+      case F000:        \
+        logicF0(this_bvm);      \
+        break;          \
+      case F001:        \
+        logicF1(this_bvm);      \
+        break;          \
+      case F002:        \
+        logicF2(this_bvm);      \
+        break;          \
+      case F003:        \
+        logicF3(this_bvm);      \
+        break;          \
+      case F004:        \
+        logicF4(this_bvm);      \
+        break;          \
+      case F005:        \
+        logicF5(this_bvm);      \
+        break;          \
+      case F006:        \
+        logicF6(this_bvm);      \
+        break;          \
+      case F007:        \
+        logicF7(this_bvm);      \
+        break;          \
+      case F008:        \
+        logicF8(this_bvm);      \
+        break;          \
+      case F009:        \
+        logicF9(this_bvm);      \
+        break;          \
+      case F00A:        \
+        logicFA(this_bvm);      \
+        break;          \
+      case F00B:        \
+        logicFB(this_bvm);      \
+        break;          \
+      case F00C:        \
+        logicFC(this_bvm);      \
+        break;          \
+      case F00D:        \
+        logicFD(this_bvm);      \
+        break;          \
+      case F00E:        \
+        logicFE(this_bvm);      \
+        break;          \
+      case F00F:        \
+        logicFF(this_bvm);      \
+        break;          \
+      case CNOT:        \
+        cnot(this_bvm);         \
+        break;          \
+      case ANDOP:       \
+        andop(this_bvm);        \
+        break;          \
+      case OROP:        \
+        orop(this_bvm);         \
+        break;          \
+      case NOTOP:       \
+        notop(this_bvm);        \
+        break;          \
 
-//      case F000:        \
-//        logicF0();      \
-//        break;          \
-//      case F001:        \
-//        logicF1();      \
-//        break;          \
-//      case F002:        \
-//        logicF2();      \
-//        break;          \
-//      case F003:        \
-//        logicF3();      \
-//        break;          \
-//      case F004:        \
-//        logicF4();      \
-//        break;          \
-//      case F005:        \
-//        logicF5();      \
-//        break;          \
-//      case F006:        \
-//        logicF6();      \
-//        break;          \
-//      case F007:        \
-//        logicF7();      \
-//        break;          \
-//      case F008:        \
-//        logicF8();      \
-//        break;          \
-//      case F009:        \
-//        logicF9();      \
-//        break;          \
-//      case F00A:        \
-//        logicFA();      \
-//        break;          \
-//      case F00B:        \
-//        logicFB();      \
-//        break;          \
-//      case F00C:        \
-//        logicFC();      \
-//        break;          \
-//      case F00D:        \
-//        logicFD();      \
-//        break;          \
-//      case F00E:        \
-//        logicFE();      \
-//        break;          \
-//      case F00F:        \
-//        logicFF();      \
-//        break;          \
-//      case CNOT:        \
-//        cnot();         \
-//        break;          \
-//      case ANDOP:       \
-//        andop();        \
-//        break;          \
-//      case OROP:        \
-//        orop();         \
-//        break;          \
-//      case NOTOP:       \
-//        notop();        \
-//        break;          \
-//
-//
 #define cmp_ops         \
+      case CNE:         \
+        cne(this_bvm);          \
+        break;          \
+      case CEQ:         \
+        ceq(this_bvm);          \
+        break;          \
+      case CULT:        \
+        cult(this_bvm);         \
+        break;          \
+      case CULE:        \
+        cule(this_bvm);         \
+        break;          \
+      case CUGT:        \
+        cugt(this_bvm);         \
+        break;          \
+      case CUGE:        \
+        cuge(this_bvm);         \
+        break;          \
+      case CILT:        \
+        cult(this_bvm);         \
+        break;          \
+      case CILE:        \
+        cule(this_bvm);         \
+        break;          \
+      case CIGT:        \
+        cugt(this_bvm);         \
+        break;          \
+      case CIGE:        \
+        cuge(this_bvm);         \
+        break;          \
 
-//      case CNE:         \
-//        cne();          \
-//        break;          \
-//      case CEQ:         \
-//        ceq();          \
-//        break;          \
-//      case CULT:        \
-//        cult();         \
-//        break;          \
-//      case CULE:        \
-//        cule();         \
-//        break;          \
-//      case CUGT:        \
-//        cugt();         \
-//        break;          \
-//      case CUGE:        \
-//        cuge();         \
-//        break;          \
-//      case CILT:        \
-//        cult();         \
-//        break;          \
-//      case CILE:        \
-//        cule();         \
-//        break;          \
-//      case CIGT:        \
-//        cugt();         \
-//        break;          \
-//      case CIGE:        \
-//        cuge();         \
-//        break;          \
-//
 #define io_ops          \
     case SLURP:         \
         slurp_mword(this_bvm);  \
@@ -215,106 +207,106 @@
 //    case STDINLN:       \
 //        stdinln();      \
 //        break;          \
-//
-//
+
 #define array_ops       \
     case CXR:           \
         cxr(this_bvm);          \
         break;          \
+    case DEL:           \
+        del(this_bvm);          \
+        break;          \
+    case SPAN:          \
+        span(this_bvm);         \
+        break;          \
+    case SFIELD:        \
+        sfield(this_bvm);       \
+        break;          \
+    case ARLEN:         \
+        arlen(this_bvm);        \
+        break;          \
+    case ISLF:          \
+        islf(this_bvm);         \
+        break;          \
+    case ISINTE:        \
+        isinte(this_bvm);       \
+        break;          \
+    case SLICE:         \
+        slice(this_bvm);        \
+        break;          \
+    case ARLEN8:        \
+        arlen8(this_bvm);       \
+        break;          \
+    case CUT:           \
+        cut(this_bvm);          \
+        break;          \
+    case SLICE8:        \
+        slice8(this_bvm);       \
+        break;          \
+    case NEWLF:         \
+        newlf(this_bvm);        \
+        break;          \
+    case NEWIN:         \
+        newin(this_bvm);        \
+        break;          \
+    case FREE_OP:       \
+        free_op(this_bvm);      \
+        break;          \
+    case TRUNC:         \
+        trunc(this_bvm);        \
+        break;          \
+    case ARCAT:         \
+        arcat(this_bvm);        \
+        break;          \
+    case ARCAT8:        \
+        arcat8(this_bvm);       \
+        break;          \
+    case ARCMP:         \
+        arcmp(this_bvm);        \
+        break;          \
+    case CR:          \
+        cr(this_bvm);         \
+        break;          \
 
-//    case SFIELD:        \
-//        sfield();       \
-//        break;          \
-//    case ARLEN:         \
-//        arlen();        \
-//        break;          \
-//    case ARLEN8:        \
-//        arlen8();       \
-//        break;          \
-//    case ISLF:          \
-//        islf();         \
-//        break;          \
-//    case ISINTE:        \
-//        isinte();       \
-//        break;          \
-//    case ISHREF:        \
-//        ishref();       \
-//        break;          \
-//    case NEWREF:        \
-//        newref();       \
-//        break;          \
-//    case CUT:           \
-//        cut();          \
-//        break;          \
-//    case SLICE:         \
-//        slice();        \
-//        break;          \
-//    case SLICE8:        \
-//        slice8();       \
-//        break;          \
+#define bstruct_ops \
+
 //    case MU:            \
-//        mu();           \
+//        mu(this_bvm);           \
 //        break;          \
 //    case NLF:           \
-//        nlf();          \
+//        nlf(this_bvm);          \
 //        break;          \
 //    case NHREF:         \
-//        nhref();        \
+//        nhref(this_bvm);        \
 //        break;          \
 //    case NIN:           \
-//        nin();          \
+//        nin(this_bvm);          \
 //        break;          \
 //    case NVA:           \
-//        nva();          \
+//        nva(this_bvm);          \
 //        break;          \
 //    case NPT:           \
-//        npt();          \
+//        npt(this_bvm);          \
 //        break;          \
-//    case NEWLF:         \
-//        newlf();        \
+//        case ISHREF:        \
+//        ishref(this_bvm);       \
 //        break;          \
-//    case NEWIN:         \
-//        newin();        \
-//        break;          \
-//    case FREE_OP:       \
-//        free_op();      \
-//        break;          \
-//    case DEL:           \
-//        del();          \
+//    case NEWREF:        \
+//        newref(this_bvm);       \
 //        break;          \
 //    case CP:            \
-//        cp();           \
-//        break;          \
-//    case SPAN:          \
-//        span();         \
-//        break;          \
-//    case TRUNC:         \
-//        trunc();        \
+//        cp(this_bvm);           \
 //        break;          \
 //    case PASTE:         \
-//        wr();           \
-//        break;          \
-//    case ARCAT:         \
-//        arcat();        \
-//        break;          \
-//    case ARCAT8:        \
-//        arcat8();       \
-//        break;          \
-//    case ARCMP:         \
-//        arcmp();        \
+//        wr(this_bvm);           \
 //        break;          \
 //    case TRAV:          \
-//        trav();         \
+//        trav(this_bvm);         \
 //        break;          \
-//    case CR:          \
-//        cr();         \
-//        break;          \
-//
+
 ////    case B2C:           \
 ////        b2c();          \
 ////        break;          \
-//
-//
+
 #define string_ops      \
 
 //    case STR2AR:        \
@@ -342,70 +334,68 @@
 //        dec2ci();       \
 //        break;          \
 //
-//
-#define list_ops                    \
 
-//    case CARINDEX:      \
-//        carindex();     \
-//        break;          \
-//    case CDRINDEX:      \
-//        cdrindex();     \
-//        break;          \
-//    case ISNIL:         \
-//        isnil();        \
-//        break;          \
-//    case CONS:          \
-//        consls();       \
-//        break;          \
-//    case UNCONS:        \
-//        uncons();       \
-//        break;          \
-//    case AR2LS:         \
-//        ar2ls();        \
-//        break;          \
-//    case LSLEN:         \
-//        len();          \
-//        break;          \
-//    case BONS:          \
-//        bons();         \
-//        break;          \
-//    case LS2LF:         \
-//        ls2lf();        \
-//        break;          \
-//    case ITH:           \
-//        ith();          \
-//        break;          \
-//    case PUSH:          \
-//        push();         \
-//        break;          \
-//    case POP:           \
-//        pop();          \
-//        break;          \
-//    case UNSHIFT:           \
-//        unshift();          \
-//        break;          \
-//    case SHIFT:           \
-//        shift();          \
-//        break;          \
-//
+#define list_ops                    \
+    case CARINDEX:      \
+        carindex(this_bvm);     \
+        break;          \
+    case CDRINDEX:      \
+        cdrindex(this_bvm);     \
+        break;          \
+    case ISNIL:         \
+        isnil(this_bvm);        \
+        break;          \
+    case CONS:          \
+        consls(this_bvm);       \
+        break;          \
+    case UNCONS:        \
+        uncons(this_bvm);       \
+        break;          \
+    case AR2LS:         \
+        ar2ls(this_bvm);        \
+        break;          \
+    case LSLEN:         \
+        len(this_bvm);          \
+        break;          \
+    case BONS:          \
+        bons(this_bvm);         \
+        break;          \
+    case LS2LF:         \
+        ls2lf(this_bvm);        \
+        break;          \
+    case ITH:           \
+        ith(this_bvm);          \
+        break;          \
+    case PUSH:          \
+        push(this_bvm);         \
+        break;          \
+    case POP:           \
+        pop(this_bvm);          \
+        break;          \
+    case UNSHIFT:           \
+        unshift(this_bvm);          \
+        break;          \
+    case SHIFT:           \
+        shift(this_bvm);          \
+        break;          \
+
 #define util_ops        \
     case ARGVOP:        \
         argvop(this_bvm);       \
         break;          \
+    case RAND:          \
+        randop(this_bvm);       \
+        break;          \
+    case SLEEP:         \
+        sleepop(this_bvm);      \
+        break;          \
+    case FNORD:         \
+        fnord(this_bvm);    \
+        break;          \
+    case MWORD_SIZEOP:  \
+        mword_sizeop(this_bvm); \
+        break;          \
 
-//    case RAND:          \
-//        randop();       \
-//        break;          \
-//    case SLEEP:         \
-//        sleepop();      \
-//        break;          \
-//    case FNORD:         \
-//        NSA_BACKDOOR    \
-//        break;          \
-//    case MWORD_SIZEOP:  \
-//        mword_sizeop(); \
-//        break;          \
-//
 #define stack_ops       \
     case ZAP:           \
         hard_zap(this_bvm);          \
@@ -441,8 +431,7 @@
 //    case NEST:          \
 //        nest();         \
 //        break;          \
-//
-//
+
 #define eval_ops        \
     case DIE:           \
         dieop();        \
@@ -481,7 +470,7 @@
 //    case CONTINUEOP:       \
 //        continueop();      \
 //        continue;       \
-//
+
 #define hash_ops        \
     case HASH8:         \
         hash8(this_bvm);        \
@@ -514,7 +503,7 @@
 //    case HASH:          \
 //        hash();         \
 //        break;          \
-//
+
 #define bvm_ops         \
     case BBL2GV:        \
         bs2gv(this_bvm);      \

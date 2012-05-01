@@ -7,157 +7,147 @@
 #include "stack.h"
 #include "list.h"
 #include "bvm_opcodes.h"
+#include "array.h"
 
-//void cne(void){
-//
-//
-//    mword *result    = new_atom();
-//
-//    *result = (mword)car(TOS_0) != (mword)car(TOS_1);
-//
-//
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CNE);
-//
-//}
-//
-//void ceq(void){
-//
-//
-//    mword *result    = new_atom();
-//
-//    *result = (mword)car(TOS_0) == (mword)car(TOS_1);
-//
-//
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CEQ);
-//
-//}
-//
-//void cult(void){
-//
-//
-//    mword *result    = new_atom();
-//
-//    *result = (mword)car(TOS_1) < (mword)car(TOS_0);
-//
-//
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CULT);
-//
-//}
-//
-//void cule(void){
-//
-//
-//    mword *result    = new_atom();
-//
-//    *result = (mword)car(TOS_1) <= (mword)car(TOS_0);
-//
-//
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CULE);
-//
-//}
-//
-//void cugt(void){
-//
-//
-//    mword *result    = new_atom();
-//
-//    *result = (mword)car(TOS_1) > (mword)car(TOS_0);
-//
-//
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CUGT);
-//
-//}
-//
-//void cuge(void){
-//
-//
-//    mword *result    = new_atom();
-//
-//    *result = (mword)car(TOS_1) >= (mword)car(TOS_0);
-//
-//
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CUGE);
-//
-//}
-//
-//void cilt(void){
-//
-//
-//    mword *result    = new_atom();
-//
-//    (int)*result = (int)car(TOS_1) < (int)car(TOS_0);
-//
-//
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CILT);
-//
-//}
-//
-//void cile(void){
-//
-//
-//    mword *result    = new_atom();
-//
-//    (int)*result = (int)car(TOS_1) <= (int)car(TOS_0);
-//
-//
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CILE);
-//
-//}
-//
-//void cigt(void){
-//
-//
-//    mword *result    = new_atom();
-//
-//    (int)*result = (int)car(TOS_1) > (int)car(TOS_0);
-//
-//
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CIGT);
-//
-//}
-//
-//void cige(void){
-//
-//
-//    mword *result    = new_atom();
-//
-//    (int)*result = (int)car(TOS_1) >= (int)car(TOS_0);
-//
-//
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CIGE);
-//
-//}
-//
+bvm_cache *cne(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = (mword)car(TOS_0(this_bvm)) != (mword)car(TOS_1(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CNE);
+
+    return this_bvm;
+
+}
+
+bvm_cache *ceq(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = (mword)car(TOS_0(this_bvm)) == (mword)car(TOS_1(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CEQ);
+
+    return this_bvm;
+
+}
+
+bvm_cache *cult(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = (mword)car(TOS_1(this_bvm)) < (mword)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CULT);
+
+    return this_bvm;
+
+}
+
+bvm_cache *cule(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = (mword)car(TOS_1(this_bvm)) <= (mword)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CULE);
+
+    return this_bvm;
+
+}
+
+bvm_cache *cugt(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = (mword)car(TOS_1(this_bvm)) > (mword)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CUGT);
+
+    return this_bvm;
+
+}
+
+bvm_cache *cuge(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = (mword)car(TOS_1(this_bvm)) >= (mword)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CUGE);
+
+    return this_bvm;
+
+}
+
+bvm_cache *cilt(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    (int)*result = (int)car(TOS_1(this_bvm)) < (int)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CILT);
+
+    return this_bvm;
+
+}
+
+bvm_cache *cile(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    (int)*result = (int)car(TOS_1(this_bvm)) <= (int)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CILE);
+
+    return this_bvm;
+
+}
+
+bvm_cache *cigt(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    (int)*result = (int)car(TOS_1(this_bvm)) > (int)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CIGT);
+
+    return this_bvm;
+
+}
+
+bvm_cache *cige(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    (int)*result = (int)car(TOS_1(this_bvm)) >= (int)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CIGE);
+
+    return this_bvm;
+
+}
 
 // Clayton Bauman 2011
 

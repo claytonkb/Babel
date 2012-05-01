@@ -7,71 +7,82 @@
 #include "stack.h"
 #include "list.h"
 #include "bvm_opcodes.h"
+#include "array.h"
 
-//void cushl(void){
-//
-//    mword *result    = new_atom();
-//
-//    *result = (mword)car(TOS_1) << (mword)car(TOS_0);
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CUSHL);
-//
-//}
-//
-//void cushr(void){
-//
-//    mword *result    = new_atom();
-//
-//    *result = (mword)car(TOS_1) >> (mword)car(TOS_0);
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CUSHR);
-//
-//}
-//
-//void cashr(void){
-//
-//    mword *result    = new_atom();
-//
-//    (int)*result = (int)car(TOS_1) >> (int)car(TOS_0);
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CASHR);
-//
-//}
-//
-//void curol(void){
-//
-//    mword *result    = new_atom();
-//
-//    mword tempA = (mword)car(TOS_1) << (mword)car(TOS_0);
-//    mword tempB = (mword)car(TOS_1) >> (MWORD_BIT_SIZE - (mword)car(TOS_0));
-//    *result = tempA | tempB;
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CUROL);
-//
-//}
-//
-//void curor(void){
-//
-//    mword *result    = new_atom();
-//
-//    mword tempA = (mword)car(TOS_1) >> (mword)car(TOS_0);
-//    mword tempB = (mword)car(TOS_1) << (MWORD_BIT_SIZE - (mword)car(TOS_0));
-//    *result = tempA | tempB;
-//
-//    zap();
-//    zap();
-//    push_alloc(result, CUROR);
-//
-//}
-//
+bvm_cache *cushl(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = (mword)car(TOS_1(this_bvm)) << (mword)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CUSHL);
+
+    return this_bvm;
+
+}
+
+bvm_cache *cushr(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = (mword)car(TOS_1(this_bvm)) >> (mword)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CUSHR);
+
+    return this_bvm;
+
+}
+
+bvm_cache *cashr(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    (int)*result = (int)car(TOS_1(this_bvm)) >> (int)car(TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CASHR);
+
+    return this_bvm;
+
+}
+
+bvm_cache *curol(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    mword tempA = (mword)car(TOS_1(this_bvm)) << (mword)car(TOS_0(this_bvm));
+    mword tempB = (mword)car(TOS_1(this_bvm)) >> (MWORD_BIT_SIZE - (mword)car(TOS_0(this_bvm)));
+    *result = tempA | tempB;
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CUROL);
+
+    return this_bvm;
+
+}
+
+bvm_cache *curor(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    mword tempA = (mword)car(TOS_1(this_bvm)) >> (mword)car(TOS_0(this_bvm));
+    mword tempB = (mword)car(TOS_1(this_bvm)) << (MWORD_BIT_SIZE - (mword)car(TOS_0(this_bvm)));
+    *result = tempA | tempB;
+
+    zap(this_bvm);
+    zap(this_bvm);
+    push_alloc(this_bvm, result, CUROR);
+
+    return this_bvm;
+
+}
+
 
 // Clayton Bauman 2011
 
