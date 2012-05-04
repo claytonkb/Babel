@@ -23,6 +23,8 @@ bvm_cache *arcat8(bvm_cache *this_bvm);
 bvm_cache *cr(bvm_cache *this_bvm);
 bvm_cache *slice8(bvm_cache *this_bvm);
 
+mword *_mkin(mword *entries, mword size);
+
 //XXX DEPRECATED
 //bvm_cache *w(bvm_cache *this_bvm);
 //bvm_cache *paste(bvm_cache *this_bvm);
@@ -39,6 +41,11 @@ int    _arcmp(mword *left, mword *right);
 mword  _cxr1(mword *val, mword bit);
 mword _cxr8(mword *val, mword bit);
 mword *_ar2ls(mword *arr);
+mword *_cxr(mword *array, mword offset);
+
+bvm_cache *perm(bvm_cache *this_bvm);
+void _perm(mword *src, mword *dest, mword *perm_matrix);
+
 
 #endif //ARRAY_H
 

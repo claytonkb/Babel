@@ -437,4 +437,10 @@ ith:            {0x1fa}
 cr:             {0x1fb}
 break:          {0x1fc}
 continue:       {0x1fd}
+walk:           {0x1fe}
+set:            {0x1ff}
+perm:           {0x200}
++=:             {0x201}
+stack:          {0x202}
+code:           {0x203}
 

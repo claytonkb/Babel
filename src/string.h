@@ -4,24 +4,19 @@
 #ifndef STRING_H
 #define STRING_H
 
-//#include "list.h"
-//
 //void b2c(void);
 mword *_b2c(mword *string);
-
-//void ar2str(void);
-//void str2ar(void);
-//
-//void c2b(void);
 mword *_c2b(char *string, mword max_safe_length);
 
-//void catoi(void);
-//void dec2ci(void);
-//void cu2dec(void);
-//void ci2dec(void);
-//void hex2cu(void);
-//void cu2hex(void);
-//
+bvm_cache *ar2str(bvm_cache *this_bvm);
+bvm_cache *str2ar(bvm_cache *this_bvm);
+bvm_cache *catoi(bvm_cache *this_bvm);
+bvm_cache *dec2ci(bvm_cache *this_bvm);
+bvm_cache *cu2dec(bvm_cache *this_bvm);
+bvm_cache *ci2dec(bvm_cache *this_bvm);
+bvm_cache *hex2cu(bvm_cache *this_bvm);
+bvm_cache *cu2hex(bvm_cache *this_bvm);
+
 #endif //STRING_H
 
 // Clayton Bauman 2011

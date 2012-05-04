@@ -46,8 +46,8 @@ my $sections =      get_sections    ( \@asm_file );
                     section_parse   ( $sections->{$_}) for (keys %{$sections});
 
                     assemble        ( $sections, $sections->{'main'} );
-                    linkit          ( $sections, 'main', $obj_out, 0 );
 #print Dumper($sections);
+                    linkit          ( $sections, 'main', $obj_out, 0 );
                     send_obj        ( $proj_name, $obj_out, $sections);
 
 #print Dumper($sections);
@@ -164,15 +164,10 @@ sub assemble{
         $this_section->{bin}[0] = assemble_leaf($sections, $this_section) * $MWORD_SIZE;
     }
     elsif($this_section->{obj}[0] eq "HASH_REF"){
-        push    @{$this_section->{bin}}, @{$this_section->{obj}};
-        shift   @{$this_section->{bin}};
-        unshift @{$this_section->{bin}}, 0;
-#        push @{$this_section->{bin}}, $this_section->{obj}[1];
-#        push @{$this_section->{bin}}, $this_section->{obj}[2];
-#        push @{$this_section->{bin}}, $this_section->{obj}[3];
-#        push @{$this_section->{bin}}, $this_section->{obj}[4];
-#        $count++;
-#        next;
+#        push    @{$this_section->{bin}}, @{$this_section->{obj}};
+#        shift   @{$this_section->{bin}};
+#        unshift @{$this_section->{bin}}, 0;
+        assemble_hash_ref($this_section);
     }
     else{
         push @{$this_section->{bin}}, 0;
@@ -180,6 +175,17 @@ sub assemble{
     }
 
     $this_section->{asmd} = 1;
+
+}
+
+sub assemble_hash_ref{
+
+#    my $sections     = shift;
+    my $this_section = shift;
+
+    push    @{$this_section->{bin}}, @{$this_section->{obj}};
+    shift   @{$this_section->{bin}};
+    unshift @{$this_section->{bin}}, 0;
 
 }
 
@@ -286,6 +292,14 @@ sub assemble_interior {
             $elem = ["LEAF_ARR", $elem];
         }
 
+#        if( $elem->[0] eq "HASH_REF" ){
+#            push    @{$this_section->{bin}}, 0;
+#            push    @{$this_section->{bin}}, $elem->[1];
+#            push    @{$this_section->{bin}}, $elem->[2];
+#            push    @{$this_section->{bin}}, $elem->[3];
+#            push    @{$this_section->{bin}}, $elem->[4];
+#        }
+        
         if($elem->[0] eq "LEAF_ARR"){
 
             $anon_section = "ANON_$anon_section_num";
@@ -297,6 +311,27 @@ sub assemble_interior {
             $sections->{$anon_section}{bin}[0] 
                 = assemble_leaf($sections, $sections->{$anon_section})  * $MWORD_SIZE;
 
+            push @{$this_section->{bin}}, $anon_section;
+
+            $anon_section_num++;
+            $count++;
+            next;
+
+        }
+
+        if($elem->[0] eq "HASH_REF"){
+
+            $anon_section = "ANON_$anon_section_num";
+            $anon_section_num++;
+
+            $sections->{$anon_section}{obj} = $elem;
+
+            assemble_hash_ref($sections->{$anon_section});
+
+#            push @{$sections->{$anon_section}{bin}}, 0;
+#            $sections->{$anon_section}{bin}[0] 
+#                = assemble_leaf($sections, $sections->{$anon_section})  * $MWORD_SIZE;
+#
             push @{$this_section->{bin}}, $anon_section;
 
             $anon_section_num++;

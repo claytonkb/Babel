@@ -30,6 +30,8 @@ bvm_cache *cuadd(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CUADD);
 
+    
+
     return this_bvm;
 
 }
@@ -50,6 +52,8 @@ bvm_cache *cusub(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CUSUB);
+
+    
 
     return this_bvm;
 
@@ -75,6 +79,8 @@ bvm_cache* ciadd(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CIADD);
 
+    
+
     return this_bvm;
 
 }
@@ -99,6 +105,8 @@ bvm_cache* cisub(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CISUB);
 
+    
+
     return this_bvm;
 
 }
@@ -118,6 +126,8 @@ bvm_cache* ciabs(bvm_cache *this_bvm){
 
     zap(this_bvm);
     push_alloc(this_bvm, result, CIABS);
+
+    
 
     return this_bvm;
 
@@ -140,6 +150,8 @@ bvm_cache* cumul(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CUMUL);
 
+    
+
     return this_bvm;
 
 }
@@ -160,6 +172,8 @@ bvm_cache* cudiv(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CUDIV);
 
+    
+
     return this_bvm;
 
 }
@@ -179,6 +193,8 @@ bvm_cache* curem(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CUREM);
+
+    
 
     return this_bvm;
 
@@ -201,6 +217,8 @@ bvm_cache* cimul(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CIMUL);
 
+    
+
     return this_bvm;
 
 }
@@ -222,6 +240,8 @@ bvm_cache* cidiv(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CIDIV);
 
+    
+
     return this_bvm;
 
 }
@@ -241,6 +261,35 @@ bvm_cache* cirem(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CIREM);
+
+    
+
+    return this_bvm;
+
+}
+
+//
+bvm_cache *ciadd_assign(bvm_cache *this_bvm){
+
+//    mword *result    = new_atom;
+
+    (int)car(TOS_0(this_bvm)) = (int)car(TOS_0(this_bvm)) + (int)car(TOS_1(this_bvm));
+
+//    // Detect underflow/overflow
+//    if( ((int)*result <  0) && ((int)car(TOS_0(this_bvm)) > 0) && ((int)car(TOS_1(this_bvm)) > 0) ){
+//        error("ciadd: overflow");
+//    }
+//    if( ((int)*result >= 0) && ((int)car(TOS_0(this_bvm)) < 0) && ((int)car(TOS_1(this_bvm)) < 0) ){
+//        error("ciadd: underflow");
+//    }
+
+    // FIXME Overflow error
+
+    swap(this_bvm);
+    zap(this_bvm);
+//    push_alloc(this_bvm, result, CUADD);
+
+    
 
     return this_bvm;
 

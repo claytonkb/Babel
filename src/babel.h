@@ -35,12 +35,16 @@ typedef struct {
     mword thread_id;
     mword *argv;
     mword steps;
+    mword advance_type;
     alloc machine;
 } bvm_cache;
+
+typedef bvm_cache *(*babel_op)(bvm_cache *);
 
 mword*      nil;
 
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
+void init_interp_jump_table(bvm_cache *this_bvm);
 
 // GLOBALS
 //mword*      internal_global_VM; //Interpreter-visible machine pointer
@@ -81,7 +85,6 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 #define LOG_MWORD_SIZE 2
 
 // UTILITIES
-
 #define s(x)         (*((mword*)x-1))
 #define is_leaf(x)   ((int)s((mword*)x) >  0)
 #define is_inte(x)   ((int)s((mword*)x) <  0)
@@ -114,6 +117,13 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 #define TOS_2(x)     car(car(cdr(cdr(x->stack_ptr))))
 
 #define alloc_type(x) car(car(cdr(x))) 
+#define return_type(x) car(cdr(car(x))) 
+
+// BVM
+#define BVM_ADVANCE  0
+#define BVM_CONTINUE 1
+#define BVM_RETURN   2
+#define BVM_NEXT     3
 
 // DEBUG
 #define DIE_CODE 1
@@ -123,6 +133,7 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 #define die  fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);
 #define warn(x) fprintf(stderr, "WARNING: %s at %s line %d\n", x, __FILE__, __LINE__);
 #define error(x) fprintf(stderr, "ERROR: %s at %s line %d\n", x, __FILE__, __LINE__);
+#define trace fprintf(stderr, "%s line %d\n", __FILE__, __LINE__);
 
 #endif //BABEL_H
 

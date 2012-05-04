@@ -8,6 +8,9 @@ void bbl2gv(mword *tree);
 mword tree_bbl2gv(mword *tree);
 bvm_cache *babelop(bvm_cache *this_bvm);
 bvm_cache *bvm_interp(bvm_cache *this_bvm);
+bvm_cache *bvmcode(bvm_cache *this_bvm);
+bvm_cache *bvmstack(bvm_cache *this_bvm);
+bvm_cache *rsvd(bvm_cache *this_bvm);
 
 //#include "list.h"
 //

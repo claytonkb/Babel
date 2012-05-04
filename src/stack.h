@@ -16,19 +16,18 @@ bvm_cache *zap          (bvm_cache *this_bvm);
 
 
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type);
+void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type);
 void give_tree (bvm_cache *this_bvm, mword *list);
 mword *rtake   (bvm_cache *this_bvm, mword count);
+mword *pop_rstack(bvm_cache *this_bvm);
 
-//#include "list.h"
-//
 #define SELF_ALLOC 0
 #define AUTO_ALLOC 1
-//
+
 //void push_alloc_rstack(mword *operand, mword alloc_type);
 //void zap(void);
 //void push_rstack(mword *ret);
 ////void pop_rstack(void);
-//mword *pop_rstack(void);
 //void sel(void);
 //void _zap(mword **target);
 //void dup(void);

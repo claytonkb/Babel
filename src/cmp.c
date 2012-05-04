@@ -19,6 +19,8 @@ bvm_cache *cne(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CNE);
 
+    
+
     return this_bvm;
 
 }
@@ -32,6 +34,8 @@ bvm_cache *ceq(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CEQ);
+
+    
 
     return this_bvm;
 
@@ -47,6 +51,8 @@ bvm_cache *cult(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CULT);
 
+    
+
     return this_bvm;
 
 }
@@ -60,6 +66,8 @@ bvm_cache *cule(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CULE);
+
+    
 
     return this_bvm;
 
@@ -75,6 +83,8 @@ bvm_cache *cugt(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CUGT);
 
+    
+
     return this_bvm;
 
 }
@@ -88,6 +98,8 @@ bvm_cache *cuge(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CUGE);
+
+    
 
     return this_bvm;
 
@@ -103,6 +115,8 @@ bvm_cache *cilt(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CILT);
 
+    
+
     return this_bvm;
 
 }
@@ -116,6 +130,8 @@ bvm_cache *cile(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CILE);
+
+    
 
     return this_bvm;
 
@@ -131,6 +147,8 @@ bvm_cache *cigt(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CIGT);
 
+    
+
     return this_bvm;
 
 }
@@ -144,6 +162,8 @@ bvm_cache *cige(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CIGE);
+
+    
 
     return this_bvm;
 

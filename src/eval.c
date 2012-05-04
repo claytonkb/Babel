@@ -12,74 +12,73 @@
 #include "bvm.h"
 #include "list.h"
 
-//void eval(void){
-//
-////    d(car(car(car(TOS_0))))
-////        die
-//
-//    mword temp_TOS_0 = TOS_0;
+bvm_cache *eval(bvm_cache *this_bvm){
+
+//    d(car(car(car(TOS_0(this_bvm)))))
+//        die
+
+    mword *temp_TOS_0 = (mword*)TOS_0(this_bvm);
+    zap(this_bvm);
+
+    push_alloc_rstack(this_bvm, (mword*)scdr(this_bvm->code_ptr), EVAL);
+
+    this_bvm->code_ptr = temp_TOS_0;
+
+    this_bvm->advance_type = BVM_CONTINUE;
+
+    return this_bvm;
+
+//    car(code_ptr) = TOS_0;
 //    zap();
-//
-//    push_alloc_rstack((mword*)cdr(code_ptr), EVAL);
-//
-//    code_ptr = temp_TOS_0;
-////    car(code_ptr) = TOS_0;
-////    zap();
-//
-//}
-//
+
+}
+
 //void gotoop(void){
+bvm_cache *gotoop(bvm_cache *this_bvm){
+
+    this_bvm->code_ptr = (mword*)scar(scar(this_bvm->stack_ptr));
+
+    zap(this_bvm);
+
+    this_bvm->advance_type = BVM_CONTINUE;
+
+    return this_bvm;
+
+}
+
 //
-//    code_ptr = car(car(stack_ptr)); // PRE STACK FIX
-////    code_ptr = car(stack_ptr);
+bvm_cache *loop(bvm_cache *this_bvm){
+
+//    push_alloc_rstack((mword*)code_ptr, LOOP);
+
+//    push_rstack((mword*)TOS_1);
+//    push_rstack((mword*)TOS_0);
+//    zap();
 //    zap();
 //
-//}
-//
-////void call(void){
-////
-////    push_alloc_rstack((mword*)cdr(code_ptr), CALL);
-////    code_ptr = car(car(stack_ptr)); // PRE STACK FIX
-//////    code_ptr = car(stack_ptr);
-////    zap();
-////
-////}
-////
-////void ret(void){
-////
-////    // FIXME: CHECK FOR EMPTY RSTACK
-////    code_ptr = car(pop_rstack());
-////
-////}
-//
-//void loop(void){
-//
-////    push_alloc_rstack((mword*)code_ptr, LOOP);
-//
-////    push_rstack((mword*)TOS_1);
-////    push_rstack((mword*)TOS_0);
-////    zap();
-////    zap();
-////
-////    push_rstack((mword*)cdr(code_ptr));
-//
-//    // return RTOS-1
-//    // body   RTOS-0
-//
-//    mword temp_TOS_0 = TOS_0;
-//    zap();
-//
-//    mword *temp = cons_alloc((mword*)cdr(code_ptr), (mword*)nil);
+//    push_rstack((mword*)cdr(code_ptr));
+
+    // return RTOS-1
+    // body   RTOS-0
+
+    mword *temp_TOS_0 = mword *TOS_0(this_bvm);
+    zap(this_bvm);
+
+
+    mword *temp;// = _mkin(); //cons_alloc((mword*)cdr(this_bvm->code_ptr), nil);
+
+    
+
 //    temp = cons_alloc((mword*)temp_TOS_0,temp);
-////    push_alloc_rstack((mword*)cdr(code_ptr), LOOP);
-////    push_alloc_rstack((mword*)temp_TOS_0, LOOP);
-//
-//    push_alloc_rstack(temp, LOOP);
-//
-//    code_ptr = temp_TOS_0;
-//
-//}
-//
+//    push_alloc_rstack((mword*)cdr(code_ptr), LOOP);
+//    push_alloc_rstack((mword*)temp_TOS_0, LOOP);
+
+    push_alloc_rstack(this_bvm, temp, LOOP);
+
+    this_bvm->code_ptr = temp_TOS_0;
+
+}
+
 ////void last(void){
 ////    mword *discard = (mword*)car(pop_rstack());
 ////    code_ptr = nil;
@@ -436,7 +435,7 @@
 //}
 
 //
-void dieop(void){
+bvm_cache *dieop(bvm_cache *this_bvm){
     fprintf(stderr, "Died.\n");
     exit(0);
 }

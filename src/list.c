@@ -17,6 +17,8 @@ bvm_cache *carindex(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, car_TOS_0, CARINDEX);
 
+    
+
     return this_bvm;
 
 }
@@ -28,6 +30,8 @@ bvm_cache *cdrindex(bvm_cache *this_bvm){
 
     zap(this_bvm);
     push_alloc(this_bvm, cdr_TOS_0, CDRINDEX);
+
+    
 
     return this_bvm;
 
@@ -43,6 +47,8 @@ bvm_cache *isnil(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, ISNIL);
 
+    
+
     return this_bvm;
 
 }
@@ -56,6 +62,8 @@ bvm_cache *consls(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CONS);
+
+    
 
     return this_bvm;
 
@@ -83,6 +91,8 @@ bvm_cache *uncons(bvm_cache *this_bvm){
     push_alloc(this_bvm, temp_car, UNCONS);
     push_alloc(this_bvm, temp_cdr, UNCONS);
 
+    
+
     return this_bvm;
 
 }
@@ -93,7 +103,7 @@ bvm_cache *list_end(bvm_cache *this_bvm){
 
 mword *_list_end(mword *list){
 
-    while(!is_nil(scdr(list))){ //Breaks due to car/cdr can't handle hash-refs
+    while(!is_nil(scdr(list))){ //FIXME Breaks due to car/cdr can't handle hash-refs
         list = (mword*)cdr(list);
     }
     return list;
@@ -121,6 +131,8 @@ bvm_cache *push(bvm_cache *this_bvm){
     // XXX Might get alloc-type bugs here...
 //    push_alloc(this_bvm, temp_cons, PUSH);
 
+    
+
     return this_bvm;
 
 }
@@ -135,6 +147,8 @@ bvm_cache *pop(bvm_cache *this_bvm){
     (mword*)c(endls,1) = nil;
 
     push_alloc(this_bvm, temp, POP);
+
+    
 
     return this_bvm;
 
@@ -155,6 +169,8 @@ bvm_cache *unshift(bvm_cache *this_bvm){
     // XXX Might get alloc-type bugs here...
 //    push_alloc(this_bvm, temp_cons, PUSH);
 
+    
+
     return this_bvm;
 
 }
@@ -170,6 +186,8 @@ bvm_cache *shift(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, temp, SHIFT);
 
+    
+
     return this_bvm;
 
 }
@@ -183,6 +201,8 @@ bvm_cache *len(bvm_cache *this_bvm){
 
     zap(this_bvm);
     push_alloc(this_bvm, result, LSLEN);
+
+    
 
     return this_bvm;
 
@@ -209,6 +229,8 @@ bvm_cache *bons(bvm_cache *this_bvm){
     zap(this_bvm);
 
     push_alloc(this_bvm, result, BONS);
+
+    
 
     return this_bvm;
 
@@ -239,6 +261,8 @@ bvm_cache *ls2lf(bvm_cache *this_bvm){
     zap(this_bvm);
 
     push_alloc(this_bvm, result, LS2LF);
+
+    
 
     return this_bvm;
 
@@ -273,6 +297,8 @@ bvm_cache *ith(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, result, ITH);
 
+    
+
     return this_bvm;
 
 }
@@ -289,6 +315,32 @@ mword *_ith(mword *list, mword i){
 
 }
 
+//
+bvm_cache *walk(bvm_cache *this_bvm){
+
+    mword *result = _walk((mword*)TOS_1(this_bvm),(mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    hard_zap(this_bvm);
+
+    push_alloc(this_bvm, result, WALK);
+
+    
+
+    return this_bvm;
+
+}
+
+//
+mword *_walk(mword *bs, mword *walk_list){
+
+    if (is_nil(walk_list)) return bs;
+
+    if (!is_inte(bs)) error("_walk: Can't walk non-interior array");
+
+    return _walk(_ith(bs,(mword)car(car(walk_list))),(mword*)cdr(walk_list));
+
+}
 
 // Clayton Bauman 2011
 

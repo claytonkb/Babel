@@ -1,17 +1,51 @@
---main: ( `17 `(1 (2 (3 4 (5 6) 7 (8 9) 10 ) (11 x&) ) 13) del dump << )
+--main: ( fnord `x goto )
+--x: ( fnord )
+
+-- main: ( `( fnord  `( `( fnord ) ! fnord ) ! ) ! fnord )
+
+-- main: ( `{7 8} `{1 2 3 4 5} `4 paste $ cr << )
+
+-- main: ( `{7 8} `{1 2 3 4 5} `3 paste $ cr << )
+
+-- main: ( `nil nil? $ << )
+
+-- main: ( `[7 8] `[1 2 3 4 5] `3 paste $ cr << )
+
+-- main: ( `( (1 2) (3 4) (5 6) ) `(1 0) walk $ cr << )
+
+-- main: ( `( 1 2 3 4 5 6 ) `4 ith $ cr << )
+
+-- main: ( `{ 1 2 3 4 5 6 } `4 th $ cr << )
+
+-- main: ( `[ 1 2 3 4 5 6 ] `4 th $ cr << )
+
+-- main: ( `[ {1 2} {3 4} {5 6} ] `(1 0) trav $ cr << )
+
+-- main: ( `[ [1 2] [3 4] [5 6] ] `(1 0) trav $ cr << )
+
+-- main: ( `17 `(1 2 x&) del dump << )
+
+--main: ( `17 `[x&]
+--        dup mu    `"mu   : " << $ << `"\n" << 
+--        dup nin   `"nin  : " << $ << `"\n" << 
+--        dup nlf   `"nlf  : " << $ << `"\n" << 
+--        dup nhref `"nhref: " << $ << `"\n" << 
+--        dup nva   `"nva  : " << $ << `"\n" << 
+--        dup npt   `"npt  : " << $ << `"\n" << )
 
 --main: ( `0x1234 `0x4321 + `0x5678 `0x7 cushl `0xff + - $ << `"\n" << )
 
-main: ( `0x17
-        `nil 
-        `"abc" `0xaaaa inskha 
-        `"def" `0xbbbb inskha 
---        `"ghi" `0xcccc inskha
---        `"jkl" `0xdddd inskha 
---        `"mno" `0xeeee inskha 
---        `"pqr" `0xffff inskha
-        del
-        dump << )
+--main: ( `0x17
+--        `nil 
+--        `"xyz" `0xaaaa inskha 
+--        `"abd" `0xbbbb inskha 
+----        `"ghi" `0xcccc inskha
+----        `"jkl" `0xdddd inskha 
+----        `"mno" `0xeeee inskha 
+----        `"pqr" `0xffff inskha
+--        del
+--        dump << )
+----        $ << )
 
 --main: ( `0x17
 --        `nil 

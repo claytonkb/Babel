@@ -18,6 +18,13 @@
 //    return temp;
 //
 //}
+
+//    alloc_type
+//    // return     -> -3
+//    // cond_block -> -2
+//    // body       -> -1
+//    // next       -> 
+
 //
 //void push_alloc_rstack(mword *operand, mword alloc_type){
 //
@@ -63,6 +70,23 @@ void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 }
 
 //
+void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
+
+    mword *new_stack_cons  = new_cons;
+    mword *new_stack_entry = _newin(STACK_ENTRY_SIZE);
+    mword *type            = new_atom;
+
+    c(type,0) = alloc_type; // alloc_type = operand for auto-alloc
+    STACK_ENTRY_VAL(new_stack_entry) = operand;
+    STACK_ENTRY_TYP(new_stack_entry) = type;
+
+    cons(new_stack_cons, new_stack_entry, this_bvm->rstack_ptr);
+
+    this_bvm->rstack_ptr = new_stack_cons;
+
+}
+
+//
 bvm_cache *hard_zap(bvm_cache *this_bvm){
 
     if(is_nil(this_bvm->stack_ptr)){
@@ -104,8 +128,6 @@ bvm_cache *zap(bvm_cache *this_bvm){
 
 }
 
-// TODO: Implement a "soft zap" that performs per-operator de-allocation
-
 ////
 ////
 //void _zap(mword **target){
@@ -128,23 +150,21 @@ bvm_cache *zap(bvm_cache *this_bvm){
 //
 ////
 ////
-//mword *pop_rstack(void){
-//
-//    //If rstack is empty: except()
-//
-//    mword *temp_rstack = (mword*)rstack_ptr;
-////    code_ptr = car(rstack_ptr);
-//
-//    (mword*)rstack_ptr = (mword*)cdr(rstack_ptr);
-//    //free((mword*)(temp_rstack-1)); //FIXME: THERE'S NO CHECKING!!!
-//    //    mword *temp_cons = new_cons();
-//
-//    return (mword*)car(temp_rstack);
-//
-//}
-//
 
-//
+mword *pop_rstack(bvm_cache *this_bvm){
+
+    //If rstack is empty: except()
+
+    mword *temp_rstack = this_bvm->rstack_ptr;
+//    code_ptr = car(rstack_ptr);
+
+    this_bvm->rstack_ptr = (mword*)scdr(this_bvm->rstack_ptr);
+    //FIXME: Leaky!
+
+    return (mword*)car(temp_rstack);
+
+}
+
 //
 bvm_cache *sel(bvm_cache *this_bvm){
 
@@ -194,6 +214,8 @@ bvm_cache *dup(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, result, DUP);
 
+    
+
     return this_bvm;
 
 }
@@ -224,6 +246,8 @@ bvm_cache *swap(bvm_cache *this_bvm){
     this_bvm->stack_ptr = B;
     (mword*)cdr(B) = A;
     (mword*)cdr(A) = C;
+
+    
 
     return this_bvm;
 
@@ -259,6 +283,8 @@ bvm_cache *take(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, result, TAKE);
 
+    return this_bvm;
+
 }
 
 //
@@ -288,6 +314,8 @@ bvm_cache *depth(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, result, DEPTH);
     
+    
+
     return this_bvm;
 
 }
@@ -299,6 +327,8 @@ bvm_cache *give(bvm_cache *this_bvm){
     hard_zap(this_bvm);
 
     give_tree(this_bvm,(mword*)list);
+
+    return this_bvm;
 
 }
 
@@ -317,8 +347,10 @@ void give_tree(bvm_cache *this_bvm, mword *list){
 bvm_cache *clear(bvm_cache *this_bvm){
 
     while(!is_nil((mword*)TOS_0(this_bvm))){
-        hard_zap(this_bvm);
+        zap(this_bvm);
     }
+
+    return this_bvm;
 
 }
 

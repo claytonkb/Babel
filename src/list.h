@@ -27,6 +27,9 @@ mword *_list_next_to_end(mword *list);
 mword *_consls(mword *car_field, mword *cdr_field);
 mword _len(mword *list);
 
+bvm_cache *walk(bvm_cache *this_bvm);
+mword *_walk(mword *bs, mword *walk_list);
+
 #endif //LIST_H
 
 // Clayton Bauman 2011

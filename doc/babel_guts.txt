@@ -432,9 +432,5 @@ Description Language).
     - String-list. This is a string-array on which the the ar2ls operator
     has been called.
 
------ Interpreter reset
-
-    On invocation of the local babel binary from the command-line or by a
-    system exec call, Babel begins a set of steps which are called Babel
-    reset.
+    
 

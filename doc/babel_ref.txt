@@ -17,8 +17,8 @@ Lower-case means "a single value"
 To provide a short-hand for certain common operators and make Babel 
 operators more recognizable in terms of the operators used in other 
 languages, I have decided to create a variety of non-alphanumeric
-operator aliases. Because these aliases may be particularly cryptic
-when first encountered, I have collected them in one place here:
+operator aliases. Because these aliases may be cryptic when first 
+encountered, I have collected them in one place here:
 
        Symbol       Operator        Mnemonic
       ------------------------------------------------------------------

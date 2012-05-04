@@ -29,12 +29,12 @@ mword *new_hash_entry(mword *hash, mword *key, mword *val, mword ref_count, mwor
     mword *href = _newref(hash);
 
     mword *ref_count_ptr = new_atom;
-    *ref_count_ptr = ref_count;
+    *ref_count_ptr       = ref_count;
 
-    mword *bounding_ptr = new_atom;
-    *bounding_ptr = bounding;
+    mword *bounding_ptr  = new_atom;
+    *bounding_ptr        = bounding;
 
-    mword *hash_entry = _newin(HASH_ENTRY_SIZE);
+    mword *hash_entry    = _newin(HASH_ENTRY_SIZE);
 
 //    (mword*)c(hash_entry,0) = href;
 //    (mword*)c(hash_entry,1) = val;
@@ -65,9 +65,13 @@ bvm_cache *inskha(bvm_cache *this_bvm){
     hard_zap(this_bvm);
 //    hard_zap(this_bvm);
 
-    push_alloc(this_bvm, result, INSKHA);
+//    push_alloc(this_bvm, result, INSKHA);
 
 //printf("%s\n\n",_bs2gv(this_bvm->stack_ptr));
+
+    
+
+    return this_bvm;
 
 }
 

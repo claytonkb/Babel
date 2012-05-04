@@ -11,6 +11,16 @@ mword *_slurp(mword *filename);
 bvm_cache *slurp(bvm_cache *this_bvm);
 bvm_cache *slurp_mword(bvm_cache *this_bvm);
 
+bvm_cache *cprintf(bvm_cache *this_bvm);
+bvm_cache *cprints(bvm_cache *this_bvm);
+bvm_cache *spit(bvm_cache *this_bvm);
+void _spit(char *filename, mword *fileout);
+bvm_cache *journal(bvm_cache *this_bvm);
+void _journal(char *filename, mword *fileout);
+bvm_cache *spit_mword(bvm_cache *this_bvm);
+bvm_cache *stdoutop(bvm_cache *this_bvm);
+bvm_cache *stdinln(bvm_cache *this_bvm);
+
 //#include "list.h"
 //
 //void cprintf(void);

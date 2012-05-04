@@ -21,6 +21,8 @@ bvm_cache *sfield(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, SFIELD);
 
+    
+
     return this_bvm;
 
 }
@@ -34,6 +36,8 @@ bvm_cache *arlen(bvm_cache *this_bvm){
 
     zap(this_bvm);
     push_alloc(this_bvm, result, ARLEN);
+
+    
 
     return this_bvm;
 
@@ -49,6 +53,8 @@ bvm_cache *islf(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, ISLF);
 
+    
+
     return this_bvm;
 
 }
@@ -62,6 +68,8 @@ bvm_cache *isinte(bvm_cache *this_bvm){
 
     zap(this_bvm);
     push_alloc(this_bvm, result, ISINTE);
+
+    
 
     return this_bvm;
 
@@ -112,6 +120,20 @@ mword *_newin(mword size){
     }
 
     return ptr+1;
+
+}
+
+// utility function used for rstack
+mword *_mkin(mword *entries, mword size){
+
+    mword *arr = _newin(size);
+
+    int i;
+    for(i=0;i<size;i++){
+        c(arr,i) = entries[i];
+    }
+
+    return arr;
 
 }
 
@@ -170,20 +192,50 @@ bvm_cache *slice(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, SLICE);
 
+    
+
     return this_bvm;
 
 }
 
+//
 bvm_cache *cxr(bvm_cache *this_bvm){
 
-    mword *temp = (mword*)c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
+//    if(is_leaf(array)){
+//        temp = new_atom;
+//        c(temp,0) = c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
+//    }
+//    else{
+//        temp = (mword*)c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
+//    }
+
+    mword *result = _cxr((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
 
     hard_zap(this_bvm);
     hard_zap(this_bvm);
 
-    push_alloc(this_bvm, temp, CXR);
+    push_alloc(this_bvm, result, CXR);
+
+    
 
     return this_bvm;
+
+}
+
+//
+mword *_cxr(mword *array, mword offset){
+
+    mword *temp;
+
+    if(is_leaf(array)){
+        temp = new_atom;
+        c(temp,0) = c(array, offset);
+    }
+    else{
+        temp = (mword*)c(array, offset);
+    }
+
+    return temp;
 
 }
 
@@ -369,6 +421,8 @@ bvm_cache *cut(bvm_cache *this_bvm){
         push_alloc(this_bvm, result_post, CUT);
     }
 
+    
+
     return this_bvm;
 
 }
@@ -383,6 +437,8 @@ bvm_cache *arlen8(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, ARLEN8);
    
+    
+
     return this_bvm;
  
 }
@@ -411,6 +467,8 @@ bvm_cache *newin(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, NEWIN);
 
+    
+
     return this_bvm;
 
 }
@@ -422,6 +480,8 @@ bvm_cache *newlf(bvm_cache *this_bvm){
 
     zap(this_bvm);
     push_alloc(this_bvm, result, NEWLF);
+
+    
 
     return this_bvm;
 
@@ -437,6 +497,8 @@ bvm_cache *trunc(bvm_cache *this_bvm){
     _trunc((mword*)TOS_1(this_bvm), (mword)car(TOS_0(this_bvm)));
 
     zap(this_bvm);
+
+    
 
     return this_bvm;
 
@@ -541,6 +603,8 @@ bvm_cache *arcat(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, ARCAT);
 
+    
+
     return this_bvm;
 
 }
@@ -597,6 +661,8 @@ bvm_cache *arcat8(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, (mword*)result, ARCAT8);
 
+    
+
     return this_bvm;
 
 }
@@ -637,6 +703,8 @@ bvm_cache *cr(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, (mword*)result, CR);
 
+    
+
     return this_bvm;
 
 }
@@ -673,6 +741,8 @@ bvm_cache *slice8(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, (mword*)result, SLICE8);
 
+    
+
     return this_bvm;
 
 }
@@ -686,6 +756,8 @@ bvm_cache *arcmp(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, ARCMP);
+
+    
 
     return this_bvm;
 
@@ -714,6 +786,8 @@ bvm_cache *ar2ls(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, result, AR2LS);
 
+    
+
     return this_bvm;
 
 }
@@ -739,6 +813,53 @@ mword *_ar2ls(mword *arr){
     }
 
     return last_cons;
+
+}
+
+//TOS_0 perm_matrix
+//TOS_1 src
+bvm_cache *perm(bvm_cache *this_bvm){
+
+    mword *result;
+
+    if(is_inte((mword*)TOS_1(this_bvm))){
+        result = _newin(size(TOS_1(this_bvm)));
+    }
+    else if(is_leaf((mword*)TOS_1(this_bvm))){
+        result = _newlf(size(TOS_1(this_bvm)));
+    }
+    else{
+        error("perm: !is_leaf && !is_inte");
+        return;
+    }
+
+    _perm((mword*)TOS_1(this_bvm), result, (mword*)TOS_0(this_bvm));
+
+    zap(this_bvm);
+    zap(this_bvm);
+
+    push_alloc(this_bvm, result, PERM);
+
+    
+
+    return this_bvm;
+
+}
+
+//
+void _perm(mword *src, mword *dest, mword *perm_matrix){
+
+    mword array_size = size(src);
+
+    if(array_size != size(dest) || array_size != size(perm_matrix)){
+        error("_perm: array_size != size(dest) || array_size != size(perm_matrix)");
+        return;
+    }
+
+    int i;
+    for(i=0; i<array_size; i++){
+        c((mword*)dest,i) = c((mword*)src,c((mword*)perm_matrix,i));
+    }
 
 }
 

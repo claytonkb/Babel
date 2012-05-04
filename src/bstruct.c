@@ -64,6 +64,8 @@ bvm_cache *bbl2str(bvm_cache *this_bvm){
 
     push_alloc(this_bvm,result,BBL2STR);
 
+    
+
     return this_bvm;
 
 }
@@ -148,6 +150,8 @@ bvm_cache *bs2gv(bvm_cache *this_bvm){
     zap(this_bvm);
     
     push_alloc(this_bvm,result,BBL2GV);
+
+    
 
     return this_bvm;
 
@@ -251,92 +255,111 @@ mword rbs2gv(mword *bs, char *buffer){
 
 }
 
+// TOS_0 offset
+// TOS_1 dest
+// TOS_2 src
+bvm_cache *paste(bvm_cache *this_bvm){
 
-//void wr(void){
+    _wrcxr((mword*)TOS_1(this_bvm),(mword*)TOS_2(this_bvm),car(TOS_0(this_bvm)));
+
+    hard_zap(this_bvm);
+    swap(this_bvm);
+    hard_zap(this_bvm);
+
+    
+
+    return this_bvm;
+
+}
+
+// TOS_0 dest
+// TOS_1 src
+bvm_cache *set(bvm_cache *this_bvm){
+
+    _wrcxr((mword*)TOS_0(this_bvm),(mword*)TOS_1(this_bvm),0);
+
+    swap(this_bvm);
+    hard_zap(this_bvm);
+
+    
+
+    return this_bvm;
+
+}
+
 //
-//    _wr((mword*)TOS_1,(mword*)TOS_0,(mword*)TOS_2);
+void _wrcxr(mword *dest, mword *src, mword offset){
+
+    mword dest_size = size(dest);
+
+    if(offset > dest_size){
+        error("_wrcxr: Can't write past the end of an array");
+    }
+
+    dest_size -= offset;
+    mword src_size = size(src);
+    mword iter = (src_size < dest_size) ? src_size : dest_size;
+
+    if(         (is_leaf(dest) && is_leaf(dest)) 
+            ||  (is_inte(dest) && is_inte(dest))){
+        int i;
+        for(i=0;i<iter;i++){
+            *(dest+i+offset) = c(src,i);
+        }
+    }
+    else{
+        error("_wrcxr: Can't write to hash-ref or non-matching arrays");
+    }
+
+}
+
 //
-//    zap();
-//    zap();
-//    zap();
+bvm_cache *trav(bvm_cache *this_bvm){
+
+    mword *result = _trav((mword*)TOS_1(this_bvm),(mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    hard_zap(this_bvm);
+
+    push_alloc(this_bvm, result, TRAV);
+
+    
+
+    return this_bvm;
+
+}
+
 //
-//}
+mword *_trav(mword *bs, mword *trav_list){
+
+    if(is_nil((mword*)cdr(trav_list))){// return bs;
+        return _cxr(bs, car(car(trav_list)));
+    }
+    else{
+        if (!is_inte(bs)){ error("_trav: Can't traverse non-interior array"); die; }
+
+        return _trav((mword*)c(bs,(mword)car(car(trav_list))),(mword*)cdr(trav_list));
+    }
+
+}
+
 //
-//
-//void _wr(mword *tree, mword *list, mword* src){
-//
-//    if (cdr(list) == nil){
-//
-//        if(is_leaf(tree)){
-//            if(is_leaf(src)){
-//                mword offset    = (mword)car(car(list));
-//                mword dest_size = size(tree)-offset;
-//                mword src_size  = size(src);
-//
-//                mword iter = (src_size < dest_size) ? src_size : dest_size;
-//
-//                int i;
-//                for(i=0;i<iter;i++){
-//                    *(tree+i+offset) = c(src,i);
-//                }
-//                return;
-//            }
-//            else{
-//                except("_wr: Can't paste non-leaf array into leaf-array", __FILE__, __LINE__);
-//            }
-//        }
-//        else if(is_inte(tree)){
-//            c(tree,(mword)car(car(list))) = (mword)src;
-//            return;
-//        }
-//        else{
-//            except("_wr: href case not yet implemented", __FILE__, __LINE__);
-//        }
-//
-//    }
-//
-//    if (!is_inte(tree)) except("_wr: Can't traverse non-interior array", __FILE__, __LINE__);
-//
-//    return _wr((mword*)c(tree,(mword)car(car(list))),(mword*)cdr(list),src);
-//
-//}
-//
-//bvm_cache *trav(bvm_cache *this_bvm);
-//
-//    mword *result = _trav((mword*)TOS_1(this_bvm),(mword*)TOS_0(this_bvm));
-//
-//    hard_zap(this_bvm);
-//    hard_zap(this_bvm);
-//
-//    push_alloc(this_bvm, result, TRAV);
-//
-//}
-//
-//mword *_trav(mword *tree, mword *list){
-//
-//    if (list == (mword*)nil) return tree;
-//
-//    if (!is_inte(tree)) except("_trav: Can't traverse non-interior array", __FILE__, __LINE__);
-//
-//    return _trav((mword*)c(tree,(mword)car(car(list))),(mword*)cdr(list));
-//
-//}
-//
-//void mu(void) {
-//
-//
-//    mword *result    = new_atom();
-//
-//    *result = _mu((mword*)TOS_0);
-//       clean_tree((mword*)TOS_0);
-//
-//
-//    zap();
-//    push_alloc(result, MU);
-//    
-////    printf("size %d\n", size_tree(global_VM));
-//
-//}
+bvm_cache *mu(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = _mu((mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, MU);
+
+    
+
+    return this_bvm;
+    
+//    printf("size %d\n", size_tree(global_VM));
+
+}
 
 // Returns the size of a bstruct in mwords
 // mu -> mem usage (mnemonic: *nix du)
@@ -375,23 +398,23 @@ mword _rmu(mword *bs){
 
 }
 
-//void nlf(void) {
 //
-//    mword *result    = new_atom();
-//
-//    *result = _nlf((mword*)TOS_0);
-//        clean_tree((mword*)TOS_0);
-//
-//
-//    zap();
-//    push_alloc(result, NLF);
-//
-//
-////    printf("leafs %d\n", leafs(global_VM));
-////    clean_tree(global_VM);
-//
-//}
+bvm_cache *nlf(bvm_cache *this_bvm){
 
+    mword *result    = new_atom;
+
+    *result = _nlf((mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, NLF);
+
+    
+
+    return this_bvm;
+
+}
+
+//
 mword _nlf(mword *bs){
 
     mword size = _rnlf(bs);
@@ -431,22 +454,23 @@ mword _rnlf(mword *bs){
 
 }
 
-//void nhref(void) {
 //
-//    mword *result    = new_atom();
-//
-//    *result = _nhref((mword*)TOS_0);
-//        clean_tree((mword*)TOS_0);
-//
-//    zap();
-//    push_alloc(result, NHREF);
-//
-//
-////    printf("leafs %d\n", leafs(global_VM));
-////    clean_tree(global_VM);
-//
-//}
+bvm_cache *nhref(bvm_cache *this_bvm){
 
+    mword *result    = new_atom;
+
+    *result = _nhref((mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, NHREF);
+
+    
+
+    return this_bvm;
+
+}
+
+//
 mword _nhref(mword *bs){
 
     mword size = _rnhref(bs);
@@ -488,22 +512,20 @@ mword _rnhref(mword *bs){
 }
 
 //
-//void nin(void) {
-//
-//
-//    mword *result    = new_atom();
-//
-//    *result = _nin((mword*)TOS_0);
-//        clean_tree((mword*)TOS_0);
-//
-//
-//    zap();
-//    push_alloc(result, NIN);
-//
-////    printf("intes %d\n", intes(global_VM));
-////    clean_tree(global_VM);
-//
-//}
+bvm_cache *nin(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = _nin((mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, NIN);
+
+    
+
+    return this_bvm;
+
+}
 
 //
 mword _nin(mword *bs){
@@ -514,7 +536,6 @@ mword _nin(mword *bs){
     return size;
 
 }
-
 
 //
 mword _rnin(mword *bs){
@@ -544,94 +565,106 @@ mword _rnin(mword *bs){
 }
 
 //
-//void nva(void) {
+bvm_cache *nva(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = _nva((mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, NVA);
+
+    
+
+    return this_bvm;
+
+}
+
 //
+mword _nva(mword *bs) {
+
+    mword size = _rnva(bs);
+    rclean(bs);
+
+    return size;
+
+}
+
+// 
+mword _rnva(mword *bs){
+
+    int i;
+    mword count = 0;
+
+    if( TRAVERSED(bs) ){
+        return 0;
+    }
+
+    int num_elem = size(bs);
+
+    if(is_inte(bs)){
+        MARK_TRAVERSED(bs);
+        for(i=0; i<num_elem; i++){
+            count += _rnva((mword *)*(bs+i));
+        }
+    }
+    else{ // is_leaf
+        count = num_elem;
+    }
+
+    return count;
+
+}
+
 //
-//    mword *result    = new_atom();
+bvm_cache *npt(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = _npt((mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, NPT);
+
+    
+
+    return this_bvm;
+
+}
+
 //
-//    *result = _nva((mword*)TOS_0);
-//        clean_tree((mword*)TOS_0);
-//
-//
-//    zap();
-//    push_alloc(result, NIN);
-//
-////    printf("vals %d\n", vals(global_VM));
-////    clean_tree(global_VM);
-//
-//}
-//
-//// Returns 
-//mword _nva(mword *tree){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){
-//        return 0;
-//    }
-//
-//    int num_elem = size(tree);
-////    count = num_elem + 1;
-//
-//    s(tree) |= 0x1;
-//
-//    if(is_inte(tree)){
-//        for(i=0; i<num_elem; i++){
-//            count += _nva((mword *)*(tree+i));
-//        }
-//    }
-//    else{ // is_leaf
-//        count = num_elem;
-//    }
-//
-//    return count;
-//
-//}
-//
-//void npt(void) {
-//
-//
-//    mword *result    = new_atom();
-//
-//    *result = _npt((mword*)TOS_0);
-//        clean_tree((mword*)TOS_0);
-//
-//
-//    zap();
-//    push_alloc(result, NIN);
-//
-////    printf("ptrs %d\n", ptrs(global_VM));
-////    clean_tree(global_VM);
-//
-//}
-//
-//// Returns 
-//mword _npt(mword *tree){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){
-//        return 0;
-//    }
-//
-//    int num_elem = size(tree);
-////    count = num_elem + 1;
-//
-//    s(tree) |= 0x1;
-//
-//    if(is_inte(tree)){
-//        for(i=0; i<num_elem; i++){
-//            count += _npt((mword *)*(tree+i));
-//        }
-//        count += num_elem;
-//    }
-//
-//    return count;
-//
-//}
-//
+mword _npt(mword *bs) {
+
+    mword size = _rnpt(bs);
+    rclean(bs);
+
+    return size;
+
+}
+
+// 
+mword _rnpt(mword *bs){
+
+    int i;
+    mword count = 0;
+
+    if( TRAVERSED(bs) ){
+        return 0;
+    }
+
+    if(is_inte(bs)){
+        int num_elem = size(bs);
+        MARK_TRAVERSED(bs);
+        for(i=0; i<num_elem; i++){
+            count += _rnpt((mword *)*(bs+i));
+        }
+        count += num_elem;
+    }
+
+    return count;
+
+}
+
 //void cp(void){
 //
 //    mword *result = _unload((mword*)TOS_0);
@@ -649,6 +682,8 @@ bvm_cache *span(bvm_cache *this_bvm){
     hard_zap(this_bvm);
 
     push_alloc(this_bvm, result, SPAN);
+
+    
 
     return this_bvm;
 

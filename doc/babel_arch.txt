@@ -4,6 +4,10 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- jump_table -----
+
+Implement jump table before re-enabling rstack
+
 ----- READ/WRITE -----
 
 Array:

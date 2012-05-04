@@ -6,6 +6,6 @@
 
 main:
     ( argv [0] th
-    slurp load 
+    slurp load
     babel )
 

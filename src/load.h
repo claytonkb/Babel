@@ -39,5 +39,7 @@ mword *get_abs_offset(LUT_rel, LUT_abs, tree);
 ////void _load(mword *tree);
 ////void load_tree(mword *tree, mword offset);
 
+#endif
+
 // Clayton Bauman 2011
 

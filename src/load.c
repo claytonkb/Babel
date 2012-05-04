@@ -30,6 +30,10 @@ bvm_cache *load(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, result, LOAD);
 
+    
+
+    return this_bvm;
+
 //    _load((mword*)TOS_0);
 //    TOS_0 = TOS_0 + MWORD_SIZE;
 
@@ -157,16 +161,21 @@ mword *load_tree(
             c(new_arr,i) = c(tree,offset+i);
         }
     }
-    else{
+    else{ //href
         new_arr = _newref((mword*)(tree+offset));
+
+//        d(num_elem)
+//        for(i=0; i<num_elem; i++){
+//            d(c(new_arr,i))// = c(tree,offset+i);
+//        }
 
         c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
         c(LUT_abs,*LUT_offset) = (mword)new_arr;
         *LUT_offset = *LUT_offset+1;
 
-//        for(i=0; i<num_elem; i++){
-//            c(new_arr,i) = c(tree,offset+i);
-//        }
+        for(i=0; i<num_elem; i++){
+            c(new_arr,i) = c(tree,offset+i);
+        }
     }
 
     s(tree+offset) |= 0x1; //Mark dumped

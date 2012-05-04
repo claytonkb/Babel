@@ -19,6 +19,8 @@ bvm_cache *cushl(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CUSHL);
 
+    
+
     return this_bvm;
 
 }
@@ -33,6 +35,8 @@ bvm_cache *cushr(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CUSHR);
 
+    
+
     return this_bvm;
 
 }
@@ -46,6 +50,8 @@ bvm_cache *cashr(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CASHR);
+
+    
 
     return this_bvm;
 
@@ -63,6 +69,8 @@ bvm_cache *curol(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CUROL);
 
+    
+
     return this_bvm;
 
 }
@@ -78,6 +86,8 @@ bvm_cache *curor(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     push_alloc(this_bvm, result, CUROR);
+
+    
 
     return this_bvm;
 

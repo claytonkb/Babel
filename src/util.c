@@ -28,6 +28,8 @@ bvm_cache *randop(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, RAND);
 
+    
+
     return this_bvm;
 
 }
@@ -41,6 +43,8 @@ bvm_cache *sleepop(bvm_cache *this_bvm){
     zap(this_bvm);
 
     Sleep(seconds*1000);
+
+    
 
     return this_bvm;
 
@@ -66,12 +70,16 @@ bvm_cache *mword_sizeop(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, result, MWORD_SIZEOP);
 
+    
+
     return this_bvm;
 
 }
 
 //
 bvm_cache *fnord(bvm_cache *this_bvm){
+
+    printf("fnord fnord\n");
 
     return this_bvm;
 

@@ -291,19 +291,20 @@
 #define STR2AR      0x181
 //#define B2C         0x182
 //#define C2B         0x183
-
 #define CU2DEC      0x184
 #define CU2HEX      0x185
 #define CI2DEC      0x186
-#define HEX2CU      0x195
-#define DEC2CI      0x196
-
+#define LSLEN       0x188
 #define TAKE        0x189
 #define GIVE        0x18a
 
-#define LSLEN       0x188
 #define LSCAT       0x18c
+
 #define BBL2STR     0x190
+
+#define HEX2CU      0x195
+#define DEC2CI      0x196
+
 #define UNCONS      0x198
 #define CDRINDEX    0x199
 #define POP         0x19a
@@ -312,11 +313,14 @@
 #define PERMSTK     0x19d
 #define SWAP        0x19e
 #define SEL         0x19f
+
 #define STRINT      0x1a0
 #define MACINT      0x1a1
 #define INTERPOL    0x1a2
+
 #define MKPEG       0x1a4
 #define PEGPAR      0x1a5
+
 #define CONS        0x1a8
 #define CARINDEX    0x1a9
 #define PUSH        0x1aa
@@ -331,6 +335,7 @@
 #define JOURNAL     0x1b2
 
 #define ISLS        0x1b8
+
 #define LS2LF       0x1ba
 #define BONS        0x1bb
 #define ISAT        0x1bc
@@ -352,12 +357,12 @@
 #define WRFILE      0x1d1
 #define CLFILE      0x1d2
 #define CNTFILE     0x1d3
+
 #define STDOUTOP8   0x1e0
 #define STDERROP    0x1e1
 #define STDINOP     0x1e2
 #define STDINLN     0x1e3
 #define STDINF      0x1e4
-
 #define NHREF       0x1e5
 #define ANDOP       0x1e6
 #define OROP        0x1e7
@@ -369,6 +374,7 @@
 #define EACHAR      0x1ed
 #define PHASH       0x1ee
 #define PHASH8      0x1ef
+
 #define DOWN        0x1f0
 #define UP          0x1f1
 #define TAKE        0x1f2
@@ -383,6 +389,13 @@
 #define CR          0x1fb
 #define BREAKOP     0x1fc
 #define CONTINUEOP  0x1fd
+#define WALK        0x1fe
+#define SET         0x1ff
+
+#define PERM        0x200
+#define ADDEQ       0x201
+#define BVMSTACK    0x202
+#define BVMCODE     0x203
 
 #endif //BVM_OPCODES_H
 

@@ -63,6 +63,9 @@
     case CIREM:         \
         cirem(this_bvm);        \
         break;          \
+    case ADDEQ:         \
+        ciadd_assign(this_bvm);        \
+        break;          \
 
 #define shift_ops       \
       case CUSHL:       \
@@ -182,31 +185,30 @@
     case STDOUTOP8:     \
         stdoutop8(this_bvm);    \
         break;          \
-
-//    case CPRINTF:       \
-//        cprintf();      \
-//        break;          \
-//    case CPRINTS:       \
-//        cprints();      \
-//        break;          \
-//    case SLURP8:        \
-//        slurp(this_bvm);        \
-//        break;          \
-//    case SPIT8:         \
-//        spit();         \
-//        break;          \
-//    case SPIT:          \
-//        spit_mword();   \
-//        break;          \
-//    case JOURNAL8:      \
-//        journal();      \
-//        break;          \
-//    case STDOUTOP:      \
-//        stdoutop();     \
-//        break;          \
-//    case STDINLN:       \
-//        stdinln();      \
-//        break;          \
+    case CPRINTF:       \
+        cprintf(this_bvm);      \
+        break;          \
+    case CPRINTS:       \
+        cprints(this_bvm);      \
+        break;          \
+    case SLURP8:        \
+        slurp(this_bvm);        \
+        break;          \
+    case SPIT8:         \
+        spit(this_bvm);         \
+        break;          \
+    case SPIT:          \
+        spit_mword(this_bvm);   \
+        break;          \
+    case JOURNAL8:      \
+        journal(this_bvm);      \
+        break;          \
+    case STDOUTOP:      \
+        stdoutop(this_bvm);     \
+        break;          \
+    case STDINLN:       \
+        stdinln(this_bvm);      \
+        break;          \
 
 #define array_ops       \
     case CXR:           \
@@ -221,7 +223,7 @@
     case SFIELD:        \
         sfield(this_bvm);       \
         break;          \
-    case ARLEN:         \
+case ARLEN:         \
         arlen(this_bvm);        \
         break;          \
     case ISLF:          \
@@ -266,28 +268,39 @@
     case CR:          \
         cr(this_bvm);         \
         break;          \
+    case PERM:          \
+        perm(this_bvm);         \
+        break;          \
 
 #define bstruct_ops \
-
-//    case MU:            \
-//        mu(this_bvm);           \
-//        break;          \
-//    case NLF:           \
-//        nlf(this_bvm);          \
-//        break;          \
-//    case NHREF:         \
-//        nhref(this_bvm);        \
-//        break;          \
-//    case NIN:           \
-//        nin(this_bvm);          \
-//        break;          \
-//    case NVA:           \
-//        nva(this_bvm);          \
-//        break;          \
-//    case NPT:           \
-//        npt(this_bvm);          \
-//        break;          \
-//        case ISHREF:        \
+    case MU:            \
+        mu(this_bvm);           \
+        break;          \
+    case NLF:           \
+        nlf(this_bvm);          \
+        break;          \
+    case NHREF:         \
+        nhref(this_bvm);        \
+        break;          \
+    case NIN:           \
+        nin(this_bvm);          \
+        break;          \
+    case NVA:           \
+        nva(this_bvm);          \
+        break;          \
+    case NPT:           \
+        npt(this_bvm);          \
+        break;          \
+    case TRAV:          \
+        trav(this_bvm);         \
+        break;          \
+    case PASTE:         \
+        paste(this_bvm);           \
+        break;          \
+    case SET:         \
+        set(this_bvm);           \
+        break;          \
+//    case ISHREF:        \
 //        ishref(this_bvm);       \
 //        break;          \
 //    case NEWREF:        \
@@ -296,44 +309,33 @@
 //    case CP:            \
 //        cp(this_bvm);           \
 //        break;          \
-//    case PASTE:         \
-//        wr(this_bvm);           \
-//        break;          \
-//    case TRAV:          \
-//        trav(this_bvm);         \
-//        break;          \
-
-////    case B2C:           \
-////        b2c();          \
-////        break;          \
 
 #define string_ops      \
+    case STR2AR:        \
+        str2ar(this_bvm);       \
+        break;          \
+    case AR2STR:        \
+        ar2str(this_bvm);       \
+        break;          \
+    case CATOI:         \
+        catoi(this_bvm);        \
+        break;          \
+    case CU2DEC:        \
+        cu2dec(this_bvm);       \
+        break;          \
+    case CI2DEC:        \
+        ci2dec(this_bvm);       \
+        break;          \
+    case HEX2CU:        \
+        hex2cu(this_bvm);       \
+        break;          \
+    case CU2HEX:        \
+        cu2hex(this_bvm);       \
+        break;          \
+    case DEC2CI:        \
+        dec2ci(this_bvm);       \
+        break;          \
 
-//    case STR2AR:        \
-//        str2ar();       \
-//        break;          \
-//    case AR2STR:        \
-//        ar2str();       \
-//        break;          \
-//    case CATOI:         \
-//        catoi();        \
-//        break;          \
-//    case CU2DEC:        \
-//        cu2dec();       \
-//        break;          \
-//    case CI2DEC:        \
-//        ci2dec();       \
-//        break;          \
-//    case HEX2CU:        \
-//        hex2cu();       \
-//        break;          \
-//    case CU2HEX:        \
-//        cu2hex();       \
-//        break;          \
-//    case DEC2CI:        \
-//        dec2ci();       \
-//        break;          \
-//
 
 #define list_ops                    \
     case CARINDEX:      \
@@ -366,6 +368,9 @@
     case ITH:           \
         ith(this_bvm);          \
         break;          \
+    case WALK:           \
+        walk(this_bvm);          \
+        break;          \
     case PUSH:          \
         push(this_bvm);         \
         break;          \
@@ -390,7 +395,8 @@
         sleepop(this_bvm);      \
         break;          \
     case FNORD:         \
-        fnord(this_bvm);    \
+        op_ptr = &fnord;\
+        (*op_ptr)(this_bvm);    \
         break;          \
     case MWORD_SIZEOP:  \
         mword_sizeop(this_bvm); \
@@ -434,7 +440,7 @@
 
 #define eval_ops        \
     case DIE:           \
-        dieop();        \
+        dieop(this_bvm);        \
         continue;       \
 
 //    case EVAL:          \
@@ -517,13 +523,13 @@
     case BBL2STR:       \
         bbl2str(this_bvm);      \
         break;          \
+    case BVMCODE:       \
+        bvmcode(this_bvm);      \
+        break;          \
+    case BVMSTACK:       \
+        bvmstack(this_bvm);      \
+        break;          \
 
-//    case BVMROOT:       \
-//        bvmroot();      \
-//        break;          \
-//    case BBL2GV:        \
-//        _bbl2gv();      \
-//        break;          \
 //    case UNLOAD:        \
 //        unload();       \
 //        break;          \
@@ -532,21 +538,6 @@
 //    case BVMKILL:       \
 //        bvmstep();      \
 //        break;          \
-//
-////FIXME: BVMKILL is temporarily re-purposed...
-//
-////    case INTERNAL_BVMROOT:      \
-////        internal_bvmroot();     \
-////        break;                  \
-////    case UNLOAD:        \
-////        unload();       \
-////        break;          \
-//
-////#define debug_ops                           \
-////    case TOGGLE_STACK_TRACE:    \
-////        toggle_stack_trace();   \
-////        break;                  \
-////
 
 #endif // BVM_INTERP_H
 

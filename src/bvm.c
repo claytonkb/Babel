@@ -283,29 +283,50 @@
 bvm_cache *bvm_interp(bvm_cache *this_bvm){
 
     bvm_cache *discard;
+//    bvm_cache *(*fptr)(bvm_cache *) = NULL;
+    babel_op op_ptr;
 
     while(this_bvm->steps--){//FIXME: This is not correct long-term
 
         if(is_nil((mword*)scar(this_bvm->code_ptr))){
+            if(!is_nil(this_bvm->rstack_ptr)){
+                if(return_type(this_bvm->rstack_ptr) == EVAL){
+                    this_bvm->code_ptr = (mword*)car(pop_rstack(this_bvm));
+                    continue;
+                }
+            }
             break;
         }
 
         if( is_inte(car(this_bvm->code_ptr)) ){
-//            printf("inte\n");
-//            die
+//            if(is_href((mword*)car(car(this_bvm->code_ptr)))){
+//                error("bvm_interp: hash-reference detected on stack");
+//                die;
+//            }
             push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), SELF_ALLOC);
+//            this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
         }
         else if( is_leaf(car(this_bvm->code_ptr)) ){
-            opcode_switch(car(car(this_bvm->code_ptr)));
+//            opcode_switch(car(car(this_bvm->code_ptr)));
+//            d(car(car(this_bvm->code_ptr)))
+            op_ptr = (babel_op)this_bvm->jump_table[car(car(this_bvm->code_ptr))];
+            discard = op_ptr(this_bvm);
         }
         else if( is_href(car(this_bvm->code_ptr)) ){ //TODO: Implement href operator calls!
             error("bvm_interp: hash-reference detected in code");
+            die;
         }
         else{
             error("bvm_interp: error detected during execution");
+            die;
         }
 
-        this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
+        if(this_bvm->advance_type == BVM_ADVANCE){
+            this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
+        }
+        else{
+            this_bvm->advance_type = BVM_ADVANCE;
+        }
 
     }
 
@@ -324,9 +345,10 @@ bvm_cache *babelop(bvm_cache *this_bvm){
     new_bvm.code_ptr      = (mword*)TOS_0(this_bvm);
     new_bvm.stack_ptr     = nil; //FIXME allow stack to be init'd
     new_bvm.rstack_ptr    = nil;
-    new_bvm.jump_table    = nil;
+    new_bvm.jump_table    = this_bvm->jump_table;
     new_bvm.thread_id     = this_bvm->thread_id+1;
     new_bvm.steps         = (mword)-1;
+    new_bvm.advance_type  = BVM_ADVANCE;
 
     //FIXME: pearson_init and argv
 
@@ -337,16 +359,49 @@ bvm_cache *babelop(bvm_cache *this_bvm){
     //FIXME - push stack of new_bvm onto this_bvm when bvm_interp returns
     //push_alloc(this_bvm, new_bvm.stack_ptr, BVMEXEC);
 
+    
+
     return this_bvm;
 
 }
 
-//void bvmroot(void){
 //
-//    push_alloc(global_VM, BVMROOT);
+bvm_cache *bvmcode(bvm_cache *this_bvm){
+
+    push_alloc(this_bvm, this_bvm->code_ptr, BVMCODE);
+
+    return this_bvm;
+
+}
+
+//
+bvm_cache *bvmstack(bvm_cache *this_bvm){
+
+    push_alloc(this_bvm, this_bvm->rstack_ptr, BVMSTACK);
+
+    return this_bvm;
+
+}
+
+////
+//bvm_cache *bvmrstack(bvm_cache *this_bvm){
+//
+//    push_alloc(this_bvm, this_bvm->rstack_ptr, BVMRSTACK);
+//
+//    return this_bvm;
 //
 //}
+
 //
+bvm_cache *rsvd(bvm_cache *this_bvm){
+
+    d(car(car(this_bvm->code_ptr)))
+
+    error("An attempt was made to execute a reserved opcode");
+    die;
+
+}
+
 ////#ifdef DEBUG
 ////
 ////void internal_bvmroot(void){

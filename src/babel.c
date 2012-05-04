@@ -74,6 +74,9 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
     root_bvm->jump_table    = nil;
     root_bvm->thread_id     = ROOT_INTERP_THREAD;
     root_bvm->steps         = (mword)-1;
+    root_bvm->advance_type  = BVM_ADVANCE;
+
+    init_interp_jump_table(root_bvm);
 
     //initialize argv
     //XXX This will change when we add CLI processing:
@@ -127,6 +130,25 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
     //    mword *hash_init = new_hash();
     //    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
     //    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
+
+}
+
+//
+void init_interp_jump_table(bvm_cache *this_bvm){
+
+    #include "fixed_opcodes.h"
+
+//    printf("%d\n",sizeof(interp_fixed_opcodes)/sizeof(babel_op));
+//    die
+
+    #define num_opcodes (sizeof(interp_fixed_opcodes)/sizeof(babel_op))
+
+    this_bvm->jump_table = _newin(num_opcodes);
+
+    int i;
+    for(i=0;i<num_opcodes;i++){
+        (mword*)this_bvm->jump_table[i] = (mword*)interp_fixed_opcodes[i];
+    }
 
 }
 

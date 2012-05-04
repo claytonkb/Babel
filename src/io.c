@@ -14,26 +14,6 @@
 #include "utf8.h"
 #include "string.h"
 
-////cprintf
-////
-//void cprintf(void){
-//
-//    printf((char*)(TOS_0), (mword)car(TOS_1));
-//
-//    zap();
-//    zap();
-//
-//}
-//
-////cprints
-////
-//void cprints(void){
-//
-//    printf("%s", ((char*)TOS_0));
-//    zap();
-//
-//}
-
 //_slurp
 //
 mword *_slurp(mword *filename){ // FIXME: Lots of bad things in here...
@@ -109,6 +89,10 @@ bvm_cache *slurp(bvm_cache *this_bvm){
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, SLURP8);
 
+    
+
+    return this_bvm;
+
 }
 
 //slurp_mword
@@ -128,128 +112,212 @@ bvm_cache *slurp_mword(bvm_cache *this_bvm){
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, SLURP);
 
+    
+
+    return this_bvm;
+
 }
 
-//void spit(void){
+//cprintf
 //
-////    mword *filename = _b2c((mword*)TOS_0);
-////    _spit((char*)filename, (mword*)TOS_1);
-//    _spit((char*)TOS_0, (mword*)TOS_1);
-//    zap();
-//    zap();
+bvm_cache *cprintf(bvm_cache *this_bvm){
+
+    printf((char*)(TOS_0(this_bvm)), (mword)car(TOS_1(this_bvm)));
+
+    zap(this_bvm);
+    zap(this_bvm);
+
+    
+
+    return this_bvm;
+
+}
+
+//cprints
 //
-//}
+bvm_cache *cprints(bvm_cache *this_bvm){
+
+    printf("%s", ((char*)TOS_0(this_bvm)));
+    zap(this_bvm);
+
+    
+
+    return this_bvm;
+
+}
+
 //
-////
-////
-//void _spit(char *filename, mword *fileout){
+bvm_cache *spit(bvm_cache *this_bvm){
+
+//    mword *filename = _b2c((mword*)TOS_0(this_bvm));
+//    _spit((char*)filename, (mword*)TOS_1(this_bvm));
+    _spit((char*)TOS_0(this_bvm), (mword*)TOS_1(this_bvm));
+    zap(this_bvm);
+    zap(this_bvm);
+
+    
+
+    return this_bvm;
+
+}
+
 //
-//    FILE * pFile;
+void _spit(char *filename, mword *fileout){
+
+    FILE * pFile;
+
+    mword filesize   = _arlen8(fileout);
+
+    pFile = fopen(filename , "wb");
+
+    if (pFile==NULL) {//fputs ("File error",stderr); exit (1);}
+        error("slurp: file error");
+    }
+
+    fwrite(fileout, 1, filesize, pFile);
+    //Return Value
+    //The total number of elements successfully written is returned as a size_t object, which is an integral data type.
+    //If this number differs from the count parameter, it indicates an error.
+
+    fclose (pFile);
+
+}
+
 //
-//    mword filesize   = _arlen8(fileout);
+bvm_cache *journal(bvm_cache *this_bvm){
+
+    mword *filename = _b2c((mword*)TOS_0(this_bvm));
+    _journal((char*)filename, (mword*)TOS_1(this_bvm));
+    zap(this_bvm);
+    zap(this_bvm);
+
+    return this_bvm;
+
+}
+
 //
-//    pFile = fopen(filename , "wb");
+void _journal(char *filename, mword *fileout){
+
+    FILE * pFile;
+
+    mword filesize   = _arlen8(fileout);
+
+    pFile = fopen(filename , "ab"); //First try
+
+    if (pFile==NULL){ //First try fails if file didn't already exist
+        pFile = fopen(filename, "wb");
+    }
+
+    if (pFile==NULL) {//fputs ("File error",stderr); exit (1);}
+        error("_journal: file error");
+    }
+
+    fwrite(fileout, 1, filesize, pFile);
+    //Return Value
+    //The total number of elements successfully written is returned as a size_t object, which is an integral data type.
+    //If this number differs from the count parameter, it indicates an error.
+
+    fclose (pFile);
+
+}
+
 //
-//    if (pFile==NULL) {//fputs ("File error",stderr); exit (1);}
-//        except("slurp: file error", __FILE__, __LINE__);
-//    }
+bvm_cache *spit_mword(bvm_cache *this_bvm){
+
+    char *filename = (char*)_b2c((mword*)TOS_0(this_bvm));
+
+    FILE * pFile;
+
+    mword filesize   = size((mword*)TOS_1(this_bvm)) * MWORD_SIZE;
+
+    pFile = fopen(filename , "wb");
+
+    if (pFile==NULL) {//fputs ("File error",stderr); exit (1);}
+        error("spit: file error");
+    }
+
+    fwrite((char*)TOS_1(this_bvm), 1, filesize, pFile);
+
+    //Return Value
+    //The total number of elements successfully written is returned as a size_t object, which is an integral data type.
+    //If this number differs from the count parameter, it indicates an error.
+
+    fclose (pFile);
+
+    zap(this_bvm);
+    zap(this_bvm);
+
+    
+
+    return this_bvm;
+
+}
+
 //
-//    fwrite(fileout, 1, filesize, pFile);
-//    //Return Value
-//    //The total number of elements successfully written is returned as a size_t object, which is an integral data type.
-//    //If this number differs from the count parameter, it indicates an error.
+bvm_cache *stdoutop(bvm_cache *this_bvm){
+
+    mword length = size((mword*)TOS_0(this_bvm));
+    int i;
+
+    for(i = 0; i<length; i++){
+        putchar((int)(*((mword*)TOS_0(this_bvm)+i)));
+    }
+
+    zap(this_bvm);
+
+    
+
+    return this_bvm;
+
+}
+
+// FIXME: Make UTF-8 compliant...
 //
-//    fclose (pFile);
-//
-//}
-//
-////
-////
-//void journal(void){
-//
-//    mword *filename = _b2c((mword*)TOS_0);
-//    _journal((char*)filename, (mword*)TOS_1);
-//    zap();
-//    zap();
-//
-//}
-//
-////
-////
-//void _journal(char *filename, mword *fileout){
-//
-//    FILE * pFile;
-//
-//    mword filesize   = _arlen8(fileout);
-//
-//    pFile = fopen(filename , "ab"); //First try
-//
-//    if (pFile==NULL){ //First try fails if file didn't already exist
-//        pFile = fopen(filename, "wb");
-//    }
-//
-//    if (pFile==NULL) {//fputs ("File error",stderr); exit (1);}
-//        except("_journal: file error", __FILE__, __LINE__);
-//    }
-//
-//    fwrite(fileout, 1, filesize, pFile);
-//    //Return Value
-//    //The total number of elements successfully written is returned as a size_t object, which is an integral data type.
-//    //If this number differs from the count parameter, it indicates an error.
-//
-//    fclose (pFile);
-//
-//}
-//
-//void spit_mword(void){
-//
-//    char *filename = (char*)_b2c((mword*)TOS_0);
-//
-//    FILE * pFile;
-//
-//    mword filesize   = size((mword*)TOS_1) * MWORD_SIZE;
-//
-//    pFile = fopen(filename , "wb");
-//
-//    if (pFile==NULL) {//fputs ("File error",stderr); exit (1);}
-//        except("spit: file error", __FILE__, __LINE__);
-//    }
-//
-//    fwrite((char*)TOS_1, 1, filesize, pFile);
-//
-//    //Return Value
-//    //The total number of elements successfully written is returned as a size_t object, which is an integral data type.
-//    //If this number differs from the count parameter, it indicates an error.
-//
-//    fclose (pFile);
-//
-//    zap();
-//    zap();
-//
-//}
-//
-//
-//void stdoutop(void){
-//
-//    mword length = size((mword*)TOS_0);
-//    int i;
-//
-//    for(i = 0; i<length; i++){
-//        putchar((int)(*((mword*)TOS_0+i)));
-//    }
-//
-//    zap();
-//
-//}
-//
-//
+bvm_cache *stdinln(bvm_cache *this_bvm){
+
+    int c, i=0;
+    char buffer[(1<<16)]; //64K buffer (for now)
+
+    while(1){
+        c = fgetc(stdin);
+        if(c == EOF || c == '\n'){
+            break;
+        }
+        buffer[i] = c;        
+        i++;
+    }
+
+    mword arlength = (i / 4) + 1;
+
+    if(i % 4){
+        arlength++;
+    }
+
+    mword *result = _newlf(arlength);
+    memcpy(result, buffer, i);
+    free(buffer);
+
+    c(result,arlength-1) = alignment_word8(i);
+
+    push_alloc(this_bvm, result, STDINLN);
+
+    
+
+    return this_bvm;
+
+}
 
 // FIXME: Make UTF-8 compliant...
 //
 bvm_cache *stdoutop8(bvm_cache *this_bvm){
 
     _stdoutop8((mword*)TOS_0(this_bvm));
-    return hard_zap(this_bvm);
+    
+    hard_zap(this_bvm);
+
+    
+
+    return this_bvm;
 
 }
 
@@ -264,38 +332,6 @@ void _stdoutop8(mword *string){
     }
 
 }
-
-//// FIXME: Make UTF-8 compliant...
-////
-//void stdinln(void){
-//
-//    int c, i=0;
-//    char buffer[(1<<16)]; //64K buffer (for now)
-//
-//    while(1){
-//        c = fgetc(stdin);
-//        if(c == EOF || c == '\n'){
-//            break;
-//        }
-//        buffer[i] = c;        
-//        i++;
-//    }
-//
-//    mword arlength = (i / 4) + 1;
-//
-//    if(i % 4){
-//        arlength++;
-//    }
-//
-//    mword *result = _newlf(arlength);
-//    memcpy(result, buffer, i);
-//    free(buffer);
-//
-//    c(result,arlength-1) = alignment_word8(i);
-//
-//    push_alloc(result, STDINLN);
-//
-//}
 
 // Clayton Bauman 2011
 
