@@ -1,4 +1,3 @@
-// XXX STACK FIX DONE
 // stack.c
 //
 
@@ -214,8 +213,6 @@ bvm_cache *dup(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, result, DUP);
 
-    
-
     return this_bvm;
 
 }
@@ -247,39 +244,58 @@ bvm_cache *swap(bvm_cache *this_bvm){
     (mword*)cdr(B) = A;
     (mword*)cdr(A) = C;
 
-    
+    return this_bvm;
+
+}
+
+//
+bvm_cache *down(bvm_cache *this_bvm){
+
+    push_alloc_rstack(this_bvm, (mword*)TOS_0(this_bvm), DOWN);
+    zap(this_bvm);
 
     return this_bvm;
 
 }
 
-//void down(void){
 //
-//    push_alloc_rstack((mword*)TOS_0,DOWN);
-//    zap();
-//
-//}
-//
-//void up(void){
-//
-//    if(alloc_type(RTOS_0) == DOWN){
-//        push_alloc((mword*)car(pop_rstack()),UP);
-//    }
-//    else{ //NEST
-//        stack_ptr = car(pop_rstack());
-//    }
-//
-//}
+bvm_cache *up(bvm_cache *this_bvm){
 
-//FIXME: This is wrong, just do an iterative pop()
+    if(return_type(this_bvm->rstack_ptr) == DOWN){
+        push_alloc(this_bvm,(mword*)car(pop_rstack(this_bvm)),UP);
+    }
+    else{ //NEST
+        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+    }
+
+    return this_bvm;
+    
+}
+
+//
 bvm_cache *take(bvm_cache *this_bvm){
 
     mword count = car(TOS_0(this_bvm));
-//    mword *temp;
+    zap(this_bvm);
 
-    hard_zap(this_bvm);
+    mword *result = nil;
+    mword *list_entry;
+    mword *temp;
 
-    mword *result = rtake(this_bvm, count);
+    int i;
+//    d(count)
+    for(i=0;i<count;i++){
+        list_entry = (mword*)TOS_0(this_bvm);
+        temp = new_cons;
+        cons(   temp,
+                list_entry,
+                result);
+        result = temp;
+        zap(this_bvm);
+    }
+    
+//    _dump(result);
+//    die;
 
     push_alloc(this_bvm, result, TAKE);
 
@@ -287,24 +303,24 @@ bvm_cache *take(bvm_cache *this_bvm){
 
 }
 
+////
+//mword *rtake(bvm_cache *this_bvm, mword count){
 //
-mword *rtake(bvm_cache *this_bvm, mword count){
-
-    if(count == 0)
-        return nil;
-
-    mword *A = new_cons;
-    mword *B = (mword*)car(car(this_bvm->stack_ptr));
-
-    hard_zap(this_bvm);
-
-    cons(   A,
-            B,
-            rtake(this_bvm,count-1));
-
-    return A;
-
-}
+//    if(count == 0)
+//        return nil;
+//
+//    mword *A = new_cons;
+//    mword *B = (mword*)car(car(this_bvm->stack_ptr));
+//
+//    hard_zap(this_bvm);
+//
+//    cons(   A,
+//            B,
+//            rtake(this_bvm,count-1));
+//
+//    return A;
+//
+//}
 
 //
 bvm_cache *depth(bvm_cache *this_bvm){
@@ -313,33 +329,33 @@ bvm_cache *depth(bvm_cache *this_bvm){
     *result = _len((mword*)this_bvm->stack_ptr);
 
     push_alloc(this_bvm, result, DEPTH);
-    
-    
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *give(bvm_cache *this_bvm){
 
     mword *list = (mword*)TOS_0(this_bvm);
 
-    hard_zap(this_bvm);
+    zap(this_bvm);
 
-    give_tree(this_bvm,(mword*)list);
+    rgive(this_bvm,(mword*)list);
 
     return this_bvm;
 
 }
 
-void give_tree(bvm_cache *this_bvm, mword *list){
+//
+void rgive(bvm_cache *this_bvm, mword *list){
 
     if(is_nil(list))
         return;
 
-    give_tree(this_bvm,(mword*)cdr(list));
-
     push_alloc(this_bvm, (mword*)car(list), GIVE);
+
+    rgive(this_bvm,(mword*)cdr(list));
 
 }
 
@@ -354,19 +370,20 @@ bvm_cache *clear(bvm_cache *this_bvm){
 
 }
 
-//void nest(void){
 //
-//    mword *new_stack = (mword*)TOS_0;
-//
-//    zap();
-//    push_alloc_rstack((mword*)stack_ptr,NEST);
-//
-//    clear();
-//
-//    give_tree(new_stack);
-//
-//}
-//
+bvm_cache *nest(bvm_cache *this_bvm){
+
+    mword *new_stack = (mword*)TOS_0(this_bvm);
+
+    zap(this_bvm);
+    push_alloc_rstack(this_bvm, (mword*)this_bvm->stack_ptr, NEST);
+
+    clear(this_bvm);
+
+    rgive(this_bvm, new_stack);
+
+}
+
 
 // Clayton Bauman 2011
 

@@ -1,4 +1,3 @@
-// XXX STACK FIX DONE
 // bvm.c
 //
 
@@ -283,19 +282,16 @@
 bvm_cache *bvm_interp(bvm_cache *this_bvm){
 
     bvm_cache *discard;
-//    bvm_cache *(*fptr)(bvm_cache *) = NULL;
     babel_op op_ptr;
 
     while(this_bvm->steps--){//FIXME: This is not correct long-term
 
         if(is_nil((mword*)scar(this_bvm->code_ptr))){
             if(!is_nil(this_bvm->rstack_ptr)){
-                if(return_type(this_bvm->rstack_ptr) == EVAL){
-                    this_bvm->code_ptr = (mword*)car(pop_rstack(this_bvm));
-                    continue;
-                }
+                next(this_bvm);
+                continue;
             }
-            break;
+            break; // XXX An unexpected nil in code-stream can cause an exit... may be bad
         }
 
         if( is_inte(car(this_bvm->code_ptr)) ){
@@ -309,7 +305,8 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
         else if( is_leaf(car(this_bvm->code_ptr)) ){
 //            opcode_switch(car(car(this_bvm->code_ptr)));
 //            d(car(car(this_bvm->code_ptr)))
-            op_ptr = (babel_op)this_bvm->jump_table[car(car(this_bvm->code_ptr))];
+            mword opcode = car(car(this_bvm->code_ptr));
+            op_ptr = (babel_op)this_bvm->jump_table[ opcode % NUM_INTERP_OPCODES ];
             discard = op_ptr(this_bvm);
         }
         else if( is_href(car(this_bvm->code_ptr)) ){ //TODO: Implement href operator calls!

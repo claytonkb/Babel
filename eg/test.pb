@@ -1,5 +1,13 @@
---main: ( fnord `x goto )
---x: ( fnord )
+main: ( `1 `"hello\n" `"world\n" sel <<  )
+
+-- main: ( `( ("hello\n") ) `( ("world\n") ) `1 if <<  )
+
+-- main: ( fnord nil fnord )
+
+-- main: ( `( fnord ) loop )
+
+-- main: ( fnord `x goto )
+-- x: ( fnord )
 
 -- main: ( `( fnord  `( `( fnord ) ! fnord ) ! ) ! fnord )
 

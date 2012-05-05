@@ -1,4 +1,3 @@
-// XXX STACK FIX DONE
 // io.c
 //
 

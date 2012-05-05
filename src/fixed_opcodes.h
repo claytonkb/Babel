@@ -28,9 +28,9 @@
 #include "bstruct.h"
 #include "alloc.h"
 #include "ref.h"
+#include "babel.h"
 
-babel_op interp_fixed_opcodes[516] = {
-
+babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
 
 
 
@@ -402,7 +402,7 @@ babel_op interp_fixed_opcodes[516] = {
     gotoop, //    gotoop,
     rsvd,
     rsvd,
-    rsvd, //    loop,
+    loop, //    loop,
     rsvd, //    last,
     rsvd, //    next,
     rsvd,
@@ -422,8 +422,8 @@ babel_op interp_fixed_opcodes[516] = {
     rsvd,
     rsvd,
     rsvd,
-    rsvd, //    whileop,
-    rsvd, //    times,
+    whileop, //    whileop,
+    times, //    times,
     rsvd,
     isinte,
     rsvd,
@@ -647,7 +647,7 @@ babel_op interp_fixed_opcodes[516] = {
     orop,
     notop,
     rsvd, //    ishref,
-    rsvd, //    each,
+    each, //    each,
     rsvd, //    newref,
     span,
     rsvd, //    eachar,
@@ -657,20 +657,20 @@ babel_op interp_fixed_opcodes[516] = {
 
 
     //1f0
-    rsvd, //    down,
-    rsvd, //    up,
-    rsvd, //    take,
-    rsvd, //    depth,
-    rsvd, //    give,
-    rsvd, //    nest,
-    rsvd, //    clear,
+    down, //    down,
+    up, //    up,
+    take, //    take,
+    depth, //    depth,
+    give, //    give,
+    nest, //    nest,
+    clear, //    clear,
     stdoutop,
     rsvd,
     trav,
     ith,
     cr,
     rsvd, //    breakop,
-    rsvd, //    continueop,
+    continueop, //    continueop,
     walk,
     set,
 
@@ -679,6 +679,7 @@ babel_op interp_fixed_opcodes[516] = {
     ciadd_assign,
     bvmstack,
     bvmcode,
+    ifop,
 
 };
 

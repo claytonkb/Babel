@@ -76,6 +76,8 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 
 #define ROOT_INTERP_THREAD 0
 
+#define NUM_INTERP_OPCODES 517
+
 #define WINDOWS
 //#define STAR_NIX
 
@@ -115,6 +117,8 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 #define TOS_0(x)             car(car(x->stack_ptr))
 #define TOS_1(x)         car(car(cdr(x->stack_ptr)))
 #define TOS_2(x)     car(car(cdr(cdr(x->stack_ptr))))
+
+#define RTOS_0(x)            car(car(x->rstack_ptr))
 
 #define alloc_type(x) car(car(cdr(x))) 
 #define return_type(x) car(cdr(car(x))) 
