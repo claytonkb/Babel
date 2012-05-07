@@ -15,6 +15,11 @@ mword *load_tree(
         mword *LUT_offset);
 mword *get_abs_offset(LUT_rel, LUT_abs, tree);
 
+bvm_cache *unload(bvm_cache *this_bvm);
+mword *_unload(mword *bs);
+mword _runload(mword *bs, mword *LUT_abs, mword *LUT_rel, mword *dest, mword *offset, mword *LUT_offset);
+mword get_rel_offset(mword *LUT_abs, mword *LUT_rel, mword *entry);
+
 //void load(void);
 ////void load_tree(mword *tree, mword offset);
 ////void _load(mword *tree);//, mword offset);

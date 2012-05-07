@@ -46,6 +46,8 @@ bvm_cache *set(bvm_cache *this_bvm);
 
 void _wrcxr(mword *dest, mword *src, mword offset);
 
+bvm_cache *cp(bvm_cache *this_bvm);
+
 //void cp(void);
 //void span(void);
 

@@ -356,8 +356,6 @@ bvm_cache *babelop(bvm_cache *this_bvm){
     //FIXME - push stack of new_bvm onto this_bvm when bvm_interp returns
     //push_alloc(this_bvm, new_bvm.stack_ptr, BVMEXEC);
 
-    
-
     return this_bvm;
 
 }
@@ -374,20 +372,20 @@ bvm_cache *bvmcode(bvm_cache *this_bvm){
 //
 bvm_cache *bvmstack(bvm_cache *this_bvm){
 
-    push_alloc(this_bvm, this_bvm->rstack_ptr, BVMSTACK);
+    push_alloc(this_bvm, this_bvm->stack_ptr, BVMSTACK);
 
     return this_bvm;
 
 }
 
-////
-//bvm_cache *bvmrstack(bvm_cache *this_bvm){
 //
-//    push_alloc(this_bvm, this_bvm->rstack_ptr, BVMRSTACK);
-//
-//    return this_bvm;
-//
-//}
+bvm_cache *bvmrstack(bvm_cache *this_bvm){
+
+    push_alloc(this_bvm, this_bvm->rstack_ptr, BVMRSTACK);
+
+    return this_bvm;
+
+}
 
 //
 bvm_cache *rsvd(bvm_cache *this_bvm){

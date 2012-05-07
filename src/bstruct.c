@@ -665,14 +665,16 @@ mword _rnpt(mword *bs){
 
 }
 
-//void cp(void){
 //
-//    mword *result = _unload((mword*)TOS_0);
-//    push_alloc(result, CP);
-//
-//    load();
-//
-//}
+bvm_cache *cp(bvm_cache *this_bvm){
+
+    mword *result = _unload((mword*)TOS_0(this_bvm));
+
+    push_alloc(this_bvm, result, CP);
+
+    load(this_bvm);
+
+}
 
 //
 bvm_cache *span(bvm_cache *this_bvm){

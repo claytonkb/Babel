@@ -383,7 +383,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     nlf,
     nin,
     load,
-    rsvd, //    unload,
+    unload, //    unload,
     bs2gv,
     slice8,
     rsvd,
@@ -445,7 +445,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     rsvd,
     rsvd,
     rsvd,
-    rsvd, //    cp,
+    cp, //    cp,
     paste,
     rsvd,
     rsvd,
@@ -458,10 +458,10 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
 
     //150
     rsvd, //    hash,
-    rsvd, //    luha,
+    luha, //    luha,
     rsvd, //    insha,
     rsvd,
-    rsvd, //    exha,
+    exha, //    exha,
     rsvd,
     rsvd, //    keysha,
     rsvd,
@@ -680,6 +680,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     bvmstack,
     bvmcode,
     ifop,
+    bvmrstack,
 
 };
 

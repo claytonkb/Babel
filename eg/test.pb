@@ -1,4 +1,33 @@
-main: ( `1 `"hello\n" `"world\n" sel <<  )
+main: ( `( ("hello ") << ) `3 times fnord )
+
+--main: ( `{1 2 3} cp 
+--        `[1 2 3] cp 
+--        `(1 2 3) cp
+--        `x
+--        `"xyz" `0xaaaa inskha 
+--        `"abd" `0xbbbb inskha 
+--        `"ghi" `0xcccc inskha
+--        cp
+--        stack dump << )
+--
+--x: [nil nil]
+
+--main: ( `x 
+--        `"xyz" `0xaaaa inskha 
+--        `"abd" `0xbbbb inskha 
+--        `"ghi" `0xcccc inskha
+----        `"jkl" `0xdddd inskha 
+----        `"mno" `0xeeee inskha 
+----        `"pqr" `0xffff inskha
+----        `x set
+--        `x `"abd" luha $ cr << )
+--
+--x: [nil nil]
+
+-- main: ( `{7 8} `x set `x $ cr << )
+-- x: 1
+
+-- main: ( `1 `"hello\n" `"world\n" sel <<  )
 
 -- main: ( `( ("hello\n") ) `( ("world\n") ) `1 if <<  )
 
@@ -43,17 +72,8 @@ main: ( `1 `"hello\n" `"world\n" sel <<  )
 
 --main: ( `0x1234 `0x4321 + `0x5678 `0x7 cushl `0xff + - $ << `"\n" << )
 
---main: ( `0x17
---        `nil 
---        `"xyz" `0xaaaa inskha 
---        `"abd" `0xbbbb inskha 
-----        `"ghi" `0xcccc inskha
-----        `"jkl" `0xdddd inskha 
-----        `"mno" `0xeeee inskha 
-----        `"pqr" `0xffff inskha
---        del
---        dump << )
-----        $ << )
+
+-- x: [nil nil]
 
 --main: ( `0x17
 --        `nil 

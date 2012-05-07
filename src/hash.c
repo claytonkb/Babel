@@ -13,15 +13,6 @@
 #include "ref.h"
 #include "bstruct.h"
 
-#define opposite_side(x) ((x==0)?1:0)
-
-#define HASH_ENTRY_SIZE 5
-
-#define HASH_ENTRY_REF(x) ((mword*)c(x,0))
-#define HASH_ENTRY_VAL(x) ((mword*)c(x,1))
-#define HASH_ENTRY_KEY(x) ((mword*)c(x,2))
-#define HASH_ENTRY_CNT(x) ((mword*)c(x,3))
-#define HASH_ENTRY_BND(x) ((mword*)c(x,4))
 
 //
 mword *new_hash_entry(mword *hash, mword *key, mword *val, mword ref_count, mword bounding){
@@ -61,15 +52,16 @@ bvm_cache *inskha(bvm_cache *this_bvm){
 
     mword *result = _inskha(hash_table, key, val);
 
-    hard_zap(this_bvm);
-    hard_zap(this_bvm);
-//    hard_zap(this_bvm);
+    zap(this_bvm);
+    zap(this_bvm);
+    zap(this_bvm);
 
-//    push_alloc(this_bvm, result, INSKHA);
+    push_alloc(this_bvm, result, INSKHA);
 
 //printf("%s\n\n",_bs2gv(this_bvm->stack_ptr));
 
-    
+//    _dump(this_bvm->stack_ptr);
+//    die;
 
     return this_bvm;
 
@@ -147,6 +139,160 @@ void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword leve
     }
 
 }
+
+//
+bvm_cache *exha(bvm_cache *this_bvm){
+
+    mword *hash_table   = (mword*)TOS_1(this_bvm);
+    mword *key          = (mword*)TOS_0(this_bvm);
+    mword *hash         = _hash8(key);
+
+    mword *result = _exha(hash_table,hash);
+
+    zap(this_bvm);
+
+    push_alloc(this_bvm, result, EXHA);
+
+}
+
+//
+mword *_exha(mword *hash_table, mword *hash){
+
+    mword *result = new_atom;
+
+    if(is_nil(hash_table)){
+        *result = 0;
+    }
+    else{
+        *result = _rexha(hash_table, hash, 0);
+    }
+
+    return result;
+
+}
+
+//
+mword _rexha(mword *hash_table, mword *hash, mword level){
+
+    mword *temp;
+    mword cons_side   = _cxr1(hash,level);
+    mword *next_level = (mword*)c(hash_table,cons_side);
+
+    if(is_nil(next_level)){ //dead-end
+        return 0;
+    }
+    else if(is_inte(next_level) && size(next_level) == 2){
+        _rexha((mword*)c(hash_table,cons_side), hash, level+1);
+    }
+    else if(is_inte(next_level) && size(next_level) == HASH_ENTRY_SIZE){
+        return !_arcmp((mword*)HASH_ENTRY_REF(next_level),hash);
+    }
+
+}
+
+//
+bvm_cache *luha(bvm_cache *this_bvm){
+
+    mword *hash_table   = (mword*)TOS_1(this_bvm);
+    mword *key          = (mword*)TOS_0(this_bvm);
+    mword *hash         = _hash8(key);
+
+    mword *result = _luha(hash_table,hash);
+
+    zap(this_bvm);
+
+    push_alloc(this_bvm, result, LUHA);
+
+}
+
+//
+mword *_luha(mword *hash_table, mword *hash){
+
+    mword *result;
+
+    if(is_nil(hash_table)){
+        return nil;
+    }
+    else{
+        result = new_atom;
+        (mword*)*result = _rluha(hash_table, hash, 0);
+    }
+
+    return result;
+
+}
+
+//
+mword *_rluha(mword *hash_table, mword *hash, mword level){
+
+    mword *temp;
+    mword cons_side   = _cxr1(hash,level);
+    mword *next_level = (mword*)c(hash_table,cons_side);
+
+    if(is_nil(next_level)){ //dead-end
+        return nil;
+    }
+    else if(is_inte(next_level) && size(next_level) == 2){
+        return _rluha((mword*)c(hash_table,cons_side), hash, level+1);
+    }
+    else if(is_inte(next_level) && size(next_level) == HASH_ENTRY_SIZE){
+        return (mword*)car(HASH_ENTRY_VAL(next_level));
+    }
+
+}
+
+//
+//void luha(void){
+//
+//    mword *hash_table = (mword*)TOS_1;
+//    mword *hash       = (mword*)TOS_0;
+//
+//    mword *result = _luha(hash_table,hash);
+//
+//    zap();
+//
+//    push_alloc(result, LUHA);
+//
+//}
+//
+////
+//mword *_luha(mword *hash_table, mword *hash){
+//
+//    mword *result;
+//
+//    if(hash_table == (mword*)nil){
+//        result = (mword*)nil;
+//    }
+//    else{
+//        result = _luha_tree(hash_table, hash, 0);
+//    }
+//
+//    return result;
+//
+//}
+//
+////
+//mword *_luha_tree(mword *hash_table, mword *hash, mword level){
+//
+//    mword cons_side = _cxr1(hash,level);
+////    mword *tempB;
+//
+//    if(is_href((mword*)car(c(hash_table,cons_side)))){
+//        if(!_arcmp((mword*)car(c(hash_table,cons_side)),hash)){
+//            return (mword*)car(cdr(c(hash_table,cons_side)));
+//        }
+//        else{
+//            return (mword*)nil;
+//        }
+//    }
+//    else if(c(hash_table,cons_side) == nil){
+//        return (mword*)nil;
+//    }
+//    else{
+//        return _luha_tree((mword*)c(hash_table,cons_side), hash, level+1);
+//    }
+//
+//}
 
 //void inskha(void){
 //
@@ -227,109 +373,8 @@ void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword leve
 //}
 //
 //
-//// hash_table hash insha
-//void exha(void){
-//
-//    mword *hash_table = (mword*)TOS_1;
-//    mword *hash       = (mword*)TOS_0;
-//
-//    mword *result = _exha(hash_table,hash);
-//
-//    zap();
-//
-//    push_alloc(result, EXHA);
-//
-//}
-//
-//mword *_exha(mword *hash_table, mword *hash){
-//
-//    mword *result = new_atom();
-//
-//    if(hash_table == (mword*)nil){
-//        *result = 0;
-//    }
-//    else{
-//        *result = _exha_tree(hash_table, hash, 0);
-//    }
-//
-//    return result;
-//
-//}
-//
-//mword _exha_tree(mword *hash_table, mword *hash, mword level){
-//
-//    mword cons_side = _cxr1(hash,level);
-//    mword next_cons_side;
-//    mword occupant_cons_side;
-//    mword *temp;
-//
-//    if(is_href((mword*)car(c(hash_table,cons_side)))){
-//        if(!_arcmp((mword*)car(c(hash_table,cons_side)),hash)){
-//            return 1;
-//        }
-//        else{
-//            return 0;
-//        }
-//    }
-//    else if(c(hash_table,cons_side) == nil){
-//        return 0;
-//    }
-//    else{
-//        return _exha_tree((mword*)c(hash_table,cons_side), hash, level+1);
-//    }
-//
-//}
-//
-//void luha(void){
-//
-//    mword *hash_table = (mword*)TOS_1;
-//    mword *hash       = (mword*)TOS_0;
-//
-//    mword *result = _luha(hash_table,hash);
-//
-//    zap();
-//
-//    push_alloc(result, LUHA);
-//
-//}
-//
-//mword *_luha(mword *hash_table, mword *hash){
-//
-//    mword *result;
-//
-//    if(hash_table == (mword*)nil){
-//        result = (mword*)nil;
-//    }
-//    else{
-//        result = _luha_tree(hash_table, hash, 0);
-//    }
-//
-//    return result;
-//
-//}
-//
-//
-//mword *_luha_tree(mword *hash_table, mword *hash, mword level){
-//
-//    mword cons_side = _cxr1(hash,level);
-////    mword *tempB;
-//
-//    if(is_href((mword*)car(c(hash_table,cons_side)))){
-//        if(!_arcmp((mword*)car(c(hash_table,cons_side)),hash)){
-//            return (mword*)car(cdr(c(hash_table,cons_side)));
-//        }
-//        else{
-//            return (mword*)nil;
-//        }
-//    }
-//    else if(c(hash_table,cons_side) == nil){
-//        return (mword*)nil;
-//    }
-//    else{
-//        return _luha_tree((mword*)c(hash_table,cons_side), hash, level+1);
-//    }
-//
-//}
+
+
 //
 //void rmha(void){
 //

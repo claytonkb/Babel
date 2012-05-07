@@ -396,6 +396,8 @@
 #define ADDEQ       0x201
 #define BVMSTACK    0x202
 #define BVMCODE     0x203
+#define IFOP        0x204
+#define BVMRSTACK   0x205
 
 #endif //BVM_OPCODES_H
 

@@ -1,10 +1,10 @@
 --string.pb
 
             -- print
-code:       (["Hello "] dup <<
+main:       (["Hello "] dup <<
             str2ar dup stdout 
             ar2ls dup
-                [(stdout)] swap
+                <- [(stdout)] ->
                 ...
             ls2lf dup stdout
             ar2str <<
@@ -25,8 +25,8 @@ code:       (["Hello "] dup <<
 
             -- strcpy
                 ["flibbertigibbit"] cp
-                [(["\n"] . <<)]
-            [2] times
+                cr <<
+                cr <<
 
             -- strcat
             ["jabber"] ["wocky"]
@@ -35,7 +35,7 @@ code:       (["Hello "] dup <<
             ["jabber"] str2ar ["wocky"] str2ar
                 cat ["\n"] str2ar cat stdout
         
-            -- implement append
+            -- for more string append, see list.pb
 
             )
 

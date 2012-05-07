@@ -4,6 +4,18 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- unload/cp -----
+
+Re-enable these in preparation for alt/back
+
+Re-enable exha/luha (no rmha for now)
+
+Plumb in insha support into proto_babel.pl
+
+/code
+/stack
+/sym_table
+
 ----- jump_table -----
 
 Implement jump table before re-enabling rstack
@@ -137,14 +149,14 @@ Need syntactic way to distinguish whether a lookup is mutable or immutable
 We currently have the bvmbreak operator which allows an "exit" to the 
 parent BVM. We want a way to be able to invoke parent BVM functions.
 
-- Rename bvmbreak to summon
+- Rename bvmbreak to conjure
 
 We can treat a bvmbreak as any kind of exception that cannot be handled
 by the current BVM and causes an exit - a hash-reference is pushed on
 the stack to indicate the exception type. So, to invoke a parent 
 function:
 
-gc& summon  --> Summons the garbage-collector
+gc& conjure  --> Conjures the garbage-collector
 
 ----- immutable namespaces -----
 
@@ -162,20 +174,6 @@ const, mutable doesn't make any sense
 
 You can insert into immutable namespaces but no moving/deleting or
 recursive copy (?)
-
------ parent BVM calls -----
-
-We currently have the bvmbreak operator which allows an "exit" to the 
-parent BVM. We want a way to be able to invoke parent BVM functions.
-
-- Rename bvmbreak to summon
-
-We can treat a bvmbreak as any kind of exception that cannot be handled
-by the current BVM and causes an exit - a hash-reference is pushed on
-the stack to indicate the exception type. So, to invoke a parent 
-function:
-
-gc& summon  --> Summons the garbage-collector
 
 ----- namespace operator, default namespace, hash-refs -----
 

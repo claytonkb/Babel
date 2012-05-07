@@ -273,121 +273,111 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword *elem){
 //    }
 //
 //}
-//
-//void unload(void){
-//
-//    mword *result = _unload((mword*)TOS_0);
-////    d(TOS_0)
-////    die
-////    TOS_0 = TOS_0 + MWORD_SIZE;
-//
-//    zap();
-//    push_alloc(result, UNLOAD);
-//
-//}
-//
-//// XXX: (perf) the LUT method is highly non-optimal with regard to
-//// space, there is no reason unload() should require 2N space to
-//// unload an object of size N. Future perf enhancement will implement
-//// a binary tree to store the address translations.
-//mword *_unload(mword *tree){//, mword offset){
-//
-//    mword tree_size =  _mu(tree);
-//    clean_tree(tree);
-//
-//    mword num_arrays = _nin(tree);
-//    clean_tree(tree);
-//   
-//    num_arrays += _nlf(tree);
-//    clean_tree(tree);
-//
-//    num_arrays += _nhref(tree);
-//    clean_tree(tree);
-//
-////    d(tree_size)
-////        die
-//
-//    mword *dest      = _newlf(tree_size);
-//    mword *LUT_abs   = _newin(num_arrays);
-//    mword *LUT_rel   = _newin(num_arrays);
-//    mword offset     = 0;
-//    mword LUT_offset = 0;
-//
-//    unload_tree(tree, LUT_abs, LUT_rel, dest, &offset, &LUT_offset);
-//    clean_tree(tree);
-//
-//    return dest;
-//
-//}
-//
-//
-//mword unload_tree(
-//        mword *tree, 
-//        mword *LUT_abs, 
-//        mword *LUT_rel, 
-//        mword *dest, 
-//        mword *offset,
-//        mword *LUT_offset){
-//
-//    int i;
-//    mword rel_offset;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){ //Already dumped
-//        return get_rel_offset(LUT_abs, LUT_rel, tree);
-//    }
-//
-//    int num_elem = size(tree);
-//
-////    printf("-------- %08x\n", (mword)s(tree));
-//    *(dest+(*offset)) = s(tree);
-//    *offset = *offset+1;
-//    s(tree) |= 0x1; //Mark dumped
-//
-//    c(LUT_abs,*LUT_offset) = (mword)tree;
-//    c(LUT_rel,*LUT_offset) = *offset;
-//    *LUT_offset = *LUT_offset+1;
-//
-//    mword local_offset = *offset;
-//
-//    if(is_inte(tree)){
-//        *offset = *offset + num_elem;
-//        for(i=0; i<num_elem; i++){
-//            c(dest,local_offset+i) = unload_tree(
-//                                        (mword*)c(tree,i), 
-//                                        LUT_abs, 
-//                                        LUT_rel, 
-//                                        dest, 
-//                                        offset, 
-//                                        LUT_offset)
-//                                    * MWORD_SIZE
-//                ;
-//        }
-//    }
-//    else{
-//        for(i=0; i<num_elem; i++){
-//            c(dest,(*offset)) = c(tree,i);
-//            *offset = *offset+1;
-//        }
-//    }
-//
-//    return local_offset;
-//
-//}
-//
-//mword get_rel_offset(mword *LUT_abs, mword *LUT_rel, mword *elem){
-//
-//    int i=0;
-//    int LUT_size = size(LUT_abs);
-//
-//    for(;i<LUT_size;i++){
-//        if(c(LUT_abs,i) == (mword)elem) 
-//            return c(LUT_rel,i);
-//    }
-//    return nil;
-//
-//}
-//
 
+//
+bvm_cache *unload(bvm_cache *this_bvm){
+
+    mword *result = _unload((mword*)TOS_0(this_bvm));
+//    d(TOS_0)
+//    die
+//    TOS_0 = TOS_0 + MWORD_SIZE;
+
+    zap(this_bvm);
+    push_alloc(this_bvm, result, UNLOAD);
+
+}
+
+// XXX: (perf) the LUT method is highly non-optimal with regard to
+// space, there is no reason unload() should require 2N space to
+// unload an object of size N. Future perf enhancement will implement
+// a binary tree to store the address translations.
+mword *_unload(mword *bs){//, mword offset){
+
+    mword bs_size =  _mu(bs);
+    mword num_arrays = _nin(bs);
+    num_arrays += _nlf(bs);
+    num_arrays += _nhref(bs);
+
+    mword *dest      = _newlf(bs_size); // Error: returns wrong size due to hash-refs
+    mword *LUT_abs   = _newin(num_arrays);
+    mword *LUT_rel   = _newin(num_arrays);
+    mword offset     = 0;
+    mword LUT_offset = 0;
+
+    _runload(bs, LUT_abs, LUT_rel, dest, &offset, &LUT_offset);
+    rclean(bs);
+
+    return dest;
+
+}
+
+//
+mword _runload(
+        mword *bs, 
+        mword *LUT_abs, 
+        mword *LUT_rel, 
+        mword *dest, 
+        mword *offset,
+        mword *LUT_offset){
+
+    int i;
+    mword rel_offset;
+
+    if( TRAVERSED(bs) ){ //& (MWORD_SIZE-1) ){ //Already dumped
+        return get_rel_offset(LUT_abs, LUT_rel, bs);
+    }
+
+    int num_elem = size(bs);
+
+//    printf("-------- %08x\n", (mword)s(bs));
+    *(dest+(*offset)) = s(bs);
+    *offset = *offset+1;
+    MARK_TRAVERSED(bs); //s(bs) |= 0x1; //Mark dumped
+
+    c(LUT_abs,*LUT_offset) = (mword)bs;
+    c(LUT_rel,*LUT_offset) = *offset;
+    *LUT_offset = *LUT_offset+1;
+
+    mword local_offset = *offset;
+
+    if(is_inte(bs)){
+        *offset = *offset + num_elem;
+        for(i=0; i<num_elem; i++){
+            c(dest,local_offset+i) = _runload(
+                                        (mword*)c(bs,i), 
+                                        LUT_abs, 
+                                        LUT_rel, 
+                                        dest, 
+                                        offset, 
+                                        LUT_offset)
+                                    * MWORD_SIZE
+                ;
+        }
+    }
+    else{
+        for(i=0; i<num_elem; i++){
+            c(dest,(*offset)) = c(bs,i);
+            *offset = *offset+1;
+        }
+    }
+
+    return local_offset;
+
+}
+
+//
+mword get_rel_offset(mword *LUT_abs, mword *LUT_rel, mword *entry){
+
+    int i=0;
+    int LUT_size = size(LUT_abs);
+
+    for(;i<LUT_size;i++){
+        if(c(LUT_abs,i) == (mword)entry) 
+            return c(LUT_rel,i);
+    }
+    return (mword)nil;
+
+}
 
 // Clayton Bauman 2011
 
