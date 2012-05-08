@@ -1,4 +1,21 @@
-main: ( argv `1 th >>> str2ar $ cr << ) -- <- `( stdout ) -> eachar )
+main: ( argv `1 th >>> str2ar 
+        <- `( 
+                       dup $    << 
+                `0x6c  dup $    <<
+                == not dup $    <<
+                <-
+                    `( `"diff\n" << )
+                    `( `"same\n" << ) -- `y `x dup <- zap -> `nil cons push )
+                ->
+            if
+            `1 `x += 
+        ) -> 
+        eachar 
+        `y dump << )
+
+x: {0}
+
+y: ( nil )
 
 -- main: ( `( cr << ) `( "hello" "world" ) each fnord )
 
