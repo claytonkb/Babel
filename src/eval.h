@@ -14,6 +14,7 @@ bvm_cache *next(bvm_cache *this_bvm);
 bvm_cache *continueop(bvm_cache *this_bvm);
 bvm_cache *each(bvm_cache *this_bvm);
 bvm_cache *ifop(bvm_cache *this_bvm);
+bvm_cache *eachar(bvm_cache *this_bvm);
 
 #define LOOP_RSTACK_ENTRIES 2
 #define LOOP_RSTACK_BODY    0
@@ -37,6 +38,13 @@ bvm_cache *ifop(bvm_cache *this_bvm);
 #define EACH_RSTACK_LIST     0
 #define EACH_RSTACK_BODY     1
 #define EACH_RSTACK_RETURN   2
+
+#define EACHAR_RSTACK_ENTRIES  4
+#define EACHAR_RSTACK_ARRAY    0
+#define EACHAR_RSTACK_BODY     1
+#define EACHAR_RSTACK_RETURN   2
+#define EACHAR_RSTACK_COUNT    3
+#define EACHAR_INIT_INDEX      0
 
 //void eval(void);
 //void gotoop(void);

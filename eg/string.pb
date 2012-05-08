@@ -1,41 +1,39 @@
 --string.pb
 
             -- print
-main:       (["Hello "] dup <<
+main:       (`"Hello " dup <<
             str2ar dup stdout 
-            ar2ls dup
+            ar2ls  dup
                 <- [(stdout)] ->
                 ...
-            ls2lf dup stdout
+            ls2lf  dup stdout
             ar2str <<
 
-            ["\n"] pr  -- pr is a synonym for stdout8
+            `"\n" pr  -- pr is a synonym for stdout8
 
             -- strlen and conversions
-            ["supercalifragilisticexpialidocious"] dup dup ["\n"] . <<
-                #8  %d ["\n"] . <<
+            `"supercalifragilisticexpialidocious" dup dup `"\n" . <<
+                #8  %d `"\n" . <<
             str2ar dup
-                #   %d ["\n"] . <<
+                #   %d `"\n" . <<
             ar2ls dup
-                len %d ["\n"] . <<
+                len %d `"\n" . <<
             ls2lf dup
-                #   %d ["\n"] . <<
+                #   %d `"\n" . <<
             ar2str
-                #8  %d ["\n"] . <<
+                #8  %d `"\n" . <<
 
             -- strcpy
-                ["flibbertigibbit"] cp
-                cr <<
-                cr <<
+                `"flibbertigibbit" cp
+                `(cr <<) `2 times
 
             -- strcat
-            ["jabber"] ["wocky"]
-                . ["\n"] . <<
+            `"jabber" `"wocky"
+                . `"\n" . <<
 
-            ["jabber"] str2ar ["wocky"] str2ar
-                cat ["\n"] str2ar cat stdout
+            `"jabber" str2ar `"wocky" str2ar
+                cat `"\n" str2ar cat stdout)
         
-            -- for more string append, see list.pb
+            -- for more append operators (push, unshift), see list.pb
 
-            )
 

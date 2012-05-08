@@ -100,6 +100,7 @@ bvm_cache *continueop(bvm_cache *this_bvm){
 bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 
     mword *rstack_entry;
+    mword *result;
 
     while(      return_type(this_bvm->rstack_ptr) == DOWN 
             ||  return_type(this_bvm->rstack_ptr) == NEST){
@@ -119,12 +120,13 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
     else if(return_type(this_bvm->rstack_ptr) == TIMES){
 
         rstack_entry = (mword*)RTOS_0(this_bvm);
-        if( car(rstack_entry[TIMES_RSTACK_COUNT]) > 0 ){
+        if( car(rstack_entry[TIMES_RSTACK_COUNT]) > 1 ){
             *(mword*)rstack_entry[TIMES_RSTACK_COUNT] = car(rstack_entry[TIMES_RSTACK_COUNT]) - 1;
             this_bvm->code_ptr = (mword*)rstack_entry[TIMES_RSTACK_BODY];
         }
         else{
-            this_bvm->code_ptr = (mword*)car(rstack_entry[TIMES_RSTACK_RETURN]);
+//            this_bvm->code_ptr = (mword*)car(rstack_entry[TIMES_RSTACK_RETURN]);
+            this_bvm->code_ptr = (mword*)rstack_entry[TIMES_RSTACK_RETURN];
             pop_rstack(this_bvm);
         }
 
@@ -161,6 +163,35 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
             this_bvm->code_ptr = (mword*)rstack_entry[EACH_RSTACK_BODY];
             rstack_entry[EACH_RSTACK_LIST] = cdr((mword*)rstack_entry[EACH_RSTACK_LIST]);
             push_alloc(this_bvm, (mword*)car((mword*)rstack_entry[EACH_RSTACK_LIST]), EACH);
+        }
+
+    }
+    else if(return_type(this_bvm->rstack_ptr) == EACHAR){
+
+        rstack_entry = (mword*)RTOS_0(this_bvm);
+
+        if( car(rstack_entry[EACHAR_RSTACK_COUNT]) >= (size(rstack_entry[EACHAR_RSTACK_ARRAY])-1) ){
+
+            this_bvm->code_ptr = (mword*)rstack_entry[EACHAR_RSTACK_RETURN];
+            pop_rstack(this_bvm);
+
+        }
+        else{
+
+            *(mword*)rstack_entry[EACHAR_RSTACK_COUNT] = car(rstack_entry[EACHAR_RSTACK_COUNT]) + 1;
+
+            if(is_leaf(rstack_entry[EACHAR_RSTACK_ARRAY])){
+                result  = new_atom;
+                *result = c((mword*)rstack_entry[EACHAR_RSTACK_ARRAY],car(rstack_entry[EACHAR_RSTACK_COUNT]));
+            }
+            else{
+                result = (mword*)c((mword*)rstack_entry[EACHAR_RSTACK_ARRAY],car(rstack_entry[EACHAR_RSTACK_COUNT]));
+            }
+
+            this_bvm->code_ptr = (mword*)rstack_entry[EACHAR_RSTACK_BODY];
+
+            push_alloc(this_bvm, result, EACHAR);
+
         }
 
     }
@@ -266,7 +297,50 @@ bvm_cache *dieop(bvm_cache *this_bvm){
     exit(0);
 }
 
-// XXX: This operator is in cold-storage for now...
+
+// (body) [array] eachar
+// (body) {array} eachar
+bvm_cache *eachar(bvm_cache *this_bvm){
+
+// FIXME: Catch the empty-list condition...
+
+    mword *result;
+    mword *array = (mword*)TOS_0(this_bvm);
+    zap(this_bvm);
+
+    mword *count = new_atom;
+    *count = EACHAR_INIT_INDEX;
+
+
+    mword *body = (mword*)TOS_0(this_bvm);
+    zap(this_bvm);
+
+    mword *temp = _newin(EACHAR_RSTACK_ENTRIES);
+    (mword*)c(temp,EACHAR_RSTACK_ARRAY)  = array;
+    (mword*)c(temp,EACHAR_RSTACK_BODY)   = body;
+            c(temp,EACHAR_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
+    (mword*)c(temp,EACHAR_RSTACK_COUNT)  = count;
+
+    push_alloc_rstack(this_bvm, temp, EACHAR);
+
+    this_bvm->advance_type = BVM_CONTINUE;
+
+    this_bvm->code_ptr = body;
+
+    if(is_leaf(array)){
+        result = new_atom;
+        *result = c(array,EACHAR_INIT_INDEX);
+    }
+    else{
+        result = (mword*)c(array,EACHAR_INIT_INDEX);
+    }
+
+    push_alloc(this_bvm, result, EACHAR);
+    
+    return this_bvm;
+
+}
+
 //void eachar(void){
 //
 //    //body   RTOS-0

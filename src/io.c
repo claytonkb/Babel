@@ -81,14 +81,12 @@ bvm_cache *slurp(bvm_cache *this_bvm){
 //    mword *filename = _b2c((mword*)TOS_0);
 //    mword *result   = _slurp((char*)filename);
 
-    mword *result   = _slurp((mword*)car(TOS_0(this_bvm)));
+    mword *result   = _slurp((mword*)TOS_0(this_bvm));
 
     //    cons(temp_cons, result, nil);
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, SLURP8);
-
-    
 
     return this_bvm;
 
@@ -111,8 +109,6 @@ bvm_cache *slurp_mword(bvm_cache *this_bvm){
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, SLURP);
 
-    
-
     return this_bvm;
 
 }
@@ -126,8 +122,6 @@ bvm_cache *cprintf(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
 
-    
-
     return this_bvm;
 
 }
@@ -138,8 +132,6 @@ bvm_cache *cprints(bvm_cache *this_bvm){
 
     printf("%s", ((char*)TOS_0(this_bvm)));
     zap(this_bvm);
-
-    
 
     return this_bvm;
 
@@ -153,8 +145,6 @@ bvm_cache *spit(bvm_cache *this_bvm){
     _spit((char*)TOS_0(this_bvm), (mword*)TOS_1(this_bvm));
     zap(this_bvm);
     zap(this_bvm);
-
-    
 
     return this_bvm;
 
@@ -246,8 +236,6 @@ bvm_cache *spit_mword(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
 
-    
-
     return this_bvm;
 
 }
@@ -263,8 +251,6 @@ bvm_cache *stdoutop(bvm_cache *this_bvm){
     }
 
     zap(this_bvm);
-
-    
 
     return this_bvm;
 
@@ -313,8 +299,6 @@ bvm_cache *stdoutop8(bvm_cache *this_bvm){
     _stdoutop8((mword*)TOS_0(this_bvm));
     
     hard_zap(this_bvm);
-
-    
 
     return this_bvm;
 

@@ -1,12 +1,18 @@
-main: ( `( ("hello ") << ) `3 times fnord )
+main: ( argv `1 th >>> str2ar $ cr << ) -- <- `( stdout ) -> eachar )
+
+-- main: ( `( cr << ) `( "hello" "world" ) each fnord )
+
+-- main: ( `( cr << ) `[ "hello" "world" ] eachar fnord )
+
+-- main: ( `( ("hello ") << ) `3 times fnord )
 
 --main: ( `{1 2 3} cp 
 --        `[1 2 3] cp 
 --        `(1 2 3) cp
 --        `x
---        `"xyz" `0xaaaa inskha 
---        `"abd" `0xbbbb inskha 
---        `"ghi" `0xcccc inskha
+--        `"one" `0x11111111 inskha 
+--        `"two" `0x22222222 inskha 
+--        `"three" `0x33333333 inskha
 --        cp
 --        stack dump << )
 --

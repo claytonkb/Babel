@@ -346,6 +346,7 @@ bvm_cache *babelop(bvm_cache *this_bvm){
     new_bvm.thread_id     = this_bvm->thread_id+1;
     new_bvm.steps         = (mword)-1;
     new_bvm.advance_type  = BVM_ADVANCE;
+    new_bvm.argv          = this_bvm->argv; //FIXME: shift off 0th argv
 
     //FIXME: pearson_init and argv
 

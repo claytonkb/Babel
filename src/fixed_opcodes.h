@@ -650,7 +650,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     each, //    each,
     rsvd, //    newref,
     span,
-    rsvd, //    eachar,
+    eachar, //    eachar,
     rsvd, //    phash,
     rsvd, //    phash8,
 
