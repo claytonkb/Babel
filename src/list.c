@@ -58,11 +58,10 @@ bvm_cache *consls(bvm_cache *this_bvm){
 
     mword *result = _consls((mword*)TOS_1(this_bvm), (mword*)TOS_0(this_bvm));
 
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, CONS);
+    hard_zap(this_bvm);
+    hard_zap(this_bvm);
 
-    
+    push_alloc(this_bvm, result, CONS);
 
     return this_bvm;
 
@@ -129,8 +128,6 @@ bvm_cache *push(bvm_cache *this_bvm){
     zap(this_bvm);
     // XXX Might get alloc-type bugs here...
 //    push_alloc(this_bvm, temp_cons, PUSH);
-
-    
 
     return this_bvm;
 

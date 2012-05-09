@@ -167,21 +167,20 @@ mword *pop_rstack(bvm_cache *this_bvm){
 //
 bvm_cache *sel(bvm_cache *this_bvm){
 
-    mword *select = (mword*)TOS_2(this_bvm);
+    mword *select = (mword*)TOS_0(this_bvm);
+    zap(this_bvm);
 
     // stack_ptr -> A -> B -> C -> D
     // B->D
     // FIXME: mem leak
-    mword *temp = (mword*)cdr(this_bvm->stack_ptr);
-    cdr(temp) = cdr(cdr(temp));
+//    mword *temp = (mword*)cdr(this_bvm->stack_ptr);
+//    cdr(temp) = cdr(cdr(temp));
 
-    if(is_false(select)){
-        hard_zap(this_bvm);
+    if(!is_false(select)){
+        swap(this_bvm);
     }
-    else{
-        hard_zap(
-        swap(this_bvm));
-    }
+
+    zap(this_bvm);
 
     return this_bvm;
 

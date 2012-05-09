@@ -27,22 +27,26 @@ bvm_cache *eval(bvm_cache *this_bvm){
 
 }
 
-// (a) (b) [x] if  
+// [x] (a) (b) if  
 // is_false(x)  --> (a) eval
 // !is_false(x) --> (b) eval
+// pseudo-operator (sel eval)
 bvm_cache *ifop(bvm_cache *this_bvm){
 
-    mword *select = (mword*)TOS_0(this_bvm);
-    zap(this_bvm);
-    
-    if(is_false(select)){
-        zap(this_bvm);
-    }
-    else{
-        zap(swap(this_bvm));
-    }
+//    mword *select = (mword*)TOS_0(this_bvm);
+//    zap(this_bvm);
+//    
+//    if(is_false(select)){
+//        zap(this_bvm);
+//    }
+//    else{
+//        zap(swap(this_bvm));
+//    }
 
-    return eval(this_bvm);
+    sel(this_bvm);
+    eval(this_bvm);
+
+    return this_bvm;
 
 }
 

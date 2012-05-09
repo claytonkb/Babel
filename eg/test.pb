@@ -1,21 +1,33 @@
-main: ( argv `1 th >>> str2ar 
-        <- `( 
-                       dup $    << 
-                `0x6c  dup $    <<
-                == not dup $    <<
-                <-
-                    `( `"diff\n" << )
-                    `( `"same\n" << ) -- `y `x dup <- zap -> `nil cons push )
-                ->
-            if
-            `1 `x += 
-        ) -> 
-        eachar 
-        `y dump << )
+main: (  )
 
-x: {0}
+--main: ( `x `0 + `nil cons sdd ! )
+--
+--x: {0xf}
+--
+--d: (($ cr <<))
 
-y: ( nil )
+--main: ( readfile !
+--        <- `( 
+--                <-
+--                    `( zap )
+--                    `( `y `x `0 + `nil cons push )
+--                ->
+--                `0xd == not
+--            if
+--            `1 `x += 
+--        ) -> 
+--        eachar 
+--        `y shift zap lsprint ! `"\n" << )
+--
+--x: {0}
+--
+--y: ( nil )
+--
+--lsprint: (( <- `( %d `" " . << ) -> ... ))
+--
+--readfile: ((argv `1 th >>> str2ar))
+--
+--sdd: (( stack dump << die ))
 
 -- main: ( `( cr << ) `( "hello" "world" ) each fnord )
 
