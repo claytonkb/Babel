@@ -19,16 +19,14 @@
 --d: (($ cr <<))
 
 main: ( readfile !
-        dup
         newlines !
-        `main_a set
+        sdd !
+        dup `main_a set
             `( `1 <-> += )
             `main_a
         ...
-        sdd !
         `main_a
-        lsprint ! `"\n" << 
-        stack dump << )
+        lsprint ! `"\n" << )
 
 main_a: ( nil )
 
@@ -36,25 +34,38 @@ lsprint: (( <- `( %d `" " . << ) -> ... ))
 
 readfile: ((argv `1 th >>> str2ar))
 
-sdd: (( stack dump << die ))
+sdd: (( sdp ! die ))
+
+sdp: (( stack dump << ))
 
 newlines: 
     ((<- `( 
             <-
                 `( zap )
-                `( `newlines_y `newlines_x `0 + `nil cons push )
+                `( `newlines_y `newlines_x `0 + sdd ! `nil cons push zap )
             ->
             `0xd ==
             not
         if
         `1 `newlines_x += 
     ) -> 
-    eachar 
+    eachar sdd !
     `newlines_y shift zap))
 
 newlines_x: {0}
 
 newlines_y: ( nil )
+
+part: 
+    (( 
+    cp `part_x set
+    <- `(
+        `part_x shift car <-> zap
+        %d `" " . <<
+    ) ->
+    ...))
+
+part_x: ( nil )
 
 -- main: ( `( cr << ) `( "hello" "world" ) each fnord )
 
