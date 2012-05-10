@@ -16,8 +16,6 @@ bvm_cache *carindex(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, car_TOS_0, CARINDEX);
 
-    
-
     return this_bvm;
 
 }
@@ -29,8 +27,6 @@ bvm_cache *cdrindex(bvm_cache *this_bvm){
 
     zap(this_bvm);
     push_alloc(this_bvm, cdr_TOS_0, CDRINDEX);
-
-    
 
     return this_bvm;
 
@@ -45,8 +41,6 @@ bvm_cache *isnil(bvm_cache *this_bvm){
 
     zap(this_bvm);
     push_alloc(this_bvm, result, ISNIL);
-
-    
 
     return this_bvm;
 
@@ -88,8 +82,6 @@ bvm_cache *uncons(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, temp_car, UNCONS);
     push_alloc(this_bvm, temp_cdr, UNCONS);
-
-    
 
     return this_bvm;
 
@@ -144,8 +136,6 @@ bvm_cache *pop(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, temp, POP);
 
-    
-
     return this_bvm;
 
 }
@@ -165,8 +155,6 @@ bvm_cache *unshift(bvm_cache *this_bvm){
     // XXX Might get alloc-type bugs here...
 //    push_alloc(this_bvm, temp_cons, PUSH);
 
-    
-
     return this_bvm;
 
 }
@@ -182,8 +170,6 @@ bvm_cache *shift(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, temp, SHIFT);
 
-    
-
     return this_bvm;
 
 }
@@ -197,8 +183,6 @@ bvm_cache *len(bvm_cache *this_bvm){
 
     zap(this_bvm);
     push_alloc(this_bvm, result, LSLEN);
-
-    
 
     return this_bvm;
 
@@ -225,8 +209,6 @@ bvm_cache *bons(bvm_cache *this_bvm){
     zap(this_bvm);
 
     push_alloc(this_bvm, result, BONS);
-
-    
 
     return this_bvm;
 
@@ -258,8 +240,6 @@ bvm_cache *ls2lf(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, result, LS2LF);
 
-    
-
     return this_bvm;
 
 }
@@ -270,8 +250,8 @@ mword *_ls2lf(mword *list){
     mword *arr = _newlf(_len(list));
 
     int i=0;
-    while(list != (mword*)nil){
-        if(!is_leaf((mword*)car(list))){
+    while(!is_nil(list)){
+        if(!is_leaf((mword*)scar(list))){
             die //FIXME: Exception
         }
         c(arr,i) = car(car(list));
@@ -292,8 +272,6 @@ bvm_cache *ith(bvm_cache *this_bvm){
     zap(this_bvm);
 
     push_alloc(this_bvm, result, ITH);
-
-    
 
     return this_bvm;
 
@@ -320,8 +298,6 @@ bvm_cache *walk(bvm_cache *this_bvm){
     hard_zap(this_bvm);
 
     push_alloc(this_bvm, result, WALK);
-
-    
 
     return this_bvm;
 

@@ -1,4 +1,16 @@
-main: (  )
+--main: ( `x cr << `x cr <<  )
+--
+--x: {"Hello"}
+
+--main: ( `x `(4 5 6) push `x set `x dump << )
+--
+--x: (nil)
+
+--main: ( `10 `x += `x $ cr << )
+--
+--x: {0}
+
+--main: ( `(1 2 3) `(4 5 6) push dump << )
 
 --main: ( `x `0 + `nil cons sdd ! )
 --
@@ -6,28 +18,43 @@ main: (  )
 --
 --d: (($ cr <<))
 
---main: ( readfile !
---        <- `( 
---                <-
---                    `( zap )
---                    `( `y `x `0 + `nil cons push )
---                ->
---                `0xd == not
---            if
---            `1 `x += 
---        ) -> 
---        eachar 
---        `y shift zap lsprint ! `"\n" << )
---
---x: {0}
---
---y: ( nil )
---
---lsprint: (( <- `( %d `" " . << ) -> ... ))
---
---readfile: ((argv `1 th >>> str2ar))
---
---sdd: (( stack dump << die ))
+main: ( readfile !
+        dup
+        newlines !
+        `main_a set
+            `( `1 <-> += )
+            `main_a
+        ...
+        sdd !
+        `main_a
+        lsprint ! `"\n" << 
+        stack dump << )
+
+main_a: ( nil )
+
+lsprint: (( <- `( %d `" " . << ) -> ... ))
+
+readfile: ((argv `1 th >>> str2ar))
+
+sdd: (( stack dump << die ))
+
+newlines: 
+    ((<- `( 
+            <-
+                `( zap )
+                `( `newlines_y `newlines_x `0 + `nil cons push )
+            ->
+            `0xd ==
+            not
+        if
+        `1 `newlines_x += 
+    ) -> 
+    eachar 
+    `newlines_y shift zap))
+
+newlines_x: {0}
+
+newlines_y: ( nil )
 
 -- main: ( `( cr << ) `( "hello" "world" ) each fnord )
 

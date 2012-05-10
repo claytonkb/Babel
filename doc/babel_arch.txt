@@ -4,6 +4,46 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- single vs. double-pointers -----
+
+Consider
+
+    `1 `2 +
+
+This takes two immediate operands on the stack and produces a stack-
+immediate result.
+
+Def'ns
+
+From the interpreter's point-of-view, everything is just pointers.
+
+It is the operator which determines whether something is an immediate/etc.
+
+    `x `2 +
+
+This still works because '+' will never need to alter x itself to point
+to a different location.
+
+Where this breaks down is with any operator that may need to modify one
+of its source operands in-place.
+
+    `x `(2 3) push
+
+If we modify it to treat x as a double-pointer, then we clutter the
+immediate syntax:
+
+    ``(1 2 3) ``(4 5 6) push
+
+We can treat x as a storage location from which we're pulling things onto 
+the stack and then saving them back again.
+
+    `x `(4 5 6) push `x set
+
+However, this runs into trouble when initializing x.
+
+This will be left as an open problem for now until after hash-refs
+are implemented. 
+
 ----- unload/cp -----
 
 Re-enable these in preparation for alt/back
