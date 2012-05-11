@@ -266,8 +266,6 @@ bvm_cache *paste(bvm_cache *this_bvm){
     swap(this_bvm);
     hard_zap(this_bvm);
 
-    
-
     return this_bvm;
 
 }
@@ -281,8 +279,6 @@ bvm_cache *set(bvm_cache *this_bvm){
     swap(this_bvm);
     hard_zap(this_bvm);
 
-    
-
     return this_bvm;
 
 }
@@ -292,16 +288,16 @@ void _wrcxr(mword *dest, mword *src, mword offset){
 
     mword dest_size = size(dest);
 
-    if(offset > dest_size){
+    if(offset > dest_size){ //FIXME: OBO
         error("_wrcxr: Can't write past the end of an array");
     }
 
     dest_size -= offset;
     mword src_size = size(src);
-    mword iter = (src_size < dest_size) ? src_size : dest_size;
+    mword iter = (src_size < dest_size) ? src_size : dest_size; //FIXME macro
 
     if(         (is_leaf(dest) && is_leaf(dest)) 
-            ||  (is_inte(dest) && is_inte(dest))){
+            ||  (is_inte(dest) && is_inte(dest))){ //FIXME perf
         int i;
         for(i=0;i<iter;i++){
             *(dest+i+offset) = c(src,i);
@@ -309,6 +305,50 @@ void _wrcxr(mword *dest, mword *src, mword offset){
     }
     else{
         error("_wrcxr: Can't write to hash-ref or non-matching arrays");
+    }
+
+}
+
+// TOS_0 offset
+// TOS_1 dest
+// TOS_2 src
+bvm_cache *paste8(bvm_cache *this_bvm){
+
+    _wrcxr8((mword*)TOS_1(this_bvm),(mword*)TOS_2(this_bvm),car(TOS_0(this_bvm)));
+
+    hard_zap(this_bvm);
+    swap(this_bvm);
+    hard_zap(this_bvm);
+
+    return this_bvm;
+
+}
+
+//
+void _wrcxr8(mword *dest, mword *src, mword offset){
+
+    mword dest_size = _arlen8(dest);
+
+    if(offset > dest_size){ //FIXME: OBO
+        error("_wrcxr: Can't write past the end of an array");
+    }
+
+    dest_size -= offset;
+
+    mword src_size = _arlen8(src);
+    mword iter = (src_size < dest_size) ? src_size : dest_size; //FIXME macro
+
+    char *internal_src  = (char*)src;
+    char *internal_dest = (char*)dest;
+
+    if( (is_leaf(dest) && is_leaf(dest)) ){ //FIXME perf
+        int i;
+        for(i=0;i<iter;i++){
+            internal_dest[i+offset] = internal_src[i];
+        }
+    }
+    else{
+        error("_wrcxr: Can't write to non-leaf arrays");
     }
 
 }
@@ -685,8 +725,6 @@ bvm_cache *span(bvm_cache *this_bvm){
 
     push_alloc(this_bvm, result, SPAN);
 
-    
-
     return this_bvm;
 
 }
@@ -710,6 +748,7 @@ mword *_bs2ar(mword *bs){
 
 }
 
+//
 void rbs2ar(mword *bs, mword *arr_list, mword *offset){
 
     int i;

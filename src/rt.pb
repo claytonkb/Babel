@@ -8,4 +8,6 @@ main:
     ( argv [0] th
     slurp load
     babel )
+--    unload
+--    $ cr << )
 

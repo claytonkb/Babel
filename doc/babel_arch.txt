@@ -4,6 +4,34 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- stack persistence/data-types -----
+
+Currently, we mark the stack type with the opcode of the last operator
+to operate on the stack item. The key purpose is to determine whether
+the stack item should be zap'd or hard_zap'd when it is consumed.
+
+In Babel 2.0, we want to have a kind of "type system" that can invoke
+an appropriate destructor whenever removing an item from the stack. So,
+we will need to know TWO pieces of information: Whether to invoke a
+destructor and which destructor to invoke.
+
+We separate operators into two types. The first type are operators that 
+do not manipulate the stack and create output which CANNOT have a pointer 
+into its input operands. The output created by these operators is called 
+stack-independent. This means that each of the input operands can be 
+freed if it is marked as stack-scoped. By default, these operators always
+mark their output as stack-scoped. This can be changed with the persist
+operator.
+
+The second type are operators that create output that CAN have a pointer
+into one of the input operands (e.g. cons) or manipulate the stack. These 
+operators produce stack-dependent output.
+
+Stack-dependent operators never zap their inputs but propagate their
+stack-scoping according to the following rule: if ALL inputs are marked
+as stack-scoped then the output will be marked as stack-scoped, as well.
+Otherwise, the output is marked as persistent.
+
 ----- single vs. double-pointers -----
 
 Consider

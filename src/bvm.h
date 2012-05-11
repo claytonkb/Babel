@@ -12,6 +12,7 @@ bvm_cache *bvmcode(bvm_cache *this_bvm);
 bvm_cache *bvmstack(bvm_cache *this_bvm);
 bvm_cache *rsvd(bvm_cache *this_bvm);
 bvm_cache *bvmrstack(bvm_cache *this_bvm);
+bvm_cache *boilerplate(bvm_cache *this_bvm);
 
 //#include "list.h"
 //

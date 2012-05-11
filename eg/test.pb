@@ -1,3 +1,19 @@
+main: ( `(123 456 789) unload listobj ! )
+
+listobj: (( <- `( hex08 ! cr << ) -> eachar ))
+
+hex08: 
+        (( %x dup #8 
+        `8 <-> -
+        <-
+            `"00000000" dup <- zap -> 
+        ->
+        paste8 ))
+
+--main: ( `"fnord" `"frobnicate" `11 paste8 cr << )
+
+--main: ( `[6 7] `[1 2 3 4 5] `2 paste $ cr << )
+
 -- main: ( `(1 2 3) reverse sdd ! )
 
 -- main: ( `0 `"hello" `"world" sel << )
@@ -39,48 +55,48 @@
 --
 --d: (($ cr <<))
 
-main: ( readfile !
-        dup
-
-        newlines !
-        lsinc !
-
-        reverse
-
-        <- `( cut <-> ) -> ... 
-
-        `-1 take
-        reverse
-
-        <- `( `"==>" << ar2str << `"\n" << ) -> ... )
-
-lsinc: (( dup <- `( `1 <-> += ) -> ... ))
-
-retrieve: (( <- `( %d `" " . << ) -> ... ))
-
-part_x: ( nil )
-
-lsprint: (( <- `( %d `" " . << ) -> ... ))
-
-readfile: ((argv `1 th >>> str2ar))
-
-sdd: (( sdp ! die ))
-
-sdp: (( stack dump << ))
-
-newlines: 
-    (( `nil cons nest
-        <- `( `0xd == not
-                `( zap )
-                `( `newlines_y `newlines_x `0 + `nil cons push zap )
-            if
-            `1 `newlines_x += ) -> 
-    eachar
-    `newlines_y shift zap up car ))
-
-newlines_x: {0}
-
-newlines_y: ( nil )
+--main: ( readfile !
+--        dup
+--
+--        newlines !
+--        lsinc !
+--
+--        reverse
+--
+--        <- `( cut <-> ) -> ... 
+--
+--        `-1 take
+--        reverse
+--
+--        <- `( `"==>" << ar2str << `"\n" << ) -> ... )
+--
+--lsinc: (( dup <- `( `1 <-> += ) -> ... ))
+--
+--retrieve: (( <- `( %d `" " . << ) -> ... ))
+--
+--part_x: ( nil )
+--
+--lsprint: (( <- `( %d `" " . << ) -> ... ))
+--
+--readfile: ((argv `1 th >>> str2ar))
+--
+--sdd: (( sdp ! die ))
+--
+--sdp: (( stack dump << ))
+--
+--newlines: 
+--    (( `nil cons nest
+--        <- `( `0xd == not
+--                `( zap )
+--                `( `newlines_y `newlines_x `0 + `nil cons push zap )
+--            if
+--            `1 `newlines_x += ) -> 
+--    eachar
+--    `newlines_y shift zap up car ))
+--
+--newlines_x: {0}
+--
+--newlines_y: ( nil )
 
 -- main: ( `( cr << ) `( "hello" "world" ) each fnord )
 

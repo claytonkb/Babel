@@ -22,6 +22,7 @@ void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type);
 void rgive(bvm_cache *this_bvm, mword *list);
 //mword *rtake   (bvm_cache *this_bvm, mword count);
 mword *pop_rstack(bvm_cache *this_bvm);
+void free_stack_entry(bvm_cache *this_bvm);
 
 #define SELF_ALLOC 0
 #define AUTO_ALLOC 1

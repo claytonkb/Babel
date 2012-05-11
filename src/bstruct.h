@@ -44,7 +44,10 @@ mword *_trav(mword *bs, mword *list);
 bvm_cache *paste(bvm_cache *this_bvm);
 bvm_cache *set(bvm_cache *this_bvm);
 
-void _wrcxr(mword *dest, mword *src, mword offset);
+bvm_cache *paste8(bvm_cache *this_bvm);
+
+void _wrcxr (mword *dest, mword *src, mword offset);
+void _wrcxr8(mword *dest, mword *src, mword offset);
 
 bvm_cache *cp(bvm_cache *this_bvm);
 

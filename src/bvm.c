@@ -354,6 +354,19 @@ bvm_cache *babelop(bvm_cache *this_bvm){
 
     bvm_interp(&new_bvm);
 
+    mword *temp = new_atom;
+    *temp = (mword)-1;
+
+    push_alloc(&new_bvm,temp,UP);
+
+    take(&new_bvm);
+
+    bvm_cache *bvm_temp = &new_bvm;
+    temp = (mword*)TOS_0(bvm_temp);
+
+//    this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+    push_alloc(this_bvm,temp,BVMEXEC);
+
     //FIXME - push stack of new_bvm onto this_bvm when bvm_interp returns
     //push_alloc(this_bvm, new_bvm.stack_ptr, BVMEXEC);
 
@@ -395,6 +408,27 @@ bvm_cache *rsvd(bvm_cache *this_bvm){
 
     error("An attempt was made to execute a reserved opcode");
     die;
+
+}
+
+//
+bvm_cache *boilerplate(bvm_cache *this_bvm){
+
+//    printf(
+//"Babel %s\n\
+//    Built %s %s\n\
+//    Clayton Bauman (c) 2012, see LICENSE for details\n\n", 
+//    BABEL_VERSION, __DATE__, __TIME__);
+
+    char msg[256];
+
+    sprintf(msg, 
+"Babel %s\n\
+    Built %s %s\n\
+    Clayton Bauman (c) 2012, see LICENSE for details\n\n", 
+    BABEL_VERSION, __DATE__, __TIME__);
+
+    push_alloc( this_bvm, C2B(msg), 0 );
 
 }
 

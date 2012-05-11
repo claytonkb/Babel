@@ -4,6 +4,8 @@
 #ifndef BABEL_H
 #define BABEL_H
 
+#define BABEL_VERSION ("0.4")
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -76,7 +78,7 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 
 #define ROOT_INTERP_THREAD 0
 
-#define NUM_INTERP_OPCODES 519
+#define NUM_INTERP_OPCODES 521
 
 #define WINDOWS
 //#define STAR_NIX
@@ -136,8 +138,8 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 #define _dump(x) printf("%s\n", _bs2gv(x));
 #define die  fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);
 #define warn(x) fprintf(stderr, "WARNING: %s at %s line %d\n", x, __FILE__, __LINE__);
-#define error(x) fprintf(stderr, "ERROR: %s at %s line %d\n", x, __FILE__, __LINE__);
-#define trace fprintf(stderr, "%s line %d\n", __FILE__, __LINE__);
+#define error(x) fprintf(stderr, "ERROR: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__);
+#define trace fprintf(stderr, "%s in %s line %d\n", __FILE__, __LINE__);
 
 #endif //BABEL_H
 

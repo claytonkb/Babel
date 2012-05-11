@@ -94,9 +94,11 @@ bvm_cache *hard_zap(bvm_cache *this_bvm){
 
     mword *temp_stack_ptr = (mword*)cdr(this_bvm->stack_ptr);
 
-    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr)));
-    bfree(car(this_bvm->stack_ptr));
-    bfree(this_bvm->stack_ptr);
+//    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr)));
+//    bfree(car(this_bvm->stack_ptr));
+//    bfree(this_bvm->stack_ptr);
+
+    free_stack_entry(this_bvm);
 
     this_bvm->stack_ptr = temp_stack_ptr;
 
@@ -116,14 +118,27 @@ bvm_cache *zap(bvm_cache *this_bvm){
     mword *val = STACK_ENTRY_VAL((mword*)car(this_bvm->stack_ptr));
 
     zap_switch(car(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr))))
+//    if(car(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr))) == SCOPE_STACK){
+//        
+//    }
 
-    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr)));
-    bfree(car(this_bvm->stack_ptr));
-    bfree(this_bvm->stack_ptr);
+//    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr)));
+//    bfree(car(this_bvm->stack_ptr));
+//    bfree(this_bvm->stack_ptr);
+
+    free_stack_entry(this_bvm);
 
     this_bvm->stack_ptr = temp_stack_ptr;
 
     return this_bvm;
+
+}
+
+void free_stack_entry(bvm_cache *this_bvm){
+
+    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr)));
+    bfree(car(this_bvm->stack_ptr));
+    bfree(this_bvm->stack_ptr);
 
 }
 
@@ -285,6 +300,7 @@ bvm_cache *up(bvm_cache *this_bvm){
 
         this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
         push_alloc(this_bvm,temp,UP);
+
     }
     else{
         error("up: There was an error\n");
