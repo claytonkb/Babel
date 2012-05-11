@@ -261,8 +261,6 @@ bvm_cache* cirem(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, CIREM);
 
-    
-
     return this_bvm;
 
 }
@@ -284,7 +282,8 @@ bvm_cache *ciadd_assign(bvm_cache *this_bvm){
 
     // FIXME Overflow error
 
-    swap(this_bvm);
+//    swap(this_bvm);
+    hard_zap(this_bvm);
     zap(this_bvm);
 //    push_alloc(this_bvm, result, CUADD);
 

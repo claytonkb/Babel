@@ -18,6 +18,8 @@ bvm_cache *push(bvm_cache *this_bvm);
 bvm_cache *pop(bvm_cache *this_bvm);
 bvm_cache *unshift(bvm_cache *this_bvm);
 bvm_cache *shift(bvm_cache *this_bvm);
+bvm_cache *reverse(bvm_cache *this_bvm);
+mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr);
 
 mword *_bons(mword *list);
 mword *_ls2lf(mword *list);

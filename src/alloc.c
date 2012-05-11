@@ -14,8 +14,6 @@ bvm_cache *free_op(bvm_cache *this_bvm){
     bfree(TOS_0(this_bvm));
     hard_zap(this_bvm);
 
-    
-
     return this_bvm;
 
 }
@@ -25,8 +23,6 @@ bvm_cache *del(bvm_cache *this_bvm){
 
     _del((mword*)TOS_0(this_bvm));
     hard_zap(this_bvm);
-
-    
 
     return this_bvm;
 

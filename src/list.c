@@ -314,5 +314,35 @@ mword *_walk(mword *bs, mword *walk_list){
 
 }
 
+//
+bvm_cache *reverse(bvm_cache *this_bvm){
+
+    mword *list = (mword*)TOS_0(this_bvm);
+
+    hard_zap(this_bvm);
+
+    mword *result = _reverse(this_bvm,(mword*)list,nil);
+
+    push_alloc(this_bvm, result, REVERSE);
+
+    return this_bvm;
+
+}
+
+
+//
+mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr){
+
+    mword *temp = (mword*)cdr(list);
+
+    (mword*)cdr(list) = new_cdr;
+
+    if(is_nil(temp))
+        return list;
+
+    return _reverse(this_bvm, temp, list);
+
+}
+
 // Clayton Bauman 2011
 

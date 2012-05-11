@@ -398,6 +398,7 @@
 #define BVMCODE     0x203
 #define IFOP        0x204
 #define BVMRSTACK   0x205
+#define REVERSE     0x206
 
 #endif //BVM_OPCODES_H
 

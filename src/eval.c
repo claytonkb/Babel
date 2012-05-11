@@ -273,10 +273,10 @@ bvm_cache *each(bvm_cache *this_bvm){
 // FIXME: Catch the empty-list condition...
 
     mword *list = (mword*)TOS_0(this_bvm);
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     mword *body = (mword*)TOS_0(this_bvm);
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     mword *temp = _newin(EACH_RSTACK_ENTRIES);
     (mword*)c(temp,EACH_RSTACK_LIST)   = list;

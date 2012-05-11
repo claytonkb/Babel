@@ -1,3 +1,24 @@
+-- main: ( `(1 2 3) reverse sdd ! )
+
+-- main: ( `0 `"hello" `"world" sel << )
+
+--main: 
+--    ( `1 `2 `3 `4 `5 `-1 take unload 
+--    `(1 2 3 4 5) unload 
+--    == 
+--    not
+--    <- `"take - test #0" -> 
+--    test_finish ! )
+--
+--test_finish: 
+--    (( <- << ->
+--        `" FAILED"
+--        `" PASSED"
+--    sel
+--    cr << ))
+
+-- main: ( `1 `2 `3 `( 4 5 6 ) nest up sdd ! up $ << die stack dump << )
+
 --main: ( `x cr << `x cr <<  )
 --
 --x: {"Hello"}
@@ -19,16 +40,25 @@
 --d: (($ cr <<))
 
 main: ( readfile !
-        newlines !
-        sdd !
-        dup `main_a set
-            `( `1 <-> += )
-            `main_a
-        ...
-        `main_a
-        lsprint ! `"\n" << )
+        dup
 
-main_a: ( nil )
+        newlines !
+        lsinc !
+
+        reverse
+
+        <- `( cut <-> ) -> ... 
+
+        `-1 take
+        reverse
+
+        <- `( `"==>" << ar2str << `"\n" << ) -> ... )
+
+lsinc: (( dup <- `( `1 <-> += ) -> ... ))
+
+retrieve: (( <- `( %d `" " . << ) -> ... ))
+
+part_x: ( nil )
 
 lsprint: (( <- `( %d `" " . << ) -> ... ))
 
@@ -39,33 +69,18 @@ sdd: (( sdp ! die ))
 sdp: (( stack dump << ))
 
 newlines: 
-    ((<- `( 
-            <-
+    (( `nil cons nest
+        <- `( `0xd == not
                 `( zap )
-                `( `newlines_y `newlines_x `0 + sdd ! `nil cons push zap )
-            ->
-            `0xd ==
-            not
-        if
-        `1 `newlines_x += 
-    ) -> 
-    eachar sdd !
-    `newlines_y shift zap))
+                `( `newlines_y `newlines_x `0 + `nil cons push zap )
+            if
+            `1 `newlines_x += ) -> 
+    eachar
+    `newlines_y shift zap up car ))
 
 newlines_x: {0}
 
 newlines_y: ( nil )
-
-part: 
-    (( 
-    cp `part_x set
-    <- `(
-        `part_x shift car <-> zap
-        %d `" " . <<
-    ) ->
-    ...))
-
-part_x: ( nil )
 
 -- main: ( `( cr << ) `( "hello" "world" ) each fnord )
 

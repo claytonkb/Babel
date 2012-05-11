@@ -167,12 +167,17 @@ mword *pop_rstack(bvm_cache *this_bvm){
 //
 bvm_cache *sel(bvm_cache *this_bvm){
 
-    mword *select = (mword*)TOS_0(this_bvm);
-    zap(this_bvm);
+    mword *select = (mword*)TOS_2(this_bvm);
+
+    // FIXME YUCK!!!!!!
+    down(this_bvm);
+    down(this_bvm);
+    hard_zap(this_bvm); // XXX leaky
+    up(this_bvm);
+    up(this_bvm);
 
     // stack_ptr -> A -> B -> C -> D
     // B->D
-    // FIXME: mem leak
 //    mword *temp = (mword*)cdr(this_bvm->stack_ptr);
 //    cdr(temp) = cdr(cdr(temp));
 
@@ -251,7 +256,7 @@ bvm_cache *swap(bvm_cache *this_bvm){
 bvm_cache *down(bvm_cache *this_bvm){
 
     push_alloc_rstack(this_bvm, (mword*)TOS_0(this_bvm), DOWN);
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     return this_bvm;
 
@@ -260,11 +265,30 @@ bvm_cache *down(bvm_cache *this_bvm){
 //
 bvm_cache *up(bvm_cache *this_bvm){
 
+    mword *temp;
+
     if(return_type(this_bvm->rstack_ptr) == DOWN){
         push_alloc(this_bvm,(mword*)car(pop_rstack(this_bvm)),UP);
     }
-    else{ //NEST
+    else if(return_type(this_bvm->rstack_ptr) == NEST){
+//        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+
+        // XXX fairly yucky code:
+        temp = new_atom;
+        *temp = (mword)-1;
+
+        push_alloc(this_bvm,temp,UP);
+
+        take(this_bvm);
+
+        temp = (mword*)TOS_0(this_bvm);
+
         this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+        push_alloc(this_bvm,temp,UP);
+    }
+    else{
+        error("up: There was an error\n");
+        die;
     }
 
     return this_bvm;
@@ -274,23 +298,35 @@ bvm_cache *up(bvm_cache *this_bvm){
 //
 bvm_cache *take(bvm_cache *this_bvm){
 
-    mword count = car(TOS_0(this_bvm));
+    int count = (int)car(TOS_0(this_bvm));
     zap(this_bvm);
 
     mword *result = nil;
     mword *list_entry;
     mword *temp;
-
     int i;
-//    d(count)
-    for(i=0;i<count;i++){
-        list_entry = (mword*)TOS_0(this_bvm);
-        temp = new_cons;
-        cons(   temp,
-                list_entry,
-                result);
-        result = temp;
-        zap(this_bvm);
+
+    if(count == -1){
+        while(!is_nil(this_bvm->stack_ptr)){
+            list_entry = (mword*)TOS_0(this_bvm);
+            temp = new_cons;
+            cons(   temp,
+                    list_entry,
+                    result);
+            result = temp;
+            hard_zap(this_bvm); // XXX leaky
+        }
+    }
+    else{
+        for(i=0;i<count;i++){
+            list_entry = (mword*)TOS_0(this_bvm);
+            temp = new_cons;
+            cons(   temp,
+                    list_entry,
+                    result);
+            result = temp;
+            hard_zap(this_bvm); // XXX leaky
+        }
     }
     
 //    _dump(result);
@@ -358,11 +394,11 @@ void rgive(bvm_cache *this_bvm, mword *list){
 
 }
 
-//
+// FIXME Why not just set stack_ptr to nil?
 bvm_cache *clear(bvm_cache *this_bvm){
 
     while(!is_nil((mword*)TOS_0(this_bvm))){
-        zap(this_bvm);
+        hard_zap(this_bvm);
     }
 
     return this_bvm;
@@ -374,10 +410,12 @@ bvm_cache *nest(bvm_cache *this_bvm){
 
     mword *new_stack = (mword*)TOS_0(this_bvm);
 
-    zap(this_bvm);
+    hard_zap(this_bvm);
     push_alloc_rstack(this_bvm, (mword*)this_bvm->stack_ptr, NEST);
 
-    clear(this_bvm);
+//    clear(this_bvm);
+
+    this_bvm->stack_ptr = nil; // clear the stack
 
     rgive(this_bvm, new_stack);
 
