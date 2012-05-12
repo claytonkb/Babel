@@ -116,11 +116,33 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 
 //XXX we may yet need a generally hash-ref-safe car/cdr
 
+// Stack
 #define TOS_0(x)             car(car(x->stack_ptr))
 #define TOS_1(x)         car(car(cdr(x->stack_ptr)))
 #define TOS_2(x)     car(car(cdr(cdr(x->stack_ptr))))
 
 #define RTOS_0(x)            car(car(x->rstack_ptr))
+
+#define STACK_ENTRY_SIZE 2
+
+#define STACK_ENTRY_VAL(x) ((mword*)c(x,0))
+#define STACK_ENTRY_LIF(x) ((mword*)c(x,1))
+
+#define IMMORTAL 0
+#define MORTAL   1
+#define is_mortal(x) ( STACK_ENTRY_LIF(x) != IMMORTAL )
+
+#define REQUIRE_LEAF_LEAF(x) \
+    if(!is_leaf(TOS_0(x)) || !is_leaf(TOS_1(x))) { \
+        error("One or more operands not a leaf-array"); \
+        die \
+    }
+
+#define REQUIRE_LEAF(x) \
+    if(!is_leaf(TOS_0(x))) { \
+        error("Top-of-stack not a leaf-array"); \
+        die \
+    }
 
 #define alloc_type(x) car(car(cdr(x))) 
 #define return_type(x) car(cdr(car(x))) 
@@ -139,7 +161,7 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 #define die  fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);
 #define warn(x) fprintf(stderr, "WARNING: %s at %s line %d\n", x, __FILE__, __LINE__);
 #define error(x) fprintf(stderr, "ERROR: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__);
-#define trace fprintf(stderr, "%s in %s line %d\n", __FILE__, __LINE__);
+#define trace fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);
 
 #endif //BABEL_H
 

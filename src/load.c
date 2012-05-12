@@ -28,9 +28,7 @@ bvm_cache *load(bvm_cache *this_bvm){
 
     hard_zap(this_bvm);
 
-    push_alloc(this_bvm, result, LOAD);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -283,7 +281,7 @@ bvm_cache *unload(bvm_cache *this_bvm){
 //    TOS_0 = TOS_0 + MWORD_SIZE;
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, UNLOAD);
+    push_alloc(this_bvm, result, MORTAL);
 
 }
 

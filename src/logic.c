@@ -8,6 +8,7 @@
 #include "bvm_opcodes.h"
 #include "array.h"
 
+//
 bvm_cache *logicF0(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -16,14 +17,13 @@ bvm_cache *logicF0(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F000);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicF1(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -32,14 +32,13 @@ bvm_cache *logicF1(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F001);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicF2(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -48,14 +47,13 @@ bvm_cache *logicF2(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F002);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicF3(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -64,14 +62,13 @@ bvm_cache *logicF3(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F003);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicF4(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -80,14 +77,13 @@ bvm_cache *logicF4(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F004);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicF5(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -96,14 +92,13 @@ bvm_cache *logicF5(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F005);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicF6(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -112,14 +107,13 @@ bvm_cache *logicF6(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F006);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicF7(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -128,14 +122,13 @@ bvm_cache *logicF7(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F007);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicF8(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -144,14 +137,13 @@ bvm_cache *logicF8(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F008);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicF9(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -160,14 +152,13 @@ bvm_cache *logicF9(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F009);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicFA(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -176,14 +167,13 @@ bvm_cache *logicFA(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F00A);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicFB(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -192,14 +182,13 @@ bvm_cache *logicFB(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F00B);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicFC(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -208,14 +197,13 @@ bvm_cache *logicFC(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F00C);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cnot(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -223,15 +211,14 @@ bvm_cache *cnot(bvm_cache *this_bvm){
     *result = ~(mword)car(TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, CNOT);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
 
+//
 bvm_cache *logicFD(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -240,14 +227,13 @@ bvm_cache *logicFD(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F00D);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicFE(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -256,14 +242,13 @@ bvm_cache *logicFE(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F00E);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *logicFF(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -272,14 +257,13 @@ bvm_cache *logicFF(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, F00F);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *andop(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -289,14 +273,13 @@ bvm_cache *andop(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
 
-    push_alloc(this_bvm, result, ANDOP);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *orop(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -305,14 +288,13 @@ bvm_cache *orop(bvm_cache *this_bvm){
     
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, OROP);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *notop(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -320,9 +302,7 @@ bvm_cache *notop(bvm_cache *this_bvm){
     *result = is_false((mword*)TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, NOTOP);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 

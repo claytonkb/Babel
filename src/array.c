@@ -18,9 +18,7 @@ bvm_cache *sfield(bvm_cache *this_bvm){
     *result = s((mword*)TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, SFIELD);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -34,9 +32,7 @@ bvm_cache *arlen(bvm_cache *this_bvm){
     *result = size((mword*)TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, ARLEN);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -50,9 +46,7 @@ bvm_cache *islf(bvm_cache *this_bvm){
     *result = is_leaf((mword*)TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, ISLF);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -66,7 +60,7 @@ bvm_cache *isinte(bvm_cache *this_bvm){
     *result = is_inte((mword*)TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, ISINTE);
+    push_alloc(this_bvm, result, MORTAL);
 
     
 
@@ -189,9 +183,7 @@ bvm_cache *slice(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, SLICE);
-
-    
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on inputs
 
     return this_bvm;
 
@@ -213,9 +205,7 @@ bvm_cache *cxr(bvm_cache *this_bvm){
     hard_zap(this_bvm);
     hard_zap(this_bvm);
 
-    push_alloc(this_bvm, result, CXR);
-
-    
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: May depend on input
 
     return this_bvm;
 
@@ -382,11 +372,11 @@ bvm_cache *cut(bvm_cache *this_bvm){
     if(cut_point == 0){
 //        result = new_atom;
 //        *result = nil;
-        push_alloc(this_bvm, nil, CUT);
+        push_alloc(this_bvm, nil, IMMORTAL); //FIXME: depends on inputs
         swap(this_bvm);
     }
     else if(cut_point >= size(src)){
-        push_alloc(this_bvm, nil, CUT);
+        push_alloc(this_bvm, nil, IMMORTAL); //FIXME: depends on inputs
     }
     else{
         zap(this_bvm);
@@ -416,11 +406,9 @@ bvm_cache *cut(bvm_cache *this_bvm){
 
         }    
 
-        push_alloc(this_bvm, result_pre,  CUT);
-        push_alloc(this_bvm, result_post, CUT);
+        push_alloc(this_bvm, result_pre,  IMMORTAL); //FIXME: depends on inputs
+        push_alloc(this_bvm, result_post, IMMORTAL); //FIXME: depends on inputs
     }
-
-    
 
     return this_bvm;
 
@@ -434,9 +422,7 @@ bvm_cache *arlen8(bvm_cache *this_bvm){
     *result = _arlen8((mword*)TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, ARLEN8);
-   
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
  
@@ -466,8 +452,6 @@ bvm_cache *newin(bvm_cache *this_bvm){
     zap(this_bvm);
     push_alloc(this_bvm, result, NEWIN);
 
-    
-
     return this_bvm;
 
 }
@@ -478,9 +462,7 @@ bvm_cache *newlf(bvm_cache *this_bvm){
     mword *result = _newlf((mword)car(TOS_0(this_bvm))); //FIXME: There is no checking...
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, NEWLF);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -496,8 +478,6 @@ bvm_cache *trunc(bvm_cache *this_bvm){
     _trunc((mword*)TOS_1(this_bvm), (mword)car(TOS_0(this_bvm)));
 
     zap(this_bvm);
-
-    
 
     return this_bvm;
 
@@ -600,9 +580,7 @@ bvm_cache *arcat(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, ARCAT);
-
-    
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on inputs
 
     return this_bvm;
 
@@ -658,9 +636,7 @@ bvm_cache *arcat8(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, (mword*)result, ARCAT8);
-
-    
+    push_alloc(this_bvm, (mword*)result, IMMORTAL); //FIXME: Depends on inputs
 
     return this_bvm;
 
@@ -700,9 +676,7 @@ bvm_cache *cr(bvm_cache *this_bvm){
     c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
 
     zap(this_bvm);
-    push_alloc(this_bvm, (mword*)result, CR);
-
-    
+    push_alloc(this_bvm, (mword*)result, IMMORTAL); //FIXME: Depends on inputs
 
     return this_bvm;
 
@@ -738,14 +712,13 @@ bvm_cache *slice8(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, (mword*)result, SLICE8);
-
-    
+    push_alloc(this_bvm, (mword*)result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *arcmp(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -754,9 +727,7 @@ bvm_cache *arcmp(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, ARCMP);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -783,9 +754,7 @@ bvm_cache *ar2ls(bvm_cache *this_bvm){
 
     zap(this_bvm);
 
-    push_alloc(this_bvm, result, AR2LS);
-
-    
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on inputs
 
     return this_bvm;
 
@@ -837,9 +806,7 @@ bvm_cache *perm(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
 
-    push_alloc(this_bvm, result, PERM);
-
-    
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on input
 
     return this_bvm;
 

@@ -56,7 +56,7 @@ bvm_cache *inskha(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
 
-    push_alloc(this_bvm, result, INSKHA);
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Revisit
 
 //printf("%s\n\n",_bs2gv(this_bvm->stack_ptr));
 
@@ -151,7 +151,7 @@ bvm_cache *exha(bvm_cache *this_bvm){
 
     zap(this_bvm);
 
-    push_alloc(this_bvm, result, EXHA);
+    push_alloc(this_bvm, result, MORTAL);
 
 }
 
@@ -201,7 +201,7 @@ bvm_cache *luha(bvm_cache *this_bvm){
 
     zap(this_bvm);
 
-    push_alloc(this_bvm, result, LUHA);
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Revisit
 
 }
 

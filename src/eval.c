@@ -15,7 +15,7 @@
 bvm_cache *eval(bvm_cache *this_bvm){
 
     mword *body = (mword*)TOS_0(this_bvm);
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     push_alloc_rstack(this_bvm, (mword*)scdr(this_bvm->code_ptr), EVAL);
 
@@ -55,7 +55,7 @@ bvm_cache *gotoop(bvm_cache *this_bvm){
 
     this_bvm->code_ptr = (mword*)scar(scar(this_bvm->stack_ptr));
 
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     this_bvm->advance_type = BVM_CONTINUE;
 
@@ -67,7 +67,7 @@ bvm_cache *gotoop(bvm_cache *this_bvm){
 bvm_cache *loop(bvm_cache *this_bvm){
 
     mword *body = (mword *)TOS_0(this_bvm);
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     mword *temp = _newin(LOOP_RSTACK_ENTRIES);
 
@@ -151,7 +151,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
                 this_bvm->code_ptr = (mword*)rstack_entry[WHILE_RSTACK_BODY];
                 *(mword*)rstack_entry[WHILE_RSTACK_SELECT] = WHILE_BODY;
             }
-            zap(this_bvm);
+            hard_zap(this_bvm);
         }
 
     }
@@ -166,7 +166,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
         else{
             this_bvm->code_ptr = (mword*)rstack_entry[EACH_RSTACK_BODY];
             rstack_entry[EACH_RSTACK_LIST] = cdr((mword*)rstack_entry[EACH_RSTACK_LIST]);
-            push_alloc(this_bvm, (mword*)car((mword*)rstack_entry[EACH_RSTACK_LIST]), EACH);
+            push_alloc(this_bvm, (mword*)car((mword*)rstack_entry[EACH_RSTACK_LIST]), IMMORTAL); //FIXME: Revisit
         }
 
     }
@@ -194,7 +194,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 
             this_bvm->code_ptr = (mword*)rstack_entry[EACHAR_RSTACK_BODY];
 
-            push_alloc(this_bvm, result, EACHAR);
+            push_alloc(this_bvm, result, IMMORTAL); //FIXME: Revisit
 
         }
 
@@ -216,10 +216,10 @@ bvm_cache *times(bvm_cache *this_bvm){
 
         times = new_atom;
         *times = car(TOS_0(this_bvm));
-        zap(this_bvm);
+        hard_zap(this_bvm);
 
         mword *body = (mword*)TOS_0(this_bvm);
-        zap(this_bvm);
+        hard_zap(this_bvm);
 
         mword *temp = _newin(TIMES_RSTACK_ENTRIES);
 
@@ -243,10 +243,10 @@ bvm_cache *times(bvm_cache *this_bvm){
 bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 
     mword *cond_block = (mword*)TOS_0(this_bvm);
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     mword *body = (mword*)TOS_0(this_bvm);
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     mword *block_sel = new_atom;
     *block_sel = WHILE_BODY;
@@ -289,7 +289,7 @@ bvm_cache *each(bvm_cache *this_bvm){
 
     this_bvm->code_ptr = body;
 
-    push_alloc(this_bvm, (mword*)car(list), EACH);
+    push_alloc(this_bvm, (mword*)car(list), IMMORTAL); //FIXME: Revisit
     
     return this_bvm;
 
@@ -310,14 +310,14 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
     mword *result;
     mword *array = (mword*)TOS_0(this_bvm);
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     mword *count = new_atom;
     *count = EACHAR_INIT_INDEX;
 
 
     mword *body = (mword*)TOS_0(this_bvm);
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     mword *temp = _newin(EACHAR_RSTACK_ENTRIES);
     (mword*)c(temp,EACHAR_RSTACK_ARRAY)  = array;
@@ -339,7 +339,7 @@ bvm_cache *eachar(bvm_cache *this_bvm){
         result = (mword*)c(array,EACHAR_INIT_INDEX);
     }
 
-    push_alloc(this_bvm, result, EACHAR);
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Revisit
     
     return this_bvm;
 

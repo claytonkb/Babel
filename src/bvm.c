@@ -299,7 +299,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
 //                error("bvm_interp: hash-reference detected on stack");
 //                die;
 //            }
-            push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), SELF_ALLOC);
+            push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), IMMORTAL);
 //            this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
         }
         else if( is_leaf(car(this_bvm->code_ptr)) ){
@@ -354,18 +354,18 @@ bvm_cache *babelop(bvm_cache *this_bvm){
 
     bvm_interp(&new_bvm);
 
-    mword *temp = new_atom;
-    *temp = (mword)-1;
-
-    push_alloc(&new_bvm,temp,UP);
-
-    take(&new_bvm);
-
-    bvm_cache *bvm_temp = &new_bvm;
-    temp = (mword*)TOS_0(bvm_temp);
-
-//    this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
-    push_alloc(this_bvm,temp,BVMEXEC);
+//    mword *temp = new_atom;
+//    *temp = (mword)-1;
+//
+//    push_alloc(&new_bvm,temp,IMMORTAL); //FIXME: Revisit
+//
+//    take(&new_bvm);
+//
+//    bvm_cache *bvm_temp = &new_bvm;
+//    temp = (mword*)TOS_0(bvm_temp);
+//
+////    this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+//    push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
 
     //FIXME - push stack of new_bvm onto this_bvm when bvm_interp returns
     //push_alloc(this_bvm, new_bvm.stack_ptr, BVMEXEC);
@@ -377,7 +377,9 @@ bvm_cache *babelop(bvm_cache *this_bvm){
 //
 bvm_cache *bvmcode(bvm_cache *this_bvm){
 
-    push_alloc(this_bvm, this_bvm->code_ptr, BVMCODE);
+    push_alloc(this_bvm, this_bvm->code_ptr, IMMORTAL); 
+    // XXX: These operators are inherently dangerous in 
+    // combination with the mortal operator
 
     return this_bvm;
 
@@ -386,7 +388,7 @@ bvm_cache *bvmcode(bvm_cache *this_bvm){
 //
 bvm_cache *bvmstack(bvm_cache *this_bvm){
 
-    push_alloc(this_bvm, this_bvm->stack_ptr, BVMSTACK);
+    push_alloc(this_bvm, this_bvm->stack_ptr, IMMORTAL);
 
     return this_bvm;
 
@@ -395,7 +397,7 @@ bvm_cache *bvmstack(bvm_cache *this_bvm){
 //
 bvm_cache *bvmrstack(bvm_cache *this_bvm){
 
-    push_alloc(this_bvm, this_bvm->rstack_ptr, BVMRSTACK);
+    push_alloc(this_bvm, this_bvm->rstack_ptr, IMMORTAL);
 
     return this_bvm;
 
@@ -428,7 +430,7 @@ bvm_cache *boilerplate(bvm_cache *this_bvm){
     Clayton Bauman (c) 2012, see LICENSE for details\n\n", 
     BABEL_VERSION, __DATE__, __TIME__);
 
-    push_alloc( this_bvm, C2B(msg), 0 );
+    push_alloc( this_bvm, C2B(msg), MORTAL );
 
 }
 

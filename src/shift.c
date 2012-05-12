@@ -8,6 +8,7 @@
 #include "bvm_opcodes.h"
 #include "array.h"
 
+//
 bvm_cache *cushl(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -16,14 +17,13 @@ bvm_cache *cushl(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUSHL);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cushr(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -32,14 +32,13 @@ bvm_cache *cushr(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUSHR);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cashr(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -48,14 +47,13 @@ bvm_cache *cashr(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CASHR);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *curol(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -66,14 +64,13 @@ bvm_cache *curol(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUROL);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *curor(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -84,9 +81,7 @@ bvm_cache *curor(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUROR);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 

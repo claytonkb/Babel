@@ -8,6 +8,7 @@
 #include "bvm_opcodes.h"
 #include "array.h"
 
+//
 bvm_cache *cne(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -16,14 +17,13 @@ bvm_cache *cne(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CNE);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *ceq(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -32,14 +32,13 @@ bvm_cache *ceq(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CEQ);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cult(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -48,14 +47,13 @@ bvm_cache *cult(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CULT);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cule(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -64,14 +62,13 @@ bvm_cache *cule(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CULE);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cugt(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -80,14 +77,13 @@ bvm_cache *cugt(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUGT);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cuge(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -96,14 +92,13 @@ bvm_cache *cuge(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUGE);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cilt(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -112,14 +107,13 @@ bvm_cache *cilt(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CILT);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cile(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -128,14 +122,13 @@ bvm_cache *cile(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CILE);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cigt(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -144,14 +137,13 @@ bvm_cache *cigt(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CIGT);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
 }
 
+//
 bvm_cache *cige(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
@@ -160,9 +152,7 @@ bvm_cache *cige(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CIGE);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 

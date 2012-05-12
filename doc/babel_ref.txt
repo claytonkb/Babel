@@ -22,13 +22,12 @@ encountered, I have collected them in one place here:
 
        Symbol       Operator        Mnemonic
       ------------------------------------------------------------------
-        *2          dup             double TOS
         @           trav            what is AT this location?
         ?           sel             a question
         ??          cond            a big question
         %%          hash8           Perl hash sigil: %
         #           size            number-of
-        #8          size8            "    "
+        #8          size8           number-of (8-bit)
         ##          len             number-of (lists take up more space)
         !           eval            do it!
         <<          stdout8         like cout <<
@@ -38,7 +37,6 @@ encountered, I have collected them in one place here:
         <->         swap            reverse TOS and TOS-1
         <-          down            stack on left, moving left is going "down" 
         ->          up              stack on left, moving right is going "up"    
-        !!          call            do it!!
         +           ciadd           same as C
         -           cisub           same as C
         *           cimul           same as C
@@ -49,14 +47,14 @@ encountered, I have collected them in one place here:
         >           cigt            same as C
         >=          cige            same as C
         <=          cile            same as C
-        u+          cuadd           
-        u-          cusub
-        u*          cumul
-        u/          cudiv
-        u<          cult
-        u>          cugt
-        u>=         cuge
-        u<=         cule
+        u+          cuadd           "unsigned +"
+        u-          cusub             "    "
+        u*          cumul             "    "
+        u/          cudiv             "    "
+        u<          cult              "    "
+        u>          cugt              "    "
+        u>=         cuge              "    "
+        u<=         cule              "    "
         &           cand            same as C
         |           cor             same as C
         ^           cxor            same as C
@@ -68,10 +66,9 @@ encountered, I have collected them in one place here:
         &&          and             same as C
         ||          or              same as C
         ~~          not             see ~
-        |.|         ciabs           like the math operator
-        ==          cmp             big equality
+        ==          cmp             equality (for bigger things than just mwords)
         ...         each            traversing a list
-        $           show            Perl scalar sigil
+        $           show            Perl scalar sigil (deprecate?)
         %d          ci2dec          like printf
         %u          cu2dec          like printf
         %x          cu2hex          like printf
@@ -82,7 +79,7 @@ encountered, I have collected them in one place here:
 - Arithmetic Operators
 
     Note: The arithmetic operators are all prefixed with 'c' because
-    Babel will have its own native number format and arbitrary-precision
+    Babel 2.0 will have its own native number format and arbitrary-precision
     arithmetic at some point in the future.
  
     - cuadd (u+)
@@ -90,12 +87,9 @@ encountered, I have collected them in one place here:
         Adds two mwords on TOS (Top-Of-Stack) 
     
         Example: 
-            [2] [3] cuadd
+            `2 `3 cuadd
 
             Leaves 5 on TOS
-
-        Note: If you don't know what "unsigned" means then you should use 
-        the 'ci' arithmetic operators.
 
         Stack effect:
             {a} {b}| -> {a+b}|
@@ -112,7 +106,7 @@ encountered, I have collected them in one place here:
         C-style integer subtraction
         {a} {b}| -> {a-b}|
 
-    - ciabs (|.|)
+    - ciabs
         C-style absolute-value
         {a}| -> {abs(a)}|
 
@@ -145,6 +139,15 @@ encountered, I have collected them in one place here:
         C-style integer remainder (usually termed "mod")
         {a} {b}| -> {a%b}|
 
+    - ciadd_assign (+=)
+        
+    - cisub_assign (-=)
+        
+    - cimul_assign (*=)
+        
+    - cidiv_assign (/=)
+        
+
 - Shift Operators
 
     - cushl/shl
@@ -155,7 +158,7 @@ encountered, I have collected them in one place here:
         C-style unsigned shift-right
         {a} {b}| -> {a>>b}|
         
-    - cashr/ashr
+    - cashr
         C-style arithmetic shift-right
         {a} {b}| -> {a>>b}|
 
@@ -171,11 +174,10 @@ encountered, I have collected them in one place here:
         {a} {b}| -> {a ror b}|
 
 - Bitwise Logic Operators
+
     Babel has 16 logic operators F0-Ff. Each one implements the Boolean
     function of two bits whose numerical value when the truth-table is 
-    read vertically is the number of the operator. Since most people don't
-    know what this means, Babel also provides aliases for the ordinary 
-    Boolean operators.
+    read vertically is the number of the operator.
 
     - Fx
         {a} {b}| -> {a Fx b}|
@@ -318,15 +320,21 @@ encountered, I have collected them in one place here:
             [X] [(Y)] trav
 
         Traverses bstruct X according to the sequence of offsets specified 
-        in list Y.
+        in list Y. Performs an iterated th.
 
     - paste
         Writes into a bstruct.
 
-            [X] [(Y)] trav
+            [X] [Y] `(Z) paste
 
-        Writes into bstruct X according at the location found by traversing
-        the sequence of offsets specified in list Y.
+        Writes X into bstruct Y according at the location found by traversing
+        the sequence of offsets specified in list Z.
+
+    - set
+        Equivalent for all X,Y:
+
+            [X] [Y] `(0) paste
+            [X] [Y] set
 
     - span
         Makes a "spanning array" of the bstruct on TOS
@@ -347,7 +355,7 @@ encountered, I have collected them in one place here:
         This operator is recursive.            
 
     - unload
-        Unloads a bstruct to an offset-relative form
+        Unloads a bstruct to an offset-relative form - undoes load
 
     - load
         Flattens a relative-offset Babel structure into its literal 
@@ -423,17 +431,17 @@ encountered, I have collected them in one place here:
         {X}| -> {size8(X)}|
         [X]| -> {size8(X)}|
 
-    - islf
+    - lf?
         Tests if TOS is a leaf-array
         {X}| -> {1}|
         [X]| -> {0}|
 
-    - isin
+    - in?
         Tests if TOS is an interior-array
         {X}| -> {0}|
         [X]| -> {1}|
 
-    - ishref
+    - href?
         Tests if TOS is a hash-reference
 
     - slice
@@ -460,10 +468,11 @@ encountered, I have collected them in one place here:
         Named after the C++ delete operator
 
         Frees (de-allocates) a leaf-array or interior array created with 
-        the newlf or newin operators. Be careful with this operator - 
-        everything accessible from TOS will be deleted. In particular:
+        the newlf or newin operators. Care is required with this operator - 
+        everything accessible from TOS will be deleted. For example,
 
-            root del
+            stack del --OR
+            code del
 
         ... will crash the interpreter.
 
@@ -512,6 +521,15 @@ encountered, I have collected them in one place here:
         A B| -> { 0, A==B
                 {-1, A < B 
                 { 1, A > B
+
+    - perm
+        Permutes an array
+
+            `['a' 'b' 'c' 'd'] `[ 3 1 2 0 ] perm --> `['d' 'b' 'c' 'a']
+
+        Note that the operator is actually a multi-select, not a permute:
+
+            `['a' 'b' 'c' 'd'] `[ 3 1 1 0 ] perm --> `['d' 'b' 'b' 'a']
 
     - move
         an in-array memmove
@@ -573,6 +591,9 @@ encountered, I have collected them in one place here:
     - hex2cu ($x)
         Undoes cu2hex, see above
 
+    - cr
+        Appends a newline to TOS
+
 - List Operators
 
     - car
@@ -592,6 +613,9 @@ encountered, I have collected them in one place here:
         [cons(X,Y)]| -> [Y]|
 
     - ith
+
+        Same as th operator, except for lists.
+
         Mnemonic: lIst -> Ith
 
     - isnil
@@ -631,6 +655,14 @@ encountered, I have collected them in one place here:
         Returns the ith element of a list:
 
             (('a' 'b' 'c' 'd')) [2] ith --> leaves 'c' on TOS
+
+    - walk
+        Walks a list
+
+            (X) `(Y) walk
+
+        Traverses list X according to the sequence of offsets specified 
+        in list Y. Performs an iterated ith.
 
     - push
         Like the Perl operator
@@ -878,7 +910,7 @@ encountered, I have collected them in one place here:
 
     - take
         Takes TOS items from the stack and puts them into a list. Does not
-        zap the items (should it?)
+        zap the items. If TOS == -1, the entire stack is taken.
 
     - give
         Undoes take
@@ -914,23 +946,26 @@ encountered, I have collected them in one place here:
         Evaluates TOS
         [X]| -> |
 
+    - if
+        As it sounds. This is actually a pseudo-operator, equivalent to:
+
+            sel eval
+
+        {x}[Y][Z]| -> eval(Y)| --> if x == 0
+        {x}[Y][Z]| -> eval(Z)| --> if x == 1
+
     - goto
         Classic goto
         [X]| -> |
-
-    - call (!!)
-        Saves the current location in code, then does a goto
-        [X]| -> |
-
-    - ret
-        Returns to the last location saved by a call
-        | -> |
 
     - last
         Breaks out of current loop
 
     - next
         Goes to next iteration of current loop
+
+    - continue
+        Same as next but can be used within an if or eval
 
     - cond (??) 
         --
@@ -952,18 +987,12 @@ encountered, I have collected them in one place here:
 
         Example:
 
-            ([(1 2 3 4 5)] give
-            --
-                [(cuadd)]
-            [4] times)
+            `( `1 ) `4 times `4 take --> (1 1 1 1) on TOS
 
     - while
         Classic while
 
-            ([0]
-            [(dup [1] cuadd)]
-            [([10] cult)]
-            while)
+            while
 
     - loop
         Loops indefinitely
@@ -990,19 +1019,19 @@ encountered, I have collected them in one place here:
 
 - Babel Virtual Machine (BVM) Operators
 
+    - die
+        Exits a virtual machine
+
     - babel
         This operator "execs" a loaded BVM on TOS
 
-    - root
-        Puts the root pointer to the entire virtual-machine on TOS
-        | -> [root]|
-
+    - code
+    - stack
+    - rstack
     - bvmstep
     - mkbvm
     - bvmkill
     - halt
-    - die
-        Exits a virtual machine
     - fork
     - system (equivalent to Perl's system())
     - shell (equivalent to Perl's back-tick quotes)

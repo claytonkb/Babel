@@ -167,7 +167,7 @@ bvm_cache *ar2str(bvm_cache *this_bvm){
     c(result,arlength-1) = alignment_word8(utf8_length);
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, AR2STR);
+    push_alloc(this_bvm, result, MORTAL);
 
 }
 
@@ -186,7 +186,7 @@ bvm_cache *str2ar(bvm_cache *this_bvm){
     _trunc(result, length);
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, STR2AR);
+    push_alloc(this_bvm, result, MORTAL);
 
 }
 
@@ -198,7 +198,7 @@ bvm_cache *catoi(bvm_cache *this_bvm){
     *result = (mword)atoi((char*)cstr);
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, CATOI);
+    push_alloc(this_bvm, result, MORTAL);
 
 }
 
@@ -210,7 +210,7 @@ bvm_cache *dec2ci(bvm_cache *this_bvm){
     *result = (mword)atoi((char*)cstr);
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, DEC2CI);
+    push_alloc(this_bvm, result, MORTAL);
 
 }
 
@@ -233,7 +233,7 @@ bvm_cache *ci2dec(bvm_cache *this_bvm){
     c(result,arlength-1) = alignment_word8(size);
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, CI2DEC);
+    push_alloc(this_bvm, result, MORTAL);
 
 }
 
@@ -256,7 +256,7 @@ bvm_cache *cu2dec(bvm_cache *this_bvm){
     c(result,arlength-1) = alignment_word8(size);
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, CU2DEC);
+    push_alloc(this_bvm, result, MORTAL);
 
 }
 
@@ -269,7 +269,7 @@ bvm_cache *hex2cu(bvm_cache *this_bvm){
 //    *result = (mword)atoi((char*)cstr);
 
     zap(this_bvm);
-    push_alloc(this_bvm, (mword*)result, HEX2CU);
+    push_alloc(this_bvm, (mword*)result, MORTAL);
 
 }
 
@@ -292,7 +292,7 @@ bvm_cache *cu2hex(bvm_cache *this_bvm){
     c(result,arlength-1) = alignment_word8(size);
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, CU2HEX);
+    push_alloc(this_bvm, result, MORTAL);
 
 }
 

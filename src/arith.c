@@ -14,6 +14,8 @@
 //#define CUADD      0x030
 bvm_cache *cuadd(bvm_cache *this_bvm){
 
+    REQUIRE_LEAF_LEAF(this_bvm);
+
     mword *result    = new_atom;
 
     *result = (mword)car(TOS_0(this_bvm)) + (mword)car(TOS_1(this_bvm));
@@ -27,9 +29,7 @@ bvm_cache *cuadd(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUADD);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -38,6 +38,8 @@ bvm_cache *cuadd(bvm_cache *this_bvm){
 //cusub
 //#define CUSUB      0x031
 bvm_cache *cusub(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF_LEAF(this_bvm);
 
     // Detect underflow
     if((mword)car(TOS_1(this_bvm)) < (mword)car(TOS_0(this_bvm))){
@@ -50,9 +52,7 @@ bvm_cache *cusub(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUSUB);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -61,6 +61,8 @@ bvm_cache *cusub(bvm_cache *this_bvm){
 //ciadd
 //#define CIADD      0x038
 bvm_cache* ciadd(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF_LEAF(this_bvm);
 
     mword *result    = new_atom;
 
@@ -76,9 +78,7 @@ bvm_cache* ciadd(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CIADD);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -87,6 +87,8 @@ bvm_cache* ciadd(bvm_cache *this_bvm){
 //cisub
 //#define CISUB      0x039
 bvm_cache* cisub(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF_LEAF(this_bvm);
 
     mword *result    = new_atom;
 
@@ -102,9 +104,7 @@ bvm_cache* cisub(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CISUB);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -113,6 +113,8 @@ bvm_cache* cisub(bvm_cache *this_bvm){
 //ciabs
 //#define CIABS      0x03C
 bvm_cache* ciabs(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF(this_bvm);
 
     // The most negative number in 2's complement cannot be abs()'d
     if( ((int)car(TOS_0(this_bvm)) - 1) > 0 ){
@@ -124,9 +126,7 @@ bvm_cache* ciabs(bvm_cache *this_bvm){
     (int)*result = abs((int)car(TOS_0(this_bvm)));
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, CIABS);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -135,6 +135,8 @@ bvm_cache* ciabs(bvm_cache *this_bvm){
 //cumul
 //#define CUMUL      0x032
 bvm_cache* cumul(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF_LEAF(this_bvm);
 
     mword *result = new_atom;
 
@@ -147,9 +149,7 @@ bvm_cache* cumul(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUMUL);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -158,6 +158,8 @@ bvm_cache* cumul(bvm_cache *this_bvm){
 //cudiv 
 //#define CUDIV      0x033
 bvm_cache* cudiv(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF_LEAF(this_bvm);
 
     if( car(TOS_0(this_bvm)) == 0 ){
         error("cudiv: zero divisor");
@@ -169,9 +171,7 @@ bvm_cache* cudiv(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUDIV);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -180,6 +180,8 @@ bvm_cache* cudiv(bvm_cache *this_bvm){
 //curem
 //#define CUREM      0x035
 bvm_cache* curem(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF_LEAF(this_bvm);
 
     if( car(TOS_0(this_bvm)) == 0 ){
         error("curem: zero modulus");
@@ -191,9 +193,7 @@ bvm_cache* curem(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CUREM);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -202,6 +202,8 @@ bvm_cache* curem(bvm_cache *this_bvm){
 //cimul
 //#define CIMUL      0x03A
 bvm_cache* cimul(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF_LEAF(this_bvm);
 
     mword *result = new_atom;
 
@@ -214,9 +216,7 @@ bvm_cache* cimul(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CIMUL);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -226,6 +226,8 @@ bvm_cache* cimul(bvm_cache *this_bvm){
 //cidiv 
 //#define CIDIV      0x03B
 bvm_cache* cidiv(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF_LEAF(this_bvm);
 
     if( car(TOS_0(this_bvm)) == 0 ){
         error("cidiv: zero divisor");
@@ -237,9 +239,7 @@ bvm_cache* cidiv(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CIDIV);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -248,6 +248,8 @@ bvm_cache* cidiv(bvm_cache *this_bvm){
 //curem
 //#define CIREM      0x03D
 bvm_cache* cirem(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF_LEAF(this_bvm);
 
     if( car(TOS_0(this_bvm)) == 0 ){
         error("cirem: zero modulus");
@@ -259,7 +261,7 @@ bvm_cache* cirem(bvm_cache *this_bvm){
 
     zap(this_bvm);
     zap(this_bvm);
-    push_alloc(this_bvm, result, CIREM);
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -268,7 +270,7 @@ bvm_cache* cirem(bvm_cache *this_bvm){
 //
 bvm_cache *ciadd_assign(bvm_cache *this_bvm){
 
-//    mword *result    = new_atom;
+    REQUIRE_LEAF_LEAF(this_bvm);
 
     (int)car(TOS_0(this_bvm)) = (int)car(TOS_0(this_bvm)) + (int)car(TOS_1(this_bvm));
 
@@ -282,12 +284,8 @@ bvm_cache *ciadd_assign(bvm_cache *this_bvm){
 
     // FIXME Overflow error
 
-//    swap(this_bvm);
-    hard_zap(this_bvm);
+    hard_zap(this_bvm); //FIXME: Completely busted...
     zap(this_bvm);
-//    push_alloc(this_bvm, result, CUADD);
-
-    
 
     return this_bvm;
 

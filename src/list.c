@@ -14,7 +14,7 @@ bvm_cache *carindex(bvm_cache *this_bvm){
     mword *car_TOS_0 = (mword*)car(TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, car_TOS_0, CARINDEX);
+    push_alloc(this_bvm, car_TOS_0, IMMORTAL); //FIXME: Depends
 
     return this_bvm;
 
@@ -26,7 +26,7 @@ bvm_cache *cdrindex(bvm_cache *this_bvm){
     mword *cdr_TOS_0 = (mword*)cdr(TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, cdr_TOS_0, CDRINDEX);
+    push_alloc(this_bvm, cdr_TOS_0, IMMORTAL); // FIXME: Depends
 
     return this_bvm;
 
@@ -40,7 +40,7 @@ bvm_cache *isnil(bvm_cache *this_bvm){
     *result = is_nil((mword*)TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, ISNIL);
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -55,7 +55,7 @@ bvm_cache *consls(bvm_cache *this_bvm){
     hard_zap(this_bvm);
     hard_zap(this_bvm);
 
-    push_alloc(this_bvm, result, CONS);
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
 
     return this_bvm;
 
@@ -80,8 +80,8 @@ bvm_cache *uncons(bvm_cache *this_bvm){
     mword *temp_cdr = (mword*)cdr(TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, temp_car, UNCONS);
-    push_alloc(this_bvm, temp_cdr, UNCONS);
+    push_alloc(this_bvm, temp_car, IMMORTAL); //FIXME: Depends
+    push_alloc(this_bvm, temp_cdr, IMMORTAL); //FIXME: Depends
 
     return this_bvm;
 
@@ -134,7 +134,7 @@ bvm_cache *pop(bvm_cache *this_bvm){
     mword *temp = (mword*)c(endls,1);
     (mword*)c(endls,1) = nil;
 
-    push_alloc(this_bvm, temp, POP);
+    push_alloc(this_bvm, temp, IMMORTAL); //FIXME: Depends
 
     return this_bvm;
 
@@ -168,7 +168,7 @@ bvm_cache *shift(bvm_cache *this_bvm){
 
     (mword*)c(temp,1) = nil;
 
-    push_alloc(this_bvm, temp, SHIFT);
+    push_alloc(this_bvm, temp, IMMORTAL); //FIXME: Depends
 
     return this_bvm;
 
@@ -182,7 +182,7 @@ bvm_cache *len(bvm_cache *this_bvm){
     *result = _len((mword*)TOS_0(this_bvm));
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, LSLEN);
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -208,7 +208,7 @@ bvm_cache *bons(bvm_cache *this_bvm){
 
     zap(this_bvm);
 
-    push_alloc(this_bvm, result, BONS);
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
 
     return this_bvm;
 
@@ -238,7 +238,7 @@ bvm_cache *ls2lf(bvm_cache *this_bvm){
 
     zap(this_bvm);
 
-    push_alloc(this_bvm, result, LS2LF);
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -271,7 +271,7 @@ bvm_cache *ith(bvm_cache *this_bvm){
     zap(this_bvm);
     zap(this_bvm);
 
-    push_alloc(this_bvm, result, ITH);
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
 
     return this_bvm;
 
@@ -297,7 +297,7 @@ bvm_cache *walk(bvm_cache *this_bvm){
     hard_zap(this_bvm);
     hard_zap(this_bvm);
 
-    push_alloc(this_bvm, result, WALK);
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
 
     return this_bvm;
 
@@ -323,7 +323,7 @@ bvm_cache *reverse(bvm_cache *this_bvm){
 
     mword *result = _reverse(this_bvm,(mword*)list,nil);
 
-    push_alloc(this_bvm, result, REVERSE);
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
 
     return this_bvm;
 

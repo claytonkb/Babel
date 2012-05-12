@@ -26,9 +26,7 @@ bvm_cache *randop(bvm_cache *this_bvm){
     }
 
     zap(this_bvm);
-    push_alloc(this_bvm, result, RAND);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -44,8 +42,6 @@ bvm_cache *sleepop(bvm_cache *this_bvm){
 
     Sleep(seconds*1000);
 
-    
-
     return this_bvm;
 
 }
@@ -55,7 +51,7 @@ bvm_cache *sleepop(bvm_cache *this_bvm){
 //
 bvm_cache *argvop(bvm_cache *this_bvm){
 
-    push_alloc(this_bvm, this_bvm->argv, ARGVOP);
+    push_alloc(this_bvm, this_bvm->argv, IMMORTAL);
 
     return this_bvm;
 
@@ -68,9 +64,7 @@ bvm_cache *mword_sizeop(bvm_cache *this_bvm){
 
     *result = MWORD_SIZE;
 
-    push_alloc(this_bvm, result, MWORD_SIZEOP);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 

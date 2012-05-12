@@ -86,7 +86,7 @@ bvm_cache *slurp(bvm_cache *this_bvm){
     //    cons(temp_cons, result, nil);
 
     hard_zap(this_bvm);
-    push_alloc(this_bvm, result, SLURP8);
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -107,7 +107,7 @@ bvm_cache *slurp_mword(bvm_cache *this_bvm){
 //    cons(temp_cons, result, nil);
 
     hard_zap(this_bvm);
-    push_alloc(this_bvm, result, SLURP);
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -284,9 +284,7 @@ bvm_cache *stdinln(bvm_cache *this_bvm){
 
     c(result,arlength-1) = alignment_word8(i);
 
-    push_alloc(this_bvm, result, STDINLN);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 

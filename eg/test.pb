@@ -1,16 +1,24 @@
-main: ( `(123 456 789) unload listobj ! )
+main: ( `0 `( `1 + ) `-1 times $ cr << )
 
-listobj: (( <- `( hex08 ! cr << ) -> eachar ))
+-- main: ( `-2 ciabs $ cr << )
 
-hex08: 
-        (( %x dup #8 
-        `8 <-> -
-        <-
-            `"00000000" dup <- zap -> 
-        ->
-        paste8 ))
+--main: ( `(15 15 15 15) sum ! %d cr << )
+--
+--sum: (( <- `0 `( + ) -> ... ))
 
---main: ( `"fnord" `"frobnicate" `11 paste8 cr << )
+--main: ( `(123 456 789 987 654 321) unload listobj ! )
+--
+--listobj: (( <- `( hex08 ! cr << ) -> eachar ))
+--
+--hex08: 
+--        (( %x dup #8 
+--        `8 <-> -
+--        <-
+--            `"00000000" dup <- zap -> 
+--        ->
+--        paste8 ))
+
+-- main: ( `"fnord" `"frobnicate" `10 paste8 cr << )
 
 --main: ( `[6 7] `[1 2 3 4 5] `2 paste $ cr << )
 
@@ -79,11 +87,11 @@ hex08:
 --lsprint: (( <- `( %d `" " . << ) -> ... ))
 --
 --readfile: ((argv `1 th >>> str2ar))
---
---sdd: (( sdp ! die ))
---
---sdp: (( stack dump << ))
---
+
+sdd: (( sdp ! die ))
+
+sdp: (( stack dump << ))
+
 --newlines: 
 --    (( `nil cons nest
 --        <- `( `0xd == not

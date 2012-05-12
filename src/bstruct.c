@@ -62,9 +62,7 @@ bvm_cache *bbl2str(bvm_cache *this_bvm){
     c(result,length-1) = last_mword;
     free(buffer);
 
-    push_alloc(this_bvm,result,BBL2STR);
-
-    
+    push_alloc(this_bvm,result,MORTAL);
 
     return this_bvm;
 
@@ -149,9 +147,7 @@ bvm_cache *bs2gv(bvm_cache *this_bvm){
 
     zap(this_bvm);
     
-    push_alloc(this_bvm,result,BBL2GV);
-
-    
+    push_alloc(this_bvm,result,MORTAL);
 
     return this_bvm;
 
@@ -288,7 +284,7 @@ void _wrcxr(mword *dest, mword *src, mword offset){
 
     mword dest_size = size(dest);
 
-    if(offset > dest_size){ //FIXME: OBO
+    if(offset > dest_size-1){
         error("_wrcxr: Can't write past the end of an array");
     }
 
@@ -329,7 +325,7 @@ void _wrcxr8(mword *dest, mword *src, mword offset){
 
     mword dest_size = _arlen8(dest);
 
-    if(offset > dest_size){ //FIXME: OBO
+    if(offset > dest_size-1){
         error("_wrcxr: Can't write past the end of an array");
     }
 
@@ -361,9 +357,7 @@ bvm_cache *trav(bvm_cache *this_bvm){
     hard_zap(this_bvm);
     hard_zap(this_bvm);
 
-    push_alloc(this_bvm, result, TRAV);
-
-    
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on inputs
 
     return this_bvm;
 
@@ -391,9 +385,7 @@ bvm_cache *mu(bvm_cache *this_bvm){
     *result = _mu((mword*)TOS_0(this_bvm));
 
     hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MU);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
     
@@ -446,9 +438,7 @@ bvm_cache *nlf(bvm_cache *this_bvm){
     *result = _nlf((mword*)TOS_0(this_bvm));
 
     hard_zap(this_bvm);
-    push_alloc(this_bvm, result, NLF);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -502,9 +492,7 @@ bvm_cache *nhref(bvm_cache *this_bvm){
     *result = _nhref((mword*)TOS_0(this_bvm));
 
     hard_zap(this_bvm);
-    push_alloc(this_bvm, result, NHREF);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -559,9 +547,7 @@ bvm_cache *nin(bvm_cache *this_bvm){
     *result = _nin((mword*)TOS_0(this_bvm));
 
     hard_zap(this_bvm);
-    push_alloc(this_bvm, result, NIN);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -612,9 +598,7 @@ bvm_cache *nva(bvm_cache *this_bvm){
     *result = _nva((mword*)TOS_0(this_bvm));
 
     hard_zap(this_bvm);
-    push_alloc(this_bvm, result, NVA);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -664,9 +648,7 @@ bvm_cache *npt(bvm_cache *this_bvm){
     *result = _npt((mword*)TOS_0(this_bvm));
 
     hard_zap(this_bvm);
-    push_alloc(this_bvm, result, NPT);
-
-    
+    push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -710,7 +692,7 @@ bvm_cache *cp(bvm_cache *this_bvm){
 
     mword *result = _unload((mword*)TOS_0(this_bvm));
 
-    push_alloc(this_bvm, result, CP);
+    push_alloc(this_bvm, result, MORTAL);
 
     load(this_bvm);
 
@@ -723,7 +705,7 @@ bvm_cache *span(bvm_cache *this_bvm){
 
     hard_zap(this_bvm);
 
-    push_alloc(this_bvm, result, SPAN);
+    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on inputs
 
     return this_bvm;
 

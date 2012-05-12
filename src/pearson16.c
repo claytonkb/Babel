@@ -37,7 +37,9 @@ bvm_cache *hash8(bvm_cache *this_bvm){
     mword *result = _hash8((mword*)TOS_0(this_bvm));
 
     hard_zap(this_bvm);
-    push_alloc(this_bvm, (mword*)result, HASH8);
+    push_alloc(this_bvm, (mword*)result, MORTAL);
+
+    return this_bvm;
 
 }
 
