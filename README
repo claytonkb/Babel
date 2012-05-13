@@ -7,16 +7,14 @@ My scripts are set up using Cygwin and I'm currently compiling for a Win32
 target using the tcc C compiler (I have the compiler in the repo because I 
 eventually plan to link to it). Babel might actually compile to *nix but I 
 haven't tried it yet. Eventually, Babel will be cross-compiled on both
-Windows and *nix.
-
-To compile Babel, you'll need to make a 'bin' directory in the project 
-directory, otherwise the make.pl script will crash. Once you've created 
-the 'bin' directory, just run:
+Windows and *nix. To compile Babel, just run:
 
     perl make.pl
 
 This will build babel.exe in the bin directory. You are now ready to run 
 Babel.
+
+    perl babel eg/hello_world.pb
 
 ----- Compiling and running your own Babel code
 
@@ -28,7 +26,7 @@ There are two basic ways to compile and run Babel code. The first
 This wrapper script handles the invocation of the proto_babel.pl script 
 and invokes babel.exe for you automatically. The second way is to do 
 these steps manually. You'll need to do this whenever the wrapper script 
-blows, which can happen for a variety of reasons.
+blows up, which can happen for a variety of reasons.
 
     perl proto_babel.pl my_proto_babel_program.pb pb/header.pb pb/opcodes.pb
 
@@ -38,7 +36,7 @@ Then:
 
 ----- Installing Graphviz on windows
 
-If you want to use the 'bbl2gv' (Babel-to-Graphviz) operator to provide 
+If you want to use the dump (Babel-to-Graphviz) operator to provide 
 visualization of the Babel data-structure, you will need to install 
 Graphviz dot (on Windows; it's installed by default in any Linux 
 distro I'm aware of). In order to view the output, you will need to 
@@ -85,12 +83,9 @@ is main. From there, the script just grabs each section as-needed while
 building the .bbl file. You can include multiple .pb files on the command-
 line and they will all be flattened into a single file by the script.
 
-In my example .pb files, I use the convention of a code section to store
-my program. This is where the interpreter begins executing. You can define
-additional sections as desired but you have to observe the rules of 
-how sections behave when using them in your code.
+Line comments are specified by double-dash
 
-The code section is a "list" in the Lisp sense. 
+-- This is a comment
 
 The curly-braces {} define an array of values - also called a "leaf array":
 
@@ -98,12 +93,15 @@ The curly-braces {} define an array of values - also called a "leaf array":
 
 A value is either a number or text and nothing else:
 
-    {"apples bananas oranges" 0 "ET phone home"}
+    {"apples bananas oranges"} {0} {"ET phone home"}
 
     { {0} } <-- illegal! Leaf arrays cannot nest
 
-Numbers and text constants cannot be placed outside of curly-braces in 
-proto-Babel.
+If you want to define a leaf-array containing a single number or single 
+string, you can dispense with the curly-braces:
+
+    18     <-- legal
+    "foo"  <-- legal
 
 The square-brackets define an array of pointers - also called an "interior 
 array". A pointer can be to an array of values or to another array of 
@@ -122,15 +120,13 @@ array or an interior-array and nothing else:
 
     my_number: 0x10
 
-my_interior_array: [ 0x10 0x20 [30] "Hello!" ]
-
-You don't have to indent sections but I do it by convention.
+    my_interior_array: [ 0x10 0x20 [30] "Hello!" ]
 
 A section-name can be used as a label:
 
     the_number_two: 2
 
-    code: ([the_number_two] [3] cuadd)
+    main: ([the_number_two] [3] +)
 
 Generally, you can think of the use of a label as a "text-substitution"
 but it's really a pointer. Hence, labels cannot be used inside leaf arrays:
@@ -155,8 +151,45 @@ and this:
 
 ... are synonymous.
 
-You can use in-place expansion for interior arrays, as well - the main:
-section in any of the example .pb files shows this.
+You can use in-place expansion for interior arrays, as well.
+
+Lists are created with parentheses. A list in Babel means a linked-list in the
+Lisp-sense. The following are equivalent:
+
+    (1 2 3)
+    [1 [2 [3 nil]]]
+
+You can verify this by writing it both ways and looking into the .lst file 
+after compiling with proto_babel.pl.
+
+In Babel, data in the code-stream is differentiated from code by being 
+"nested". For example, to add two numbers, the following are all equivalent:
+
+    [42] [23] +             -- A
+    (42) (23) +             -- B
+    [42 nil] [23 nil] +     -- C
+
+A, B and C all produce the same result when executed but note that A and B 
+do not generate exactly the same byte-code but B and C do.
+
+Often, the need arises in Babel to "wrap" an item in multiple parentheses. 
+These parentheses are visually redundant (but necessary for semantic 
+correctness). The quick-wrap syntax provides a less visually cluttered 
+alternative:
+
+    The following are all equivalent:
+
+    (((1 2 3)))
+    `((1 2 3))
+    ``(1 2 3)
+
+    For single items, you can use the back-tick directly:
+
+    ````1
+    ((((1))))
+
+    `"Hello, world"
+    ("Hello, world")
 
 Every Babel operator is just a number defined in the pb/opcodes.pb file. To
 successfully compile code with the proto_babel.pl script, you will need
@@ -165,10 +198,6 @@ you are trying to assemble.
 
 You can use the .pb.lst file that is generated to see the literal layout 
 of the bytes in the program.
-
-Line comments are specified by double-dash
-
--- This is a comment
 
 ----- Built-in functions, naming conventions and mnemonics
 
@@ -207,18 +236,13 @@ A B op   <===>   "A op B"
 
 For example, consider subtraction:
 
-A B cusub    <===>   "A - B"
+A B -    <===>   "A - B"
 
 Or division,
 
-A B cudiv   <===>   "A / B"
+A B /    <===>   "A / B"
 
-The directionality is consistently left-to-right. So, for example,
-to use the w operator (write):
-
-A B OFFSET w    <===>   "A write to B at OFFSET"
-
-... or "A -> B" or "A flows into B" "from A to B"
+The flow of data is as consistently left-to-right as possible.
 
 ----- Documentation
 

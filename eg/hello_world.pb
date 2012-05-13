@@ -1,2 +1,2 @@
-main: ( ("Hello, world\n") << )
+main: ( `"Hello, world\n" << )
 

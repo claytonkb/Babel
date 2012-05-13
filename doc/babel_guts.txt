@@ -109,7 +109,7 @@ Description Language).
     A hash-reference is a single hash value stored in memory suitable for 
     fast lookup in the sym_table (symbol table).
 
-    Hash-references have two uses:
+    Hash-references have several uses:
 
         - By-name lookup of data
         - By-name eval
@@ -170,49 +170,19 @@ Description Language).
     namespace. The former will be referred to as simply "namespace" and the
     latter will be referred to as the sym_table.
 
-    Babel maintains two pieces of state in addition to the sym_table. The
-    pwd operator permits code to determine its current location within the
-    sym_table. This is particularly useful for path-relative code that can 
-    be loaded into any portion of the sym_table.
-
     The /babel/path namespace maintains a list of paths similar to Perl's
     @EXPORT variable. You can manipulate this variable using any of the 
     applicable Babel operators.
 
 ----- Babel Virtual Machine (bvm)
 
-    A bvm is a bstruct with a particular structure to it. A bvm is a list 
-    consisting of the following fields:
-
-        (hidden code data stack rstack jmp_table sym_table nada)
-
-    Once a bvm has begun executing, the pointer to this list is called the 
-    internal_global_VM.
-
-    The hidden field points to a bstruct containing information which is not
-    visible to the currently executing bvm.
-
-    The code field points to the currently executing entry.
-
-    The data field points to data.
-    
-    The stack field points to "the" stack.
-
-    The rstack field points to the managed stack or "return stack". This name
-    is borrowed from Forth, h/t to Chuck Moore.
-
-    The jmp_table field points to the jump table.
-
-    The sym_table field points to the symbol table.
-
-    car(nada) = 0
-    cdr(nada) = nil
+    A bvm is a bstruct with a particular structure to it.
 
 ----- BVM Code
 
     Code is a list. Each element of the list is accessed in order. 
 
-    When the next element of code_list is: 
+    When the item pointed at by code_ptr is: 
 
         - A leaf-array, it is treated as an opcode and a lookup is performed
           in jmp_table
@@ -235,13 +205,18 @@ Description Language).
     internal state is maintained by the interpreter in C variables.
 
     The stack is itself a list, however, it includes some additional 
-    information for memory-management. In order to conver the stack to a list, 
-    use the stk2ls operator and use the ls2stk operator for vice-versa.
+    information for memory-management. In order to convert the stack to a list, 
+    use the take operator and use the give operator for vice-versa.
+
+----- BVM Rstack
+
+    The rstack is the "managed stack" - it is what is used to implement the 
+    iteration, control-flow and stack nesting operators.
 
 ----- BVM Interpreter
 
     The interpreter is a stack machine (prefix order). This means that compilers
-    that generate Babel code do no need to use parentheses to implement 
+    that generate Babel code do not need to use parentheses to implement 
     operator precedence. The precedence is encoded in the order of operations.
 
     This simplifies the parsing requirements of any Babel front-end language.
@@ -251,7 +226,7 @@ Description Language).
     BVMs can be invoked in a nested manner, that is, a BVM may construct 
     another BVM and then invoke that BVM, transferring control to it until it
     exits. In fact, every Babel program executes inside of an invisible "root"
-    BVM that is compiled into babel.exe. 
+    BVM that is compiled into babel.exe (see src/rt.pb).
 
     This BVM contains code for the debugger and other basic commandline and 
     house-keeping functions.
@@ -286,17 +261,16 @@ Description Language).
         An extended operator can be given an encoding with the newop operator.
 
         Extended operators can also be invoked by hash-reference. If the next
-        entry in the code_list is a hash-reference, a lookup will be performed
+        entry in the code list is a hash-reference, a lookup will be performed
         in the sym_table and the linked code will be invoked. Naturally, this
         is a lower-performance alternative.
 
 ----- Memory management
 
     Babel uses a combination of automatic and manual memory management.
-    Memory associated with data-structures pointed to by the bvm_header are 
-    automatically managed, according to specific rules. All other memory must
-    be created and destroyed by the user through the newlf/newin and free/del
-    operators.
+    Memory created by built-in operators is automatically managed, according to 
+    specific rules. All other memory must be created and destroyed by the user 
+    through the newlf/newin and free/del operators.
 
 ----- Stack memory management
 
@@ -308,16 +282,16 @@ Description Language).
 
         For example,
 
-            ([2] [3] add 
+           `2 `3 +
 
         ... creates the result {5} which is allocated automatically and put
         on the stack. When this result is then consumed by the next 
         instruction:
 
-            [4] mul)
+            `4 mul
 
         ... the intermediate result {5} is freed and the new result {20} is 
-        again automatically allocated put on the stack.
+        automatically allocated and put on the stack.
 
     - User operators
 
@@ -350,25 +324,19 @@ Description Language).
 
     The book-keeping data in a hash is automatically memory-managed.
 
------ Scope control
+----- Mortality
 
-    You can declare an object on the stack to be stack-scoped:
+    Each item on the stack is either mortal or immortal. Mortal items are freed
+    when they are consumed by an operator. Immortal items are not freed.
 
-        [10] newin scopstk
+    When you create new  memory:
 
-    When this object is zap'd, it will be freed. If you want the object to be 
-    del'd when it is zap'd, use the scopstkr (r for -r or "recursive") operator.
+        `10 newin
 
-    You can also make an object persist:
+    ... it is mortal. When this object is zap'd, it will be freed. If you want 
+    the object to be freed when it is zap'd, use the immortal operator:
 
-        [2] [3] cuadd scoppers
-
-    Normally, the result of the add would be consumed (and freed) by the next
-    operator that zaps it.
-
-    Internally, zap() should be used when an operator wants to 'consume' an 
-    operand on the stack but _zap() should be used for unconditional removal
-    of an item from the stack.
+        `10 newin immortal
 
 ----- P-numbers
 
@@ -389,14 +357,13 @@ Description Language).
 
 ----- Operand-checking
 
-    Operand-checking is time-consuming and unnecessary for well-tested code.
-    Most built-in operators are implemented with a core "unsafe" function and
-    a wrapper operand-check function.
+    Operands are checked for each operator. Babel 2.0 may include optimized
+    non-checking operators for use in well-tested code.
 
 ----- Jump table
 
     Each built-in opcode is an offset into a jump table. New opcodes that are
-    added in with the addop operator are dynamically assigned jump table offsets.
+    added in with the newop operator are dynamically assigned jump table offsets.
 
     When constructing a bvm for launch, the parent bvm can restrict the built-in
     operators that are available through the hidden section of the header.
@@ -414,10 +381,6 @@ Description Language).
         0xffff0000      byte-length % 4 = 2
         0xff000000      byte-length % 4 = 3
 
-    You should always convert Babel strings to C form using the cr operator 
-    but if a Babel string is mistakenly passed to a C function, it will not 
-    cause an overrun.
-
     Babel handles strings in several different forms:
 
     - Native form. The string is UTF-8 encoded WITHOUT a null terminator in
@@ -430,7 +393,5 @@ Description Language).
     from a native-form string via the str2ar operator.
 
     - String-list. This is a string-array on which the the ar2ls operator
-    has been called.
-
-    
+    has been called.    
 

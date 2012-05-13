@@ -1,6 +1,6 @@
-main: ( `0 `( `1 + ) `-1 times $ cr << )
+-- main: ( `0 `( `1 + ) `-1 times $ cr << )
 
--- main: ( `-2 ciabs $ cr << )
+main: ( `-2 ciabs $ cr << )
 
 --main: ( `(15 15 15 15) sum ! %d cr << )
 --
