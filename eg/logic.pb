@@ -1,13 +1,13 @@
 -- logic.pb
 -- This program demonstrates Babel's C-style logic operators
 
-op_listA:  ((("cand"  (cand))      ("cor"  (cor))        ("cxor"  (cxor)) 
-             ("cxnor" (cxnor))     ("cnor" (cnor))       ("cnand" (cnand))))
+op_listA:  ((("cand "  (cand))     ("cor  "  (cor))      ("cxor "  (cxor)) 
+             ("cxnor" (cxnor))     ("cnor " (cnor))      ("cnand" (cnand))))
 
-op_listB:  ((("cnot"  (cnot))      ("cushl" ((4) cushl)) ("cushr" ((4) cushr)) 
+op_listB:  ((("cnot "  (cnot))     ("cushl" ((4) cushl)) ("cushr" ((4) cushr)) 
              ("curol" ((4) curol)) ("curor" ((4) curor)) ("cashr" ((4) cashr))))
 
-code: ( op_listA disp_loop eval
+main: ( op_listA disp_loop eval
         op_listB disp_loop eval )
 
 disp_loop: (((( disp_op eval

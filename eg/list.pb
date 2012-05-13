@@ -1,4 +1,4 @@
-code:
+main:
    (`"car:\n"       <<
     `(1 2 3)        car         disp !
 

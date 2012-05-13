@@ -10,18 +10,16 @@ operator: [[cushl nil] [cushr nil] [cashr nil] [curol nil] [curor nil]]
 
 x: [0]
 
-code:
-   (["Shifting/rotating hex value 0x"] stdout [val] cu2hex stdout [" by 4 bits:\n"] stdout
+main:
+   (`"Shifting/rotating hex value 0x" << [val] cu2hex << `" by 4 bits:\n" <<
     ---
-      (([op_name] x cxr stdout [": "] stdout
-        [val] [4] [operator] x cxr eval
-        [disp] call
-
-        x  [1] cuadd
-        [x] [0] save))
-    [[5]]
+      ((`op_name `x car th << `": " <<
+        `val `4 `operator `x car th !
+        disp !
+        x `1 + x set))
+    `5
     times)
     ---
 
-disp: (bbl2str stdout [{"\n"}] stdout ret)
+disp: (( $ cr << ))
 

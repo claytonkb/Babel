@@ -1,5 +1,0 @@
-code:
-    [ stdinln
-    [ stdout
-    nil]]
-

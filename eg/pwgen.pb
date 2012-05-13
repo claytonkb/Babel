@@ -1,18 +1,21 @@
+-- pwgen.pb
+-- Must call this with a numerical argument:
+-- 
+-- perl babel eg/pwgen.pb 5
 
-
-code:
-   (argv [1] cxr $d
-    [x] [(0)] paste
-          ((consonant
-            [1] rand [20] curem
-            cxr
+main:
+   (argv `1 th $d
+    `x set
+          `( consonant
+            `1 rand `20 %
+            th
         <<
             vowel
-            [1] rand [6] curem
-            cxr
-        <<))
-    x times
-    ["\n"] <<)
+            `1 rand `6 %
+            th
+        <<)
+    `x times
+    `"\n" <<)
 
 x: [0]
 

@@ -4,7 +4,7 @@
 ops: ((("cuadd" (u+)) ("cusub" (u-)) ("cumul" (cumul)) ("cudiv" (u/))
        ("ciadd" (+))  ("cisub" (-))  ("cimul" (cimul)) ("cidiv" (/))))
 
-code:
+main:
     ---
          ( ((dup car inform !
             prompts !
@@ -13,15 +13,15 @@ code:
             ->  <->
             cdr car !
 
-            ci2dec ("\n") . << ))
+            %d `"\n" . << ))
 
         ops ...)
 
-inform: (((":\n") . << ))
+inform: (( `":\n" . << ))
 
 prompts: (( prompt ! prompt ! ))
 
 prompt:
-   ((("Enter a number:\n> ") << 
+   (( `"Enter a number:\n> " << 
    >> $d ))
 

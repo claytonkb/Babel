@@ -116,7 +116,6 @@ bvm_cache *zap(bvm_cache *this_bvm){
 //    zap_switch(car(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr))))
 
     if( lifetime == MORTAL ){
-        trace
         _del(STACK_ENTRY_VAL((mword*)car(this_bvm->stack_ptr)));
     }
 
