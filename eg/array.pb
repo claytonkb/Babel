@@ -70,9 +70,8 @@ main:
     `"\nAllocating a new leaf-array:\n" <<
     `3 newlf disp !
 
---    bbl2str doesn't handle interior arrays correctly...
---    ("\nAllocating a new interior-array:\n") <<
---    (3) newin (disp) call
+    `"\nAllocating a new interior-array:\n" <<
+    `3 newin disp !
 
     `"\nComparing two leaf-arrays:\n") <<
     `"a: " << (a) disp !
