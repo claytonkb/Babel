@@ -27,11 +27,11 @@ main: ( `"give and take:\n" <<
         stack_disp !
 
         `"sel (false):\n" <<
-        `0 `8 `9 sel
+        `0 `8 `9 ?
         stack_disp !
 
         `"sel (true):\n" <<
-        `1 `8 `9 sel
+        `1 `8 `9 ?
         stack_disp !
 
         `"depth:\n" <<
