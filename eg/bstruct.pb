@@ -7,14 +7,19 @@ main: ( `"To view .dot files: dot -Tsvg foo.dot > foo.svg\n" <<
         `(1 2 3)           
         `[1 [2 [3 nil]]]   `"arrays_lists.dot"          out !
 
-        `"x: " x show . `"\n" . <<
-        `"Memory usage of x (words): "         x mu  pr_val !
-        `"Number of interior arrays in x: "    x nin pr_val !
-        `"Number of leaf arrays in x: "        x nlf pr_val !
-        `"Number of values in x: "             x nva pr_val !
-        `"Number of pointers in x: "           x npt pr_val !
+        `"x: " x $ . `"\n" . <<
 
-        `"Unloaded size of x: " x unload size pr_val !
+        `"x after save/restore from file:\nx: " 
+            x unload `"x.bbl" spit
+            `"x.bbl" slurp load 
+            $ . `"\n" . <<
+
+        `"Unloaded size of x:             "    x unload # pr_val !
+        `"Memory usage of x (words):      "    x mu  pr_val !
+        `"Number of interior arrays in x: "    x nin pr_val !
+        `"Number of leaf arrays in x:     "    x nlf pr_val !
+        `"Number of values in x:          "    x nva pr_val !
+        `"Number of pointers in x:        "    x npt pr_val !
 
         x cp cons `"cp.dot" out !
 

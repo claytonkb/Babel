@@ -9,14 +9,19 @@ op_listB:  ((("cnot "  (cnot))     ("cushl" ((4) cushl)) ("cushr" ((4) cushr))
 
 main: ( op_listA disp_loop !
         op_listB disp_loop ! 
+
         `"zero: " <<
         `0 `"is false\n" `"is true\n" ? <<
+
         `"non-zero: " <<
         `0 not `"is false\n" `"is true\n" ? <<
+
         `"nil: " <<
         `nil `"is false\n" `"is true\n" ? <<
+
         `"false and true: " <<
         `0 `0 ~ and `"is false\n" `"is true\n" ? <<
+
         `"false or true: " <<
         `0 `0 ~ || `"is false\n" `"is true\n" ? << )
 
@@ -30,5 +35,5 @@ disp_loop: (((( disp_op !
 
 disp: (($ cr <<))
 
-disp_op: ((dup car (": ") cat8 pr))
+disp_op: (( dup car (": ") . << ))
 
