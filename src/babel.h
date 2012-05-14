@@ -78,7 +78,7 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 
 #define ROOT_INTERP_THREAD 0
 
-#define NUM_INTERP_OPCODES 521
+#define NUM_INTERP_OPCODES 522
 
 #define WINDOWS
 //#define STAR_NIX

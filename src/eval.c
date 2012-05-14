@@ -239,6 +239,29 @@ bvm_cache *times(bvm_cache *this_bvm){
 
 }
 
+// FIXME: Broken - need to add an "iter" field to 
+// all looping rstack entries - also, iter should 
+// "dig" through the rstack until it finds a
+// looping rstack entry in case we're buried in evals
+// or nesting.
+bvm_cache *iter(bvm_cache *this_bvm){
+
+    if(return_type(this_bvm->rstack_ptr) != TIMES){
+        return this_bvm;
+    }
+
+    mword *rstack_entry = (mword*)RTOS_0(this_bvm);
+
+    mword *result = new_atom;
+
+    *result = car(rstack_entry[TIMES_RSTACK_COUNT]);
+
+    push_alloc(this_bvm, result, MORTAL);
+
+    return this_bvm;
+
+}
+
 // (body) (cond) while
 bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 
@@ -344,6 +367,7 @@ bvm_cache *eachar(bvm_cache *this_bvm){
     return this_bvm;
 
 }
+
 
 //void eachar(void){
 //

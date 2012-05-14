@@ -15,6 +15,7 @@ bvm_cache *continueop(bvm_cache *this_bvm);
 bvm_cache *each(bvm_cache *this_bvm);
 bvm_cache *ifop(bvm_cache *this_bvm);
 bvm_cache *eachar(bvm_cache *this_bvm);
+bvm_cache *iter(bvm_cache *this_bvm);
 
 #define LOOP_RSTACK_ENTRIES 2
 #define LOOP_RSTACK_BODY    0

@@ -448,4 +448,5 @@ rstack:         {0x205}
 reverse:        {0x206}
 boilerplate:    {0x207}
 paste8:         {0x208}
+iter:           {0x209}
 
