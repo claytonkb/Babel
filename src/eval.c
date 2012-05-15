@@ -293,12 +293,11 @@ bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 // (body) (list) each
 bvm_cache *each(bvm_cache *this_bvm){
 
-// FIXME: Catch the empty-list condition...
-
-    mword *list = (mword*)TOS_0(this_bvm);
+    mword *body = (mword*)TOS_0(this_bvm);
     hard_zap(this_bvm);
 
-    mword *body = (mword*)TOS_0(this_bvm);
+// FIXME: Catch the empty-list condition...
+    mword *list = (mword*)TOS_0(this_bvm);
     hard_zap(this_bvm);
 
     mword *temp = _newin(EACH_RSTACK_ENTRIES);
@@ -332,15 +331,15 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 // FIXME: Catch the empty-list condition...
 
     mword *result;
+
+    mword *body = (mword*)TOS_0(this_bvm);
+    hard_zap(this_bvm);
+
     mword *array = (mword*)TOS_0(this_bvm);
     hard_zap(this_bvm);
 
     mword *count = new_atom;
     *count = EACHAR_INIT_INDEX;
-
-
-    mword *body = (mword*)TOS_0(this_bvm);
-    hard_zap(this_bvm);
 
     mword *temp = _newin(EACHAR_RSTACK_ENTRIES);
     (mword*)c(temp,EACHAR_RSTACK_ARRAY)  = array;

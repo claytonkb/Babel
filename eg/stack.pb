@@ -42,7 +42,7 @@ main: ( `"give and take:\n" <<
         `1 `1 `1 `1 `1 `1 `1 <- <- <- <- `2 -> `3 `4 -> `5 -> `6 -> `7 `8
         stack_disp ! )
 
-stack_disp: (( `-1 take reverse <- `( disp ! ) -> ... ))
+stack_disp: (( `-1 take reverse `( disp ! ) ... ))
 
 disp: (( $ cr << ))
 

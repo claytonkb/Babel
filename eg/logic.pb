@@ -30,7 +30,6 @@ disp_loop: (((( disp_op !
                 cdr car 
             !
             disp ! ))
-        <->
         ...))
 
 disp: (($ cr <<))

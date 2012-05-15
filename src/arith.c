@@ -284,7 +284,7 @@ bvm_cache *ciadd_assign(bvm_cache *this_bvm){
 
     // FIXME Overflow error
 
-    hard_zap(this_bvm); //FIXME: Completely busted...
+    zap(this_bvm);
     zap(this_bvm);
 
     return this_bvm;

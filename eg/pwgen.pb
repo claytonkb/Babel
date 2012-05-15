@@ -4,7 +4,10 @@
 -- perl babel eg/pwgen.pb 5
 
 main:
-   (argv `1 th $d
+        ( argv # `1 <=
+        `( argv `1 th $d )
+        `( (5) )
+    if
     `x set
           `( consonant
             `1 rand `20 %

@@ -272,8 +272,8 @@ bvm_cache *set(bvm_cache *this_bvm){
 
     _wrcxr((mword*)TOS_0(this_bvm),(mword*)TOS_1(this_bvm),0);
 
-    swap(this_bvm);
-    hard_zap(this_bvm);
+    zap(this_bvm); //FIXME: The type of zap depends on leaf/inte?
+    zap(this_bvm);
 
     return this_bvm;
 

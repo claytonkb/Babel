@@ -6,7 +6,8 @@ ops: ((("cuadd" (u+)) ("cusub" (u-)) ("cumul" (cumul)) ("cudiv" (u/))
 
 main:
     ---
-         ( ((dup car inform !
+            ( ops
+            ((dup car inform !
             prompts !
 
             <-  <->
@@ -14,8 +15,7 @@ main:
             cdr car !
 
             %d `"\n" . << ))
-
-        ops ...)
+        ...)
 
 inform: (( `":\n" . << ))
 

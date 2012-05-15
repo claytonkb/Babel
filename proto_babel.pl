@@ -1075,25 +1075,122 @@ sub str2vec {
 
 }
 
-sub insert_babel_hash{
+sub inskha{
 
     my $hash_table  = shift;
-    my $hash        = shift;
     my $key         = shift;
     my $val         = shift;
 
-    if($#{$hash_table} < 0){
-        my $cons_side = bit_select($hash,0);
-        my $new_ref =   [ [ "HASH_REF", @{$hash} ],
-                        [ [ "INTERIOR_ARR", [$val]],
-                        [ [ "LEAF_ARR", ["STRING", "$key"]],
-                        [ [ "LEAF_ARR", ["NUMERIC", 0]], 
-                        ["LABEL","nil"] ]]]];
+    my $result;
+    my $temp;
+    my $cons_side;
+
+    my $hash = 0;
+
+    if(is_nil($hash_table)){
+        $cons_side = _cxr1($hash,0);
+        $temp = new_hash_entry($hash, $key, $val, -1, 0);
+        $result = ();
+        $result->[$cons_side] = $temp;
+    }
+    else{
+        _rinskha($hash_table, $hash, $key, $val, 0);
+        $result = $hash_table;
+    }
+
+    return $result;
+
+#    if($#{$hash_table} < 0){
+#        my $cons_side = _cxr1($hash,0);
+#        my $new_ref =   [ [ "HASH_REF", @{$hash} ],
+#                        [ [ "INTERIOR_ARR", [$val]],
+#                        [ [ "LEAF_ARR", ["STRING", "$key"]],
+#                        [ [ "LEAF_ARR", ["NUMERIC", 0]], 
+#                        ["LABEL","nil"] ]]]];
+#    }
+
+}
+
+#void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level){
+sub rinskha{
+
+    my $hash_table = shift;
+    my $hash = shift;
+    my $key = shift;
+    my $val = shift;
+    my $level = shift;
+
+    my $temp;
+    my $cons_side  = _cxr1($hash,$level);
+    my $next_level = $hash_table->[$cons_side];
+
+    my $HASH_ENTRY_SIZE = 5;
+
+#    // 1. cons_side = nil
+#    //      insert
+#    // 2. cons_side is inte AND size = 2
+#    //      recurse
+#    // 3. cons_side is inte AND size = HASH_ENTRY_SIZE
+#    //      split and insert
+#
+#//    printf("%x\n",s(next_level));
+
+    if(is_nil($next_level)){
+
+        $hash_table->[$cons_side] = new_hash_entry($hash, $key, $val, -1, 0);
+
+    }
+    elsif(is_inte($next_level) && size($next_level) == 2){
+
+        _rinskha($hash_table->[$cons_side], $hash, $key, $val, $level+1);
+
+    }
+    elsif(is_inte($next_level) && size($next_level) == $HASH_ENTRY_SIZE){
+
+        my $colliding_hash_ref           = HASH_ENTRY_REF($next_level);
+        my $colliding_next_cons_side     = _cxr1($colliding_hash_ref,$level+1);
+
+        $temp = ();
+        $temp->[$colliding_next_cons_side] = $next_level;
+
+        $hash_table->[$cons_side]     = $temp;
+
+        _rinskha($hash_table->[$cons_side], $hash, $key, $val, $level+1);
+
+    }
+    else{
+        die;
     }
 
 }
 
-sub bit_select{
+sub new_hash_entry{
+}
+
+sub HASH_ENTRY_REF{
+}
+
+sub is_nil{
+
+#    my $check = shift;
+#
+#    if(size($val) != 4){
+#    }
+#
+#    my $nil = bytes_to_mwords(Hash::Pearson16::pearson16_hash("nil"));
+
+}
+
+sub is_inte{
+}
+
+sub is_href{
+}
+
+sub size{
+}
+
+sub _cxr1{
 
     my $val = shift;
     my $bit_place = shift;

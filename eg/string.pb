@@ -4,7 +4,7 @@
 main:       (`"Hello " dup <<
             str2ar dup stdout 
             ar2ls  dup
-                <- [(stdout)] ->
+                `(stdout)
                 ...
             ls2lf  dup stdout
             ar2str <<

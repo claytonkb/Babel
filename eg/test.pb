@@ -1,14 +1,16 @@
--- main: ( `0 `( `1 + ) `-1 times $ cr << )
+main: ( `( `1 `x + `x set ) loop )
 
-main: ( `-2 ciabs $ cr << )
+x: {0}
+
+-- main: ( `0 `( `1 + ) `-1 times $ cr << )
 
 --main: ( `(15 15 15 15) sum ! %d cr << )
 --
---sum: (( <- `0 `( + ) -> ... ))
+--sum: (( `0 <-> `( + ) ... ))
 
 --main: ( `(123 456 789 987 654 321) unload listobj ! )
 --
---listobj: (( <- `( hex08 ! cr << ) -> eachar ))
+--listobj: (( `( hex08 ! cr << ) eachar ))
 --
 --hex08: 
 --        (( %x dup #8 
@@ -18,7 +20,7 @@ main: ( `-2 ciabs $ cr << )
 --        ->
 --        paste8 ))
 
--- main: ( `"fnord" `"frobnicate" `10 paste8 cr << )
+-- main: ( `"fnord" `"frobnicate" `9 paste8 cr << )
 
 --main: ( `[6 7] `[1 2 3 4 5] `2 paste $ cr << )
 
@@ -67,6 +69,7 @@ main: ( `-2 ciabs $ cr << )
 --        dup
 --
 --        newlines !
+--        sdd !
 --        lsinc !
 --
 --        reverse
@@ -87,11 +90,7 @@ main: ( `-2 ciabs $ cr << )
 --lsprint: (( <- `( %d `" " . << ) -> ... ))
 --
 --readfile: ((argv `1 th >>> str2ar))
-
-sdd: (( sdp ! die ))
-
-sdp: (( stack dump << ))
-
+--
 --newlines: 
 --    (( `nil cons nest
 --        <- `( `0xd == not
@@ -203,35 +202,8 @@ sdp: (( stack dump << ))
 --        dump << `"\n" << )
 --
 
--- code: 
---     (("")        cr << 
---     ("nil") %% $ cr << )
+sdd: (( sdp ! die ))
 
---code: ( setup ! -- ((show ['\n'] . <<)) <-> ... die
---        ["Ctl+C to quit\n"] pr
---        [(  ["Type something\n> "] <<
---            stdinln dup
---                ["quit"] ==
---                [( die )]
-----                [(  ["You typed: "] <<
-----                    ["\n"] . << )]
---                [( [x] <-> %% $ << )]
---            ? !
---        )] loop 
---        ["Done."] pr)
---
---setup: ((    (nil)
---                ((dup
---                <- car ->
---                cdr car << die
---                inskha)) --> FIXME: inskha and hash8 generating diff hashes
---            opcodes ...
---            [x] [(0)] paste
---            x keysha))
---
---x: [nil nil]
---
---opcodes: (( (0x001 'cushl') (0x003 'cushr') (0x005 'curol') 
---            (0x007 'curor') (0x00b 'cashr')))
---
+sdp: (( stack dump << ))
+
 
