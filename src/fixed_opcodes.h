@@ -403,7 +403,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     rsvd,
     rsvd,
     loop, //    loop,
-    rsvd, //    last,
+    last, //    last,
     rsvd, //    next,
     rsvd,
     rsvd,
@@ -670,7 +670,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     ith,
     cr,
     rsvd, //    breakop,
-    continueop, //    continueop,
+    rsvd, //    continueop,
     walk,
     set,
 

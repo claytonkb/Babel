@@ -367,7 +367,7 @@ bvm_cache *cut(bvm_cache *this_bvm){
     mword cut_point = (mword)car(TOS_0(this_bvm));
     mword *src      = (mword*)TOS_1(this_bvm);
 
-    zap(this_bvm);
+    hard_zap(this_bvm);
 
     if(cut_point == 0){
 //        result = new_atom;
@@ -379,7 +379,7 @@ bvm_cache *cut(bvm_cache *this_bvm){
         push_alloc(this_bvm, nil, IMMORTAL); //FIXME: depends on inputs
     }
     else{
-        zap(this_bvm);
+        hard_zap(this_bvm);
         if(is_leaf(src)){
             result_pre  = _newlf(cut_point);
             result_post = _newlf(size(src)-cut_point);
@@ -421,7 +421,7 @@ bvm_cache *arlen8(bvm_cache *this_bvm){
 
     *result = _arlen8((mword*)TOS_0(this_bvm));
 
-    zap(this_bvm);
+    hard_zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;

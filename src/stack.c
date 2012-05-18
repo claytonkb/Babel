@@ -9,6 +9,7 @@
 #include "array.h"
 #include "alloc.h"
 #include "bvm_stack.h"
+#include "ref.h"
 
 //mword *cons_alloc(mword *car, mword *cdr){
 //
@@ -212,8 +213,12 @@ bvm_cache *dup(bvm_cache *this_bvm){
     if(is_leaf((mword*)TOS_0(this_bvm))){
         result = _newlf(size((mword*)TOS_0(this_bvm)));
     }
-    else{
+    else if(is_inte((mword*)TOS_0(this_bvm))){
         result = _newin(size((mword*)TOS_0(this_bvm)));
+    }
+    else{
+//        result = _newin(size((mword*)TOS_0(this_bvm)));
+        result = _newref((mword*)TOS_0(this_bvm));
     }    
 
     //TODO: memcpy!

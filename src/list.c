@@ -39,7 +39,9 @@ bvm_cache *isnil(bvm_cache *this_bvm){
     
     *result = is_nil((mword*)TOS_0(this_bvm));
 
-    zap(this_bvm);
+//    d(car((mword*)TOS_0(this_bvm)))
+
+    hard_zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
@@ -102,7 +104,7 @@ mword *_list_end(mword *list){
 
 mword *_list_next_to_end(mword *list){
 
-    while(is_nil(scdr(scdr(list)))){
+    while(!is_nil(scdr(scdr(list)))){
         list = (mword*)cdr(list);
     }
     return list;

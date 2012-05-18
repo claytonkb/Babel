@@ -1,6 +1,55 @@
-main: ( `( `1 `x + `x set ) loop )
+main: ( `1 `nil `3 `( down ) `2 times sdd ! )
 
-x: {0}
+--            `( zap )
+--            `( empty? ! not dup $ << )
+--        while )
+--        stack dump << )
+
+--main: 
+--        (`(1 2 3 4 5) 
+--            `(dup `3 == not
+--                `( zap )
+--                `( last )
+--            if) 
+--        ... $ cr << )
+
+--main: ( `"hello\n" empty ! $ << zap empty ! $ << )
+
+empty?: (( stack nil? ))
+
+-- main: (  `"    Hello" str2ar dent ! $ << )
+--
+--dent: (( `0 <-> 
+--        `( `0x20 == not
+--                `( last )
+--                `( `1 + )
+--            if )
+--        eachar ))
+
+-- main: ( `nil dup nil? $ cr << )
+
+--Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec 
+--ornare, mauris id tincidunt posuere, massa sapien pellentesque
+-- urna, ac sodales nisl metus non ipsum. Aenean ligula augue, 
+--accumsan non aliquam in, tempor id velit. Nullam eu odio ac 
+--augue facilisis posuere. Cras ullamcorper nibh at tellus auctor 
+--suscipit. Proin orci quam, egestas nec mattis tincidunt, sagittis 
+--non mi. Vestibulum ante ipsum primis in faucibus orci luctus et
+-- ultrices posuere cubilia Curae; Fusce ut turpis a ipsum placerat 
+--convallis scelerisque vitae odio. Donec dui nisi, rutrum nec facilisis 
+--ut, vulputate non diam. Donec iaculis, dolor id pellentesque
+-- congue, ante nibh tempus ipsum, vitae pretium odio quam vel urna.
+--
+
+--main: ( `x `( `( $ cr << ) ... ) ... )
+--
+--x: ( (1 2) (3 4) (5 6) )
+
+-- main: ( `(1 2 3 4 nil) pop sdd ! )
+
+--main: ( `( `1 `x + `x set ) loop )
+--
+--x: {0}
 
 -- main: ( `0 `( `1 + ) `-1 times $ cr << )
 
@@ -65,45 +114,86 @@ x: {0}
 --
 --d: (($ cr <<))
 
+
+
 --main: ( readfile !
 --        dup
 --
---        newlines !
---        sdd !
---        lsinc !
+--        `is_newline
+--        matchar !
+-- 
+--        carve !
 --
---        reverse
+--        clean_nil !
+--    
+--        `( dup `is_space matchar ! carve ! ) ...
 --
---        <- `( cut <-> ) -> ... 
+--        collect !
 --
---        `-1 take
---        reverse
+--        `( `( ar2str cr << ) ... ) ... )
 --
---        <- `( `"==>" << ar2str << `"\n" << ) -> ... )
+--collect: (( `-1 take reverse ))
 --
---lsinc: (( dup <- `( `1 <-> += ) -> ... ))
+--clean_nil: (( nest
+--            collect !
+--            `( dup nil? 
+--                `( nil )
+--                `( zap ) 
+--            if ) ... up ))
 --
---retrieve: (( <- `( %d `" " . << ) -> ... ))
+---- TOS-0: list of offsets in monotonic order
+---- TOS-1: array to be carved
+--carve: 
+--        (( dup nil?
+--            `( lsinc !
+--            reverse
+--            `2 take nest 
+--                `( dup `1 - 
+--                <- cut <-> -> 
+--                cut 
+--                zap ) 
+--            ... 
+--            collect !
+--            give 
+--            up )
+--            `( (nil) )
+--        if ))
 --
---part_x: ( nil )
+--lsinc: (( dup `( `1 <-> += ) ... ))
 --
---lsprint: (( <- `( %d `" " . << ) -> ... ))
+--lsprint: (( `( %d `" " . << ) ... ))
 --
 --readfile: ((argv `1 th >>> str2ar))
 --
---newlines: 
---    (( `nil cons nest
---        <- `( `0xd == not
---                `( zap )
---                `( `newlines_y `newlines_x `0 + `nil cons push zap )
---            if
---            `1 `newlines_x += ) -> 
---    eachar
---    `newlines_y shift zap up car ))
+--is_space:   ( `0x20 == not )
 --
---newlines_x: {0}
+--is_newline: ( dup `0xa == not <-> `0xd == not or )
 --
---newlines_y: ( nil )
+--matchar: 
+--    ((  `0 `matchar_x set
+--        `matchar_fn set
+--        dup nil?
+--            -- if nil:
+--            `( `nil cons nest
+--                `( `matchar_fn !
+--                    `( zap )
+--                    `(  `matchar_y `matchar_x `0 + 
+--                        `nil cons push zap )
+--                    if
+--                `1 `matchar_x += )
+--            eachar
+--            `matchar_y shift zap up car )
+--            -- else:
+--            `( (nil) )
+--    if ))
+--
+--matchar_fn: ( nil )
+--
+--matchar_x: {0}
+--
+--matchar_y: ( nil )
+
+
 
 -- main: ( `( cr << ) `( "hello" "world" ) each fnord )
 

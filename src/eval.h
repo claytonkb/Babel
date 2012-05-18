@@ -11,11 +11,15 @@ bvm_cache *loop(bvm_cache *this_bvm);
 bvm_cache *times(bvm_cache *this_bvm);
 bvm_cache *whileop(bvm_cache *this_bvm);
 bvm_cache *next(bvm_cache *this_bvm);
-bvm_cache *continueop(bvm_cache *this_bvm);
+//bvm_cache *continueop(bvm_cache *this_bvm);
 bvm_cache *each(bvm_cache *this_bvm);
 bvm_cache *ifop(bvm_cache *this_bvm);
 bvm_cache *eachar(bvm_cache *this_bvm);
 bvm_cache *iter(bvm_cache *this_bvm);
+bvm_cache *last(bvm_cache *this_bvm);
+
+#define EVAL_RSTACK_ENTRIES  1
+#define EVAL_RSTACK_RETURN   0
 
 #define LOOP_RSTACK_ENTRIES 2
 #define LOOP_RSTACK_BODY    0

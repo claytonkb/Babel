@@ -85,26 +85,102 @@ bvm_cache *loop(bvm_cache *this_bvm){
 }
 
 //
-//void breakop(void){ 
-//    last(); //FIXME: Doesn't work with each...
-//    last();
-//}
+bvm_cache *last(bvm_cache *this_bvm){ 
 
-//
-bvm_cache *continueop(bvm_cache *this_bvm){
+    mword *rstack_entry;
+    mword *result;
+    int done=0;
 
-    next(this_bvm);
-    next(this_bvm);
+    //FIXME: Handle empty rstack
+    while( !done ){     
+        
+        if(     return_type(this_bvm->rstack_ptr) == DOWN 
+            ||  return_type(this_bvm->rstack_ptr) == NEST){
 
-    return this_bvm;
+            up(this_bvm);
+
+        }
+        else if(return_type(this_bvm->rstack_ptr) == EVAL){
+
+            //rstack_entry = (mword*)RTOS_0(this_bvm);
+            //this_bvm->code_ptr = (mword*)rstack_entry[EVAL_RSTACK_RETURN];
+            pop_rstack(this_bvm);
+
+        }
+        else{
+            done = 1;
+        }
+
+    }
+
+    if(return_type(this_bvm->rstack_ptr) == LOOP){
+
+        rstack_entry = (mword*)RTOS_0(this_bvm);
+        this_bvm->code_ptr = (mword*)rstack_entry[LOOP_RSTACK_RETURN];
+        pop_rstack(this_bvm);
+
+//        rstack_entry = (mword*)RTOS_0(this_bvm);
+//        this_bvm->code_ptr = (mword*)scar((mword*)RTOS_0(this_bvm));
+
+    }
+    else if(return_type(this_bvm->rstack_ptr) == TIMES){
+
+        rstack_entry = (mword*)RTOS_0(this_bvm);
+
+        this_bvm->code_ptr = (mword*)rstack_entry[TIMES_RSTACK_RETURN];
+        pop_rstack(this_bvm);
+
+    }
+    else if(return_type(this_bvm->rstack_ptr) == WHILEOP){ //XXX buggy...
+
+            this_bvm->code_ptr = (mword*)rstack_entry[WHILE_RSTACK_RETURN];
+            pop_rstack(this_bvm);
+            hard_zap(this_bvm); //FIXME: Yipes!
+
+    }
+    else if(return_type(this_bvm->rstack_ptr) == EACH){
+
+        rstack_entry = (mword*)RTOS_0(this_bvm);
+
+        this_bvm->code_ptr = (mword*)rstack_entry[EACH_RSTACK_RETURN];
+        pop_rstack(this_bvm);
+
+    }
+    else if(return_type(this_bvm->rstack_ptr) == EACHAR){
+
+        rstack_entry = (mword*)RTOS_0(this_bvm);
+
+        this_bvm->code_ptr = (mword*)rstack_entry[EACHAR_RSTACK_RETURN];
+        pop_rstack(this_bvm);
+
+
+    }
+    else{
+        error("last: unknown return_type");
+        die;
+    }
+
+    this_bvm->advance_type = BVM_CONTINUE;
 
 }
+
+////
+//bvm_cache *continueop(bvm_cache *this_bvm){
+//
+//    next(this_bvm);
+//    next(this_bvm);
+//
+//    return this_bvm;
+//
+//}
 
 //
 bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 
     mword *rstack_entry;
     mword *result;
+
+    //FIXME: Handle empty rstack
 
     while(      return_type(this_bvm->rstack_ptr) == DOWN 
             ||  return_type(this_bvm->rstack_ptr) == NEST){

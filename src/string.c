@@ -142,7 +142,16 @@ mword *_c2b(char *string, mword max_safe_length){
 // ... may need to rewrite the utf-8 stuff
 bvm_cache *ar2str(bvm_cache *this_bvm){
 
+    mword *result;
     #define MAX_UTF8_CHAR_SIZE 4
+
+    if(is_nil((mword*)TOS_0(this_bvm))){
+        result = new_atom;
+        *result = 0;
+        zap(this_bvm);
+        push_alloc(this_bvm, result, MORTAL);
+        return this_bvm;
+    }
 
     mword arsize = size((mword*)TOS_0(this_bvm));
     int temp_buffer_size = MAX_UTF8_CHAR_SIZE * (arsize);
@@ -160,7 +169,7 @@ bvm_cache *ar2str(bvm_cache *this_bvm){
         arlength++;
     }
 
-    mword *result = _newlf(arlength);
+    result = _newlf(arlength);
     memcpy(result, temp_buffer, utf8_length);
     free(temp_buffer);
 
@@ -168,6 +177,8 @@ bvm_cache *ar2str(bvm_cache *this_bvm){
 
     zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
+
+    return this_bvm;
 
 }
 
