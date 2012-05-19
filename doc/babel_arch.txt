@@ -4,6 +4,63 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- transpose -----
+
+----- RMW -----
+
+Imagine traversing a leaf array and adding one to each entry.
+
+No current way to do this IN PLACE. Think about ways to do this.
+
+----- Rethinking rstack/stack operators -----
+
+Currently, up/down/nest use the rstack. However, when performing a
+next, we don't necessarily want to pop off all the down items
+which have been placed on the rstack - IOW, up/down are orthogonal
+to control-flow usage of the rstack.
+
+Proposal: Create a third stack called ustack. Ustack is where the
+up/down operators will work.
+
+More thoughts on nesting:
+
+The primary benefit of the auxiliary stack is it make it easy to move
+"up and down" the main stack. "Nesting" is basically switching stacks - 
+but where do we save the ustack? Perhaps save both stack and ustack
+onto the rstack when nesting? Suppose we don't want to unnest when 
+returning from an eval?
+
+    (1 2 3)
+    nest
+        <do stuff on the stack> 
+    unnest
+    TOS --> (a b c d)
+
+Some more stack operators:
+
+    top -> empties the ustack onto the stack
+    bottom -> empties the stack onto the ustack
+    turn -> switches the stack and ustack pointers
+
+    empty?: ((  stack nil? ))
+    full?:  (( ustack nil? ))
+
+Also, give and take need to be re-thought.
+
+Give is easy to do with a foreach.
+
+    give: (( `( nil ) ... ))
+
+Take is more difficult and requires a while.
+
+But whenever we do a foreach, the first element will be buried at 
+the bottom of the stack. When we take the whole stack, we really want
+the bottom of the stack to be the FIRST element of the resulting list.
+
+This is how give/take currently work.
+
+Implement dig/bury
+
 ----- stack persistence/data-types -----
 
 Currently, we mark the stack type with the opcode of the last operator

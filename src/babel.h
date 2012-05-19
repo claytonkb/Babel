@@ -32,6 +32,7 @@ typedef struct {
     mword *sym_table;
     mword *code_ptr;
     mword *stack_ptr;
+    mword *ustack_ptr;
     mword *rstack_ptr;
     mword *jump_table;
     mword thread_id;
@@ -78,7 +79,7 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 
 #define ROOT_INTERP_THREAD 0
 
-#define NUM_INTERP_OPCODES 522
+#define NUM_INTERP_OPCODES 523
 
 #define WINDOWS
 //#define STAR_NIX

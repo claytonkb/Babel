@@ -444,9 +444,10 @@ perm:           {0x200}
 stack:          {0x202}
 code:           {0x203}
 if:             {0x204}
-rstack:         {0x205}
+ustack:         {0x205}
 reverse:        {0x206}
 boilerplate:    {0x207}
 paste8:         {0x208}
 iter:           {0x209}
+unnest:         {0x20a}
 

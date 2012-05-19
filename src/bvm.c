@@ -341,6 +341,7 @@ bvm_cache *babelop(bvm_cache *this_bvm){
     new_bvm.sym_table     = nil;
     new_bvm.code_ptr      = (mword*)TOS_0(this_bvm);
     new_bvm.stack_ptr     = nil; //FIXME allow stack to be init'd
+    new_bvm.ustack_ptr    = nil; //FIXME allow ustack to be init'd
     new_bvm.rstack_ptr    = nil;
     new_bvm.jump_table    = this_bvm->jump_table;
     new_bvm.thread_id     = this_bvm->thread_id+1;
@@ -395,9 +396,9 @@ bvm_cache *bvmstack(bvm_cache *this_bvm){
 }
 
 //
-bvm_cache *bvmrstack(bvm_cache *this_bvm){
+bvm_cache *bvmustack(bvm_cache *this_bvm){
 
-    push_alloc(this_bvm, this_bvm->rstack_ptr, IMMORTAL);
+    push_alloc(this_bvm, this_bvm->ustack_ptr, IMMORTAL);
 
     return this_bvm;
 

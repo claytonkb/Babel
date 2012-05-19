@@ -1,9 +1,45 @@
-main: ( `1 `nil `3 `( down ) `2 times sdd ! )
+-- main: ( `1 `2 `3 `( down ) `2 times ustack dump << )
 
---            `( zap )
---            `( empty? ! not dup $ << )
---        while )
---        stack dump << )
+--main: 
+--    ( `9
+--    `( `1 + `"yo " << )
+--    `( dup `10 < )
+--    while )
+
+-- main: ( `( 1 2 3 ) nest unnest sdd ! )
+
+-- main: ( `(1 2 3 4) give `-1 take sdd ! )
+
+-- main: ( `( 1 2 3 4 ) `( nil ) ... sdd ! ) 
+
+-- main: ( `1 `2 `3 stkrev ! sdd ! )
+
+stkrev: (( collect ! give ))
+
+collect: ((  `-1 take reverse ))
+
+-- main: ( `1 `nil `3 `( down ) `2 times sdd ! )
+
+main: ( `(1 nil 3 nil nil nil nil 4 5 nil 6) nonil ! sdd ! )
+
+nonil:
+        (( nest 
+        give
+                    `( dup nil?
+                    `( down )
+                    `( zap  )
+                if )
+            `( empty? ! not )
+        while
+
+            `( up )
+            `( full? ! not )
+        while 
+
+        collect !
+        reverse
+
+        unnest ))
 
 --main: 
 --        (`(1 2 3 4 5) 
@@ -16,6 +52,8 @@ main: ( `1 `nil `3 `( down ) `2 times sdd ! )
 --main: ( `"hello\n" empty ! $ << zap empty ! $ << )
 
 empty?: (( stack nil? ))
+
+full?:  (( ustack nil? ))
 
 -- main: (  `"    Hello" str2ar dent ! $ << )
 --

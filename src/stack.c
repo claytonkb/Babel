@@ -1,6 +1,12 @@
 // stack.c
 //
 
+// XXX Code size: compress the push_alloc* and pop*_stack fn's into
+// a single function that takes the stack as an argument
+//
+// Also, up/down should be able to perform non-alloc moves between 
+// stack and ustack.
+
 #include "babel.h"
 #include "stack.h"
 #include "list.h"
@@ -10,42 +16,6 @@
 #include "alloc.h"
 #include "bvm_stack.h"
 #include "ref.h"
-
-//mword *cons_alloc(mword *car, mword *cdr){
-//
-//    mword *temp = new_cons();
-//    cons(temp,car,cdr);
-//    return temp;
-//
-//}
-
-//    alloc_type
-//    // return     -> -3
-//    // cond_block -> -2
-//    // body       -> -1
-//    // next       -> 
-
-//
-//void push_alloc_rstack(mword *operand, mword alloc_type){
-//
-//    mword *temp_consA = new_cons();
-//    mword *temp_consB = new_cons();
-//    mword *temp_consC = new_cons();
-//    mword *type       = new_atom();
-//
-//    c(type,0) = alloc_type; // alloc_type = operand for auto-alloc
-//
-//    cons(temp_consA,   type,         nil);
-//    cons(temp_consB,   operand,      temp_consA);
-//    cons(temp_consC,   temp_consB,   rstack_ptr);
-////    cons(temp_consC,   rstack_ptr, temp_consB);
-//
-//    (mword*)rstack_ptr = temp_consC;
-//
-////    d(car(car(cdr(car(rstack_ptr)))))
-////        die
-//
-//}
 
 //
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
@@ -78,6 +48,23 @@ void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
     cons(new_stack_cons, new_stack_entry, this_bvm->rstack_ptr);
 
     this_bvm->rstack_ptr = new_stack_cons;
+
+}
+
+//
+void push_alloc_ustack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
+
+    mword *new_stack_cons  = new_cons;
+    mword *new_stack_entry = _newin(STACK_ENTRY_SIZE);
+    mword *type            = new_atom;
+
+    c(type,0) = alloc_type; // alloc_type = operand for auto-alloc
+    STACK_ENTRY_VAL(new_stack_entry) = operand;
+    STACK_ENTRY_LIF(new_stack_entry) = type;
+
+    cons(new_stack_cons, new_stack_entry, this_bvm->ustack_ptr);
+
+    this_bvm->ustack_ptr = new_stack_cons;
 
 }
 
@@ -140,29 +127,7 @@ void free_stack_entry(bvm_cache *this_bvm){
 
 }
 
-////
-////
-//void _zap(mword **target){
 //
-//    //Implement a "generic zap" at some point...
-//
-//}
-//
-////
-////
-//void push_rstack(mword *ret){
-//
-//    mword *temp_cons = new_cons();
-//
-//    cons(temp_cons,   ret,   rstack_ptr);
-//
-//    (mword*)rstack_ptr = temp_cons;
-//
-//}
-//
-////
-////
-
 mword *pop_rstack(bvm_cache *this_bvm){
 
     //If rstack is empty: except()
@@ -174,6 +139,21 @@ mword *pop_rstack(bvm_cache *this_bvm){
     //FIXME: Leaky!
 
     return (mword*)car(temp_rstack);
+
+}
+
+//
+mword *pop_ustack(bvm_cache *this_bvm){
+
+    //If rstack is empty: except()
+
+    mword *temp_ustack = this_bvm->ustack_ptr;
+//    code_ptr = car(rstack_ptr);
+
+    this_bvm->ustack_ptr = (mword*)scdr(this_bvm->ustack_ptr);
+    //FIXME: Leaky!
+
+    return (mword*)car(temp_ustack);
 
 }
 
@@ -272,7 +252,10 @@ bvm_cache *swap(bvm_cache *this_bvm){
 //
 bvm_cache *down(bvm_cache *this_bvm){
 
-    push_alloc_rstack(this_bvm, (mword*)TOS_0(this_bvm), DOWN);
+    if(is_nil(this_bvm->stack_ptr))
+        return this_bvm;
+
+    push_alloc_ustack(this_bvm, (mword*)TOS_0(this_bvm), DOWN);
     hard_zap(this_bvm);
 
     return this_bvm;
@@ -284,26 +267,29 @@ bvm_cache *up(bvm_cache *this_bvm){
 
     mword *temp;
 
-    if(return_type(this_bvm->rstack_ptr) == DOWN){
-        push_alloc(this_bvm,(mword*)car(pop_rstack(this_bvm)),IMMORTAL); //FIXME: Revisit
+    if(is_nil(this_bvm->ustack_ptr))
+        return this_bvm;
+
+    if(return_type(this_bvm->ustack_ptr) == DOWN){
+        push_alloc(this_bvm,(mword*)car(pop_ustack(this_bvm)),IMMORTAL); //FIXME: Revisit
     }
-    else if(return_type(this_bvm->rstack_ptr) == NEST){
+//    else if(return_type(this_bvm->rstack_ptr) == NEST){
+////        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+//
+//        // XXX fairly yucky code:
+//        temp = new_atom;
+//        *temp = (mword)-1;
+//
+//        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
+//
+//        take(this_bvm);
+//
+//        temp = (mword*)TOS_0(this_bvm);
+//
 //        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
-
-        // XXX fairly yucky code:
-        temp = new_atom;
-        *temp = (mword)-1;
-
-        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
-
-        take(this_bvm);
-
-        temp = (mword*)TOS_0(this_bvm);
-
-        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
-        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
-
-    }
+//        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
+//
+//    }
     else{
         error("up: There was an error\n");
         die;
@@ -435,7 +421,56 @@ bvm_cache *nest(bvm_cache *this_bvm){
 
     this_bvm->stack_ptr = nil; // clear the stack
 
-    rgive(this_bvm, new_stack);
+//    rgive(this_bvm, new_stack);
+
+    push_alloc(this_bvm, new_stack, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+//
+bvm_cache *unnest(bvm_cache *this_bvm){
+
+    mword *temp;
+
+//    if(return_type(this_bvm->rstack_ptr) == NEST){
+//        push_alloc(this_bvm,(mword*)car(pop_ustack(this_bvm)),IMMORTAL); //FIXME: Revisit
+//    }
+    if(return_type(this_bvm->rstack_ptr) == NEST){
+//        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+
+        // XXX fairly yucky code:
+//        temp = new_atom;
+//        *temp = (mword)-1;
+//
+//        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
+//
+//        take(this_bvm);
+
+        temp = (mword*)TOS_0(this_bvm);
+
+        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
+
+    }
+    else{
+        error("unnest: There was an error\n");
+        die;
+    }
+
+    return this_bvm;
+    
+}
+
+//
+bvm_cache *flip(bvm_cache *this_bvm){
+
+    mword *temp          = this_bvm->stack_ptr;
+    this_bvm->stack_ptr  = this_bvm->ustack_ptr;
+    this_bvm->ustack_ptr = temp;
+
+    return this_bvm;
 
 }
 

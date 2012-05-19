@@ -70,6 +70,7 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
     root_bvm->sym_table     = nil;
     root_bvm->code_ptr      = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
     root_bvm->stack_ptr     = nil;
+    root_bvm->ustack_ptr    = nil;
     root_bvm->rstack_ptr    = nil;
     root_bvm->jump_table    = nil;
     root_bvm->thread_id     = ROOT_INTERP_THREAD;

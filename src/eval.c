@@ -94,13 +94,13 @@ bvm_cache *last(bvm_cache *this_bvm){
     //FIXME: Handle empty rstack
     while( !done ){     
         
-        if(     return_type(this_bvm->rstack_ptr) == DOWN 
-            ||  return_type(this_bvm->rstack_ptr) == NEST){
-
-            up(this_bvm);
-
-        }
-        else if(return_type(this_bvm->rstack_ptr) == EVAL){
+//        if(     return_type(this_bvm->rstack_ptr) == DOWN 
+//            ||  return_type(this_bvm->rstack_ptr) == NEST){
+//
+//            up(this_bvm);
+//
+//        }
+        if(return_type(this_bvm->rstack_ptr) == EVAL){
 
             //rstack_entry = (mword*)RTOS_0(this_bvm);
             //this_bvm->code_ptr = (mword*)rstack_entry[EVAL_RSTACK_RETURN];
@@ -182,10 +182,10 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 
     //FIXME: Handle empty rstack
 
-    while(      return_type(this_bvm->rstack_ptr) == DOWN 
-            ||  return_type(this_bvm->rstack_ptr) == NEST){
-        up(this_bvm);
-    }
+//    while(      return_type(this_bvm->rstack_ptr) == DOWN 
+//            ||  return_type(this_bvm->rstack_ptr) == NEST){
+//        up(this_bvm);
+//    }
 
     if(return_type(this_bvm->rstack_ptr) == EVAL){
 
@@ -275,6 +275,10 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
         }
 
     }
+    else if(return_type(this_bvm->rstack_ptr) == NEST){
+        error("next: found NEST while trying to execute NEXT");
+        die;
+    }
     else{
         error("next: unknown return_type");
         die;
@@ -348,7 +352,7 @@ bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
     hard_zap(this_bvm);
 
     mword *block_sel = new_atom;
-    *block_sel = WHILE_BODY;
+    *block_sel = WHILE_COND;
 
     mword *temp = _newin(WHILE_RSTACK_ENTRIES);
     (mword*)c(temp,WHILE_RSTACK_COND)   = cond_block;
@@ -360,7 +364,7 @@ bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 
     this_bvm->advance_type = BVM_CONTINUE;
 
-    this_bvm->code_ptr = body;
+    this_bvm->code_ptr = cond_block;
     
     return this_bvm;
 

@@ -16,6 +16,9 @@ bvm_cache *zap          (bvm_cache *this_bvm);
 bvm_cache *down         (bvm_cache *this_bvm);
 bvm_cache *up           (bvm_cache *this_bvm);
 bvm_cache *nest         (bvm_cache *this_bvm);
+bvm_cache *unnest       (bvm_cache *this_bvm);
+bvm_cache *flip         (bvm_cache *this_bvm);
+
 
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type);
 void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type);
@@ -23,6 +26,9 @@ void rgive(bvm_cache *this_bvm, mword *list);
 //mword *rtake   (bvm_cache *this_bvm, mword count);
 mword *pop_rstack(bvm_cache *this_bvm);
 void free_stack_entry(bvm_cache *this_bvm);
+
+void push_alloc_ustack(bvm_cache *this_bvm, mword *operand, mword alloc_type);
+mword *pop_ustack(bvm_cache *this_bvm);
 
 #define SELF_ALLOC 0
 #define AUTO_ALLOC 1

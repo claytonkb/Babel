@@ -680,11 +680,12 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     bvmstack,
     bvmcode,
     ifop,
-    bvmrstack,
+    bvmustack,
     reverse,
     boilerplate,
     paste8,
     iter,
+    unnest,
 
 };
 
