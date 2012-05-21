@@ -71,8 +71,12 @@ bvm_cache *loop(bvm_cache *this_bvm){
 
     mword *temp = _newin(LOOP_RSTACK_ENTRIES);
 
+    mword *iter_temp = new_atom;
+    *iter_temp = 0;
+
     (mword*)c(temp,LOOP_RSTACK_BODY)   = body;
             c(temp,LOOP_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
+    (mword*)c(temp,LOOP_RSTACK_ITER)   = iter_temp;
 
     push_alloc_rstack(this_bvm, temp, LOOP);
 
@@ -194,7 +198,10 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
     }
     else if(return_type(this_bvm->rstack_ptr) == LOOP){
 
-        this_bvm->code_ptr = (mword*)scar((mword*)RTOS_0(this_bvm));
+        rstack_entry = (mword*)RTOS_0(this_bvm);
+        this_bvm->code_ptr = (mword*)rstack_entry[LOOP_RSTACK_BODY];
+
+        *(mword*)rstack_entry[LOOP_RSTACK_ITER] = car(rstack_entry[LOOP_RSTACK_ITER]) + 1;
 
     }
     else if(return_type(this_bvm->rstack_ptr) == TIMES){
@@ -203,6 +210,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
         if( car(rstack_entry[TIMES_RSTACK_COUNT]) > 1 ){
             *(mword*)rstack_entry[TIMES_RSTACK_COUNT] = car(rstack_entry[TIMES_RSTACK_COUNT]) - 1;
             this_bvm->code_ptr = (mword*)rstack_entry[TIMES_RSTACK_BODY];
+            *(mword*)rstack_entry[TIMES_RSTACK_ITER] = car(rstack_entry[TIMES_RSTACK_ITER]) + 1;
         }
         else{
 //            this_bvm->code_ptr = (mword*)car(rstack_entry[TIMES_RSTACK_RETURN]);
@@ -217,6 +225,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
         if( car(rstack_entry[WHILE_RSTACK_SELECT]) == WHILE_BODY ){
             this_bvm->code_ptr = (mword*)rstack_entry[WHILE_RSTACK_COND];
             *(mword*)rstack_entry[WHILE_RSTACK_SELECT] = WHILE_COND;
+            *(mword*)rstack_entry[WHILE_RSTACK_ITER] = car(rstack_entry[WHILE_RSTACK_ITER]) + 1;
         }
         else{ // car(rstack_entry[WHILE_RSTACK_SELECT]) == WHILE_COND
             if( is_false((mword*)TOS_0(this_bvm)) ){
@@ -243,6 +252,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
             this_bvm->code_ptr = (mword*)rstack_entry[EACH_RSTACK_BODY];
             rstack_entry[EACH_RSTACK_LIST] = cdr((mword*)rstack_entry[EACH_RSTACK_LIST]);
             push_alloc(this_bvm, (mword*)car((mword*)rstack_entry[EACH_RSTACK_LIST]), IMMORTAL); //FIXME: Revisit
+            *(mword*)rstack_entry[EACH_RSTACK_ITER] = car(rstack_entry[EACH_RSTACK_ITER]) + 1;
         }
 
     }
@@ -269,6 +279,8 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
             }
 
             this_bvm->code_ptr = (mword*)rstack_entry[EACHAR_RSTACK_BODY];
+
+            *(mword*)rstack_entry[EACHAR_RSTACK_ITER] = car(rstack_entry[EACHAR_RSTACK_ITER]) + 1;
 
             push_alloc(this_bvm, result, IMMORTAL); //FIXME: Revisit
 
@@ -307,6 +319,10 @@ bvm_cache *times(bvm_cache *this_bvm){
         (mword*)c(temp,TIMES_RSTACK_BODY)   = body;
                 c(temp,TIMES_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
 
+        mword *iter_temp = new_atom;
+        *iter_temp = 0;
+        (mword*)c(temp,TIMES_RSTACK_ITER)   = iter_temp;
+
         push_alloc_rstack(this_bvm, temp, TIMES);
 
         this_bvm->advance_type = BVM_CONTINUE;
@@ -326,15 +342,35 @@ bvm_cache *times(bvm_cache *this_bvm){
 // or nesting.
 bvm_cache *iter(bvm_cache *this_bvm){
 
-    if(return_type(this_bvm->rstack_ptr) != TIMES){
-        return this_bvm;
-    }
+//    if(return_type(this_bvm->rstack_ptr) != TIMES){
+//        return this_bvm;
+//    }
 
     mword *rstack_entry = (mword*)RTOS_0(this_bvm);
 
     mword *result = new_atom;
 
-    *result = car(rstack_entry[TIMES_RSTACK_COUNT]);
+
+
+    if(return_type(this_bvm->rstack_ptr) == LOOP){
+        *result = car(rstack_entry[LOOP_RSTACK_ITER]);
+    }
+    else if(return_type(this_bvm->rstack_ptr) == TIMES){
+        *result = car(rstack_entry[TIMES_RSTACK_ITER]);
+    }
+    else if(return_type(this_bvm->rstack_ptr) == WHILEOP){ //XXX buggy...
+        *result = car(rstack_entry[WHILE_RSTACK_ITER]);
+    }
+    else if(return_type(this_bvm->rstack_ptr) == EACH){
+        *result = car(rstack_entry[EACH_RSTACK_ITER]);
+    }
+    else if(return_type(this_bvm->rstack_ptr) == EACHAR){
+        *result = car(rstack_entry[EACHAR_RSTACK_ITER]);
+    }
+    else{
+        error("iter: unsupported return_type");
+        die;
+    }
 
     push_alloc(this_bvm, result, MORTAL);
 
@@ -359,6 +395,10 @@ bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
     (mword*)c(temp,WHILE_RSTACK_BODY)   = body;
             c(temp,WHILE_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
     (mword*)c(temp,WHILE_RSTACK_SELECT) = block_sel;
+
+    mword *iter_temp = new_atom;
+    *iter_temp = 0;
+    (mword*)c(temp,WHILE_RSTACK_ITER)   = iter_temp;
 
     push_alloc_rstack(this_bvm, temp, WHILEOP);
 
@@ -385,6 +425,10 @@ bvm_cache *each(bvm_cache *this_bvm){
     (mword*)c(temp,EACH_RSTACK_BODY)   = body;
             c(temp,EACH_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
 
+     mword *iter_temp = new_atom;
+    *iter_temp = 0;
+    (mword*)c(temp,EACH_RSTACK_ITER)   = iter_temp;
+         
     push_alloc_rstack(this_bvm, temp, EACH);
 
     this_bvm->advance_type = BVM_CONTINUE;
@@ -426,6 +470,10 @@ bvm_cache *eachar(bvm_cache *this_bvm){
     (mword*)c(temp,EACHAR_RSTACK_BODY)   = body;
             c(temp,EACHAR_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
     (mword*)c(temp,EACHAR_RSTACK_COUNT)  = count;
+
+     mword *iter_temp = new_atom;
+    *iter_temp = 0;
+    (mword*)c(temp,EACHAR_RSTACK_ITER)   = iter_temp;
 
     push_alloc_rstack(this_bvm, temp, EACHAR);
 

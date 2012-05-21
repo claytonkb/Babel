@@ -21,34 +21,40 @@ bvm_cache *last(bvm_cache *this_bvm);
 #define EVAL_RSTACK_ENTRIES  1
 #define EVAL_RSTACK_RETURN   0
 
-#define LOOP_RSTACK_ENTRIES 2
-#define LOOP_RSTACK_BODY    0
-#define LOOP_RSTACK_RETURN  1
+#define LOOP_RSTACK_ENTRIES 3
+#define LOOP_RSTACK_RETURN  0
+#define LOOP_RSTACK_BODY    1
+#define LOOP_RSTACK_ITER    2
 
-#define TIMES_RSTACK_ENTRIES  3
-#define TIMES_RSTACK_COUNT    0
+#define TIMES_RSTACK_ENTRIES  4
+#define TIMES_RSTACK_RETURN   0
 #define TIMES_RSTACK_BODY     1
-#define TIMES_RSTACK_RETURN   2
+#define TIMES_RSTACK_ITER     2
+#define TIMES_RSTACK_COUNT    3
 
-#define WHILE_RSTACK_ENTRIES  4
-#define WHILE_RSTACK_COND     0
+#define WHILE_RSTACK_ENTRIES  5
+#define WHILE_RSTACK_RETURN   0
 #define WHILE_RSTACK_BODY     1
-#define WHILE_RSTACK_RETURN   2
-#define WHILE_RSTACK_SELECT   3
+#define WHILE_RSTACK_ITER     2
+#define WHILE_RSTACK_COND     3
+#define WHILE_RSTACK_SELECT   4
 
 #define WHILE_BODY 0
 #define WHILE_COND 1
 
 #define EACH_RSTACK_ENTRIES  4
-#define EACH_RSTACK_LIST     0
+#define EACH_RSTACK_RETURN   0
 #define EACH_RSTACK_BODY     1
-#define EACH_RSTACK_RETURN   2
+#define EACH_RSTACK_ITER     2
+#define EACH_RSTACK_LIST     3
 
-#define EACHAR_RSTACK_ENTRIES  4
-#define EACHAR_RSTACK_ARRAY    0
+#define EACHAR_RSTACK_ENTRIES  5
+#define EACHAR_RSTACK_RETURN   0
 #define EACHAR_RSTACK_BODY     1
-#define EACHAR_RSTACK_RETURN   2
+#define EACHAR_RSTACK_ITER     2
 #define EACHAR_RSTACK_COUNT    3
+#define EACHAR_RSTACK_ARRAY    4
+
 #define EACHAR_INIT_INDEX      0
 
 //void eval(void);

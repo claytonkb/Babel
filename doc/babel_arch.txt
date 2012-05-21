@@ -4,6 +4,52 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- beyond mortality -----
+
+Current method just assigns each value on the stack as mortal or immortal.
+
+What we really need is a way to say "this thing cannot be freed until
+such time as we have left such-and-such context". So, we have three grades
+of mortality:
+
+1) Immortal -> never gets freed
+2) Demimortal -> not freed so long as its context is in the live_list
+3) Mortal -> always freed as soon as it is used
+
+We should maintain the live_list as a binary tree (or hash table).
+
+When are contexts created/destroyed?
+
+An eval obviously creates a new context. A nest should also create a new
+context. Loops and if should NOT create a new context.
+
+We need a concept of "current context" - whenever something is created on
+the stack, it inherits the current context. The current context could just
+be a 128-bit random number. 
+
+Every live context is inserted into the live_list. When a demi-mortal 
+item is removed from the stack, the live_list is probed with that item's
+context ID. If it is not present, then the item is freed.
+
+----- let -----
+
+Let is a combination of take, nest and set:
+
+    ((a b c) <do stuff> ) let
+
+TOS   -> a
+TOS-1 -> b
+TOS-2 -> c
+
+The stack is automatically nested by let. The end of code for the let
+sequence automatically results in an unnest.
+
+How are a, b and c de-allocated?
+
+----- sort -----
+
+Perl uses mergesort. Do likewise.
+
 ----- transpose -----
 
 ----- RMW -----

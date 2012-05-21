@@ -1,3 +1,31 @@
+main: ( `((1 2) (3 4 5) (6)) lsmax ! %d << )
+
+lsmax: 
+    (( nest
+        `( ## ) ... 
+        collect ! reverse
+    unnest
+    greatest ! ))
+
+--main: 
+--    ( `( 1 3 5 7 9 8 13 6 4 2 0 ) 
+--    `( %d cr 
+--        iter %d << `": " << 
+--    << ) ... )
+
+--main: ( `( `"iter: " << iter $ << ) loop )
+
+-- main: ( `( 1 3 5 7 9 8 13 6 4 2 0 ) greatest ! $ cr << )
+--
+greatest:    
+    (( dup car <-> 
+    `( <- dup -> 
+    dup <-
+        < 
+        `( -> zap ) 
+        `( zap -> ) 
+    if ) ... ))
+
 -- main: ( `1 `2 `3 `( down ) `2 times ustack dump << )
 
 --main: 
@@ -20,7 +48,7 @@ collect: ((  `-1 take reverse ))
 
 -- main: ( `1 `nil `3 `( down ) `2 times sdd ! )
 
-main: ( `(1 nil 3 nil nil nil nil 4 5 nil 6) nonil ! sdd ! )
+-- main: ( `(1 nil 3 nil nil nil nil 4 5 nil 6) nonil ! sdd ! )
 
 nonil:
         (( nest 
