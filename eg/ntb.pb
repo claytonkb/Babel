@@ -10,7 +10,7 @@ main: ( readfile !
     
         get_dents ! 
 
-        lsprint ! )
+        lsprint ! `"\n" << )
 
 ----        `( `"==>\n" << ar2str cr << ) ... )
 --

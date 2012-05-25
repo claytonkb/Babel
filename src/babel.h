@@ -19,33 +19,24 @@ typedef unsigned mword;
 typedef signed   smword;
 
 typedef struct {
-    mword *alloc_atom;
-    mword *alloc_cons;
-    mword *alloc_hash;
-    mword *alloc_stack;
-    mword *alloc_rstack;
-    mword *alloc_unmanaged;
-} alloc;
-
-typedef struct {
-    mword *hidden;
-    mword *sym_table;
+    mword *self;
     mword *code_ptr;
     mword *stack_ptr;
     mword *ustack_ptr;
     mword *rstack_ptr;
     mword *jump_table;
-    mword thread_id;
+    mword *sym_table;
+    mword *thread_id;
     mword *argv;
-    mword steps;
-    mword advance_type;
-    alloc machine;
+    mword *steps;
+    mword *advance_type;
 } bvm_cache;
 
 typedef bvm_cache *(*babel_op)(bvm_cache *);
 
 mword*      nil;
 
+//bvm_cache *interp_init(int argc, char **argv);
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 void init_interp_jump_table(bvm_cache *this_bvm);
 
@@ -79,7 +70,7 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 
 #define ROOT_INTERP_THREAD 0
 
-#define NUM_INTERP_OPCODES 523
+#define NUM_INTERP_OPCODES 525
 
 #define WINDOWS
 //#define STAR_NIX

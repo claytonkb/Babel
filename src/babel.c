@@ -19,11 +19,15 @@
 //
 int main(int argc, char **argv){
 
+//    char * pPath;
+//    pPath = getenv ("PATH");
+//    if (pPath!=NULL)
+//      printf ("The current path is: %s",pPath);
+//    die;
+
     bvm_cache root_bvm;
 
-    interp_init(&root_bvm, argc, argv);
-
-    bvm_interp(&root_bvm);
+    bvm_interp( interp_init(&root_bvm, argc, argv) );
 
 //    printf("%s\n",_bs2gv(root_bvm.stack_ptr));
 
@@ -35,10 +39,12 @@ int main(int argc, char **argv){
 
 }
 
+
 //interp_init()
 //  Initializes the root Babel Virtual Machine (BVM)
 //
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
+//bvm_cache *interp_init(int argc, char **argv){
 
     #include "rt.pb.c"
 
@@ -49,6 +55,8 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
     time( &rawtime );    
     strcpy( time_string, ctime(&rawtime) );
     mword *time_string_key = _c2b(time_string, 30);
+
+//    bvm_cache root_bvm;
 
     // FIXME: strcpy and strlen... get rid
     // This needs to be enhanced to look in the hidden section for a 
@@ -65,17 +73,12 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
     nil               = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
     nil               = _newref(nil);
 
-    //initialize root_bvm
-    root_bvm->hidden        = nil;
-    root_bvm->sym_table     = nil;
-    root_bvm->code_ptr      = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
-    root_bvm->stack_ptr     = nil;
-    root_bvm->ustack_ptr    = nil;
-    root_bvm->rstack_ptr    = nil;
-    root_bvm->jump_table    = nil;
-    root_bvm->thread_id     = ROOT_INTERP_THREAD;
-    root_bvm->steps         = (mword)-1;
-    root_bvm->advance_type  = BVM_ADVANCE;
+    root_bvm->self = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
+
+    load_bvm_cache(root_bvm);
+
+    //Override TID
+    car(root_bvm->thread_id)     = ROOT_INTERP_THREAD;
 
     init_interp_jump_table(root_bvm);
 
@@ -99,6 +102,8 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
                 = _c2b(argv[i], 100);
         }
     }
+
+    return root_bvm;
 
     //TODO
     //- Check stdin
@@ -144,7 +149,7 @@ void init_interp_jump_table(bvm_cache *this_bvm){
 
     #define num_opcodes (sizeof(interp_fixed_opcodes)/sizeof(babel_op))
 
-    this_bvm->jump_table = _newin(num_opcodes);
+    this_bvm->jump_table = _newlf(num_opcodes);
 
     int i;
     for(i=0;i<num_opcodes;i++){

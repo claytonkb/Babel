@@ -11,7 +11,7 @@
 //
 bvm_cache *carindex(bvm_cache *this_bvm){
     
-    mword *car_TOS_0 = (mword*)car(TOS_0(this_bvm));
+    mword *car_TOS_0 = (mword*)scar((mword*)TOS_0(this_bvm));
 
     zap(this_bvm);
     push_alloc(this_bvm, car_TOS_0, IMMORTAL); //FIXME: Depends
@@ -23,7 +23,7 @@ bvm_cache *carindex(bvm_cache *this_bvm){
 //
 bvm_cache *cdrindex(bvm_cache *this_bvm){
 
-    mword *cdr_TOS_0 = (mword*)cdr(TOS_0(this_bvm));
+    mword *cdr_TOS_0 = (mword*)scdr((mword*)TOS_0(this_bvm));
 
     zap(this_bvm);
     push_alloc(this_bvm, cdr_TOS_0, IMMORTAL); // FIXME: Depends

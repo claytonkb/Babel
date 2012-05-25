@@ -43,11 +43,15 @@ while($#ARGV>-1){
 
                     clean           ( \@asm_file );
 my $sections =      get_sections    ( \@asm_file );
+
                     section_parse   ( $sections->{$_}) for (keys %{$sections});
 
-                    assemble        ( $sections, $sections->{'main'} );
-#print Dumper($sections);
-                    linkit          ( $sections, 'main', $obj_out, 0 );
+#                    assemble        ( $sections, $sections->{'main'} );
+#                    linkit          ( $sections, 'main', $obj_out, 0 );
+
+                    assemble        ( $sections, $sections->{'root'} );
+                    linkit          ( $sections, 'root', $obj_out, 0 );
+
                     send_obj        ( $proj_name, $obj_out, $sections);
 
 #print Dumper($sections);
@@ -107,7 +111,11 @@ sub linkit{
     my $curr_ptr = shift;
 #    my $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
     my $end_ptr;
-   
+
+#    if(! defined $sections->{$curr_section}{bin}[0]){
+#        print "$curr_section\n";
+#    }
+
     if($sections->{$curr_section}{bin}[0] != 0){
         $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
     }
@@ -403,6 +411,44 @@ sub get_sections{
     my $sections;
     my $current_section;
     my $match;
+
+    #Create root section
+    $sections->{'root'}{src} = [];
+    $sections->{'root'}{ptr} = 0;
+    $sections->{'root'}{asmd} = 0;
+    $sections->{'root'}{bin_ptr} = undef;
+    $sections->{'root'}{bin} = [];
+#    push @{$sections->{'nil'}{src}}, "[nil nil]";
+                                              #stack ustack rstack jump  sym  TID       argv  steps   advance
+    push @{$sections->{'root'}{src}}, "[ main nil    nil    nil    nil   nil  thread_id nil   steps   advance_type ]";
+
+    $sections->{'thread_id'}{src} = [];
+    $sections->{'thread_id'}{ptr} = 0;
+    $sections->{'thread_id'}{asmd} = 0;
+    $sections->{'thread_id'}{bin_ptr} = undef;
+    $sections->{'thread_id'}{bin} = [];
+#    push @{$sections->{'nil'}{src}}, "[nil nil]";
+                                              #stack ustack rstack jump  sym  TID argv steps advance
+    push @{$sections->{'thread_id'}{src}}, "{0}";
+
+    $sections->{'steps'}{src} = [];
+    $sections->{'steps'}{ptr} = 0;
+    $sections->{'steps'}{asmd} = 0;
+    $sections->{'steps'}{bin_ptr} = undef;
+    $sections->{'steps'}{bin} = [];
+#    push @{$sections->{'nil'}{src}}, "[nil nil]";
+                                              #stack ustack rstack jump  sym  TID argv steps advance
+    push @{$sections->{'steps'}{src}}, "{-1}";
+
+    $sections->{'advance_type'}{src} = [];
+    $sections->{'advance_type'}{ptr} = 0;
+    $sections->{'advance_type'}{asmd} = 0;
+    $sections->{'advance_type'}{bin_ptr} = undef;
+    $sections->{'advance_type'}{bin} = [];
+#    push @{$sections->{'nil'}{src}}, "[nil nil]";
+                                              #stack ustack rstack jump  sym  TID argv steps advance
+    push @{$sections->{'advance_type'}{src}}, "{0}";
+    
 
     # Create nil for use by lists
     $sections->{'nil'}{src} = [];

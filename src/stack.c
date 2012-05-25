@@ -103,9 +103,9 @@ bvm_cache *zap(bvm_cache *this_bvm){
 
 //    zap_switch(car(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr))))
 
-    if( lifetime == MORTAL ){
-        _del(STACK_ENTRY_VAL((mword*)car(this_bvm->stack_ptr)));
-    }
+//    if( lifetime == MORTAL ){
+//        _del(STACK_ENTRY_VAL((mword*)car(this_bvm->stack_ptr)));
+//    }
 
 //    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr)));
 //    bfree(car(this_bvm->stack_ptr));
@@ -188,29 +188,29 @@ bvm_cache *sel(bvm_cache *this_bvm){
 //
 bvm_cache *dup(bvm_cache *this_bvm){
 
-    mword *result;
+    mword *result = (mword*)TOS_0(this_bvm);
 
-    if(is_leaf((mword*)TOS_0(this_bvm))){
-        result = _newlf(size((mword*)TOS_0(this_bvm)));
-    }
-    else if(is_inte((mword*)TOS_0(this_bvm))){
-        result = _newin(size((mword*)TOS_0(this_bvm)));
-    }
-    else{
+//    if(is_leaf((mword*)TOS_0(this_bvm))){
+//        result = _newlf(size((mword*)TOS_0(this_bvm)));
+//    }
+//    else if(is_inte((mword*)TOS_0(this_bvm))){
 //        result = _newin(size((mword*)TOS_0(this_bvm)));
-        result = _newref((mword*)TOS_0(this_bvm));
-    }    
-
-    //TODO: memcpy!
-    mword i;
-    for(    i=0;
-            i<size((mword*)TOS_0(this_bvm));
-            i++
-        ){
-
-        c(result,i) = c((mword*)TOS_0(this_bvm),i);
-
-    }    
+//    }
+//    else{
+////        result = _newin(size((mword*)TOS_0(this_bvm)));
+//        result = _newref((mword*)TOS_0(this_bvm));
+//    }    
+//
+//    //TODO: memcpy!
+//    mword i;
+//    for(    i=0;
+//            i<size((mword*)TOS_0(this_bvm));
+//            i++
+//        ){
+//
+//        c(result,i) = c((mword*)TOS_0(this_bvm),i);
+//
+//    }    
 
     push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
 

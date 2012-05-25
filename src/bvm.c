@@ -284,7 +284,9 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
     bvm_cache *discard;
     babel_op op_ptr;
 
-    while(this_bvm->steps--){//FIXME: This is not correct long-term
+//    while( 1 ){//FIXME: This is not correct long-term   car(this_bvm->steps) --
+
+    while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
 
         if(is_nil((mword*)scar(this_bvm->code_ptr))){
             if(!is_nil(this_bvm->rstack_ptr)){
@@ -304,8 +306,10 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
         }
         else if( is_leaf(car(this_bvm->code_ptr)) ){
 //            opcode_switch(car(car(this_bvm->code_ptr)));
-//            d(car(car(this_bvm->code_ptr)))
             mword opcode = car(car(this_bvm->code_ptr));
+
+//            d(car(car(this_bvm->code_ptr)))
+
             op_ptr = (babel_op)this_bvm->jump_table[ opcode % NUM_INTERP_OPCODES ];
             discard = op_ptr(this_bvm);
         }
@@ -318,14 +322,21 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
             die;
         }
 
-        if(this_bvm->advance_type == BVM_ADVANCE){
+        if(car(this_bvm->advance_type) == BVM_ADVANCE){
             this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
         }
+        if(car(this_bvm->advance_type) == BVM_RETURN){
+            break;
+        }
         else{
-            this_bvm->advance_type = BVM_ADVANCE;
+            car(this_bvm->advance_type) = BVM_ADVANCE;
         }
 
+        car(this_bvm->steps)--;
+
     }
+
+    flush_bvm_cache(this_bvm);
 
     return this_bvm;
 
@@ -336,24 +347,45 @@ bvm_cache *babelop(bvm_cache *this_bvm){
 
     bvm_cache new_bvm;
 
+    new_bvm.self = (mword*)TOS_0(this_bvm);
+    hard_zap(this_bvm);
+
+    load_bvm_cache(&new_bvm);
+
+    new_bvm.jump_table     = this_bvm->jump_table;
+
+    mword *temp = new_atom;
+    *temp = car(this_bvm->thread_id) + 1;
+
+    new_bvm.thread_id      = temp;
+
+    new_bvm.argv           = this_bvm->argv; //FIXME: shift off 0th argv
+
     //initialize bvm
-    new_bvm.hidden        = nil;
-    new_bvm.sym_table     = nil;
-    new_bvm.code_ptr      = (mword*)TOS_0(this_bvm);
-    new_bvm.stack_ptr     = nil; //FIXME allow stack to be init'd
-    new_bvm.ustack_ptr    = nil; //FIXME allow ustack to be init'd
-    new_bvm.rstack_ptr    = nil;
-    new_bvm.jump_table    = this_bvm->jump_table;
-    new_bvm.thread_id     = this_bvm->thread_id+1;
-    new_bvm.steps         = (mword)-1;
-    new_bvm.advance_type  = BVM_ADVANCE;
-    new_bvm.argv          = this_bvm->argv; //FIXME: shift off 0th argv
+//    new_bvm.hidden        = nil;
+//    new_bvm.code_ptr      = (mword*)TOS_0(this_bvm);
+//    new_bvm.stack_ptr     = nil; //FIXME allow stack to be init'd
+//    new_bvm.ustack_ptr    = nil; //FIXME allow ustack to be init'd
+//    new_bvm.rstack_ptr    = nil;
+//    new_bvm.sym_table     = nil;
+//    new_bvm.steps         = (mword)-1;
+//    new_bvm.advance_type  = BVM_ADVANCE;
 
     //FIXME: pearson_init and argv
 
-    hard_zap(this_bvm);
+//    push_alloc(&new_bvm, (mword*)TOS_0(this_bvm), IMMORTAL);
+//    hard_zap(this_bvm);
+
+    flush_bvm_cache(this_bvm);
+    flush_bvm_cache(&new_bvm);
 
     bvm_interp(&new_bvm);
+
+    flush_bvm_cache(&new_bvm);
+    load_bvm_cache(this_bvm); // Technically, this is not necessary
+                                // but it doesn't hurt
+
+//    push_alloc(this_bvm, (mword*)TOS_0(new_bvm), IMMORTAL);
 
 //    mword *temp = new_atom;
 //    *temp = (mword)-1;
@@ -405,6 +437,20 @@ bvm_cache *bvmustack(bvm_cache *this_bvm){
 }
 
 //
+bvm_cache *self(bvm_cache *this_bvm){
+
+    flush_bvm_cache(this_bvm);
+
+//    mword *result = _bs2gv(this_bvm->self);
+//    push_alloc(this_bvm, result, IMMORTAL);
+
+    push_alloc(this_bvm, this_bvm->self, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+//
 bvm_cache *rsvd(bvm_cache *this_bvm){
 
     d(car(car(this_bvm->code_ptr)))
@@ -432,6 +478,46 @@ bvm_cache *boilerplate(bvm_cache *this_bvm){
     BABEL_VERSION, __DATE__, __TIME__);
 
     push_alloc( this_bvm, C2B(msg), MORTAL );
+
+}
+
+//
+bvm_cache *load_bvm_cache(bvm_cache *this_bvm){
+
+    mword *self = this_bvm->self;
+
+    this_bvm->code_ptr      = (mword*)c(self,0);
+    this_bvm->stack_ptr     = (mword*)c(self,1);
+    this_bvm->ustack_ptr    = (mword*)c(self,2);
+    this_bvm->rstack_ptr    = (mword*)c(self,3);
+    this_bvm->jump_table    = (mword*)c(self,4);
+    this_bvm->sym_table     = (mword*)c(self,5);
+    this_bvm->thread_id     = (mword*)c(self,6);
+    this_bvm->argv          = (mword*)c(self,7);
+    this_bvm->steps         = (mword*)c(self,8);
+    this_bvm->advance_type  = (mword*)c(self,9);
+
+    return this_bvm;
+
+}
+
+//
+bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){
+
+    mword *self = this_bvm->self;
+
+    (mword*)c(self,0) = this_bvm->code_ptr;
+    (mword*)c(self,1) = this_bvm->stack_ptr;
+    (mword*)c(self,2) = this_bvm->ustack_ptr;
+    (mword*)c(self,3) = this_bvm->rstack_ptr;
+    (mword*)c(self,4) = this_bvm->jump_table;
+    (mword*)c(self,5) = this_bvm->sym_table;
+    (mword*)c(self,6) = this_bvm->thread_id;
+    (mword*)c(self,7) = this_bvm->argv;
+    (mword*)c(self,8) = this_bvm->steps;
+    (mword*)c(self,9) = this_bvm->advance_type;
+
+    return this_bvm;
 
 }
 

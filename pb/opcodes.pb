@@ -206,8 +206,8 @@ cferror:    {0x0d8}
 
 fnord:          {0x100}
 bvmroot:        {0x101}
-self:           {0x101}
-root:           {0x101}
+--self:           {0x101}
+--root:           {0x101} DEPRECATED
 bvmexec:        {0x102}
 babel:          {0x102}
 bvmkill:        {0x103}
@@ -450,4 +450,6 @@ boilerplate:    {0x207}
 paste8:         {0x208}
 iter:           {0x209}
 unnest:         {0x20a}
+conjure:        {0x20b}
+self:           {0x20c}
 

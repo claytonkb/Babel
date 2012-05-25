@@ -291,10 +291,10 @@ bvm_cache *unload(bvm_cache *this_bvm){
 // a binary tree to store the address translations.
 mword *_unload(mword *bs){//, mword offset){
 
-    mword bs_size =  _mu(bs);
-    mword num_arrays = _nin(bs);
-    num_arrays += _nlf(bs);
-    num_arrays += _nhref(bs);
+    mword bs_size     = _mu   (bs);
+    mword num_arrays  = _nin  (bs);
+          num_arrays += _nlf  (bs);
+          num_arrays += _nhref(bs);
 
     mword *dest      = _newlf(bs_size); // Error: returns wrong size due to hash-refs
     mword *LUT_abs   = _newin(num_arrays);

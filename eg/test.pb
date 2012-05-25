@@ -1,9 +1,81 @@
-main: ( `((1 2) (3 4 5) (6)) lsmax ! %d << )
+-- main: ( `"Hello, world\n" << )
+
+--main: ( `1 rand dup disp ! 
+--        `1 rand dup disp ! 
+--        cuadd       disp ! )
+--
+--disp: (( %d cr << ))
+
+-- main: ( `5 `"eg/foo.pb.bbl" slurp load babel fnord )
+
+-- main: ( `(1 2 3) $ cr << )
+
+--main: ( `10 fac ! %d cr << )
+--
+--fac: (( `1 <-> rfac ! ))
+--
+--rfac: 
+--    (( dup one? !
+--        `(  dup `1 - 
+--            <- cumul ->
+--            rfac ! )
+--        `( zap )
+--    if ))
+--
+--one?: (( `1 = ))
+
+-- main: ( `(nil) nil? $ cr << )
+
+--main: ( `((1 2) (3 4 5) (6))
+--        cdrall ! 
+--        cdrall ! 
+--        cdrall ! 
+--        cdrall ! 
+--        allnil? !  
+--        $ cr << )
+
+--main: ( `((1 2) (3 4 5) (6)) transpose ! sdd ! )
+--
+--allnil?:
+--    (( `1 <->
+--    `( car nil? 
+--        `( zap `0 last )
+--        `( nil )
+--    if) ... ))
+--
+--cdrall: 
+--    (( nest 
+--        `( cdr ) ...
+--        collect !
+--    unnest ))
+--
+--transpose:
+--    (( nest 
+--    dup
+--        `( nest 
+--            `( car cp 
+--            <-> zap  ) ... 
+--            collect !
+--        unnest 
+--        <-> cdrall !
+--        dup $ << )
+--        `( dup allnil? !  not )
+--    while
+--    sdd !
+--    collect !
+--    unnest ))
+
+--allnil?:
+--    { 1 <->
+--    { car nil? 
+--        { zap 0 last }
+--        { nil }
+--    if} ... }
 
 lsmax: 
     (( nest
         `( ## ) ... 
-        collect ! reverse
+        collect !
     unnest
     greatest ! ))
 
@@ -42,9 +114,9 @@ greatest:
 
 -- main: ( `1 `2 `3 stkrev ! sdd ! )
 
-stkrev: (( collect ! give ))
+-- stkrev: (( collect ! give ))
 
-collect: ((  `-1 take reverse ))
+collect: (( `-1 take ))
 
 -- main: ( `1 `nil `3 `( down ) `2 times sdd ! )
 
@@ -305,7 +377,7 @@ full?:  (( ustack nil? ))
 -- main: ( fnord `x goto )
 -- x: ( fnord )
 
--- main: ( `( fnord  `( `( fnord ) ! fnord ) ! ) ! fnord )
+main: ( `( fnord  `( `( fnord ) ! fnord ) ! ) ! fnord )
 
 -- main: ( `{7 8} `{1 2 3 4 5} `4 paste $ cr << )
 

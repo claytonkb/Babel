@@ -686,6 +686,8 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     paste8,
     iter,
     unnest,
+    conjure,
+    self,
 
 };
 

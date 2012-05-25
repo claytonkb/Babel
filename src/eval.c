@@ -21,7 +21,7 @@ bvm_cache *eval(bvm_cache *this_bvm){
 
     this_bvm->code_ptr = body;
 
-    this_bvm->advance_type = BVM_CONTINUE;
+    car(this_bvm->advance_type) = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -57,7 +57,7 @@ bvm_cache *gotoop(bvm_cache *this_bvm){
 
     hard_zap(this_bvm);
 
-    this_bvm->advance_type = BVM_CONTINUE;
+    car(this_bvm->advance_type) = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -80,13 +80,33 @@ bvm_cache *loop(bvm_cache *this_bvm){
 
     push_alloc_rstack(this_bvm, temp, LOOP);
 
-    this_bvm->advance_type = BVM_CONTINUE;
+    car(this_bvm->advance_type) = BVM_CONTINUE;
 
     this_bvm->code_ptr = body;
 
     return this_bvm;
 
 }
+
+
+// TOS-0 body
+// TOS-1 lexical variable list
+bvm_cache *let(bvm_cache *this_bvm){
+
+    // get length of lex var list
+    // allocate rstack block big enough to fit
+    // copy current contents of the lex variables 
+    //   to the rstack block
+    // eval the body
+
+    // last/next
+    //   restore prior contents of the lex variables from the rstack
+    //   pop rstack
+
+    return this_bvm;
+
+}
+
 
 //
 bvm_cache *last(bvm_cache *this_bvm){ 
@@ -164,7 +184,7 @@ bvm_cache *last(bvm_cache *this_bvm){
         die;
     }
 
-    this_bvm->advance_type = BVM_CONTINUE;
+    car(this_bvm->advance_type) = BVM_CONTINUE;
 
 }
 
@@ -325,7 +345,7 @@ bvm_cache *times(bvm_cache *this_bvm){
 
         push_alloc_rstack(this_bvm, temp, TIMES);
 
-        this_bvm->advance_type = BVM_CONTINUE;
+        car(this_bvm->advance_type) = BVM_CONTINUE;
 
         this_bvm->code_ptr = body;
     
@@ -402,7 +422,7 @@ bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 
     push_alloc_rstack(this_bvm, temp, WHILEOP);
 
-    this_bvm->advance_type = BVM_CONTINUE;
+    car(this_bvm->advance_type) = BVM_CONTINUE;
 
     this_bvm->code_ptr = cond_block;
     
@@ -431,7 +451,7 @@ bvm_cache *each(bvm_cache *this_bvm){
          
     push_alloc_rstack(this_bvm, temp, EACH);
 
-    this_bvm->advance_type = BVM_CONTINUE;
+    car(this_bvm->advance_type) = BVM_CONTINUE;
 
     this_bvm->code_ptr = body;
 
@@ -477,7 +497,7 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
     push_alloc_rstack(this_bvm, temp, EACHAR);
 
-    this_bvm->advance_type = BVM_CONTINUE;
+    car(this_bvm->advance_type) = BVM_CONTINUE;
 
     this_bvm->code_ptr = body;
 
@@ -495,6 +515,16 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
 }
 
+//
+bvm_cache *conjure(bvm_cache *this_bvm){
+
+    this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
+
+    car(this_bvm->advance_type) = BVM_RETURN;
+
+    return this_bvm;
+
+}
 
 //void eachar(void){
 //

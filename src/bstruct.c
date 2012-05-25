@@ -194,6 +194,7 @@ mword rbs2gv(mword *bs, char *buffer){
 
     int i;
     mword buf_size=0;
+    int clipped=0;
 
     if( TRAVERSED(bs) ){
         return 0;
@@ -235,12 +236,23 @@ mword rbs2gv(mword *bs, char *buffer){
 
     }
     else{ // is_leaf
+        if(num_entries > 8){
+            num_entries=8;
+            clipped=1;
+        }
+        else{
+            clipped=0;
+        }
         buf_size += sprintf(buffer+buf_size, "s%08x [style=bold,shape=record,label=\"", (mword)bs);
         for(i=0; i<num_entries; i++){
             buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(bs+i));
             if(i<(num_entries-1)){
                 buf_size += sprintf(buffer+buf_size, "|");
             }
+        }
+        if(clipped){
+            buf_size += sprintf(buffer+buf_size, "|");
+            buf_size += sprintf(buffer+buf_size, "<f%d> ...", i);
         }
         buf_size += sprintf(buffer+buf_size, "\"];\n");
     }
@@ -270,10 +282,29 @@ bvm_cache *paste(bvm_cache *this_bvm){
 // TOS_1 src
 bvm_cache *set(bvm_cache *this_bvm){
 
-    _wrcxr((mword*)TOS_0(this_bvm),(mword*)TOS_1(this_bvm),0);
+//    _wrcxr((mword*)TOS_0(this_bvm),(mword*)TOS_1(this_bvm),0);
 
-    zap(this_bvm); //FIXME: The type of zap depends on leaf/inte?
-    zap(this_bvm);
+    mword *src  = (mword*)TOS_1(this_bvm);
+    mword *dest = (mword*)TOS_0(this_bvm);
+
+//    if(         (is_leaf(src) && is_leaf(dest)) 
+//            ||  (is_inte(src) && is_inte(dest))){ //FIXME perf
+//        c(dest,0) = c(src,0);
+//    }
+    if(is_leaf(src) && is_leaf(dest)){
+        c(dest,0) = c(src,0);
+    }
+    else if(is_inte(src) && is_inte(dest)){
+//        c(dest,0) = c(src,0);
+        (mword*)c(dest,0) = src;
+//        dest = (mword*)c(src,0);
+    }
+    else{
+        error("Can't write to hash-ref or non-matching arrays");
+    }
+
+    hard_zap(this_bvm); //FIXME: The type of zap depends on leaf/inte?
+    hard_zap(this_bvm);
 
     return this_bvm;
 
@@ -292,8 +323,8 @@ void _wrcxr(mword *dest, mword *src, mword offset){
     mword src_size = size(src);
     mword iter = (src_size < dest_size) ? src_size : dest_size; //FIXME macro
 
-    if(         (is_leaf(dest) && is_leaf(dest)) 
-            ||  (is_inte(dest) && is_inte(dest))){ //FIXME perf
+    if(         (is_leaf(src) && is_leaf(dest)) 
+            ||  (is_inte(src) && is_inte(dest))){ //FIXME perf
         int i;
         for(i=0;i<iter;i++){
             *(dest+i+offset) = c(src,i);
