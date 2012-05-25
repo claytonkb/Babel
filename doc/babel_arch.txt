@@ -4,6 +4,52 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- backtracking: -----
+
+http://www.akira.ruc.dk/~keld/research/CBACK/CBack-1.0/DOC/CBACK_PAPER.pdf
+
+From Wiki:
+
+    Pseudocode
+
+    In order to apply backtracking to a specific class of problems, one 
+    must provide the data P for the particular instance of the problem 
+    that is to be solved, and six procedural parameters, root, reject, 
+    accept, first, next, and output. These procedures should take the 
+    instance data P as a parameter and should do the following:
+
+        root(P): return the partial candidate at the root of the search tree.
+        reject(P,c): return true only if the partial candidate c is not worth completing.
+        accept(P,c): return true if c is a solution of P, and false otherwise.
+        first(P,c): generate the first extension of candidate c.
+        next(P,s): generate the next alternative extension of a candidate, after the extension s.
+        output(P,c): use the solution c of P, as appropriate to the application.
+
+    The backtracking algorithm reduces then to the call bt(root(P)), where bt is the following recursive procedure:
+
+     procedure bt(c)
+       if reject(P,c) then return
+       if accept(P,c) then output(P,c)
+           s <- first(P,c)
+       while s != lambda do
+         bt(s)
+         s <- next(P,s)
+
+Also consider best-first search.
+
+alt is the DFS operator
+
+    (save_restore_list) ( a b c ) alt
+
+CBack uses the term "merit" for BFS. Consider:
+
+        (save_restore_list) 
+        ( (merit_a a) (merit_b b) (merit_c c) ) 
+    altm --> m for merit
+
+Merit could just be a literal number to act as a "biasing" mechanism but 
+it could also be a variable (more like a Markov tree).
+
 ----- memory-management discipline -----
 
 - Rstack variables
