@@ -452,4 +452,6 @@ iter:           {0x209}
 unnest:         {0x20a}
 conjure:        {0x20b}
 self:           {0x20c}
+-=:             {0x20d}
+ducp:           {0x20e}
 

@@ -685,9 +685,11 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     boilerplate,
     paste8,
     iter,
-    unnest,
+    rsvd,//unnest
     conjure,
     self,
+    cisub_assign,
+    ducp,
 
 };
 

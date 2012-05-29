@@ -4,6 +4,38 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- memory management redux -----
+
+How memory comes to be:
+
+1. Initial object load
+2. Copy from code object onto stack (ducp)
+3. User-initiated copy (cp)
+4. User-created memory (new*)
+    -> new* always returns a HASH-REF
+    -> ref-counted
+5. Lexical memory (let)
+
+let -> automatic variables (lexical or symbolic)
+new -> symbolic variables (user doesn't get pointer), ref-counted
+
+context -> declares a stack context, does not nest
+nest -> also declares a stack context; nests
+
+sweep -> mark-and-sweep performed at end-of-context
+
+keep -> promotes memory in current context to next higher context
+
+Dealing with duplicates:
+
+    - Duplication is controlled through the use of REFERENCES (pref)
+    - let creates references
+    - references are purely conventional
+    - When a reference is freed, it is replaced with nil
+
+    MEMORY THAT CAN BE AUTO-FREED MUST BE POINTED AT FROM ONLY ONE PLACE
+    ALL OTHERS MUST BE REFERENCES OR MANUALLY MEMORY MANAGED
+
 ----- backtracking: -----
 
 http://www.akira.ruc.dk/~keld/research/CBACK/CBack-1.0/DOC/CBACK_PAPER.pdf
@@ -50,24 +82,12 @@ CBack uses the term "merit" for BFS. Consider:
 Merit could just be a literal number to act as a "biasing" mechanism but 
 it could also be a variable (more like a Markov tree).
 
------ memory-management discipline -----
-
-- Rstack variables
-
-    Desire: Freed upon end-of-scope. 
-
-- Symbolic
-
-    Ref-count/immortality (manual heap)
-
-Alternatives: Alloc/free list attached to each context; Scope GUIDs.
-
 ----- macro-substitution -----
 
 We can use hash-references to implement a kind of substitution that can
 be used to implement Lisp-style macros (among other things):
 
-foo: { x& 2 + } -- adds 2 to x&
+foo: { x& 2 += } -- adds 2 to x&
 
 If executed, foo would dynamically fetch x from the symbol table. But 
 what if we just want to substitute the value as a constant?
@@ -253,12 +273,6 @@ x: "Hello, world"
 main: { x << }
 
 ----- BPDL -----
-
-- "code list" syntax
-
-
-
-    - code 
 
 - in-place expansion
 

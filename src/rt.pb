@@ -29,7 +29,7 @@ main:
 ----            `1 <-> set
 --            set_steps !
 --            babel )
---        `( dup `0 th )
+--        `( (1) ) -- dup `0 th )
 --    while )
 
 x: [ nil ]

@@ -27,6 +27,44 @@ bvm_cache *eval(bvm_cache *this_bvm){
 
 }
 
+//FIXME: Busted, need to handle empty stack
+bvm_cache *nest(bvm_cache *this_bvm){
+
+    mword *body = (mword*)TOS_0(this_bvm);
+    hard_zap(this_bvm);
+
+    mword *new_stack = (mword*)TOS_0(this_bvm);
+    hard_zap(this_bvm);
+//    push_alloc_rstack(this_bvm, (mword*)this_bvm->stack_ptr, NEST);
+
+//    clear(this_bvm);
+
+    mword *save_stack = this_bvm->stack_ptr;
+    this_bvm->stack_ptr = nil; // clear the stack
+
+//    rgive(this_bvm, new_stack);
+
+    push_alloc(this_bvm, new_stack, IMMORTAL);
+//    push_alloc(this_bvm, body, IMMORTAL);
+
+    mword *temp = _newin(NEST_RSTACK_ENTRIES);
+
+    (mword*)c(temp,NEST_RSTACK_BODY)   = body;
+            c(temp,NEST_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
+    (mword*)c(temp,NEST_RSTACK_STACK)  = save_stack;
+
+    push_alloc_rstack(this_bvm, temp, NEST);
+
+    this_bvm->code_ptr = body;
+
+    car(this_bvm->advance_type) = BVM_CONTINUE;
+
+    return this_bvm;    
+
+}
+
+
+
 // [x] (a) (b) if  
 // is_false(x)  --> (a) eval
 // !is_false(x) --> (b) eval
@@ -203,6 +241,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 
     mword *rstack_entry;
     mword *result;
+    mword *temp;
 
     //FIXME: Handle empty rstack
 
@@ -307,9 +346,21 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
         }
 
     }
-    else if(return_type(this_bvm->rstack_ptr) == NEST){
-        error("next: found NEST while trying to execute NEXT");
-        die;
+    else if(return_type(this_bvm->rstack_ptr) == NEST){ //FIXME: Busted - need to handle empty stack
+
+        rstack_entry = (mword*)RTOS_0(this_bvm);
+
+        this_bvm->code_ptr = (mword*)rstack_entry[NEST_RSTACK_RETURN];
+        pop_rstack(this_bvm);
+
+        temp = (mword*)TOS_0(this_bvm);
+
+        this_bvm->stack_ptr = (mword*)rstack_entry[NEST_RSTACK_STACK];
+        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
+
+//        error("next: found NEST while trying to execute NEXT");
+//        die;
+
     }
     else{
         error("next: unknown return_type");

@@ -15,8 +15,8 @@ bvm_cache *take         (bvm_cache *this_bvm);
 bvm_cache *zap          (bvm_cache *this_bvm);
 bvm_cache *down         (bvm_cache *this_bvm);
 bvm_cache *up           (bvm_cache *this_bvm);
-bvm_cache *nest         (bvm_cache *this_bvm);
-bvm_cache *unnest       (bvm_cache *this_bvm);
+//bvm_cache *nest         (bvm_cache *this_bvm);
+//bvm_cache *unnest       (bvm_cache *this_bvm);
 bvm_cache *flip         (bvm_cache *this_bvm);
 
 

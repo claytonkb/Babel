@@ -50,6 +50,7 @@ void _wrcxr (mword *dest, mword *src, mword offset);
 void _wrcxr8(mword *dest, mword *src, mword offset);
 
 bvm_cache *cp(bvm_cache *this_bvm);
+bvm_cache *ducp(bvm_cache *this_bvm);
 
 //void cp(void);
 //void span(void);

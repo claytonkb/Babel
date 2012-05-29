@@ -19,6 +19,7 @@ bvm_cache *cidiv(bvm_cache *this_bvm);
 bvm_cache *cirem(bvm_cache *this_bvm);
 
 bvm_cache *ciadd_assign(bvm_cache *this_bvm);
+bvm_cache *cisub_assign(bvm_cache *this_bvm);
 
 #endif //ARITH_H
 

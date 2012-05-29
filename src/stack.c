@@ -16,6 +16,7 @@
 #include "alloc.h"
 #include "bvm_stack.h"
 #include "ref.h"
+#include "eval.h"
 
 //
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
@@ -113,7 +114,7 @@ bvm_cache *zap(bvm_cache *this_bvm){
 
     free_stack_entry(this_bvm);
 
-    this_bvm->stack_ptr = temp_stack_ptr;
+    this_bvm->stack_ptr = temp_stack_ptr;    
 
     return this_bvm;
 
@@ -409,59 +410,59 @@ bvm_cache *clear(bvm_cache *this_bvm){
 
 }
 
+////
+//bvm_cache *nest(bvm_cache *this_bvm){
 //
-bvm_cache *nest(bvm_cache *this_bvm){
-
-    mword *new_stack = (mword*)TOS_0(this_bvm);
-
-    hard_zap(this_bvm);
-    push_alloc_rstack(this_bvm, (mword*)this_bvm->stack_ptr, NEST);
-
-//    clear(this_bvm);
-
-    this_bvm->stack_ptr = nil; // clear the stack
-
-//    rgive(this_bvm, new_stack);
-
-    push_alloc(this_bvm, new_stack, IMMORTAL);
-
-    return this_bvm;
-
-}
-
+//    mword *new_stack = (mword*)TOS_0(this_bvm);
 //
-bvm_cache *unnest(bvm_cache *this_bvm){
+//    hard_zap(this_bvm);
+//    push_alloc_rstack(this_bvm, (mword*)this_bvm->stack_ptr, NEST);
+//
+////    clear(this_bvm);
+//
+//    this_bvm->stack_ptr = nil; // clear the stack
+//
+////    rgive(this_bvm, new_stack);
+//
+//    push_alloc(this_bvm, new_stack, IMMORTAL);
+//
+//    return this_bvm;
+//
+//}
 
-    mword *temp;
-
+////
+//bvm_cache *unnest(bvm_cache *this_bvm){
+//
+//    mword *temp;
+//
+////    if(return_type(this_bvm->rstack_ptr) == NEST){
+////        push_alloc(this_bvm,(mword*)car(pop_ustack(this_bvm)),IMMORTAL); //FIXME: Revisit
+////    }
 //    if(return_type(this_bvm->rstack_ptr) == NEST){
-//        push_alloc(this_bvm,(mword*)car(pop_ustack(this_bvm)),IMMORTAL); //FIXME: Revisit
-//    }
-    if(return_type(this_bvm->rstack_ptr) == NEST){
-//        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
-
-        // XXX fairly yucky code:
-//        temp = new_atom;
-//        *temp = (mword)-1;
+////        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
 //
+//        // XXX fairly yucky code:
+////        temp = new_atom;
+////        *temp = (mword)-1;
+////
+////        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
+////
+////        take(this_bvm);
+//
+//        temp = (mword*)TOS_0(this_bvm);
+//
+//        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
 //        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
 //
-//        take(this_bvm);
-
-        temp = (mword*)TOS_0(this_bvm);
-
-        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
-        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
-
-    }
-    else{
-        error("unnest: There was an error\n");
-        die;
-    }
-
-    return this_bvm;
-    
-}
+//    }
+//    else{
+//        error("unnest: There was an error\n");
+//        die;
+//    }
+//
+//    return this_bvm;
+//    
+//}
 
 //
 bvm_cache *flip(bvm_cache *this_bvm){

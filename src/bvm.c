@@ -285,7 +285,6 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
     babel_op op_ptr;
 
 //    while( 1 ){//FIXME: This is not correct long-term   car(this_bvm->steps) --
-
     while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
 
         if(is_nil((mword*)scar(this_bvm->code_ptr))){
@@ -325,7 +324,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
         if(car(this_bvm->advance_type) == BVM_ADVANCE){
             this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
         }
-        if(car(this_bvm->advance_type) == BVM_RETURN){
+        else if(car(this_bvm->advance_type) == BVM_RETURN){
             break;
         }
         else{

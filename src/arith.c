@@ -291,5 +291,30 @@ bvm_cache *ciadd_assign(bvm_cache *this_bvm){
 
 }
 
+//
+bvm_cache *cisub_assign(bvm_cache *this_bvm){
+
+    REQUIRE_LEAF_LEAF(this_bvm);
+
+    (int)car(TOS_0(this_bvm)) = (int)car(TOS_0(this_bvm)) - (int)car(TOS_1(this_bvm));
+
+//    // Detect underflow/overflow
+//    if( ((int)*result <  0) && ((int)car(TOS_0(this_bvm)) > 0) && ((int)car(TOS_1(this_bvm)) > 0) ){
+//        error("ciadd: overflow");
+//    }
+//    if( ((int)*result >= 0) && ((int)car(TOS_0(this_bvm)) < 0) && ((int)car(TOS_1(this_bvm)) < 0) ){
+//        error("ciadd: underflow");
+//    }
+
+    // FIXME Overflow error
+
+    zap(this_bvm);
+    zap(this_bvm);
+
+    return this_bvm;
+
+}
+
+
 // Clayton Bauman 2011
 

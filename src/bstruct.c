@@ -730,6 +730,21 @@ bvm_cache *cp(bvm_cache *this_bvm){
 }
 
 //
+bvm_cache *ducp(bvm_cache *this_bvm){
+
+    mword *temp = (mword*)TOS_0(this_bvm);
+
+    zap(this_bvm);
+
+    mword *result = _unload(temp);
+
+    push_alloc(this_bvm, result, MORTAL);
+
+    load(this_bvm);
+
+}
+
+//
 bvm_cache *span(bvm_cache *this_bvm){
 
     mword *result = _bs2ar((mword*)TOS_0(this_bvm));

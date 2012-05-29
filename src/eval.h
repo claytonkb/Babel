@@ -18,9 +18,15 @@ bvm_cache *eachar(bvm_cache *this_bvm);
 bvm_cache *iter(bvm_cache *this_bvm);
 bvm_cache *last(bvm_cache *this_bvm);
 bvm_cache *conjure(bvm_cache *this_bvm);
+bvm_cache *nest(bvm_cache *this_bvm);
 
 #define EVAL_RSTACK_ENTRIES  1
 #define EVAL_RSTACK_RETURN   0
+
+#define NEST_RSTACK_ENTRIES 3
+#define NEST_RSTACK_RETURN  0
+#define NEST_RSTACK_BODY    1
+#define NEST_RSTACK_STACK   2
 
 #define LOOP_RSTACK_ENTRIES 3
 #define LOOP_RSTACK_RETURN  0

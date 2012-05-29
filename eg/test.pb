@@ -1,4 +1,4 @@
--- main: ( `"Hello, world\n" << )
+main: ( `4 `3 `( fnord ) nest fnord )
 
 --main: ( `1 rand dup disp ! 
 --        `1 rand dup disp ! 
@@ -377,7 +377,7 @@ full?:  (( ustack nil? ))
 -- main: ( fnord `x goto )
 -- x: ( fnord )
 
-main: ( `( fnord  `( `( fnord ) ! fnord ) ! ) ! fnord )
+-- main: ( `( fnord  `( `( fnord ) ! fnord ) ! ) ! fnord )
 
 -- main: ( `{7 8} `{1 2 3 4 5} `4 paste $ cr << )
 
