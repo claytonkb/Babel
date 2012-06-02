@@ -1,5 +1,5 @@
-If you are looking for an overview of Babel, see the "Overview" section
-below.
+If you are looking for an overview of Babel, see the "Babel Overview" 
+section below.
 
 ----- Compiling Babel
 
@@ -34,7 +34,7 @@ Then:
 
     bin/babel.exe my_proto_babel_program.pb.bbl
 
------ Installing Graphviz on windows
+----- Installing Graphviz on Windows
 
 If you want to use the dump (Babel-to-Graphviz) operator to provide 
 visualization of the Babel data-structure, you will need to install 
@@ -58,21 +58,34 @@ Babel program.
 
 ----- Babel Overview
 
-Babel is an interpreter. For now, I am using a Perl script (proto_babel.pl)
-as the front-end assembler/compiler for the interpreter. The full front-end 
-is not yet developed. It will be called "Babel Program Description Language" 
-(BPDL pronounced "bipedal").
+Babel is an interpreted language.  It is an untyped, stack-based, postfix 
+language with support for arrays, lists and hashes (dictionaries). Babel 
+1.0 will support built-in crypto-based verification of code in order to 
+enable safer remote code execution.
 
-Babel v0.10 is the very first baby release of the Babel interpreter. It has
-support for basic C integer arithmetic operations, flow-control, I/O, 
-branching and a selection of Babel-specific operators.
+For now, I am using a Perl script (proto_babel.pl) as the front-end 
+assembler/compiler for the interpreter. Babel v0.9 (planned for December 
+2012) will be able to parse itself and will no longer need the Perl 
+wrapper. The UTF-8 input language will be called Babel Program Description 
+Language (or Bipedal).
 
-Babel is extremely raw. There is very little operand checking, exceptions
-are always fatal IF an exception check is even performed. Basically, 
-don't make mistakes unless you want things to blow up.
+Babel is still very raw. There is very little operand checking and no
+exceptions are raised though some basic error conditions will be reported.
+Basically, don't make mistakes unless you want things to blow up.
 
-The proto_babel.pl script is the front-end that does the dirty work of
-generating native Babel programs.
+Like any other postfix language, operands come first, then operators:
+
+2 3 + 4 *
+
+Result: 20
+
+"Hello, " "world" . <<
+
+I plan to add an uninfix operator as a standard library call so people can 
+use infix notation if they believe this will make their code more 
+comprehensible:
+
+((2 + 3) * 4) uninfix eval
 
 ----- Proto-Babel
 
@@ -83,9 +96,15 @@ is main. From there, the script just grabs each section as-needed while
 building the .bbl file. You can include multiple .pb files on the command-
 line and they will all be flattened into a single file by the script.
 
+In Bipedal, you will be able to arbitrarily nest labeled sections but in
+proto-Babel you are limited to a flat namespace structure. Each label must
+be left-edge aligned and end with a colon with no spaces:
+
+this_is_a_label: "Don't label me!"
+
 Line comments are specified by double-dash
 
--- This is a comment
+    -- This is a comment
 
 The curly-braces {} define an array of values - also called a "leaf array":
 
@@ -100,18 +119,23 @@ A value is either a number or text and nothing else:
 If you want to define a leaf-array containing a single number or single 
 string, you can dispense with the curly-braces:
 
-    18     <-- legal
-    "foo"  <-- legal
+    foo: 21     <-- legal
+    bar: "baz"  <-- legal
 
-The square-brackets define an array of pointers - also called an "interior 
-array". A pointer can be to an array of values or to another array of 
-pointers and nothing else.
+The square-brackets define an array of pointers - also called an "interior-
+array". A pointer can be to any of:
+
+    - an interior array (even the self-same array)
+    - a leaf array
+    - a hash-reference
+
+Interior-array syntax:
 
     [0]
 
     [{0}]
 
-    Nested interior arrays:
+Nested interior-arrays:
 
     [[apples][oranges][bananas]]
 
@@ -133,28 +157,8 @@ but it's really a pointer. Hence, labels cannot be used inside leaf arrays:
 
     {the_number_two} <--- illegal!
 
-This is what you really mean:
-
-    {*the_number_two}
-
-The addition of an asterisk before the section-name converts the label to
-an "in-place expansion". Think of this as "remove the outermost brackets
-and insert here."
-
-This:
-
-    {1 *the_number_two 3 4 5}
-
-and this:
-
-    {1 2 3 4 5}
-
-... are synonymous.
-
-You can use in-place expansion for interior arrays, as well.
-
-Lists are created with parentheses. A list in Babel means a linked-list in the
-Lisp-sense. The following are equivalent:
+Lists are created with parentheses. A list in Babel means a linked-list in 
+the Lisp-sense. The following are equivalent:
 
     (1 2 3)
     [1 [2 [3 nil]]]
@@ -168,9 +172,10 @@ In Babel, data in the code-stream is differentiated from code by being
     [42] [23] +             -- A
     (42) (23) +             -- B
     [42 nil] [23 nil] +     -- C
+    [42 nil] [23 nil] 0x38  -- D
 
-A, B and C all produce the same result when executed but note that A and B 
-do not generate exactly the same byte-code but B and C do.
+A-D all produce the same result when executed but note that A and B do not 
+generate exactly the same byte-code but B, C and D do.
 
 Often, the need arises in Babel to "wrap" an item in multiple parentheses. 
 These parentheses are visually redundant (but necessary for semantic 
@@ -191,13 +196,53 @@ alternative:
     `"Hello, world"
     ("Hello, world")
 
+For example, to add two numbers:
+
+    main: ( (2) (2) + )
+    main: ( `2 `2 + )
+
+Hashes and hash-references:
+
+To hash something using the built-in hash function, use the %% operator:
+
+    `"nil" %% --> { 0x3023f4e7 0x8c2f644d 0x71cf647b 0xe974b23a }
+
+But a hash is still just a bunch of bytes. In order to create a 
+hash-reference, you can either use the newref operator:
+
+    `"nil" %% newref
+
+... or you can simply use the syntactic convention to tell proto_babel.pl
+to generate the hash-reference at compile-time:
+
+    nil&
+
+And, in fact, this is precisely how nil is internally defined in 
+proto_babel.pl:
+
+    nil: nil&
+
+Every time you use nil in a .pb file, you are just getting a pointer to 
+this hash-reference. You can still create your very own hash-reference
+at any time:
+
+    `[1 [2 [3 nil&]]] ## %d cr <<   ---> prints 3
+
+You can use your hashes to insert things into a hash-table or look things 
+up in a hash-table. Automatic look-up in the symbol-table by hash-reference
+is not yet implemented.
+
 Every Babel operator is just a number defined in the pb/opcodes.pb file. To
 successfully compile code with the proto_babel.pl script, you will need
 to pass in the opcodes.pb file on the command-line along with the .pb file
-you are trying to assemble.
+you are trying to assemble. The babel Perl script does this for you 
+automatically.
 
 You can use the .pb.lst file that is generated to see the literal layout 
 of the bytes in the program.
+
+Also, you can browse the examples in the eg/ directory of the repository to
+get a better feel for proto-Babel syntax.
 
 ----- Built-in functions, naming conventions and mnemonics
 

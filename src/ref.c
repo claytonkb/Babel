@@ -9,6 +9,7 @@
 #include "stack.h"
 #include "bvm.h"
 #include "list.h"
+#include "array.h"
 
 //void newref(void){
 //
@@ -38,16 +39,17 @@ mword *_newref(mword *hash){
 
 }
 
-//void ishref(void){
-//
-//    mword *result    = new_atom();
-//    
-//    *result = is_href((mword*)TOS_0);
-//
-//    zap();
-//    push_alloc(result, ISHREF);
-//
-//}
+bvm_cache *ishref(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+    
+    *result = is_href((mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+
+    push_alloc(this_bvm, result, IMMORTAL);
+
+}
 
 // Clayton Bauman 2012
 

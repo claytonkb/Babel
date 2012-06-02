@@ -646,7 +646,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     andop,
     orop,
     notop,
-    rsvd, //    ishref,
+    ishref, //    ishref,
     each, //    each,
     rsvd, //    newref,
     span,

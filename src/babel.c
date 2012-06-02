@@ -67,11 +67,14 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
     time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
     init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
-    //initialize nil
+    //initialize nil (global constant)
     mword *hash_init  = new_hash();
     mword *nil_string = C2B("nil");
     nil               = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
     nil               = _newref(nil);
+
+    //initialize empty_string (global constant)
+    empty_string = _newlfz(1);
 
     root_bvm->self = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
 

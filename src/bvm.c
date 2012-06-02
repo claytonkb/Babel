@@ -360,21 +360,6 @@ bvm_cache *babelop(bvm_cache *this_bvm){
 
     new_bvm.argv           = this_bvm->argv; //FIXME: shift off 0th argv
 
-    //initialize bvm
-//    new_bvm.hidden        = nil;
-//    new_bvm.code_ptr      = (mword*)TOS_0(this_bvm);
-//    new_bvm.stack_ptr     = nil; //FIXME allow stack to be init'd
-//    new_bvm.ustack_ptr    = nil; //FIXME allow ustack to be init'd
-//    new_bvm.rstack_ptr    = nil;
-//    new_bvm.sym_table     = nil;
-//    new_bvm.steps         = (mword)-1;
-//    new_bvm.advance_type  = BVM_ADVANCE;
-
-    //FIXME: pearson_init and argv
-
-//    push_alloc(&new_bvm, (mword*)TOS_0(this_bvm), IMMORTAL);
-//    hard_zap(this_bvm);
-
     flush_bvm_cache(this_bvm);
     flush_bvm_cache(&new_bvm);
 
@@ -383,21 +368,6 @@ bvm_cache *babelop(bvm_cache *this_bvm){
     flush_bvm_cache(&new_bvm);
     load_bvm_cache(this_bvm); // Technically, this is not necessary
                                 // but it doesn't hurt
-
-//    push_alloc(this_bvm, (mword*)TOS_0(new_bvm), IMMORTAL);
-
-//    mword *temp = new_atom;
-//    *temp = (mword)-1;
-//
-//    push_alloc(&new_bvm,temp,IMMORTAL); //FIXME: Revisit
-//
-//    take(&new_bvm);
-//
-//    bvm_cache *bvm_temp = &new_bvm;
-//    temp = (mword*)TOS_0(bvm_temp);
-//
-////    this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
-//    push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
 
     //FIXME - push stack of new_bvm onto this_bvm when bvm_interp returns
     //push_alloc(this_bvm, new_bvm.stack_ptr, BVMEXEC);

@@ -5,6 +5,8 @@
 #define REF_H
 
 mword *_newref(mword *hash);
+bvm_cache *ishref(bvm_cache *this_bvm);
+
 //void newref(void);
 //void ishref(void);
 //

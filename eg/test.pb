@@ -1,4 +1,205 @@
-main: ( `4 `3 `( fnord ) nest fnord )
+main: 
+    ( randlf !
+    `( rand_bstruct ! ) 
+    `100 times 
+    collect !
+    bons
+    sdd ! )
+
+rand_bstruct:
+    (( `1 rand `4 %
+    dup `1 > 
+        `( `0 > 
+            `( randlf ! )
+            `( randinte ! ) 
+        if ) 
+        `( `2 > 
+            `( span dup # <- `1 rand -> % th ) 
+            `( cp ) 
+        if ) 
+    if )) 
+
+randlf: (( `1 rand `10 % `1 + rand ))
+
+randinte: 
+    (( depth `1 - dup
+    `1 >
+        `( zap )
+        `( <- `1 rand -> % `1 + take bons)
+    if ))
+
+--main: 
+--    ( `0xbabeface `test0& set 
+--    `0xdeadbeef `test1& set 
+--    `0xfadedcab `test2& set 
+--    self dump << )
+
+--main: 
+--        ( `((0 0) 
+--        (0 1)
+--        (0 2)
+--        (0 3)
+--        (0 4)
+--        (1 0)
+--        (1 1)
+--        (1 2)
+--        (1 3)
+--        (1 4)
+--        (2 0)
+--        (2 1)
+--        (2 2)
+--        (2 3)
+--        (3 0)
+--        (3 1)
+--        (3 2)
+--        (4 0) ) 
+--    `( dup
+--        `"A(" << `( %d `" " . << ) ... `") = " <<
+--        reverse
+--        give ack ! %d cr << ) ... )
+
+ack: 
+    (( dup zero? !
+        `( <-> dup zero? !
+            `( <-> 
+                cp
+                `1 -
+                <- <- `1 - ->
+                ack ! -> 
+                ack ! )
+            `( <->
+                `1 - 
+                <- `1 -> 
+                ack ! )
+        if )
+        `( zap `1 + )
+    if ))
+
+-- main: ( self dump << die test& )
+
+sum: (( <- `0 -> `( + ) eachar ))
+product: (( <- `1 -> `( cumul ) eachar ))
+
+sp: (( dup 
+    sum ! %d cr <<
+    product ! %d cr << ))
+
+-- main: ( `[1 [2 [3 nil&]]] ## %d cr << )
+
+-- main: ( `"nil" %% $ cr << )
+
+-- main: ( `(1 2 3) sum ! %d << )
+--
+--sum: (( `0 <-> `( + ) ... ))
+
+grab: (( argv `1 th ))
+
+--main: 
+--    ( argv `1 th $d
+--    fib ! 
+--    %d cr << )
+
+fib: 
+    (( dup zero? !
+        `( dup one? ! 
+            `( cp <- `2 - fib ! -> `1 - fib ! + )
+            `( zap (1) )
+        if )
+        `( zap (1) )
+    if ))
+
+
+zero?: (( `0 = ))
+
+one?: (( `1 = ))
+
+
+--main: 
+--    ( 
+--
+----    `(( dup ) 
+----    ( ("a") ("b") ("c") ("d") ("e") ))
+----    cartesian ! 
+----
+----    `( == )
+----    `2 take
+----
+----    cartesian !
+----
+----    `( ( `1 %d << ) 
+----        ( `2 %d << )
+----        ( `3 %d << )
+----        ( `4 %d << )
+----        ( `5 %d << ))
+----
+----    `2 take
+----
+----    transpose !
+--
+--    `( ( x `"a" == )
+--    ( x `"b" == ) 
+--    ( x `"c" == ) 
+--    ( x `"d" == ) 
+--    ( x `"e" == ) )
+--
+--    `( ( `1 %d << ) 
+--        ( `2 %d << )
+--        ( `3 %d << )
+--        ( `4 %d << )
+--        ( `5 %d << ) )
+--
+--    `2 take
+--
+--    transpose !
+--
+--    cond !
+--
+--    sdd ! )
+
+x: ("d")
+
+-- main: ( `(1 2 3) `(1 2 3) == $ cr << )
+
+--main: 
+--    ( `( ( ("a" "b") ("c" "d") )
+--         ( ("e" "f") ("g" "h") ) )
+--    cartesian !
+----    $ cr << )
+--    sdd ! )
+
+cartesian: 
+    (( `( dup 
+        <- cdr car -> 
+        car 
+        `( <- cp -> 
+        <-> 
+            `( <- cp ->
+            `2 take
+            <-
+            ) ...
+            zap
+        ) ...
+        zap 
+            `( -> )
+            `( full? ! not )
+        while
+        collect ! )
+    nest ))
+
+enlist: (( `( `( `nil cons ) ... collect ! ) nest ))
+
+-- main: ( `( ( ``0 ( `"one\n" << ) ) ( ``1 ( `"two" << ) )  ) cond ! )
+
+cond: 
+    (( `( dup
+    <- cdr ->
+    car ! sdd !
+        `( nil )
+        `( car ! last )
+    if
+    ) ... ))
+
+-- main: ( `( fnord ) eval fnord fnord die )
 
 --main: ( `1 rand dup disp ! 
 --        `1 rand dup disp ! 
@@ -10,17 +211,18 @@ main: ( `4 `3 `( fnord ) nest fnord )
 
 -- main: ( `(1 2 3) $ cr << )
 
---main: ( `10 fac ! %d cr << )
---
---fac: (( `1 <-> rfac ! ))
---
---rfac: 
---    (( dup one? !
---        `(  dup `1 - 
---            <- cumul ->
---            rfac ! )
---        `( zap )
---    if ))
+-- main: ( grab ! $d fac ! %d cr << )
+
+fac: 
+    (( dup zero? !
+        `( dup one? !
+            `(  cp `1 - 
+                fac ! 
+                cumul )
+            `( zap (1) )
+        if )
+        `( zap (1) )
+    if ))
 --
 --one?: (( `1 = ))
 
@@ -34,36 +236,43 @@ main: ( `4 `3 `( fnord ) nest fnord )
 --        allnil? !  
 --        $ cr << )
 
---main: ( `((1 2) (3 4 5) (6)) transpose ! sdd ! )
---
---allnil?:
---    (( `1 <->
---    `( car nil? 
---        `( zap `0 last )
---        `( nil )
---    if) ... ))
---
---cdrall: 
---    (( nest 
---        `( cdr ) ...
---        collect !
---    unnest ))
---
---transpose:
---    (( nest 
---    dup
---        `( nest 
---            `( car cp 
---            <-> zap  ) ... 
---            collect !
---        unnest 
---        <-> cdrall !
---        dup $ << )
---        `( dup allnil? !  not )
---    while
---    sdd !
---    collect !
---    unnest ))
+--main: 
+--    ( `((1 2 3 4) (5 6 7 8) (9 10 11 12)) 
+--    cp 
+--    transpose ! transpose ! 
+--    unload <- unload ->
+--    == not
+--    $ cr << )
+
+allnil?:
+    (( `1 <->
+    `( car nil? 
+        `( zap `0 last )
+        `( nil )
+    if) ... ))
+
+cdrall: 
+    (( `( `( cdr ) ...
+        collect ! )
+    nest ))
+
+transpose:
+        (( `( `( dup
+            all_cars   !     
+            <-> cdrall ! )
+            `( dup allnil? !  not )
+        while 
+        zap
+        collect ! ) 
+    nest ))
+
+all_cars: 
+    (( `( `( car cp 
+        <-> zap  ) ... 
+        collect ! )
+    nest ))
+
+collect: (( `-1 take ))
 
 --allnil?:
 --    { 1 <->
@@ -73,10 +282,10 @@ main: ( `4 `3 `( fnord ) nest fnord )
 --    if} ... }
 
 lsmax: 
-    (( nest
+    (( `(
         `( ## ) ... 
-        collect !
-    unnest
+        collect ! )
+    nest
     greatest ! ))
 
 --main: 
@@ -116,14 +325,12 @@ greatest:
 
 -- stkrev: (( collect ! give ))
 
-collect: (( `-1 take ))
-
 -- main: ( `1 `nil `3 `( down ) `2 times sdd ! )
 
 -- main: ( `(1 nil 3 nil nil nil nil 4 5 nil 6) nonil ! sdd ! )
 
 nonil:
-        (( nest 
+        (( `( 
         give
                     `( dup nil?
                     `( down )
@@ -137,9 +344,9 @@ nonil:
         while 
 
         collect !
-        reverse
+        reverse )
 
-        unnest ))
+        nest ))
 
 --main: 
 --        (`(1 2 3 4 5) 

@@ -4,6 +4,10 @@
 -- unhandled exceptions and as a debug console. This is just a stub for
 -- now
 
+--            `"> " <<
+--            >> $d
+--            set_steps ! )
+
 main:
     ( argv `0 th
     slurp load
@@ -12,25 +16,32 @@ main:
 
     babel )
 
-----    dup `x set
+-- Note: you have to insert a die at the end-of-code in order to use 
+-- the debugger. Also note that it is puking on the show opcode
+-- for some reason
+
+--        `(  dup dup dup dup
+--            `0 th car dup lf? -- $ cr <<
+--                `( car $ `"TOS: " <-> 
+--                    . << `" (push)\n" <<
+--                    step ! )
+--                `(  `" op: " <<
+--                    dup
+--                    `opcode_map <-> th
+--                    cr << 
+--                        `0x1e0 =
+--                        `( step ! )
+--                        `( `"===>\n" << step ! `"\n<===\n" << )
+--                    if
+--                    `"TOS: " << 
+--                    `1 th car car $ cr << )
+--            if )
 --
---        `( --`"step\n" <<
---            dup dup
 --
---            `"next op: " <<
---            dup `0 th car dup lf? -- $ cr <<
---                `( zap `"push\n" << )
---                `( `opcode_map <-> th cr << )
---            if
---
-----            `8 th
---                `"> " <<
---                >> $d
-----            `1 <-> set
---            set_steps !
---            babel )
---        `( (1) ) -- dup `0 th )
+--        `( (1) )
 --    while )
+
+step: (( `1 set_steps ! babel ))
 
 x: [ nil ]
 
@@ -209,7 +220,7 @@ opcode_map:
 
 -- 0x19x
 -- 0             1             2             3             4             5             6             7
-   "$"           "rsvd"        "rsvd"        "rsvd"        "rsvd"        "$x"          "$d"          "rsvd"        
+   "show"        "rsvd"        "rsvd"        "rsvd"        "rsvd"        "hex2cu"      "dec2ci"      "rsvd"        
 -- 8             9             a             b             c             d             e             f
    "uncons"      "cdr"         "pop"         "zap"         "rsvd"        "rsvd"        "<->"         "?"
 

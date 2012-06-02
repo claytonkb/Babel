@@ -9,6 +9,7 @@
 #include "bvm_opcodes.h"
 #include "except.h"
 #include "bvm.h"
+#include "load.h"
 
 //
 bvm_cache *sfield(bvm_cache *this_bvm){
@@ -723,7 +724,20 @@ bvm_cache *arcmp(bvm_cache *this_bvm){
 
     mword *result    = new_atom;
 
-    *result = (mword)_arcmp((mword*)TOS_1(this_bvm), (mword*)TOS_0(this_bvm));
+    mword *left  = (mword*)TOS_1(this_bvm);
+    mword *right = (mword*)TOS_0(this_bvm);
+
+    if(is_leaf(left) && is_leaf(right)){
+        *result = (mword)_arcmp(left, right);
+    }
+    else if(is_inte(left) && is_inte(right)){
+        mword *unloaded_left  = _unload(left);
+        mword *unloaded_right = _unload(right);
+        *result = (mword)_arcmp(unloaded_left, unloaded_right);
+    }
+    else{
+        error("Non-matching operands");
+    }
 
     zap(this_bvm);
     zap(this_bvm);

@@ -21,6 +21,8 @@
 
 mword *new_hash_entry(mword *hash, mword *key, mword *val, mword ref_count, mword bounding);
 
+mword *_insha(mword *hash_table, mword *hash, mword *val);
+
 bvm_cache *inskha(bvm_cache *this_bvm);
 mword *_inskha(mword *hash_table, mword *key, mword *val);
 void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level);

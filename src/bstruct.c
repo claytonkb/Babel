@@ -11,6 +11,7 @@
 #include "list.h"
 #include "except.h"
 #include "io.h"
+#include "hash.h"
 
 // recursively cleans a bstruct after traversal
 void rclean(mword *bs){
@@ -34,7 +35,7 @@ void rclean(mword *bs){
 
 }
 
-// FIXME: Doesn't handle hash-refs
+//
 bvm_cache *bbl2str(bvm_cache *this_bvm){
 
     // Figure out buffer size
@@ -157,8 +158,8 @@ bvm_cache *bs2gv(bvm_cache *this_bvm){
 mword *_bs2gv(mword *bs){
 
     // Figure out buffer size
-    // Safety buffer of 2kb + (32 * _mu) XXX: WHY 32??
-    mword initial_buf_size = (1<<11) + (32 * _mu(bs));
+    // Safety buffer of 2kb + (32 * _mu) XXX: WHY 100?? Ran into problems on this before!!
+    mword initial_buf_size = (1<<11) + (100 * _mu(bs));
 
     char *buffer = malloc(initial_buf_size); //FIXME: malloc
     mword buf_size=0;
@@ -298,6 +299,9 @@ bvm_cache *set(bvm_cache *this_bvm){
 //        c(dest,0) = c(src,0);
         (mword*)c(dest,0) = src;
 //        dest = (mword*)c(src,0);
+    }
+    else if(is_href(dest)){
+        this_bvm->sym_table = _insha(this_bvm->sym_table, dest, src);
     }
     else{
         error("Can't write to hash-ref or non-matching arrays");

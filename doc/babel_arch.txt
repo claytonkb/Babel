@@ -4,6 +4,54 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- Hash-refs -----
+
+Do it!
+
+----- Test structures -----
+
+Many Babel operators exactly undo each other. E.g.:
+
+    unload load
+OR
+    dup # <- `1 rand -> % cut cat
+    `( dup zap ) `1 rand 1000000 % times
+
+We can implement a limited form of randomized testing by nesting such 
+operators and sprinkling in random bstructs:
+
+x A A' ---> check for x
+x { A A' } eval ---> check for x
+x A B B' A' ---> check for x
+x A B B' C C' A' ---> check for x
+x A y B B' A' ---> check for x y
+etc.
+
+A random test-harness will turn up lots of corner-case bugs and greatly 
+increase confidence in Babel's overall health and robustness.
+
+----- Lisp macros -> Babel constant-folding -----
+
+Consider:
+
+(defmacro sq (x)
+    '(* ,x ,x))
+
+Everywhere 'sq' is seen in Lisp code, a substitution is performed at compile-time.
+
+In Babel, we handle this through constant-folding:
+
+sq!: { dup * }
+
+main: { 3 sq }
+
+In this case, main will compile down to 9
+
+In Babel, there is no clear distinction between a function and a macro.
+
+However, we still do need an intelligent way to "return a function"... currently,
+this requires a lot of manual coding.
+
 ----- memory management redux -----
 
 How memory comes to be:

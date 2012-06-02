@@ -34,7 +34,8 @@ typedef struct {
 
 typedef bvm_cache *(*babel_op)(bvm_cache *);
 
-mword*      nil;
+mword *nil;
+mword *empty_string;
 
 //bvm_cache *interp_init(int argc, char **argv);
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
@@ -154,6 +155,7 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 #define warn(x) fprintf(stderr, "WARNING: %s at %s line %d\n", x, __FILE__, __LINE__);
 #define error(x) fprintf(stderr, "ERROR: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__);
 #define trace fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);
+#define fatal(x) fprintf(stderr, "ERROR: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); die;
 
 #endif //BABEL_H
 

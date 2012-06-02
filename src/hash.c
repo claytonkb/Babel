@@ -43,6 +43,32 @@ mword *new_hash_entry(mword *hash, mword *key, mword *val, mword ref_count, mwor
 
 }
 
+//
+mword *_insha(mword *hash_table, mword *hash, mword *val){
+
+    mword *result;
+    mword *temp;
+    mword cons_side;
+
+//    mword *hash = _hash8(key);
+    mword *key = empty_string;
+
+    if(is_nil(hash_table)){
+        cons_side = _cxr1(hash,0);
+        temp = new_hash_entry(hash, key, val, (mword)-1, 0);
+        result = new_cons;
+        c(result,cons_side) = (mword)temp;
+//printf("%s",_bs2gv(temp));
+    }
+    else{
+        _rinskha(hash_table, hash, key, val, 0);
+        result = hash_table;
+    }
+
+    return result;
+
+}
+
 // inskha - insert with key into hash
 bvm_cache *inskha(bvm_cache *this_bvm){
 

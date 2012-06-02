@@ -8,7 +8,7 @@ main:
         `( argv `1 th $d )
         `( (5) )
     if
-    `x set
+    x set
           `( consonant
             `1 rand `20 %
             th
@@ -17,8 +17,8 @@ main:
             `1 rand `6 %
             th
         <<)
-    `x times
-    `"\n" <<)
+    x times
+    `"\n" << die )
 
 x: [0]
 
