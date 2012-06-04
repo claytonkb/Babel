@@ -444,6 +444,7 @@ perm:           {0x200}
 stack:          {0x202}
 code:           {0x203}
 if:             {0x204}
+ifte:           {0x204}
 ustack:         {0x205}
 reverse:        {0x206}
 boilerplate:    {0x207}

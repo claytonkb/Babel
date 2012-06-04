@@ -1,32 +1,44 @@
-main: 
-    ( randlf !
-    `( rand_bstruct ! ) 
-    `100 times 
-    collect !
-    bons
-    sdd ! )
+main: ( `0xbabe 
+        `( `"C\n" << (0) ) 
+        `( `"A\n" << ) 
+        `( `"B\n" << ) 
+        ifte fnord )
 
-rand_bstruct:
-    (( `1 rand `4 %
-    dup `1 > 
-        `( `0 > 
-            `( randlf ! )
-            `( randinte ! ) 
-        if ) 
-        `( `2 > 
-            `( span dup # <- `1 rand -> % th ) 
-            `( cp ) 
-        if ) 
-    if )) 
+-- main: ( `[1 2 3 4] dup dup # rand perm sdd ! )
 
-randlf: (( `1 rand `10 % `1 + rand ))
-
-randinte: 
-    (( depth `1 - dup
-    `1 >
-        `( zap )
-        `( <- `1 rand -> % `1 + take bons)
-    if ))
+--main: 
+--    ( randlf !
+--    `( rand_bstruct ! ) 
+--    `200 times 
+--    collect !
+--    bons
+--    sdd ! )
+--
+--rand_bstruct:
+--    (( `1 rand `7 %
+--    
+--    dup `5 > 
+--    `( dup `4 > 
+--        `( dup `3 > 
+--            `( dup `2 > 
+--                `( dup `1 > 
+--                    `( `0 > 
+--                        `( <- swap -> )
+--                        `( dup # rand perm ) if ) 
+--                    `( zap dup # <- `1 rand -> % cut ) if ) 
+--                `( zap cp ) if ) 
+--            `( zap dup ) if ) 
+--        `( zap randinte ! ) if )
+--    `( zap randlf ! ) if ))
+--
+--randlf: (( `1 rand `10 % `1 + rand ))
+--
+--randinte: 
+--    (( depth `1 - dup
+--    `1 >
+--        `( zap )
+--        `( <- `1 rand -> % `1 + take bons )
+--    if ))
 
 --main: 
 --    ( `0xbabeface `test0& set 

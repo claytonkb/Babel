@@ -838,7 +838,7 @@ void _perm(mword *src, mword *dest, mword *perm_matrix){
 
     int i;
     for(i=0; i<array_size; i++){
-        c((mword*)dest,i) = c((mword*)src,c((mword*)perm_matrix,i));
+        c((mword*)dest,i) = c((mword*)src, c((mword*)perm_matrix,i) % array_size );
     }
 
 }

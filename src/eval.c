@@ -63,8 +63,6 @@ bvm_cache *nest(bvm_cache *this_bvm){
 
 }
 
-
-
 // [x] (a) (b) if  
 // is_false(x)  --> (a) eval
 // !is_false(x) --> (b) eval
@@ -81,7 +79,33 @@ bvm_cache *ifop(bvm_cache *this_bvm){
 //        zap(swap(this_bvm));
 //    }
 
-    sel(this_bvm);
+    mword *else_clause = (mword *)TOS_0(this_bvm);
+//    hard_zap(this_bvm);
+//
+    mword *then_clause = (mword *)TOS_0(this_bvm);
+//    hard_zap(this_bvm);
+
+//    mword *cond = (mword *)TOS_0(this_bvm);
+//    hard_zap(this_bvm);
+
+//    down(this_bvm);    
+//    dup(this_bvm);
+//    up(this_bvm);    
+
+    eval(this_bvm);
+die
+    mword *result = (mword *)TOS_0(this_bvm);
+    hard_zap(this_bvm);
+
+    if(is_false(result)){
+        trace
+        push_alloc(this_bvm, else_clause, IMMORTAL);
+    }
+    else{
+        trace
+        push_alloc(this_bvm, then_clause, IMMORTAL);
+    }
+
     eval(this_bvm);
 
     return this_bvm;

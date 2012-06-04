@@ -8,6 +8,47 @@ during the development process.
 
 Do it!
 
+----- if/ifte/cond/sel -----
+
+current if is totally confusing
+
+We almost invariably dup the TOS in the conditional
+
+"if" Propose:
+
+    Encapsulate the conditional (ala while)
+    Eliminate the "then"
+
+    { 0 > } { "greater than zero!" << } if
+     ^
+     | 
+     dup is inserted and performed automatically - if this is a problem
+    it can always be zap'd
+
+"ifte" Propose:
+
+    { 0 > } 
+    { "greater than zero!" << } 
+    { "not greater than zero!" << } 
+    ifte
+
+"cond" Propose:
+
+    { { 3 > } { "greater than three!" }
+    { 2 > } { "greater than two!" }
+    { 1 > } { "greater than one!" } 
+    { "greater than something!" } } --> Note the default condition
+    cond
+
+Note: auto-dup'ing included in ifte and cond
+
+sel:
+
+    Do we need it? With if+up/down we can emulate sel without the 
+    confusion about what is being selected
+
+    Propose: eliminate it
+
 ----- Test structures -----
 
 Many Babel operators exactly undo each other. E.g.:
