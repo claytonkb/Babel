@@ -19,6 +19,7 @@ bvm_cache *up           (bvm_cache *this_bvm);
 //bvm_cache *unnest       (bvm_cache *this_bvm);
 bvm_cache *flip         (bvm_cache *this_bvm);
 
+mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry);
 
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type);
 void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type);

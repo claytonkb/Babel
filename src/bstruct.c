@@ -285,26 +285,22 @@ bvm_cache *set(bvm_cache *this_bvm){
 
 //    _wrcxr((mword*)TOS_0(this_bvm),(mword*)TOS_1(this_bvm),0);
 
-    mword *src  = (mword*)TOS_1(this_bvm);
-    mword *dest = (mword*)TOS_0(this_bvm);
+    mword *src  = get_from_stack( this_bvm, (mword*)TOS_0(this_bvm));
+    mword *dest = (mword*)TOS_1(this_bvm);
 
-//    if(         (is_leaf(src) && is_leaf(dest)) 
-//            ||  (is_inte(src) && is_inte(dest))){ //FIXME perf
-//        c(dest,0) = c(src,0);
-//    }
-    if(is_leaf(src) && is_leaf(dest)){
-        c(dest,0) = c(src,0);
-    }
-    else if(is_inte(src) && is_inte(dest)){
-//        c(dest,0) = c(src,0);
-        (mword*)c(dest,0) = src;
-//        dest = (mword*)c(src,0);
-    }
-    else if(is_href(dest)){
-        this_bvm->sym_table = _insha(this_bvm->sym_table, dest, src);
+    if( is_href(dest)
+        && !_exha(this_bvm->sym_table, dest) ){
+            this_bvm->sym_table = _insha(this_bvm->sym_table, dest, src);
     }
     else{
-        error("Can't write to hash-ref or non-matching arrays");
+
+        if(is_leaf(src) && is_leaf(dest)){
+            c(dest,0) = c(src,0);
+        }
+        else if(is_inte(src) && is_inte(dest)){
+            (mword*)c(dest,0) = src;
+        }
+
     }
 
     hard_zap(this_bvm); //FIXME: The type of zap depends on leaf/inte?
@@ -667,13 +663,69 @@ mword _rnva(mword *bs){
             count += _rnva((mword *)*(bs+i));
         }
     }
-    else{ // is_leaf
+    else if(is_leaf(bs)){
         count = num_elem;
     }
 
     return count;
 
 }
+
+
+//
+bvm_cache *nhword(bvm_cache *this_bvm){
+
+    mword *result    = new_atom;
+
+    *result = _nhword((mword*)TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+//
+mword _nhword(mword *bs) {
+
+    mword size = _rnhword(bs);
+    rclean(bs);
+
+    return size;
+
+}
+
+// 
+mword _rnhword(mword *bs){
+
+    int i;
+    mword count = 0;
+
+    if( TRAVERSED(bs) ){
+        return 0;
+    }
+
+    if(is_inte(bs)){
+        int num_elem = size(bs);
+        MARK_TRAVERSED(bs);
+        for(i=0; i<num_elem; i++){
+            count += _rnhword((mword *)*(bs+i));
+        }
+    }
+    else if(is_href(bs)){
+        count = size(bs);
+        MARK_TRAVERSED(bs);
+    }
+    else if(is_leaf(bs)){
+        MARK_TRAVERSED(bs);
+        count = 0;
+    }
+
+    return count;
+
+}
+
 
 //
 bvm_cache *npt(bvm_cache *this_bvm){
@@ -726,8 +778,9 @@ mword _rnpt(mword *bs){
 bvm_cache *cp(bvm_cache *this_bvm){
 
     mword *result = _unload((mword*)TOS_0(this_bvm));
+    hard_zap(this_bvm);
 
-    push_alloc(this_bvm, result, MORTAL);
+    push_alloc(this_bvm, result, IMMORTAL);
 
     load(this_bvm);
 
@@ -804,6 +857,44 @@ void rbs2ar(mword *bs, mword *arr_list, mword *offset){
     MARK_TRAVERSED(bs);
 
 }
+
+//// Returns a list of matches
+//mword *_find(bvm_cache *this_bvm, mword *addr){
+//
+//    mword *result = _rfind(this_bvm, bs);
+//    rclean(bs);
+//
+//    return size;
+//
+//}
+//
+//mword *_rfind(bvm_cache *this_bvm, mword *bs){
+//
+//    int i;
+//    mword count = 0;
+//
+//    if( TRAVERSED(bs) ){
+//        return 0;
+//    }
+//
+//    int num_elem = size(bs);
+//    count = num_elem + 1;
+//
+//    if(is_inte(bs)){
+//        MARK_TRAVERSED(bs);
+//        for(i=0; i<num_elem; i++){
+//            count += _rmu((mword *)*(bs+i));
+//        }
+//    }
+//    else{
+//        MARK_TRAVERSED(bs);
+//    }
+//
+//    return count;
+//
+//}
+
+
 
 // Clayton Bauman 2012
 

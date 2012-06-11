@@ -28,7 +28,7 @@ mword *_inskha(mword *hash_table, mword *key, mword *val);
 void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level);
 
 bvm_cache *exha(bvm_cache *this_bvm);
-mword *_exha(mword *hash_table, mword *hash);
+mword _exha(mword *hash_table, mword *hash);
 mword _rexha(mword *hash_table, mword *hash, mword level);
 
 bvm_cache *luha(bvm_cache *this_bvm);

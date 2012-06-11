@@ -17,6 +17,7 @@
 #include "bvm_stack.h"
 #include "ref.h"
 #include "eval.h"
+#include "hash.h"
 
 //
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
@@ -399,12 +400,14 @@ void rgive(bvm_cache *this_bvm, mword *list){
 
 }
 
-// FIXME Why not just set stack_ptr to nil?
+//
 bvm_cache *clear(bvm_cache *this_bvm){
 
-    while(!is_nil((mword*)TOS_0(this_bvm))){
-        hard_zap(this_bvm);
-    }
+//    while(!is_nil((mword*)TOS_0(this_bvm))){
+//        hard_zap(this_bvm);
+//    }
+
+    this_bvm->stack_ptr = nil;
 
     return this_bvm;
 
@@ -475,6 +478,16 @@ bvm_cache *flip(bvm_cache *this_bvm){
 
 }
 
+//
+mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
+
+    while(is_href(stack_entry)){
+        stack_entry = _luha(this_bvm->sym_table, stack_entry);
+    }
+
+    return (mword*)stack_entry;
+
+}
 
 // Clayton Bauman 2011
 

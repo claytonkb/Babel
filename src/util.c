@@ -10,6 +10,8 @@
 #include "string.h"
 #include "list.h"
 #include "bstruct.h"
+#include "hash.h"
+
 #ifdef WINDOWS
 #include <windows.h>
 #endif
@@ -75,6 +77,10 @@ bvm_cache *fnord(bvm_cache *this_bvm){
 
     printf("fnord fnord\n");
 
+//    mword *result = _luha(this_bvm->sym_table, (mword*)TOS_0(this_bvm));
+//    d(result);
+//    d(*result);
+//
     return this_bvm;
 
 }

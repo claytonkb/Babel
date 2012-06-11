@@ -60,6 +60,10 @@ void rbs2ar(mword *bs, mword *arr_list, mword *offset);
 
 bvm_cache *span(bvm_cache *this_bvm);
 
+bvm_cache *nhword(bvm_cache *this_bvm);
+mword _nhword(mword *bs);
+mword _rnhword(mword *bs);
+
 #endif //BSTRUCT_H
 
 // Clayton Bauman 2012

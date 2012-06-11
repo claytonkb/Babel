@@ -455,4 +455,7 @@ conjure:        {0x20b}
 self:           {0x20c}
 -=:             {0x20d}
 ducp:           {0x20e}
+endian:         {0x20f}
+nhword:         {0x210}
+deref:          {0x211}
 

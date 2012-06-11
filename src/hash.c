@@ -173,7 +173,14 @@ bvm_cache *exha(bvm_cache *this_bvm){
     mword *key          = (mword*)TOS_0(this_bvm);
     mword *hash         = _hash8(key);
 
-    mword *result = _exha(hash_table,hash);
+    mword *result = new_atom;
+
+    if(is_nil(hash_table)){
+        *result = 0;
+    }
+    else{
+        *result = _exha(hash_table,hash);
+    }
 
     zap(this_bvm);
 
@@ -182,18 +189,14 @@ bvm_cache *exha(bvm_cache *this_bvm){
 }
 
 //
-mword *_exha(mword *hash_table, mword *hash){
-
-    mword *result = new_atom;
+mword _exha(mword *hash_table, mword *hash){
 
     if(is_nil(hash_table)){
-        *result = 0;
+        return 0;
     }
     else{
-        *result = _rexha(hash_table, hash, 0);
+        return _rexha(hash_table, hash, 0);
     }
-
-    return result;
 
 }
 
@@ -223,7 +226,8 @@ bvm_cache *luha(bvm_cache *this_bvm){
     mword *key          = (mword*)TOS_0(this_bvm);
     mword *hash         = _hash8(key);
 
-    mword *result = _luha(hash_table,hash);
+    mword *result = new_atom; //FIXME: Completely busted, need to check type returned by _luha
+    *result = car(_luha(hash_table,hash));
 
     zap(this_bvm);
 
@@ -240,8 +244,7 @@ mword *_luha(mword *hash_table, mword *hash){
         return nil;
     }
     else{
-        result = new_atom;
-        (mword*)*result = _rluha(hash_table, hash, 0);
+        return _rluha(hash_table, hash, 0);
     }
 
     return result;
@@ -262,7 +265,7 @@ mword *_rluha(mword *hash_table, mword *hash, mword level){
         return _rluha((mword*)c(hash_table,cons_side), hash, level+1);
     }
     else if(is_inte(next_level) && size(next_level) == HASH_ENTRY_SIZE){
-        return (mword*)car(HASH_ENTRY_VAL(next_level));
+        return (mword*)HASH_ENTRY_VAL(next_level);
     }
 
 }

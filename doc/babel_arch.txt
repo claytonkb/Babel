@@ -4,6 +4,44 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- data-flow -----
+
+Data-flow will always be DOWN STACK. This is because operate-assign
+operators only make sense in this configuration. Unfortunately, this will 
+make mnemonics more difficult to remember but there is just no other way.
+
+A B -   ==>    A-B
+A B -=  ==>    A=A-B
+A B set ==>    A=B
+
+
+----- bstruct find -----
+
+finds all occurrences of a pointer in the entire BVM
+
+Use this to safely remove a bstruct which has untracked references
+scattered through the machine.
+
+----- bstruct diff'ing -----
+
+x y everything_in_x_and_not_in_y
+    Need just one LSB
+x y everything_in_both_x_and_y
+    Requires two LSBs
+
+The or is basically cons
+
+- Left-complement
+    Uses only one LSB. First, x is marked dirty with the rdirty() function
+    Then, y is traversed (and do what?)
+    Then, both x and y are cleaned.
+
+- Intersection
+    Use two LSBs
+    x is traversed with LSB
+    y is traversed with LSB+1
+    Next, y is traversed looking for entries with both LSB and LSB+1 set
+
 ----- Hash-refs -----
 
 Do it!

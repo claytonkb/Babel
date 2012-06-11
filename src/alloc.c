@@ -47,5 +47,15 @@ void _del(mword *bs){
 
 }
 
+////
+//bvm_cache *destroy(bvm_cache *this_bvm){
+//
+//    _del((mword*)TOS_0(this_bvm));
+//    hard_zap(this_bvm);
+//
+//    return this_bvm;
+//
+//}
+
 // Clayton Bauman 2012
 

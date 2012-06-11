@@ -14,6 +14,7 @@
 #include "load.h"
 #include "ref.h"
 #include "bstruct.h"
+#include "stack.h"
 
 //main
 //
@@ -158,6 +159,26 @@ void init_interp_jump_table(bvm_cache *this_bvm){
     for(i=0;i<num_opcodes;i++){
         (mword*)this_bvm->jump_table[i] = (mword*)interp_fixed_opcodes[i];
     }
+
+}
+
+//
+bvm_cache *endian(bvm_cache *this_bvm){
+
+    mword test = 1;
+    char *test_addr = (char *)&test;
+    mword *result = new_atom;
+
+    if(*test_addr){
+        *result = LITTLE_ENDIAN;
+    }
+    else{
+        *result = BIG_ENDIAN;
+    }
+
+    push_alloc(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
 
 }
 

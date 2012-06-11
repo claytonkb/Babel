@@ -674,6 +674,8 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     walk,
     set,
 
+
+
     //200
     perm,
     ciadd_assign,
@@ -690,6 +692,13 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     self,
     cisub_assign,
     ducp,
+    endian,
+
+
+
+    //210
+    nhword,
+    deref,
 
 };
 

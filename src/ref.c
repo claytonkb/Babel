@@ -51,5 +51,17 @@ bvm_cache *ishref(bvm_cache *this_bvm){
 
 }
 
+//
+bvm_cache *deref(bvm_cache *this_bvm){
+
+    mword *result    = get_from_stack( this_bvm, (mword*)TOS_0(this_bvm));
+    
+    hard_zap(this_bvm);
+
+    push_alloc(this_bvm, result, IMMORTAL);
+
+}
+
+
 // Clayton Bauman 2012
 

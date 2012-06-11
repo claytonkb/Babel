@@ -1,8 +1,71 @@
-main: ( `0xbabe 
-        `( `"C\n" << (0) ) 
-        `( `"A\n" << ) 
-        `( `"B\n" << ) 
-        ifte fnord )
+main:
+    ( `foo& `42 set
+    `bar& `13 set 
+    `foo& `bar& -=
+    `foo& deref
+    %d    cr    << )
+
+--main: 
+--    ( `0xbabeface `test0& set 
+--    `0xdeadbeef `test1& set 
+--    `0xfadedcab `test2& set 
+--    self dump << )
+
+
+--main: ( `0 `(6 14 6 7 1 4) `( + ) ... )
+
+--main: ( `[0x13] unload `( hex08 ! cr << ) eachar )
+
+listobj: (( `( hex08 ! cr << ) eachar ))
+
+hex08: 
+        (( %x dup #8 
+        `8 <-> -
+        <-
+            `"00000000" cp
+        ->
+        paste8 ))
+
+-- main: ( endian show << )
+
+--main: ( `(1 2 (3 4) 5 6) unload size %d cr << )
+
+--main: ( `(1 2 (3 4) 5 6) mu_check ! )
+
+mu_check: 
+    (( dup mu <->
+    mu_components !
+    sum ! 
+    = show cr << ))
+
+sum: (( <- `0 -> `( + ) ... ))
+
+mu_components:
+        (( `( dup nva
+        <-> dup npt 
+        <-> dup nlf
+        <-> dup nin
+        <-> dup nhref
+        <-> nhword 
+    collect ! ) 
+    nest ))
+
+-- main: ( `10 dup cp stack dump << )
+
+-- main: ( `( `( `"*" << ) iter times `"\n" << ) `10 times )
+
+-- star_triangle: { <- { { "*" << } iter times "\n" << } -> times }
+
+--main: ( `"ha" `5 print_repeat ! )
+--
+--print_repeat: 
+--    (( <- `( dup << ) -> times ))
+
+--main: ( `0xbabe 
+--        `( `"C\n" << (0) ) 
+--        `( `"A\n" << ) 
+--        `( `"B\n" << ) 
+--        ifte fnord )
 
 -- main: ( `[1 2 3 4] dup dup # rand perm sdd ! )
 
@@ -39,12 +102,6 @@ main: ( `0xbabe
 --        `( zap )
 --        `( <- `1 rand -> % `1 + take bons )
 --    if ))
-
---main: 
---    ( `0xbabeface `test0& set 
---    `0xdeadbeef `test1& set 
---    `0xfadedcab `test2& set 
---    self dump << )
 
 --main: 
 --        ( `((0 0) 
@@ -89,7 +146,8 @@ ack:
 
 -- main: ( self dump << die test& )
 
-sum: (( <- `0 -> `( + ) eachar ))
+sumar: (( <- `0 -> `( + ) eachar ))
+
 product: (( <- `1 -> `( cumul ) eachar ))
 
 sp: (( dup 
@@ -415,16 +473,6 @@ full?:  (( ustack nil? ))
 --sum: (( `0 <-> `( + ) ... ))
 
 --main: ( `(123 456 789 987 654 321) unload listobj ! )
---
---listobj: (( `( hex08 ! cr << ) eachar ))
---
---hex08: 
---        (( %x dup #8 
---        `8 <-> -
---        <-
---            `"00000000" dup <- zap -> 
---        ->
---        paste8 ))
 
 -- main: ( `"fnord" `"frobnicate" `9 paste8 cr << )
 

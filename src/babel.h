@@ -40,6 +40,10 @@ mword *empty_string;
 //bvm_cache *interp_init(int argc, char **argv);
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 void init_interp_jump_table(bvm_cache *this_bvm);
+bvm_cache *endian(bvm_cache *this_bvm);
+
+#define BIG_ENDIAN    0
+#define LITTLE_ENDIAN 1
 
 // GLOBALS
 //mword*      internal_global_VM; //Interpreter-visible machine pointer
@@ -71,7 +75,8 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 
 #define ROOT_INTERP_THREAD 0
 
-#define NUM_INTERP_OPCODES 527
+// This include many reserved opcodes
+#define NUM_INTERP_OPCODES 530
 
 #define WINDOWS
 //#define STAR_NIX
