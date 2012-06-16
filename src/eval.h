@@ -13,20 +13,45 @@ bvm_cache *whileop(bvm_cache *this_bvm);
 bvm_cache *next(bvm_cache *this_bvm);
 //bvm_cache *continueop(bvm_cache *this_bvm);
 bvm_cache *each(bvm_cache *this_bvm);
-bvm_cache *ifop(bvm_cache *this_bvm);
+bvm_cache *ifte(bvm_cache *this_bvm);
 bvm_cache *eachar(bvm_cache *this_bvm);
 bvm_cache *iter(bvm_cache *this_bvm);
 bvm_cache *last(bvm_cache *this_bvm);
 bvm_cache *conjure(bvm_cache *this_bvm);
 bvm_cache *nest(bvm_cache *this_bvm);
+void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return);
+bvm_cache *ifop(bvm_cache *this_bvm);
+bvm_cache *let(bvm_cache *this_bvm);
 
 #define EVAL_RSTACK_ENTRIES  1
 #define EVAL_RSTACK_RETURN   0
 
-#define NEST_RSTACK_ENTRIES 3
+#define IFTE_RSTACK_ENTRIES 4
+#define IFTE_RSTACK_RETURN  0
+#define IFTE_RSTACK_THEN    1
+#define IFTE_RSTACK_ELSE    2
+#define IFTE_RSTACK_SELECT  3
+
+#define IFTE_BODY 0
+#define IFTE_COND 1
+
+#define LET_RSTACK_ENTRIES  2
+#define LET_RSTACK_RETURN   0
+#define LET_RSTACK_LIST     1
+
+#define IFOP_RSTACK_ENTRIES 3
+#define IFOP_RSTACK_RETURN  0
+#define IFOP_RSTACK_THEN    1
+#define IFOP_RSTACK_SELECT  2
+
+#define IFOP_BODY 0
+#define IFOP_COND 1
+
+#define NEST_RSTACK_ENTRIES 4
 #define NEST_RSTACK_RETURN  0
 #define NEST_RSTACK_BODY    1
 #define NEST_RSTACK_STACK   2
+#define NEST_RSTACK_USTACK  3
 
 #define LOOP_RSTACK_ENTRIES 3
 #define LOOP_RSTACK_RETURN  0

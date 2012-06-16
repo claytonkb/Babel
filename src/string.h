@@ -16,6 +16,8 @@ bvm_cache *cu2dec(bvm_cache *this_bvm);
 bvm_cache *ci2dec(bvm_cache *this_bvm);
 bvm_cache *hex2cu(bvm_cache *this_bvm);
 bvm_cache *cu2hex(bvm_cache *this_bvm);
+bvm_cache *ordop(bvm_cache *this_bvm);
+bvm_cache *cr(bvm_cache *this_bvm);
 
 #endif //STRING_H
 

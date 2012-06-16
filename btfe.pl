@@ -1,5 +1,9 @@
 #!/usr/bin/perl.exe -w
 
+#Babel Temporary Front-End
+
+package Babel::TFE;
+
 use strict;
 use feature 'state';
 no warnings 'recursion'; # Get "deep recursion" on large .pb files otherwise
@@ -7,20 +11,6 @@ use Hash::Pearson16;
 
 use YAML::XS;
 use Data::Dumper;
-
-#my @my_hash = Hash::Pearson16::pearson16_hash("nil");
-#my $j;
-#for($j=$#my_hash;$j>=0;$j--){
-#    printf("%02x", $my_hash[$j]);
-#}
-#print "\n";
-#die;
-
-#open YAML_FILE, shift;
-#my $yaml_file = join '', <YAML_FILE>;
-#close YAML_FILE;
-
-#my $instrs = Load($yaml_file); # Loads the YAML file to a Perl data structure...
 
 my @asm_file;
 my $asm_file;
@@ -36,6 +26,8 @@ my $proj_name = $ARGV[0];
 
 my $section_name = qr/[_A-Za-z][_A-Za-z0-9]*/;
 my $sigil_re     = qr/[\*\$&%!]/;
+
+unshift @ARGV, "pb/opcodes.pb";
 
 while($#ARGV>-1){
     $asm_file = shift @ARGV;
@@ -61,46 +53,11 @@ my $sections =      get_sections    ( \@asm_file );
 
 #print Dumper($sections);
 
-sub send_obj{
-
-    my $proj_name = shift;
-    my $obj_out = shift;
-    my $sections = shift;
-
-    open C_FILE,   ">${proj_name}.c";
-    open LST_FILE, ">${proj_name}.lst";
-    open BBL_FILE, ">${proj_name}.bbl";
-    binmode BBL_FILE;
-
-    printf C_FILE ("#define BBL_SIZE %d\nunsigned bbl[BBL_SIZE] = {", $#{$obj_out} + 1);
-
-    my $i = 0;
-    for(0..$#{$obj_out}){
-        if($i % 8 == 0){
-            print C_FILE "\n    ";
-        }
-        printf   C_FILE ("0x%08x, ",                      $obj_out->[$_] & 0xffffffff);
-        printf LST_FILE ("%04x %08x\n", $_ * $MWORD_SIZE, $obj_out->[$_] & 0xffffffff);
-        print  BBL_FILE pack("V",  $obj_out->[$_]);
-        $i++;
-    }
-
-    print C_FILE "\n};\n";
-
-    for(keys %{$sections}){
-        next if /^ANON_/;
-        if(defined $sections->{$_}{obj_ptr}){
-            my $op = $_;
-            $op =~ s/%/%%/g;
-#            printf("$op\n");
-            printf LST_FILE ("%08x $op\n", $sections->{$_}{obj_ptr} * $MWORD_SIZE);
-        }
-    }
-
-    close LST_FILE;
-    close BBL_FILE;
-
-}
+#########################################################################
+#
+# Sub-routine definitions
+#
+#########################################################################
 
 sub clean{
     my $asm_file = shift;
@@ -108,60 +65,168 @@ sub clean{
     remove_ws      ($asm_file);
 }
 
-sub linkit{
+sub remove_comments{
 
-    my $sections = shift;
-    my $curr_section = shift;
-    my $obj_out = shift;
-    my $curr_ptr = shift;
-#    my $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
-    my $end_ptr;
+    my $asm_file = shift;
 
-#    if(! defined $sections->{$curr_section}{bin}[0]){
-#        print "$curr_section\n";
-#    }
-
-    if($sections->{$curr_section}{bin}[0] != 0){
-        $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
+    foreach my $line (@{$asm_file}){
+        $line =~ s/--.*$//; #Strips a line-comment
     }
-    else{
-        $end_ptr = $curr_ptr + $HASH_SIZE + 1;
-    }
-
-    if(!defined $sections->{$curr_section}{obj_ptr}){
-        $sections->{$curr_section}{obj_ptr} = $curr_ptr+1;
-    }
-    else{
-        return $curr_ptr;
-    }
-
-    for (@{$sections->{$curr_section}{bin}}){
-        if($_ =~ /^(\s*-?[1-9][0-9]*)/ or $_ =~ /^(\s*0+)[^x]/ or $_ eq '0' ){
-            $obj_out->[$curr_ptr] = $_;
-            $curr_ptr++;
-            next;
-        }
-        #print("$_\n");
-        # if a name, recurse linkit
-#        if( /[_A-Za-z][_A-Za-z0-9]*/ ){
-        if( "$_" =~ /$section_name/ ){
-            if(!exists $sections->{$_}){
-                print "Unresolved symbol: $_\n";
-                die;
-            }
-            $end_ptr = linkit($sections, $_, $obj_out, $end_ptr);
-            $obj_out->[$curr_ptr] = $sections->{$_}{obj_ptr} * $MWORD_SIZE;
-        }
-        else{
-            $obj_out->[$curr_ptr] = $_;
-        }
-#        printf("%02x %08x\n", $curr_ptr, $obj_out->[$curr_ptr]);
-        $curr_ptr++;
-    }
-
-    return $end_ptr;
 
 }
+
+sub remove_ws{
+
+    my $asm_file = shift;
+    my @asm_file = @{$asm_file};
+
+    chomp for @asm_file;
+
+    splice(@{$asm_file});
+
+    for(@asm_file){
+        unless(/^\s*$/){
+            push @{$asm_file}, $_;
+        }
+    }
+
+}
+
+#########################################################################
+#
+# PRE-PARSER
+#
+#########################################################################
+
+sub get_sections{
+
+    my $asm_file = shift;
+    my $sections;
+    my $current_section;
+    my $match;
+    my $current_sigil;
+
+    #Create root section
+    $sections->{'root'}{src} = [];
+    $sections->{'root'}{ptr} = 0;
+    $sections->{'root'}{asmd} = 0;
+    $sections->{'root'}{bin_ptr} = undef;
+    $sections->{'root'}{bin} = [];
+#    push @{$sections->{'nil'}{src}}, "[nil nil]";
+                                              #stack ustack rstack jump  sym  TID       argv  steps   advance
+    push @{$sections->{'root'}{src}}, "[ main nil    nil    nil    nil   nil  thread_id nil   steps   advance_type ]";
+
+    $sections->{'thread_id'}{src} = [];
+    $sections->{'thread_id'}{ptr} = 0;
+    $sections->{'thread_id'}{asmd} = 0;
+    $sections->{'thread_id'}{bin_ptr} = undef;
+    $sections->{'thread_id'}{bin} = [];
+#    push @{$sections->{'nil'}{src}}, "[nil nil]";
+                                              #stack ustack rstack jump  sym  TID argv steps advance
+    push @{$sections->{'thread_id'}{src}}, "{0}";
+
+    $sections->{'steps'}{src} = [];
+    $sections->{'steps'}{ptr} = 0;
+    $sections->{'steps'}{asmd} = 0;
+    $sections->{'steps'}{bin_ptr} = undef;
+    $sections->{'steps'}{bin} = [];
+#    push @{$sections->{'nil'}{src}}, "[nil nil]";
+                                              #stack ustack rstack jump  sym  TID argv steps advance
+    push @{$sections->{'steps'}{src}}, "{-1}";
+
+    $sections->{'advance_type'}{src} = [];
+    $sections->{'advance_type'}{ptr} = 0;
+    $sections->{'advance_type'}{asmd} = 0;
+    $sections->{'advance_type'}{bin_ptr} = undef;
+    $sections->{'advance_type'}{bin} = [];
+#    push @{$sections->{'nil'}{src}}, "[nil nil]";
+                                              #stack ustack rstack jump  sym  TID argv steps advance
+    push @{$sections->{'advance_type'}{src}}, "{0}";
+
+
+    # Create nil for use by lists
+    $sections->{'nil'}{src} = [];
+    $sections->{'nil'}{ptr} = 0;
+    $sections->{'nil'}{asmd} = 0;
+    $sections->{'nil'}{bin_ptr} = undef;
+    $sections->{'nil'}{bin} = [];
+#    push @{$sections->{'nil'}{src}}, "[nil nil]";
+    push @{$sections->{'nil'}{src}}, "nil&";
+
+    for(@{$asm_file}){
+#        if(/^([a-zA-Z0-9_]+):/){
+        if(/^($section_name)(${sigil_re}?):/){
+
+            $current_section = $1;
+            $current_sigil   = defined $2 ? $2 : undef;
+
+            $sections->{$current_section}{src}     = [];
+            $sections->{$current_section}{ptr}     = 0;
+            $sections->{$current_section}{asmd}    = 0;
+            $sections->{$current_section}{bin_ptr} = undef;
+            $sections->{$current_section}{bin}     = [];
+            $sections->{$current_section}{sigil}   = "DIRECT_REF";
+
+            if(defined $current_sigil){
+                for($current_sigil){
+                    /\*/ and $sections->{$current_section}{sigil} = "LEX_SUB";
+                    /\$/ and $sections->{$current_section}{sigil} = "DIRECT_REF";
+                    /&/  and $sections->{$current_section}{sigil} = "INDIRECT_REF";
+                    /%/  and $sections->{$current_section}{sigil} = "HASH_REF";
+                    /!/  and $sections->{$current_section}{sigil} = "AUTO_EVAL";
+                }
+            }
+
+#            if(/\@/){
+#                $sections->{$current_section}{nest} = 0;
+#            }
+#            else{
+#                $sections->{$current_section}{nest} = 1;
+#            }
+
+#            ($match) = $_ =~ /^[a-zA-Z0-9_]+:(.+)$/;
+            ($match) = $_ =~ /^${section_name}${sigil_re}?:(.+)$/;
+            if(defined $match){
+                push @{$sections->{$current_section}{src}}, $match;
+            }
+            next;
+
+        }
+        push @{$sections->{$current_section}{src}}, $_;
+    }
+
+    for(keys %{$sections}){
+        $sections->{$_}{src} = join '', @{$sections->{$_}{src}};
+
+#        next if $_ eq 'root';
+#        next if $_ eq 'thread_id';
+#        next if $_ eq 'steps';
+#        next if $_ eq 'advance_type';
+#        next if $_ eq 'nil';
+#        next if $_ eq 'main';
+
+#        next unless $sections->{$_}{nest};
+#
+#        print "$_ ";
+
+#        $sections->{$_}{src} = '[ ' . $sections->{$_}{src} . ' ]';
+    }
+
+    return $sections;
+
+}
+
+#########################################################################
+#
+# PARSER (SEE BELOW)
+#
+#########################################################################
+
+#########################################################################
+#
+# ASSEMBLER
+#
+#########################################################################
 
 # Choose whether to assemble_leaf or assemble_interior...
 # This function should be re-entrant
@@ -383,156 +448,122 @@ sub assemble_interior {
 
 }
 
-sub remove_comments{
 
-    my $asm_file = shift;
+#########################################################################
+#
+# LINKER
+#
+#########################################################################
 
-    foreach my $line (@{$asm_file}){
-        $line =~ s/--.*$//; #Strips a line-comment
+sub linkit{
+
+    my $sections = shift;
+    my $curr_section = shift;
+    my $obj_out = shift;
+    my $curr_ptr = shift;
+#    my $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
+    my $end_ptr;
+
+#    if(! defined $sections->{$curr_section}{bin}[0]){
+#        print "$curr_section\n";
+#    }
+
+    if($sections->{$curr_section}{bin}[0] != 0){
+        $end_ptr = $curr_ptr + abs($sections->{$curr_section}{bin}[0])/$MWORD_SIZE + 1;
+    }
+    else{
+        $end_ptr = $curr_ptr + $HASH_SIZE + 1;
     }
 
-}
-
-sub remove_ws{
-
-    my $asm_file = shift;
-    my @asm_file = @{$asm_file};
-
-    chomp for @asm_file;
-
-    splice(@{$asm_file});
-
-    for(@asm_file){
-        unless(/^\s*$/){
-            push @{$asm_file}, $_;
-        }
+    if(!defined $sections->{$curr_section}{obj_ptr}){
+        $sections->{$curr_section}{obj_ptr} = $curr_ptr+1;
+    }
+    else{
+        return $curr_ptr;
     }
 
-}
-
-sub get_sections{
-
-    my $asm_file = shift;
-    my $sections;
-    my $current_section;
-    my $match;
-    my $current_sigil;
-
-    #Create root section
-    $sections->{'root'}{src} = [];
-    $sections->{'root'}{ptr} = 0;
-    $sections->{'root'}{asmd} = 0;
-    $sections->{'root'}{bin_ptr} = undef;
-    $sections->{'root'}{bin} = [];
-#    push @{$sections->{'nil'}{src}}, "[nil nil]";
-                                              #stack ustack rstack jump  sym  TID       argv  steps   advance
-    push @{$sections->{'root'}{src}}, "[ main nil    nil    nil    nil   nil  thread_id nil   steps   advance_type ]";
-
-    $sections->{'thread_id'}{src} = [];
-    $sections->{'thread_id'}{ptr} = 0;
-    $sections->{'thread_id'}{asmd} = 0;
-    $sections->{'thread_id'}{bin_ptr} = undef;
-    $sections->{'thread_id'}{bin} = [];
-#    push @{$sections->{'nil'}{src}}, "[nil nil]";
-                                              #stack ustack rstack jump  sym  TID argv steps advance
-    push @{$sections->{'thread_id'}{src}}, "{0}";
-
-    $sections->{'steps'}{src} = [];
-    $sections->{'steps'}{ptr} = 0;
-    $sections->{'steps'}{asmd} = 0;
-    $sections->{'steps'}{bin_ptr} = undef;
-    $sections->{'steps'}{bin} = [];
-#    push @{$sections->{'nil'}{src}}, "[nil nil]";
-                                              #stack ustack rstack jump  sym  TID argv steps advance
-    push @{$sections->{'steps'}{src}}, "{-1}";
-
-    $sections->{'advance_type'}{src} = [];
-    $sections->{'advance_type'}{ptr} = 0;
-    $sections->{'advance_type'}{asmd} = 0;
-    $sections->{'advance_type'}{bin_ptr} = undef;
-    $sections->{'advance_type'}{bin} = [];
-#    push @{$sections->{'nil'}{src}}, "[nil nil]";
-                                              #stack ustack rstack jump  sym  TID argv steps advance
-    push @{$sections->{'advance_type'}{src}}, "{0}";
-
-
-    # Create nil for use by lists
-    $sections->{'nil'}{src} = [];
-    $sections->{'nil'}{ptr} = 0;
-    $sections->{'nil'}{asmd} = 0;
-    $sections->{'nil'}{bin_ptr} = undef;
-    $sections->{'nil'}{bin} = [];
-#    push @{$sections->{'nil'}{src}}, "[nil nil]";
-    push @{$sections->{'nil'}{src}}, "nil&";
-
-    for(@{$asm_file}){
-#        if(/^([a-zA-Z0-9_]+):/){
-        if(/^($section_name)(${sigil_re}?):/){
-
-            $current_section = $1;
-            $current_sigil   = defined $2 ? $2 : undef;
-
-            $sections->{$current_section}{src}     = [];
-            $sections->{$current_section}{ptr}     = 0;
-            $sections->{$current_section}{asmd}    = 0;
-            $sections->{$current_section}{bin_ptr} = undef;
-            $sections->{$current_section}{bin}     = [];
-            $sections->{$current_section}{sigil}   = "DIRECT_REF";
-
-            if(defined $current_sigil){
-                for($current_sigil){
-                    /\*/ and $sections->{$current_section}{sigil} = "LEX_SUB";
-                    /\$/ and $sections->{$current_section}{sigil} = "DIRECT_REF";
-                    /&/  and $sections->{$current_section}{sigil} = "INDIRECT_REF";
-                    /%/  and $sections->{$current_section}{sigil} = "HASH_REF";
-                    /!/  and $sections->{$current_section}{sigil} = "AUTO_EVAL";
-                }
-            }
-
-#            if(/\@/){
-#                $sections->{$current_section}{nest} = 0;
-#            }
-#            else{
-#                $sections->{$current_section}{nest} = 1;
-#            }
-
-#            ($match) = $_ =~ /^[a-zA-Z0-9_]+:(.+)$/;
-            ($match) = $_ =~ /^${section_name}${sigil_re}?:(.+)$/;
-            if(defined $match){
-                push @{$sections->{$current_section}{src}}, $match;
-            }
+    for (@{$sections->{$curr_section}{bin}}){
+        if($_ =~ /^(\s*-?[1-9][0-9]*)/ or $_ =~ /^(\s*0+)[^x]/ or $_ eq '0' ){
+            $obj_out->[$curr_ptr] = $_;
+            $curr_ptr++;
             next;
-
         }
-        push @{$sections->{$current_section}{src}}, $_;
+        #print("$_\n");
+        # if a name, recurse linkit
+#        if( /[_A-Za-z][_A-Za-z0-9]*/ ){
+        if( "$_" =~ /$section_name/ ){
+            if(!exists $sections->{$_}){
+                print "Unresolved symbol: $_\n";
+                die;
+            }
+            $end_ptr = linkit($sections, $_, $obj_out, $end_ptr);
+            $obj_out->[$curr_ptr] = $sections->{$_}{obj_ptr} * $MWORD_SIZE;
+        }
+        else{
+            $obj_out->[$curr_ptr] = $_;
+        }
+#        printf("%02x %08x\n", $curr_ptr, $obj_out->[$curr_ptr]);
+        $curr_ptr++;
     }
+
+    return $end_ptr;
+
+}
+
+#########################################################################
+#
+# OUTPUT
+#
+#########################################################################
+
+sub send_obj{
+
+    my $proj_name = shift;
+    my $obj_out = shift;
+    my $sections = shift;
+
+    open C_FILE,   ">${proj_name}.c";
+    open LST_FILE, ">${proj_name}.lst";
+    open BBL_FILE, ">${proj_name}.bbl";
+    binmode BBL_FILE;
+
+    printf C_FILE ("#define BBL_SIZE %d\nunsigned bbl[BBL_SIZE] = {", $#{$obj_out} + 1);
+
+    my $i = 0;
+    for(0..$#{$obj_out}){
+        if($i % 8 == 0){
+            print C_FILE "\n    ";
+        }
+        printf   C_FILE ("0x%08x, ",                      $obj_out->[$_] & 0xffffffff);
+        printf LST_FILE ("%04x %08x\n", $_ * $MWORD_SIZE, $obj_out->[$_] & 0xffffffff);
+        print  BBL_FILE pack("V",  $obj_out->[$_]);
+        $i++;
+    }
+
+    print C_FILE "\n};\n";
 
     for(keys %{$sections}){
-        $sections->{$_}{src} = join '', @{$sections->{$_}{src}};
-
-#        next if $_ eq 'root';
-#        next if $_ eq 'thread_id';
-#        next if $_ eq 'steps';
-#        next if $_ eq 'advance_type';
-#        next if $_ eq 'nil';
-#        next if $_ eq 'main';
-
-#        next unless $sections->{$_}{nest};
-#
-#        print "$_ ";
-
-#        $sections->{$_}{src} = '[ ' . $sections->{$_}{src} . ' ]';
+        next if /^ANON_/;
+        if(defined $sections->{$_}{obj_ptr}){
+            my $op = $_;
+            $op =~ s/%/%%/g;
+#            printf("$op\n");
+            printf LST_FILE ("%08x $op\n", $sections->{$_}{obj_ptr} * $MWORD_SIZE);
+        }
     }
 
-    return $sections;
+    close LST_FILE;
+    close BBL_FILE;
 
 }
 
 
 
-##################################################
-# Section parser
-##################################################
+#########################################################################
+#
+# PARSER
+#
+#########################################################################
 
 sub section_parse{
 
@@ -558,6 +589,8 @@ sub section_parse{
         # TODO: write is_whitespace() to check for syntax errors
         return;
     }
+
+
 
     my @hash = is_hash_ref($section);
     if($#hash > -1){
@@ -934,6 +967,29 @@ sub is_interior_array_end{
 #
 #}
 
+sub is_label_sigil{
+
+    my $section = shift;
+
+    my $string = substr($section->{src}, $section->{ptr});
+    my $sigil = "";
+
+#   $string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/;
+    
+#    if($string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/){
+    if($string =~ /^(\s*$section_name)($sigil_re?)/){
+        $sigil = $2 if defined $2;
+        $section->{ptr} += length $1;
+
+#        $string =~ /^\s*([A-Za-z_][A-Za-z_0-9]*)/;
+        $string =~ /^\s*($section_name)/;
+        return $1;
+    }
+
+    return undef;
+
+}
+
 sub is_label{
 
     my $section = shift;
@@ -1092,6 +1148,15 @@ sub is_list_end{
 
 }
 
+sub sigil_type {
+    for(shift){
+        /\*/ and return "LEX_SUB";
+        /\$/ and return   "DIRECT_REF";
+        /&/  and return "INDIRECT_REF";
+        /%/  and return "HASH_REF";
+        /!/  and return "AUTO_EVAL";
+    }
+}
 
 sub str2vec {
 
@@ -1161,127 +1226,4 @@ sub str2vec {
 
 }
 
-sub inskha{
-
-    my $hash_table  = shift;
-    my $key         = shift;
-    my $val         = shift;
-
-    my $result;
-    my $temp;
-    my $cons_side;
-
-    my $hash = 0;
-
-    if(is_nil($hash_table)){
-        $cons_side = _cxr1($hash,0);
-        $temp = new_hash_entry($hash, $key, $val, -1, 0);
-        $result = ();
-        $result->[$cons_side] = $temp;
-    }
-    else{
-        _rinskha($hash_table, $hash, $key, $val, 0);
-        $result = $hash_table;
-    }
-
-    return $result;
-
-#    if($#{$hash_table} < 0){
-#        my $cons_side = _cxr1($hash,0);
-#        my $new_ref =   [ [ "HASH_REF", @{$hash} ],
-#                        [ [ "INTERIOR_ARR", [$val]],
-#                        [ [ "LEAF_ARR", ["STRING", "$key"]],
-#                        [ [ "LEAF_ARR", ["NUMERIC", 0]], 
-#                        ["LABEL","nil"] ]]]];
-#    }
-
-}
-
-#void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level){
-sub rinskha{
-
-    my $hash_table = shift;
-    my $hash = shift;
-    my $key = shift;
-    my $val = shift;
-    my $level = shift;
-
-    my $temp;
-    my $cons_side  = _cxr1($hash,$level);
-    my $next_level = $hash_table->[$cons_side];
-
-    my $HASH_ENTRY_SIZE = 5;
-
-#    // 1. cons_side = nil
-#    //      insert
-#    // 2. cons_side is inte AND size = 2
-#    //      recurse
-#    // 3. cons_side is inte AND size = HASH_ENTRY_SIZE
-#    //      split and insert
-#
-#//    printf("%x\n",s(next_level));
-
-    if(is_nil($next_level)){
-
-        $hash_table->[$cons_side] = new_hash_entry($hash, $key, $val, -1, 0);
-
-    }
-    elsif(is_inte($next_level) && size($next_level) == 2){
-
-        _rinskha($hash_table->[$cons_side], $hash, $key, $val, $level+1);
-
-    }
-    elsif(is_inte($next_level) && size($next_level) == $HASH_ENTRY_SIZE){
-
-        my $colliding_hash_ref           = HASH_ENTRY_REF($next_level);
-        my $colliding_next_cons_side     = _cxr1($colliding_hash_ref,$level+1);
-
-        $temp = ();
-        $temp->[$colliding_next_cons_side] = $next_level;
-
-        $hash_table->[$cons_side]     = $temp;
-
-        _rinskha($hash_table->[$cons_side], $hash, $key, $val, $level+1);
-
-    }
-    else{
-        die;
-    }
-
-}
-
-sub new_hash_entry{
-}
-
-sub HASH_ENTRY_REF{
-}
-
-sub is_nil{
-
-#    my $check = shift;
-#
-#    if(size($val) != 4){
-#    }
-#
-#    my $nil = bytes_to_mwords(Hash::Pearson16::pearson16_hash("nil"));
-
-}
-
-sub is_inte{
-}
-
-sub is_href{
-}
-
-sub size{
-}
-
-sub _cxr1{
-
-    my $val = shift;
-    my $bit_place = shift;
-
-    return (($val & (1 << $bit_place)) >> $bit_place);
-
-}
 

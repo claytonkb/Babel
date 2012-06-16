@@ -681,7 +681,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     ciadd_assign,
     bvmstack,
     bvmcode,
-    ifop,
+    ifte,
     bvmustack,
     reverse,
     boilerplate,
@@ -699,8 +699,11 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     //210
     nhword,
     deref,
+    ifop,
+    ordop,
+    let,
 
 };
 
-#endif FIXED_OPCODES_H
+#endif //FIXED_OPCODES_H
 

@@ -70,11 +70,13 @@ mword *_insha(mword *hash_table, mword *hash, mword *val){
 }
 
 // inskha - insert with key into hash
+// babel_operator
 bvm_cache *inskha(bvm_cache *this_bvm){
 
-    mword *hash_table = (mword*)TOS_2(this_bvm);
-    mword *key        = (mword*)TOS_1(this_bvm);
-    mword *val        = (mword*)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *hash_table = TOS_2(this_bvm);
+    mword *key        = TOS_1(this_bvm);
+    mword *val        = TOS_0(this_bvm);
 
     mword *result = _inskha(hash_table, key, val);
 
@@ -167,10 +169,12 @@ void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword leve
 }
 
 //
+// babel_operator
 bvm_cache *exha(bvm_cache *this_bvm){
 
-    mword *hash_table   = (mword*)TOS_1(this_bvm);
-    mword *key          = (mword*)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *hash_table   = TOS_1(this_bvm);
+    mword *key          = TOS_0(this_bvm);
     mword *hash         = _hash8(key);
 
     mword *result = new_atom;
@@ -220,10 +224,12 @@ mword _rexha(mword *hash_table, mword *hash, mword level){
 }
 
 //
+// babel_operator
 bvm_cache *luha(bvm_cache *this_bvm){
 
-    mword *hash_table   = (mword*)TOS_1(this_bvm);
-    mword *key          = (mword*)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *hash_table   = TOS_1(this_bvm);
+    mword *key          = TOS_0(this_bvm);
     mword *hash         = _hash8(key);
 
     mword *result = new_atom; //FIXME: Completely busted, need to check type returned by _luha

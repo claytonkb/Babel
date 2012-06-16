@@ -17,8 +17,10 @@
 #endif
 
 //
+// babel_operator
 bvm_cache *randop(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword num_mwords = car(TOS_0(this_bvm));
     mword *result    = _newlf(num_mwords);
 
@@ -37,8 +39,10 @@ bvm_cache *randop(bvm_cache *this_bvm){
 #ifdef WINDOWS
 
 //
+// babel_operator
 bvm_cache *sleepop(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     DWORD seconds = (DWORD)car(TOS_0(this_bvm));
     zap(this_bvm);
 
@@ -51,16 +55,23 @@ bvm_cache *sleepop(bvm_cache *this_bvm){
 #endif
 
 //
+// babel_operator
 bvm_cache *argvop(bvm_cache *this_bvm){
 
-    push_alloc(this_bvm, this_bvm->argv, IMMORTAL);
+    mword *result = new_atom;
+    (mword *)*result = this_bvm->argv;
+
+    push_alloc(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
 }
 
 //
+// babel_operator
 bvm_cache *mword_sizeop(bvm_cache *this_bvm){
+
+    fatal("stack fix not done");
 
     mword *result    = new_atom;
 
@@ -73,6 +84,7 @@ bvm_cache *mword_sizeop(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *fnord(bvm_cache *this_bvm){
 
     printf("fnord fnord\n");

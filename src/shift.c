@@ -9,8 +9,10 @@
 #include "array.h"
 
 //
+// babel_operator
 bvm_cache *cushl(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
     *result = (mword)car(TOS_1(this_bvm)) << (mword)car(TOS_0(this_bvm));
@@ -24,8 +26,10 @@ bvm_cache *cushl(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *cushr(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
     *result = (mword)car(TOS_1(this_bvm)) >> (mword)car(TOS_0(this_bvm));
@@ -39,8 +43,10 @@ bvm_cache *cushr(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *cashr(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
     (int)*result = (int)car(TOS_1(this_bvm)) >> (int)car(TOS_0(this_bvm));
@@ -54,8 +60,10 @@ bvm_cache *cashr(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *curol(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
     mword tempA = (mword)car(TOS_1(this_bvm)) << (mword)car(TOS_0(this_bvm));
@@ -71,8 +79,10 @@ bvm_cache *curol(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *curor(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
     mword tempA = (mword)car(TOS_1(this_bvm)) >> (mword)car(TOS_0(this_bvm));

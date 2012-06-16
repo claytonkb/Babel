@@ -76,7 +76,7 @@ bvm_cache *endian(bvm_cache *this_bvm);
 #define ROOT_INTERP_THREAD 0
 
 // This include many reserved opcodes
-#define NUM_INTERP_OPCODES 530
+#define NUM_INTERP_OPCODES 533
 
 #define WINDOWS
 //#define STAR_NIX
@@ -115,9 +115,13 @@ bvm_cache *endian(bvm_cache *this_bvm);
 //XXX we may yet need a generally hash-ref-safe car/cdr
 
 // Stack
-#define TOS_0(x)             car(car(x->stack_ptr))
-#define TOS_1(x)         car(car(cdr(x->stack_ptr)))
-#define TOS_2(x)     car(car(cdr(cdr(x->stack_ptr))))
+//#define TOS_0(x)             car(car(x->stack_ptr))
+//#define TOS_1(x)         car(car(cdr(x->stack_ptr)))
+//#define TOS_2(x)     car(car(cdr(cdr(x->stack_ptr))))
+
+#define TOS_0(x)             (mword*)car(car(car(x->stack_ptr)))
+#define TOS_1(x)         (mword*)car(car(car(cdr(x->stack_ptr))))
+#define TOS_2(x)     (mword*)car(car(car(cdr(cdr(x->stack_ptr)))))
 
 #define RTOS_0(x)            car(car(x->rstack_ptr))
 

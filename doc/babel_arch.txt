@@ -4,6 +4,37 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- Stack re-work -----
+
+One final (hopefully!) stack re-work needed... the following code works
+on the current implementation but the programmer shouldn't need to wrap
+everything with an extra pair of brackets. Hence, we need to add in an
+extra indirection for every item on the stack so that set/paste/etc. work
+correctly.
+
+To accomodate the change, the proto-Babel syntax will be updated 
+slightly, as well.
+
+foo: 13
+
+This actually creates:
+
+foo: [13]
+
+... in present syntax.
+
+The star operator will be used to indirect as needed:
+
+(foo* 2 3)
+
+By default, this will work fine in code-context:
+
+(foo show cr <<)
+
+----- Hard vs. soft operator names -----
+
+----- Make operators empty stack safe -----
+
 ----- data-flow -----
 
 Data-flow will always be DOWN STACK. This is because operate-assign

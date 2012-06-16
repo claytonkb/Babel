@@ -12,11 +12,13 @@
 #include "load.h"
 
 //
+// babel_operator
 bvm_cache *sfield(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
     
-    *result = s((mword*)TOS_0(this_bvm));
+    *result = s(TOS_0(this_bvm));
 
     zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -26,11 +28,13 @@ bvm_cache *sfield(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *arlen(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
     
-    *result = size((mword*)TOS_0(this_bvm));
+    *result = size(TOS_0(this_bvm));
 
     zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -40,11 +44,13 @@ bvm_cache *arlen(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *islf(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
     
-    *result = is_leaf((mword*)TOS_0(this_bvm));
+    *result = is_leaf(TOS_0(this_bvm));
 
     zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -54,11 +60,13 @@ bvm_cache *islf(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *isinte(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
     
-    *result = is_inte((mword*)TOS_0(this_bvm));
+    *result = is_inte(TOS_0(this_bvm));
 
     zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -155,15 +163,17 @@ mword *_mkin(mword *entries, mword size){
 // TOS_0 to
 // TOS_1 from
 // TOS_2 operand
+// babel_operator
 bvm_cache *slice(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result;
 
     if(car(TOS_0(this_bvm))<=car(TOS_1(this_bvm))){
         result = nil;
     }
     else{
-        if(is_leaf((mword*)TOS_2(this_bvm))){
+        if(is_leaf(TOS_2(this_bvm))){
             result = _newlf(car(TOS_0(this_bvm))-car(TOS_1(this_bvm)));
         }
         else{
@@ -177,7 +187,7 @@ bvm_cache *slice(bvm_cache *this_bvm){
             i++,j++
         ){
 
-        c(result,j) = c((mword*)TOS_2(this_bvm),i);
+        c(result,j) = c(TOS_2(this_bvm),i);
 
     }    
 
@@ -191,6 +201,7 @@ bvm_cache *slice(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *cxr(bvm_cache *this_bvm){
 
 //    if(is_leaf(array)){
@@ -201,7 +212,8 @@ bvm_cache *cxr(bvm_cache *this_bvm){
 //        temp = (mword*)c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
 //    }
 
-    mword *result = _cxr((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
+    mword *result = new_atom;
+    (mword*)*result = _cxr(TOS_1(this_bvm), car(TOS_0(this_bvm)));
 
     hard_zap(this_bvm);
     hard_zap(this_bvm);
@@ -359,14 +371,16 @@ mword _cxr1(mword *val, mword bit){
 //}
 
 //FIXME: I think this operator is broken
+// babel_operator
 bvm_cache *cut(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result_pre;
     mword *result_post;
     mword i;
 
     mword cut_point = (mword)car(TOS_0(this_bvm));
-    mword *src      = (mword*)TOS_1(this_bvm);
+    mword *src      = TOS_1(this_bvm);
 
     hard_zap(this_bvm);
 
@@ -416,11 +430,13 @@ bvm_cache *cut(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *arlen8(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
-    *result = _arlen8((mword*)TOS_0(this_bvm));
+    *result = _arlen8(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -446,8 +462,10 @@ mword _arlen8(mword *string){
 }
 
 //
+// babel_operator
 bvm_cache *newin(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result = _newin((mword)car(TOS_0(this_bvm))); //FIXME: There is no checking...
 
     zap(this_bvm);
@@ -458,8 +476,10 @@ bvm_cache *newin(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *newlf(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result = _newlf((mword)car(TOS_0(this_bvm))); //FIXME: There is no checking...
 
     zap(this_bvm);
@@ -470,13 +490,15 @@ bvm_cache *newlf(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *trunc(bvm_cache *this_bvm){
 
-    if((mword)car(TOS_0(this_bvm)) > size((mword*)TOS_1(this_bvm))){
+    fatal("stack fix not done");
+    if((mword)car(TOS_0(this_bvm)) > size(TOS_1(this_bvm))){
         error("trunc: cannot truncate to larger size");
     }
 
-    _trunc((mword*)TOS_1(this_bvm), (mword)car(TOS_0(this_bvm)));
+    _trunc(TOS_1(this_bvm), (mword)car(TOS_0(this_bvm)));
 
     zap(this_bvm);
 
@@ -546,15 +568,17 @@ mword dec_alignment_word8(mword alignment_word){
 
 // TOS_1 . TOS_0
 //
+// babel_operator
 bvm_cache *arcat(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result;
 
-    if      ( is_leaf((mword*)TOS_0(this_bvm))  &&  is_leaf((mword*)TOS_1(this_bvm)) ){
-        result = _newlf( size((mword*)TOS_0(this_bvm)) + size((mword*)TOS_1(this_bvm)) );
+    if      ( is_leaf(TOS_0(this_bvm))  &&  is_leaf(TOS_1(this_bvm)) ){
+        result = _newlf( size(TOS_0(this_bvm)) + size(TOS_1(this_bvm)) );
     }
-    else if ( is_inte((mword*)TOS_0(this_bvm))  &&  is_inte((mword*)TOS_1(this_bvm)) ){
-        result = _newin( size((mword*)TOS_0(this_bvm)) + size((mword*)TOS_1(this_bvm)) );
+    else if ( is_inte(TOS_0(this_bvm))  &&  is_inte(TOS_1(this_bvm)) ){
+        result = _newin( size(TOS_0(this_bvm)) + size(TOS_1(this_bvm)) );
     }
     else{ //Throw an errorion
         error("arcat: cannot concatenate leaf array and interior array");
@@ -562,20 +586,20 @@ bvm_cache *arcat(bvm_cache *this_bvm){
 
     mword i,j;
     for(    i=0;
-            i<size((mword*)TOS_1(this_bvm));
+            i<size(TOS_1(this_bvm));
             i++
         ){
 
-        c(result,i) = c((mword*)TOS_1(this_bvm),i);
+        c((mword*)result,i) = c(TOS_1(this_bvm),i);
 
     }    
 
-    for(    i=0,j=size((mword*)TOS_1(this_bvm));
-            i<size((mword*)TOS_0(this_bvm));
+    for(    i=0,j=size(TOS_1(this_bvm));
+            i<size(TOS_0(this_bvm));
             i++,j++
         ){
 
-        c(result,j) = c((mword*)TOS_0(this_bvm),i);
+        c(result,j) = c(TOS_0(this_bvm),i);
 
     }    
 
@@ -601,13 +625,15 @@ mword array8_size(mword size8){
 
 // TOS_1(this_bvm) . TOS_0(this_bvm)
 //
+// babel_operator
 bvm_cache *arcat8(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     char *result;
     mword size8;
 
-    if      ( is_leaf((mword*)TOS_0(this_bvm))  &&  is_leaf((mword*)TOS_1(this_bvm)) ){
-        size8 = _arlen8((mword*)TOS_0(this_bvm)) + _arlen8((mword*)TOS_1(this_bvm));
+    if      ( is_leaf(TOS_0(this_bvm))  &&  is_leaf(TOS_1(this_bvm)) ){
+        size8 = _arlen8(TOS_0(this_bvm)) + _arlen8(TOS_1(this_bvm));
         result = (char*)_newlf( array8_size(size8) );
     }
     else{ //Throw an errorion
@@ -616,7 +642,7 @@ bvm_cache *arcat8(bvm_cache *this_bvm){
 
     mword i,j;
     for(    i=0;
-            i<_arlen8((mword*)TOS_1(this_bvm));
+            i<_arlen8(TOS_1(this_bvm));
             i++
         ){
 
@@ -624,8 +650,8 @@ bvm_cache *arcat8(bvm_cache *this_bvm){
 
     }
 
-    for(    i=0,j=_arlen8((mword*)TOS_1(this_bvm));
-            i<_arlen8((mword*)TOS_0(this_bvm));
+    for(    i=0,j=_arlen8(TOS_1(this_bvm));
+            i<_arlen8(TOS_0(this_bvm));
             i++,j++
         ){
 
@@ -643,55 +669,18 @@ bvm_cache *arcat8(bvm_cache *this_bvm){
 
 }
 
-//TODO: Move these def'ns to string.h:
-#define NEWLINE 0xa
-#define NEWLINE_SIZE 1
-
-// TOS_0(this_bvm) . "\n"
-// TODO: Optimize for cases when we have slack-space
-bvm_cache *cr(bvm_cache *this_bvm){
-
-    char *result;
-    mword size8;
-
-    if      ( is_leaf((mword*)TOS_0(this_bvm))  ){
-        size8 = _arlen8((mword*)TOS_0(this_bvm)) + NEWLINE_SIZE;
-        result = (char*)_newlf( array8_size(size8) );
-    }
-    else{ //Throw an errorion
-        error("cr: cannot concatenate to a non-leaf array");
-    }
-
-    mword i,j;
-    for(    i=0;
-            i<_arlen8((mword*)TOS_0(this_bvm));
-            i++
-        ){
-
-        result[i] = *((char*)TOS_0(this_bvm)+i);
-
-    }
-
-    result[size8-1] = NEWLINE; //FIXME: Assumes *nix newline
-
-    c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
-
-    zap(this_bvm);
-    push_alloc(this_bvm, (mword*)result, IMMORTAL); //FIXME: Depends on inputs
-
-    return this_bvm;
-
-}
 
 // TOS_0(this_bvm) to
 // TOS_1(this_bvm) from
 // TOS_2(this_bvm) operand
+// babel_operator
 bvm_cache *slice8(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword size8 = car(TOS_0(this_bvm))-car(TOS_1(this_bvm));
 
     char *result;
-    if(is_leaf((mword*)TOS_2(this_bvm))){
+    if(is_leaf(TOS_2(this_bvm))){
         result = (char*)_newlf(array8_size(size8));
     }
     else{
@@ -720,12 +709,14 @@ bvm_cache *slice8(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *arcmp(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
-    mword *left  = (mword*)TOS_1(this_bvm);
-    mword *right = (mword*)TOS_0(this_bvm);
+    mword *left  = TOS_1(this_bvm);
+    mword *right = TOS_0(this_bvm);
 
     if(is_leaf(left) && is_leaf(right)){
         *result = (mword)_arcmp(left, right);
@@ -762,9 +753,11 @@ int _arcmp(mword *left, mword *right){
 }
 
 //
+// babel_operator
 bvm_cache *ar2ls(bvm_cache *this_bvm){
 
-    mword *result = _ar2ls((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *result = _ar2ls(TOS_0(this_bvm));
 
     zap(this_bvm);
 
@@ -800,14 +793,16 @@ mword *_ar2ls(mword *arr){
 
 //TOS_0 perm_matrix
 //TOS_1 src
+// babel_operator
 bvm_cache *perm(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result;
 
-    if(is_inte((mword*)TOS_1(this_bvm))){
+    if(is_inte(TOS_1(this_bvm))){
         result = _newin(size(TOS_1(this_bvm)));
     }
-    else if(is_leaf((mword*)TOS_1(this_bvm))){
+    else if(is_leaf(TOS_1(this_bvm))){
         result = _newlf(size(TOS_1(this_bvm)));
     }
     else{
@@ -815,7 +810,7 @@ bvm_cache *perm(bvm_cache *this_bvm){
         return;
     }
 
-    _perm((mword*)TOS_1(this_bvm), result, (mword*)TOS_0(this_bvm));
+    _perm(TOS_1(this_bvm), result, TOS_0(this_bvm));
 
     zap(this_bvm);
     zap(this_bvm);

@@ -22,9 +22,11 @@
 ////}
 
 //
+// babel_operator
 bvm_cache *load(bvm_cache *this_bvm){
 
-    mword *result = _load((mword*)TOS_0(this_bvm), size((mword*)TOS_0(this_bvm)));
+    mword *result    = new_atom;
+    (mword *)*result = _load(TOS_0(this_bvm), size(TOS_0(this_bvm)));
 
     hard_zap(this_bvm);
 
@@ -273,9 +275,11 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword *elem){
 //}
 
 //
+// babel_operator
 bvm_cache *unload(bvm_cache *this_bvm){
 
-    mword *result = _unload((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *result = _unload(TOS_0(this_bvm));
 //    d(TOS_0)
 //    die
 //    TOS_0 = TOS_0 + MWORD_SIZE;

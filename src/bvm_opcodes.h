@@ -396,9 +396,23 @@
 #define ADDEQ       0x201
 #define BVMSTACK    0x202
 #define BVMCODE     0x203
-#define IFOP        0x204
+#define IFTE        0x204
 #define BVMRSTACK   0x205
 #define REVERSE     0x206
+//boilerplate:    {0x207}
+//paste8:         {0x208}
+//iter:           {0x209}
+//unnest:         {0x20a}
+//conjure:        {0x20b}
+//self:           {0x20c}
+//-=:             {0x20d}
+//ducp:           {0x20e}
+//endian:         {0x20f}
+//nhword:         {0x210}
+//deref:          {0x211}
+#define IFOP        0x212
+#define ORDOP       0x213
+#define LET         0x214
 
 #endif //BVM_OPCODES_H
 

@@ -20,8 +20,8 @@ bvm_cache *arcat(bvm_cache *this_bvm);
 bvm_cache *arcmp(bvm_cache *this_bvm);
 bvm_cache *ar2ls(bvm_cache *this_bvm);
 bvm_cache *arcat8(bvm_cache *this_bvm);
-bvm_cache *cr(bvm_cache *this_bvm);
 bvm_cache *slice8(bvm_cache *this_bvm);
+mword array8_size(mword size8);
 
 mword *_mkin(mword *entries, mword size);
 

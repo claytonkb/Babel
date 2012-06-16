@@ -160,9 +160,11 @@ mword *pop_ustack(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *sel(bvm_cache *this_bvm){
 
-    mword *select = (mword*)TOS_2(this_bvm);
+    fatal("stack fix not done");
+    mword *select = TOS_2(this_bvm);
 
     // FIXME YUCK!!!!!!
     down(this_bvm);
@@ -188,9 +190,8 @@ bvm_cache *sel(bvm_cache *this_bvm){
 
 //
 //
+// babel_operator
 bvm_cache *dup(bvm_cache *this_bvm){
-
-    mword *result = (mword*)TOS_0(this_bvm);
 
 //    if(is_leaf((mword*)TOS_0(this_bvm))){
 //        result = _newlf(size((mword*)TOS_0(this_bvm)));
@@ -212,7 +213,13 @@ bvm_cache *dup(bvm_cache *this_bvm){
 //
 //        c(result,i) = c((mword*)TOS_0(this_bvm),i);
 //
-//    }    
+//    }
+
+    fatal("stack fix not done");
+    if(is_nil(this_bvm->stack_ptr))
+        return this_bvm;
+
+    mword *result = TOS_0(this_bvm); //XXX: Note we do NOT use get_from_stack()
 
     push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
 
@@ -221,6 +228,7 @@ bvm_cache *dup(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *swap(bvm_cache *this_bvm){
 
     // stack_ptr -> A -> B -> C
@@ -229,6 +237,7 @@ bvm_cache *swap(bvm_cache *this_bvm){
     // B -> A
     // A -> C
 
+    fatal("stack fix not done");
     // stack must have two items on it - depth() could be used here, 
     // but we don't need to take the length of the stack; this is faster:
     if( 
@@ -252,12 +261,14 @@ bvm_cache *swap(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *down(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     if(is_nil(this_bvm->stack_ptr))
         return this_bvm;
 
-    push_alloc_ustack(this_bvm, (mword*)TOS_0(this_bvm), DOWN);
+    push_alloc_ustack(this_bvm, TOS_0(this_bvm), DOWN);
     hard_zap(this_bvm);
 
     return this_bvm;
@@ -265,8 +276,10 @@ bvm_cache *down(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *up(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *temp;
 
     if(is_nil(this_bvm->ustack_ptr))
@@ -302,8 +315,10 @@ bvm_cache *up(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *take(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     int count = (int)car(TOS_0(this_bvm));
     zap(this_bvm);
 
@@ -314,7 +329,7 @@ bvm_cache *take(bvm_cache *this_bvm){
 
     if(count == -1){
         while(!is_nil(this_bvm->stack_ptr)){
-            list_entry = (mword*)TOS_0(this_bvm);
+            list_entry = TOS_0(this_bvm);
             temp = new_cons;
             cons(   temp,
                     list_entry,
@@ -325,7 +340,7 @@ bvm_cache *take(bvm_cache *this_bvm){
     }
     else{
         for(i=0;i<count;i++){
-            list_entry = (mword*)TOS_0(this_bvm);
+            list_entry = TOS_0(this_bvm);
             temp = new_cons;
             cons(   temp,
                     list_entry,
@@ -364,8 +379,10 @@ bvm_cache *take(bvm_cache *this_bvm){
 //}
 
 //
+// babel_operator
 bvm_cache *depth(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result = new_atom;
     *result = _len((mword*)this_bvm->stack_ptr);
 
@@ -376,9 +393,11 @@ bvm_cache *depth(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *give(bvm_cache *this_bvm){
 
-    mword *list = (mword*)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *list = TOS_0(this_bvm);
 
     zap(this_bvm);
 
@@ -401,13 +420,16 @@ void rgive(bvm_cache *this_bvm, mword *list){
 }
 
 //
+// babel_operator
 bvm_cache *clear(bvm_cache *this_bvm){
 
 //    while(!is_nil((mword*)TOS_0(this_bvm))){
 //        hard_zap(this_bvm);
 //    }
 
-    this_bvm->stack_ptr = nil;
+    fatal("stack fix not done");
+    this_bvm->stack_ptr  = nil;
+    this_bvm->ustack_ptr = nil;
 
     return this_bvm;
 
@@ -468,8 +490,10 @@ bvm_cache *clear(bvm_cache *this_bvm){
 //}
 
 //
+// babel_operator
 bvm_cache *flip(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *temp          = this_bvm->stack_ptr;
     this_bvm->stack_ptr  = this_bvm->ustack_ptr;
     this_bvm->ustack_ptr = temp;
@@ -488,6 +512,7 @@ mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
     return (mword*)stack_entry;
 
 }
+
 
 // Clayton Bauman 2011
 

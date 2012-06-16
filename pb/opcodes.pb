@@ -21,7 +21,7 @@ rol: {0x005}
 ror: {0x007}
 cashr: {0x00b}
 cnot:  {0x00c}
-~:  {0x00c}
+--- ~:  {0x00c}
 
 ------------------------------------------------------------------------------
 --
@@ -30,25 +30,25 @@ cnot:  {0x00c}
 ------------------------------------------------------------------------------
 
 cne:  {0x010}
-~=:   {0x010}
+--- ~=:   {0x010}
 ceq:  {0x011}
-=:    {0x011}
+--- =:    {0x011}
 cult: {0x012}
 cule: {0x013}
 cugt: {0x014}
 cuge: {0x015}
-u<:   {0x012}
-u<=:  {0x013}
-u>:   {0x014}
-u>=:  {0x015}
+--- u<:   {0x012}
+--- u<=:  {0x013}
+--- u>:   {0x014}
+--- u>=:  {0x015}
 cilt: {0x01a}
-<:    {0x01a}
+--- <:    {0x01a}
 cile: {0x01b}
-<=:   {0x01b}
+--- <=:   {0x01b}
 cigt: {0x01c}
->:    {0x01c}
+--- >:    {0x01c}
 cige: {0x01d}
->=:   {0x01d}
+--- >=:   {0x01d}
 
 ------------------------------------------------------------------------------
 --
@@ -65,16 +65,16 @@ F4:    {0x024}
 F5:    {0x025}
 F6:    {0x026}
 cxor:  {0x026}
-^:     {0x026}
+--- ^:     {0x026}
 F7:    {0x027}
 cor:   {0x027}
-|:     {0x027}
+--- |:     {0x027}
 F8:    {0x028}
 cnor:  {0x028}
-~|:    {0x028}
+--- ~|:    {0x028}
 F9:    {0x029}
 cxnor: {0x029}
-~^:    {0x029}
+--- ~^:    {0x029}
 Fa:    {0x02a}
 Fb:    {0x02b}
 Fc:    {0x02c}
@@ -92,22 +92,22 @@ Ff:    {0x02f}
 
 cuadd: {0x030}
 cusub: {0x031}
-u+:    {0x030}
-u-:    {0x031}
+--- u+:    {0x030}
+--- u-:    {0x031}
 cumul: {0x032}
 -- u*: {0x032}
 cudiv: {0x033}
-u/:    {0x033}
+--- u/:    {0x033}
 curem: {0x035}
-%:     {0x035}
+--- %:     {0x035}
 ciadd: {0x038}
-+:     {0x038}
+--- +:     {0x038}
 cisub: {0x039}
--:     {0x039}
+--- -:     {0x039}
 cimul: {0x03a}
 -- *:     {0x03a}
 cidiv: {0x03b}
-/:     {0x03b}
+--- /:     {0x03b}
 ciabs: {0x03c}
 cirem: {0x03d}
 
@@ -227,11 +227,11 @@ arlen:          {0x10b}
 ---------------------------
 size:           {0x10b}
 size8:          {0x108}
-#:              {0x10b}
-#8:             {0x108}
+--- #:              {0x10b}
+--- #8:             {0x108}
 arcat8:         {0x10c}
 cat8:           {0x10c}
-.:              {0x10c}
+--- .:              {0x10c}
 -- FIXME: Deprecate 16/32 operator mnemonics
 arcat16:        {0x10d}
 arcat32:        {0x10e}
@@ -253,14 +253,13 @@ slice:          {0x11b}
 arcmp8:         {0x11c}
 arcmp:          {0x11f}
 cmp:            {0x11f}
-==:             {0x11f}
+--- ==:             {0x11f}
 cmpar8:         {0x11c}
 sleep:          {0x120}
 die:            {0x121}
 goto:           {0x122}
-call:           {0x123}
-!!:             {0x123}
-ret:            {0x124}
+
+
 loop:           {0x125}
 last:           {0x126}
 next:           {0x127}
@@ -270,7 +269,7 @@ cxr:            {0x12d}
 th:             {0x12d}
 ardeq:          {0x12f}
 eval:           {0x130}
-!:              {0x130}
+--- !:              {0x130}
 areval:         {0x131}
 lseval:         {0x132}
 meval:          {0x133}
@@ -283,12 +282,12 @@ in2lf:          {0x139}
 newin:          {0x13a}
 ar2ls:          {0x13b}
 islf:           {0x13c}
-lf?:            {0x13c}
+--- lf?:            {0x13c}
 del:            {0x13d}
 newlf:          {0x13e}
 s:              {0x13f}
 hash8:          {0x140}
-%%:             {0x140}
+--- %%:             {0x140}
 rand:           {0x141}
 srand:          {0x142}
 argv:           {0x143}
@@ -330,23 +329,23 @@ floor:          {0x17e}
 ar2str:         {0x180}
 str2ar:         {0x181}
 cu2dec:         {0x184}
-%u:             {0x184}
+--- %u:             {0x184}
 cu2hex:         {0x185}
-%x:             {0x185}
+--- %x:             {0x185}
 ci2dec:         {0x186}
-%d:             {0x186}
+--- %d:             {0x186}
 len:            {0x188}
-##:             {0x188}
+--- ##:             {0x188}
 take:           {0x189}
 give:           {0x18a}
 lscat:          {0x18c}
 bbl2str:        {0x190} --deprecate
 show:           {0x190}
-$:              {0x190}
+--- $:              {0x190}
 hex2cu:         {0x195}
-$x:             {0x195}
+--- $x:             {0x195}
 dec2ci:         {0x196}
-$d:             {0x196}
+--- $d:             {0x196}
 uncons:         {0x198}
 cdr:            {0x199}
 pop:            {0x19a}
@@ -354,9 +353,9 @@ zap:            {0x19b}
 ls2stk:         {0x19c}
 permstk:        {0x19d}
 swap:           {0x19e}
-<->:            {0x19e}
+--- <->:            {0x19e}
 sel:            {0x19f}
-?:              {0x19f}
+--- ?:              {0x19f}
 strint:         {0x1a0}
 macint:         {0x1a1}
 interpol:       {0x1a2}
@@ -379,11 +378,11 @@ ls2lf:          {0x1ba}
 bons:           {0x1bb}
 isat:           {0x1bc}
 isnil:          {0x1bd}
-nil?:           {0x1bd}
+--- nil?:           {0x1bd}
 slurp8:         {0x1c0}
->>>:            {0x1c0}
+--- >>>:            {0x1c0}
 spit8:          {0x1c1}
-<<<:            {0x1c1}
+--- <<<:            {0x1c1}
 journal8:       {0x1c2}
 mkns:           {0x1c8}
 luns:           {0x1c9}
@@ -398,33 +397,33 @@ clfile:         {0x1d2}
 cntfile:        {0x1d3}
 stdout8:        {0x1e0}
 pr:             {0x1e0}
-<<:             {0x1e0}
+--- <<:             {0x1e0}
 stderr:         {0x1e1}
 stdin:          {0x1e2}
 stdinln:        {0x1e3}
->>:             {0x1e3}
+--- >>:             {0x1e3}
 stdinf:         {0x1e4}
 
 nhref:          {0x1e5}
 and:            {0x1e6}
 -- &&:             {0x1e6}
 or:             {0x1e7}
-||:             {0x1e7}
+--- ||:             {0x1e7}
 not:            {0x1e8}
-~~:             {0x1e8}
+--- ~~:             {0x1e8}
 ishref:         {0x1e9}
 href?:          {0x1e9}
 each:           {0x1ea}
-...:            {0x1ea}
+--- ...:            {0x1ea}
 newref:         {0x1eb}
 span:           {0x1ec}
 eachar:         {0x1ed}
 phash:          {0x1ee}
 phash8:         {0x1ef}
 down:           {0x1f0}
-<-:             {0x1f0}
+--- <-:             {0x1f0}
 up:             {0x1f1}
-->:             {0x1f1}
+--- ->:             {0x1f1}
 take:           {0x1f2}
 depth:          {0x1f3}
 give:           {0x1f4}
@@ -440,7 +439,7 @@ continue:       {0x1fd}
 walk:           {0x1fe}
 set:            {0x1ff}
 perm:           {0x200}
-+=:             {0x201}
+--- +=:             {0x201}
 stack:          {0x202}
 code:           {0x203}
 if:             {0x204}
@@ -453,9 +452,12 @@ iter:           {0x209}
 unnest:         {0x20a}
 conjure:        {0x20b}
 self:           {0x20c}
--=:             {0x20d}
+--- -=:             {0x20d}
 ducp:           {0x20e}
 endian:         {0x20f}
 nhword:         {0x210}
 deref:          {0x211}
+if:             {0x212}
+ord:            {0x213}
+let:            {0x214}
 

@@ -36,18 +36,21 @@ void rclean(mword *bs){
 }
 
 //
+// babel_operator
 bvm_cache *bbl2str(bvm_cache *this_bvm){
 
+    mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
+
     // Figure out buffer size
-    mword initial_buf_size = (16 * _mu((mword*)TOS_0(this_bvm)));
+    mword initial_buf_size = (16 * _mu(operand));
     char *buffer = malloc(initial_buf_size); //FIXME: malloc
 
     mword buf_size=0;
 
-    buf_size += rbbl2str((mword*)TOS_0(this_bvm), buffer+buf_size);
+    buf_size += rbbl2str(operand, buffer+buf_size);
     //buf_size now contains the final string size of the entire graphviz string
 
-    rclean((mword*)TOS_0(this_bvm));
+    rclean(operand);
 //    hard_zap(this_bvm);
     zap(this_bvm);
 
@@ -58,9 +61,12 @@ bvm_cache *bbl2str(bvm_cache *this_bvm){
         length++;
     }
 
-    mword *result = _newlf(length);
-    memcpy(result, buffer, buf_size);
-    c(result,length-1) = last_mword;
+    mword *temp   = _newlf(length);
+    mword *result = _newin(1);
+    (mword*)*result = temp;
+
+    memcpy(temp, buffer, buf_size);
+    c(temp,length-1) = last_mword;
     free(buffer);
 
     push_alloc(this_bvm,result,MORTAL);
@@ -139,12 +145,14 @@ mword rbbl2str(mword *bs, char *buffer){
 }
 
 //
+// babel_operator
 bvm_cache *bs2gv(bvm_cache *this_bvm){
 
 //    _dump(this_bvm->stack_ptr)
 //        die
 
-    mword *result = _bs2gv((mword*)TOS_0(this_bvm));
+    mword *result = new_atom;
+    (mword*)*result = _bs2gv(TOS_0(this_bvm));
 
     zap(this_bvm);
     
@@ -267,9 +275,11 @@ mword rbs2gv(mword *bs, char *buffer){
 // TOS_0 offset
 // TOS_1 dest
 // TOS_2 src
+// babel_operator
 bvm_cache *paste(bvm_cache *this_bvm){
 
-    _wrcxr((mword*)TOS_1(this_bvm),(mword*)TOS_2(this_bvm),car(TOS_0(this_bvm)));
+    fatal("stack fix not done");
+    _wrcxr(TOS_1(this_bvm),TOS_2(this_bvm),car(TOS_0(this_bvm)));
 
     hard_zap(this_bvm);
     swap(this_bvm);
@@ -281,30 +291,16 @@ bvm_cache *paste(bvm_cache *this_bvm){
 
 // TOS_0 dest
 // TOS_1 src
+// babel_operator
 bvm_cache *set(bvm_cache *this_bvm){
 
-//    _wrcxr((mword*)TOS_0(this_bvm),(mword*)TOS_1(this_bvm),0);
+    mword *src  = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
+    mword *dest = get_from_stack( this_bvm, TOS_1( this_bvm ) ) ;
 
-    mword *src  = get_from_stack( this_bvm, (mword*)TOS_0(this_bvm));
-    mword *dest = (mword*)TOS_1(this_bvm);
+    _dump(dest);
+    die;
 
-    if( is_href(dest)
-        && !_exha(this_bvm->sym_table, dest) ){
-            this_bvm->sym_table = _insha(this_bvm->sym_table, dest, src);
-    }
-    else{
-
-        if(is_leaf(src) && is_leaf(dest)){
-            c(dest,0) = c(src,0);
-        }
-        else if(is_inte(src) && is_inte(dest)){
-            (mword*)c(dest,0) = src;
-        }
-
-    }
-
-    hard_zap(this_bvm); //FIXME: The type of zap depends on leaf/inte?
-    hard_zap(this_bvm);
+    *dest = *src;
 
     return this_bvm;
 
@@ -339,9 +335,11 @@ void _wrcxr(mword *dest, mword *src, mword offset){
 // TOS_0 offset
 // TOS_1 dest
 // TOS_2 src
+// babel_operator
 bvm_cache *paste8(bvm_cache *this_bvm){
 
-    _wrcxr8((mword*)TOS_1(this_bvm),(mword*)TOS_2(this_bvm),car(TOS_0(this_bvm)));
+    fatal("stack fix not done");
+    _wrcxr8(TOS_1(this_bvm),TOS_2(this_bvm),car(TOS_0(this_bvm)));
 
     hard_zap(this_bvm);
     swap(this_bvm);
@@ -381,9 +379,11 @@ void _wrcxr8(mword *dest, mword *src, mword offset){
 }
 
 //
+// babel_operator
 bvm_cache *trav(bvm_cache *this_bvm){
 
-    mword *result = _trav((mword*)TOS_1(this_bvm),(mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *result = _trav(TOS_1(this_bvm),TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     hard_zap(this_bvm);
@@ -409,11 +409,13 @@ mword *_trav(mword *bs, mword *trav_list){
 }
 
 //
+// babel_operator
 bvm_cache *mu(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
-    *result = _mu((mword*)TOS_0(this_bvm));
+    *result = _mu(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -462,11 +464,13 @@ mword _rmu(mword *bs){
 }
 
 //
+// babel_operator
 bvm_cache *nlf(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
-    *result = _nlf((mword*)TOS_0(this_bvm));
+    *result = _nlf(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -516,11 +520,13 @@ mword _rnlf(mword *bs){
 }
 
 //
+// babel_operator
 bvm_cache *nhref(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
-    *result = _nhref((mword*)TOS_0(this_bvm));
+    *result = _nhref(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -571,11 +577,13 @@ mword _rnhref(mword *bs){
 }
 
 //
+// babel_operator
 bvm_cache *nin(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
-    *result = _nin((mword*)TOS_0(this_bvm));
+    *result = _nin(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -622,11 +630,13 @@ mword _rnin(mword *bs){
 }
 
 //
+// babel_operator
 bvm_cache *nva(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
-    *result = _nva((mword*)TOS_0(this_bvm));
+    *result = _nva(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -673,11 +683,13 @@ mword _rnva(mword *bs){
 
 
 //
+// babel_operator
 bvm_cache *nhword(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
-    *result = _nhword((mword*)TOS_0(this_bvm));
+    *result = _nhword(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, IMMORTAL);
@@ -728,11 +740,13 @@ mword _rnhword(mword *bs){
 
 
 //
+// babel_operator
 bvm_cache *npt(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
-    *result = _npt((mword*)TOS_0(this_bvm));
+    *result = _npt(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -775,9 +789,11 @@ mword _rnpt(mword *bs){
 }
 
 //
+// babel_operator
 bvm_cache *cp(bvm_cache *this_bvm){
 
-    mword *result = _unload((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *result = _unload(TOS_0(this_bvm));
     hard_zap(this_bvm);
 
     push_alloc(this_bvm, result, IMMORTAL);
@@ -789,7 +805,8 @@ bvm_cache *cp(bvm_cache *this_bvm){
 //
 bvm_cache *ducp(bvm_cache *this_bvm){
 
-    mword *temp = (mword*)TOS_0(this_bvm);
+    fatal("deprecated");
+    mword *temp = TOS_0(this_bvm);
 
     zap(this_bvm);
 
@@ -802,9 +819,11 @@ bvm_cache *ducp(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *span(bvm_cache *this_bvm){
 
-    mword *result = _bs2ar((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *result = _bs2ar(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
 

@@ -1,9 +1,101 @@
-main:
-    ( `foo& `42 set
-    `bar& `13 set 
-    `foo& `bar& -=
-    `foo& deref
-    %d    cr    << )
+main: ( die )
+
+--foo: (1 2 3)
+--bar: (4 5 6)
+
+--main: ( [(1 2 3)] [(4 5 6)] cons dump << )
+
+--main: 
+--        ( `foo 
+--        `[(4 5 6)] dup 
+--        <- <-> -> 
+--    set 
+--    self dump << 
+--    (foo) )
+--
+--foo: [(1 2 3)]
+
+--main: ( 
+--    foo show cr << 
+--    bar show cr << 
+--    `(foo bar) 
+--        `( 
+--        `foo `(7 8 9)       set 
+--        `bar `(0xa 0xb 0xc) set 
+--        foo show cr << 
+--        bar show cr << ) 
+--    let 
+--    foo show cr <<
+--    bar show cr << )
+--
+--foo: [(1 2 3)]
+--bar: [(4 5 6)]
+
+--main: 
+--    ( `(1 2 3 4 5) dup cp
+--    sum_stack ! <->
+--    prod_stack !
+--    %d cr << 
+--    %d cr << )
+--
+--sum_stack: 
+--    (( `( give  
+--        `( + )
+--        `( depth `1 > )
+--    while ) nest ))
+--
+--prod_stack: 
+--    (( `( give  
+--        `( cumul )
+--        `( depth `1 > )
+--    while ) nest ))
+
+
+--main: 
+--    ( `1
+--    `(nil)
+--    `(`"true\n" <<)
+--    `(`"false\n" <<)
+--    ifte 
+--    fnord )
+
+--main: 
+--    (`nil 
+--    `"foo" `0x13 inskha 
+--    `"bar" `0x42 inskha 
+--    dump <<)
+
+-- main: ( `((0)) `( `"true\n" << ) `( sdd ! `"false\n" << ) ifte fnord ) 
+
+--main: ( `"[]][[]" balanced? ! )
+--
+--balanced?: (( str2ar 
+--    ar2ls 
+--        `( `( `"]" ord = )
+--            `( zap
+--                `( zap empty? ! ) 
+----                    `( `"unbalanced\n" << die )
+--                    `( `1 `"unbalanced\n" << die )
+--                    `(  zap )
+--                ifte )
+--            `(nil)
+--        ifte ) 
+----    `( show cr << )
+--    each 
+--
+--    `( empty? ! ) 
+--        `( `"balanced\n" << )
+--        `( `"unbalanced\n" << )
+--    ifte ))
+
+--main: ( `0x13 dump << )
+
+--main:
+--    ( `foo& `42 set
+--    `bar& `13 set 
+--    `foo& `bar& -=
+--    `foo& deref
+--    %d    cr    << )
 
 --main: 
 --    ( `0xbabeface `test0& set 

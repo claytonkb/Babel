@@ -32,9 +32,11 @@
 //}
 
 // key hash8
+// babel_operator
 bvm_cache *hash8(bvm_cache *this_bvm){
 
-    mword *result = _hash8((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *result = _hash8(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, (mword*)result, MORTAL);

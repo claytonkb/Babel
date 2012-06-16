@@ -10,16 +10,16 @@
 #include "array.h"
 #include "bvm.h"
 
-//cuadd
-//#define CUADD      0x030
+// babel_operator
 bvm_cache *cuadd(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
 //    *result = (mword)car(TOS_0(this_bvm)) + (mword)car(TOS_1(this_bvm));
 
-    mword opA = car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
-    mword opB = car( get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) ) );
+    mword opA = car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
+    mword opB = car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
 
     *result = opA + opB;
 
@@ -38,8 +38,7 @@ bvm_cache *cuadd(bvm_cache *this_bvm){
 
 }
 
-//cusub
-//#define CUSUB      0x031
+// babel_operator
 bvm_cache *cusub(bvm_cache *this_bvm){
 
     // Detect underflow
@@ -47,10 +46,11 @@ bvm_cache *cusub(bvm_cache *this_bvm){
 //        error("cusub: underflow");
 //    }
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
-    mword opA = car( get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) ) );
-    mword opB = car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
+    mword opA = car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
+    mword opB = car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
 
     *result = opA - opB;
 
@@ -64,16 +64,17 @@ bvm_cache *cusub(bvm_cache *this_bvm){
 
 }
 
-//ciadd
-//#define CIADD      0x038
+// babel_operator
 bvm_cache* ciadd(bvm_cache *this_bvm){
 
-    mword *result = new_atom;
+    mword *temp   = new_atom;
+    mword *result = _newin(1);
+    (mword*)*result = temp;
  
-    int opA = (int)car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
-    int opB = (int)car( get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) ) );
+    int opA = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
+    int opB = (int)car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
 
-    (int)*result = opA + opB;
+    (int)*temp = opA + opB;
 
 //    // Detect underflow/overflow
 //    if(        ((int)*result < 0) 
@@ -89,22 +90,23 @@ bvm_cache* ciadd(bvm_cache *this_bvm){
 
     hard_zap(this_bvm);
     hard_zap(this_bvm);
+
     push_alloc(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
 }
 
-//cisub
-//#define CISUB      0x039
+// babel_operator
 bvm_cache* cisub(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
 
 //    (int)*result = (int)car(TOS_1(this_bvm)) - (int)car(TOS_0(this_bvm));
 
-    int opA = (int)car( get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) ) );
-    int opB = (int)car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
+    int opA = (int)car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
+    int opB = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
 
     (int)*result = opA - opB;
 
@@ -124,10 +126,10 @@ bvm_cache* cisub(bvm_cache *this_bvm){
 
 }
 
-//ciabs
-//#define CIABS      0x03C
+// babel_operator
 bvm_cache* ciabs(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     // The most negative number in 2's complement cannot be abs()'d
     if( ((int)car(TOS_0(this_bvm)) - 1) > 0 ){
         error("ciabs: overflow");
@@ -137,7 +139,7 @@ bvm_cache* ciabs(bvm_cache *this_bvm){
 
 //    (int)*result = abs((int)car(TOS_0(this_bvm)));
 
-    int opA = (int)car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
+    int opA = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
 //    int opB = (int)car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
 
     (int)*result = abs(opA);
@@ -149,14 +151,14 @@ bvm_cache* ciabs(bvm_cache *this_bvm){
 
 }
 
-//cumul
-//#define CUMUL      0x032
+// babel_operator
 bvm_cache* cumul(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result = new_atom;
 
-    mword opA = car( get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) ) );
-    mword opB = car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
+    mword opA = car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
+    mword opB = car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
 
     *result = opA * opB;
 
@@ -175,14 +177,14 @@ bvm_cache* cumul(bvm_cache *this_bvm){
 
 }
 
-//cudiv 
-//#define CUDIV      0x033
+// babel_operator
 bvm_cache* cudiv(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result = new_atom;
 
-    mword opA = car( get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) ) );
-    mword opB = car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
+    mword opA = car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
+    mword opB = car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
 
     if( opB == 0 ){
         fatal("zero divisor");
@@ -200,14 +202,14 @@ bvm_cache* cudiv(bvm_cache *this_bvm){
 
 }
 
-//curem
-//#define CUREM      0x035
+// babel_operator
 bvm_cache* curem(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result = new_atom;
 
-    mword opA = car( get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) ) );
-    mword opB = car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
+    mword opA = car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
+    mword opB = car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
 
     if( opB == 0 ){
         fatal("zero modulus");
@@ -225,16 +227,16 @@ bvm_cache* curem(bvm_cache *this_bvm){
 
 }
 
-//cimul
-//#define CIMUL      0x03A
+// babel_operator
 bvm_cache* cimul(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result = new_atom;
 
 //    (int)*result = (int)car(TOS_0(this_bvm)) * (int)car(TOS_1(this_bvm));
 
-    int opA = (int)car( get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) ) );
-    int opB = (int)car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
+    int opA = (int)car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
+    int opB = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
 
     (int)*result = opA * opB;
 
@@ -252,18 +254,18 @@ bvm_cache* cimul(bvm_cache *this_bvm){
 }
 
 
-//cidiv 
-//#define CIDIV      0x03B
+// babel_operator
 bvm_cache* cidiv(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result = new_atom;
 
 //    (int)*result = (int)car(TOS_1(this_bvm)) / (int)car(TOS_0(this_bvm));
 
     mword *result = new_atom;
 
-    int opA = (int)car( get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) ) );
-    int opB = (int)car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
+    int opA = (int)car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
+    int opB = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
 
     if( opB == 0 ){
         fatal("zero divisor");
@@ -279,8 +281,7 @@ bvm_cache* cidiv(bvm_cache *this_bvm){
 
 }
 
-//cirem
-//#define CIREM      0x03D
+// babel_operator
 bvm_cache* cirem(bvm_cache *this_bvm){
 
 //    if( car(TOS_0(this_bvm)) == 0 ){
@@ -291,10 +292,11 @@ bvm_cache* cirem(bvm_cache *this_bvm){
 //
 //    (int)*result = (int)car(TOS_1(this_bvm)) % (int)car(TOS_0(this_bvm));
 
+    fatal("stack fix not done");
     mword *result = new_atom;
 
-    int opA = (int)car( get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) ) );
-    int opB = (int)car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
+    int opA = (int)car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
+    int opB = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
 
     if( opB == 0 ){
         fatal("zero modulus");
@@ -310,7 +312,7 @@ bvm_cache* cirem(bvm_cache *this_bvm){
 
 }
 
-//
+// babel_operator
 bvm_cache *ciadd_assign(bvm_cache *this_bvm){
 
 //    (int)car(TOS_0(this_bvm)) = (int)car(TOS_0(this_bvm)) + (int)car(TOS_1(this_bvm));
@@ -323,8 +325,8 @@ bvm_cache *ciadd_assign(bvm_cache *this_bvm){
 //        error("ciadd: underflow");
 //    }
 
-    int *opA = (int*)get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) );
-    int *opB = (int*)get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) );
+    int *opA = (int*)get_from_stack( this_bvm, TOS_1( this_bvm ) );
+    int *opB = (int*)get_from_stack( this_bvm, TOS_0( this_bvm ) );
 
     *opA = *opA + *opB;
 
@@ -337,7 +339,7 @@ bvm_cache *ciadd_assign(bvm_cache *this_bvm){
 
 }
 
-//
+// babel_operator
 bvm_cache *cisub_assign(bvm_cache *this_bvm){
 
 //    (int)car(TOS_0(this_bvm)) = (int)car(TOS_0(this_bvm)) - (int)car(TOS_1(this_bvm));
@@ -350,8 +352,8 @@ bvm_cache *cisub_assign(bvm_cache *this_bvm){
 //        error("ciadd: underflow");
 //    }
 
-    int *opA = (int*)get_from_stack( this_bvm, (mword*)TOS_1( this_bvm ) );
-    int *opB = (int*)get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) );
+    int *opA = (int*)get_from_stack( this_bvm, TOS_1( this_bvm ) );
+    int *opB = (int*)get_from_stack( this_bvm, TOS_0( this_bvm ) );
 
     *opA = *opA - *opB;
 

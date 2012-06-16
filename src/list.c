@@ -9,9 +9,11 @@
 #include "array.h"
 
 //
+// babel_operator
 bvm_cache *carindex(bvm_cache *this_bvm){
     
-    mword *car_TOS_0 = (mword*)scar((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *car_TOS_0 = (mword*)scar(TOS_0(this_bvm));
 
     zap(this_bvm);
     push_alloc(this_bvm, car_TOS_0, IMMORTAL); //FIXME: Depends
@@ -21,9 +23,11 @@ bvm_cache *carindex(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *cdrindex(bvm_cache *this_bvm){
 
-    mword *cdr_TOS_0 = (mword*)scdr((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *cdr_TOS_0 = (mword*)scdr(TOS_0(this_bvm));
 
     zap(this_bvm);
     push_alloc(this_bvm, cdr_TOS_0, IMMORTAL); // FIXME: Depends
@@ -33,11 +37,13 @@ bvm_cache *cdrindex(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *isnil(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
     
-    *result = is_nil((mword*)TOS_0(this_bvm));
+    *result = is_nil(TOS_0(this_bvm));
 
 //    d(car((mword*)TOS_0(this_bvm)))
 
@@ -50,9 +56,11 @@ bvm_cache *isnil(bvm_cache *this_bvm){
 
 //consls
 //#define cons(a,b,c) car(a) = (mword)(b); cdr(a) = (mword)(c);
+// babel_operator
 bvm_cache *consls(bvm_cache *this_bvm){
 
-    mword *result = _consls((mword*)TOS_1(this_bvm), (mword*)TOS_0(this_bvm));
+    mword *result = new_atom;
+    (mword*)*result = _consls(TOS_1(this_bvm), TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     hard_zap(this_bvm);
@@ -75,8 +83,10 @@ mword *_consls(mword *car_field, mword *cdr_field){
 }
 
 //
+// babel_operator
 bvm_cache *uncons(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     //FIXME: No checking...
     mword *temp_car = (mword*)car(TOS_0(this_bvm));
     mword *temp_cdr = (mword*)cdr(TOS_0(this_bvm));
@@ -114,10 +124,13 @@ mword *_list_next_to_end(mword *list){
 //push
 // Like Perl's
 // ((a b c)) ((d e f)) push --> (a b c d e f)
+// babel_operator
 bvm_cache *push(bvm_cache *this_bvm){
 
-    mword *endls = _list_end((mword*)TOS_1(this_bvm));
-    c(endls,1) = TOS_0(this_bvm);
+    error("stack ordering fix not done");
+    fatal("stack fix not done");
+    mword *endls = _list_end(TOS_1(this_bvm));
+    (mword*)c(endls,1) = TOS_0(this_bvm);
 
     zap(this_bvm);
     // XXX Might get alloc-type bugs here...
@@ -129,9 +142,12 @@ bvm_cache *push(bvm_cache *this_bvm){
 
 //pop
 // Like Perl's
+// babel_operator
 bvm_cache *pop(bvm_cache *this_bvm){
 
-    mword *endls = _list_next_to_end((mword*)TOS_0(this_bvm));
+    error("stack ordering fix not done");
+    fatal("stack fix not done");
+    mword *endls = _list_next_to_end(TOS_0(this_bvm));
 
     mword *temp = (mword*)c(endls,1);
     (mword*)c(endls,1) = nil;
@@ -146,12 +162,15 @@ bvm_cache *pop(bvm_cache *this_bvm){
 // Like Perl's
 // ((a b c)) ((d e f)) push --> (d e f a b c)
 // A B unshift <--> A B swap push
+// babel_operator
 bvm_cache *unshift(bvm_cache *this_bvm){
 
+    error("stack ordering fix not done");
+    fatal("stack fix not done");
     swap(this_bvm);
 
-    mword *endls = _list_end((mword*)TOS_1(this_bvm));
-    c(endls,1) = TOS_0(this_bvm);
+    mword *endls = _list_end(TOS_1(this_bvm));
+    (mword*)c(endls,1) = TOS_0(this_bvm);
 
     zap(this_bvm);
     // XXX Might get alloc-type bugs here...
@@ -163,10 +182,13 @@ bvm_cache *unshift(bvm_cache *this_bvm){
 
 //shift
 // Like Perl's
+// babel_operator
 bvm_cache *shift(bvm_cache *this_bvm){
 
-    mword *temp = (mword*)TOS_0(this_bvm);
-    TOS_0(this_bvm) = cdr(TOS_0(this_bvm));
+    error("stack ordering fix not done");
+    fatal("stack fix not done");
+    mword *temp = TOS_0(this_bvm);
+    TOS_0(this_bvm) = (mword*)cdr(TOS_0(this_bvm));
 
     (mword*)c(temp,1) = nil;
 
@@ -177,11 +199,13 @@ bvm_cache *shift(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *len(bvm_cache *this_bvm){ 
 
+    fatal("stack fix not done");
     mword *result = new_atom;
 
-    *result = _len((mword*)TOS_0(this_bvm));
+    *result = _len(TOS_0(this_bvm));
 
     zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -190,7 +214,7 @@ bvm_cache *len(bvm_cache *this_bvm){
 
 }
 
-
+//
 mword _len(mword *list){
 
     mword length = 0;
@@ -204,9 +228,11 @@ mword _len(mword *list){
 }
 
 //
+// babel_operator
 bvm_cache *bons(bvm_cache *this_bvm){
 
-    mword *result = _bons((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *result = _bons(TOS_0(this_bvm));
 
     zap(this_bvm);
 
@@ -234,9 +260,11 @@ mword *_bons(mword *list){
 }
 
 //
+// babel_operator
 bvm_cache *ls2lf(bvm_cache *this_bvm){
 
-    mword *result = _ls2lf((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *result = _ls2lf(TOS_0(this_bvm));
 
     zap(this_bvm);
 
@@ -266,9 +294,11 @@ mword *_ls2lf(mword *list){
 }
 
 //
+// babel_operator
 bvm_cache *ith(bvm_cache *this_bvm){
 
-    mword *result = _ith((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
+    fatal("stack fix not done");
+    mword *result = _ith(TOS_1(this_bvm), car(TOS_0(this_bvm)));
 
     zap(this_bvm);
     zap(this_bvm);
@@ -292,9 +322,11 @@ mword *_ith(mword *list, mword i){
 }
 
 //
+// babel_operator
 bvm_cache *walk(bvm_cache *this_bvm){
 
-    mword *result = _walk((mword*)TOS_1(this_bvm),(mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *result = _walk(TOS_1(this_bvm),TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     hard_zap(this_bvm);
@@ -317,9 +349,11 @@ mword *_walk(mword *bs, mword *walk_list){
 }
 
 //
+// babel_operator
 bvm_cache *reverse(bvm_cache *this_bvm){
 
-    mword *list = (mword*)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *list = TOS_0(this_bvm);
 
     hard_zap(this_bvm);
 

@@ -39,11 +39,13 @@ mword *_newref(mword *hash){
 
 }
 
+// babel_operator
 bvm_cache *ishref(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result    = new_atom;
     
-    *result = is_href((mword*)TOS_0(this_bvm));
+    *result = is_href(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
 
@@ -52,9 +54,11 @@ bvm_cache *ishref(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *deref(bvm_cache *this_bvm){
 
-    mword *result    = get_from_stack( this_bvm, (mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *result    = get_from_stack( this_bvm, TOS_0(this_bvm));
     
     hard_zap(this_bvm);
 

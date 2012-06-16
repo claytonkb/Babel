@@ -163,8 +163,10 @@ void init_interp_jump_table(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *endian(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword test = 1;
     char *test_addr = (char *)&test;
     mword *result = new_atom;

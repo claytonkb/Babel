@@ -10,6 +10,7 @@
 #include "stack.h"
 #include "utf8.h"
 #include "debug.h"
+#include "array.h"
 
 ////These operate on array-8:
 ////chomp
@@ -44,6 +45,53 @@
 ////    push_alloc(result, B2C);
 //
 //}
+
+//TODO: Move these def'ns to string.h:
+#define NEWLINE 0xa
+#define NEWLINE_SIZE 1
+
+// TOS_0(this_bvm) . "\n"
+// TODO: Optimize for cases when we have slack-space
+// babel_operator
+bvm_cache *cr(bvm_cache *this_bvm){
+
+    mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
+
+    char *result;
+    mword size8;
+
+    if      ( is_leaf(operand)  ){
+        size8 = _arlen8(operand) + NEWLINE_SIZE;
+        result = (char*)_newlf( array8_size(size8) );
+    }
+    else{ //Throw an errorion
+        error("cr: cannot concatenate to a non-leaf array");
+    }
+
+    mword *temp = _newin(1);
+    (mword*)*temp = (mword*)result;
+
+    mword i,j;
+    for(    i=0;
+            i<_arlen8(operand);
+            i++
+        ){
+
+        result[i] = *((char*)operand+i);
+
+    }
+
+    result[size8-1] = NEWLINE; //FIXME: Assumes *nix newline
+
+    c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
+
+    zap(this_bvm);
+    push_alloc(this_bvm, (mword*)temp, IMMORTAL);
+
+    return this_bvm;
+
+}
+
 
 //
 mword *_b2c(mword *string){
@@ -140,12 +188,14 @@ mword *_c2b(char *string, mword max_safe_length){
 
 // XXX ar2str & str2ar definitely have undiscovered bugs
 // ... may need to rewrite the utf-8 stuff
+// babel_operator
 bvm_cache *ar2str(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *result;
     #define MAX_UTF8_CHAR_SIZE 4
 
-    if(is_nil((mword*)TOS_0(this_bvm))){
+    if(is_nil(TOS_0(this_bvm))){
         result = new_atom;
         *result = 0;
         zap(this_bvm);
@@ -153,7 +203,7 @@ bvm_cache *ar2str(bvm_cache *this_bvm){
         return this_bvm;
     }
 
-    mword arsize = size((mword*)TOS_0(this_bvm));
+    mword arsize = size(TOS_0(this_bvm));
     int temp_buffer_size = MAX_UTF8_CHAR_SIZE * (arsize);
     char *temp_buffer = malloc( temp_buffer_size );
     //FIXME: Check malloc
@@ -182,10 +232,12 @@ bvm_cache *ar2str(bvm_cache *this_bvm){
 
 }
 
+// babel_operator
 bvm_cache *str2ar(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     //int u8_strlen(char *s, int max_safe_length)
-    mword length8 = _arlen8((mword*)TOS_0(this_bvm));
+    mword length8 = _arlen8(TOS_0(this_bvm));
     mword u8_length = (mword)u8_strlen((char *)TOS_0(this_bvm), length8);
 
     mword *result = _newlf(u8_length+1);
@@ -202,9 +254,11 @@ bvm_cache *str2ar(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *catoi(bvm_cache *this_bvm){
 
-    mword *cstr = _b2c((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *cstr = _b2c(TOS_0(this_bvm));
     mword *result = _newlf(1);
     *result = (mword)atoi((char*)cstr);
 
@@ -214,9 +268,11 @@ bvm_cache *catoi(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *dec2ci(bvm_cache *this_bvm){
 
-    mword *cstr = _b2c((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *cstr = _b2c(TOS_0(this_bvm));
     mword *result = _newlf(1);
     *result = (mword)atoi((char*)cstr);
 
@@ -226,8 +282,10 @@ bvm_cache *dec2ci(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *ci2dec(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     char buffer[MWORD_BIT_SIZE/2];
 
     int size = sprintf(buffer, "%d", (int)car(TOS_0(this_bvm)));
@@ -249,8 +307,10 @@ bvm_cache *ci2dec(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *cu2dec(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     char buffer[MWORD_BIT_SIZE/2];
 
     int size = sprintf(buffer, "%u", car(TOS_0(this_bvm)));
@@ -272,9 +332,11 @@ bvm_cache *cu2dec(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *hex2cu(bvm_cache *this_bvm){
 
-    mword *cstr = _b2c((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    mword *cstr = _b2c(TOS_0(this_bvm));
     unsigned long *result = (unsigned long *)_newlf( sizeof(unsigned long) / sizeof(mword) ); //XXX Hmmmmmmm
     *result = strtoul ((char*)cstr,NULL,16);
 //    *result = (mword)atoi((char*)cstr);
@@ -285,8 +347,10 @@ bvm_cache *hex2cu(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *cu2hex(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     char buffer[(MWORD_BIT_SIZE/4) + 1];
 
     int size = sprintf(buffer, "%x", car(TOS_0(this_bvm)));
@@ -307,6 +371,24 @@ bvm_cache *cu2hex(bvm_cache *this_bvm){
 
 }
 
+//
+// babel_operator
+bvm_cache *ordop(bvm_cache *this_bvm){
+
+    fatal("stack fix not done");
+    mword *result  = get_from_stack( this_bvm, TOS_0(this_bvm) );
+    hard_zap(this_bvm);
+
+    char ord_value = (char)car(result);
+
+    result = new_atom;
+    *result = ord_value;
+
+    push_alloc(this_bvm, result, IMMORTAL);
+
+
+
+}
 
 // Clayton Bauman 2011
 

@@ -9,10 +9,10 @@
 --            set_steps ! )
 
 main:
-    ( argv `0 th
+    ( argv `0 th 
     slurp load
 
-    dup dump `"boot.dot" <<<
+--    dup dump `"boot.dot" <<<
 
     babel )
 

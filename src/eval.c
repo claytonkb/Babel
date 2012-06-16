@@ -12,35 +12,56 @@
 #include "list.h"
 
 //
+// babel_operator
 bvm_cache *eval(bvm_cache *this_bvm){
 
-    mword *body = (mword*)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *body = TOS_0(this_bvm);
     hard_zap(this_bvm);
 
-    push_alloc_rstack(this_bvm, (mword*)scdr(this_bvm->code_ptr), EVAL);
+//    push_alloc_rstack(this_bvm, (mword*)scdr(this_bvm->code_ptr), EVAL);
+//
+//    this_bvm->code_ptr = body;
+//
+//    car(this_bvm->advance_type) = BVM_CONTINUE;
 
-    this_bvm->code_ptr = body;
-
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    _eval(this_bvm, body, (mword*)scdr(this_bvm->code_ptr));
 
     return this_bvm;
 
 }
 
+// Impersonates eval operator...
+void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){
+
+    push_alloc_rstack(this_bvm, eval_return, EVAL);
+
+    this_bvm->code_ptr = eval_body;
+
+    car(this_bvm->advance_type) = BVM_CONTINUE;
+
+}
+
 //FIXME: Busted, need to handle empty stack
+// babel_operator
 bvm_cache *nest(bvm_cache *this_bvm){
 
-    mword *body = (mword*)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *body = TOS_0(this_bvm);
     hard_zap(this_bvm);
 
-    mword *new_stack = (mword*)TOS_0(this_bvm);
+    mword *new_stack = TOS_0(this_bvm);
     hard_zap(this_bvm);
 //    push_alloc_rstack(this_bvm, (mword*)this_bvm->stack_ptr, NEST);
 
 //    clear(this_bvm);
 
-    mword *save_stack = this_bvm->stack_ptr;
-    this_bvm->stack_ptr = nil; // clear the stack
+    mword *save_stack  = this_bvm->stack_ptr;
+    mword *save_ustack = this_bvm->ustack_ptr;
+
+//    this_bvm->stack_ptr = nil; // clear the stack
+
+    clear(this_bvm); // clear the stack
 
 //    rgive(this_bvm, new_stack);
 
@@ -52,6 +73,7 @@ bvm_cache *nest(bvm_cache *this_bvm){
     (mword*)c(temp,NEST_RSTACK_BODY)   = body;
             c(temp,NEST_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
     (mword*)c(temp,NEST_RSTACK_STACK)  = save_stack;
+    (mword*)c(temp,NEST_RSTACK_USTACK) = save_ustack;
 
     push_alloc_rstack(this_bvm, temp, NEST);
 
@@ -63,58 +85,124 @@ bvm_cache *nest(bvm_cache *this_bvm){
 
 }
 
-// [x] (a) (b) if  
-// is_false(x)  --> (a) eval
-// !is_false(x) --> (b) eval
-// pseudo-operator (sel eval)
-bvm_cache *ifop(bvm_cache *this_bvm){
+// [x] (a) (b) ifte  
+// !is_false(x) --> (a) eval
+// is_false(x)  --> (b) eval
+// babel_operator
+bvm_cache *ifte(bvm_cache *this_bvm){
 
-//    mword *select = (mword*)TOS_0(this_bvm);
-//    zap(this_bvm);
-//    
-//    if(is_false(select)){
-//        zap(this_bvm);
-//    }
-//    else{
-//        zap(swap(this_bvm));
-//    }
-
-    mword *else_clause = (mword *)TOS_0(this_bvm);
-//    hard_zap(this_bvm);
-//
-    mword *then_clause = (mword *)TOS_0(this_bvm);
-//    hard_zap(this_bvm);
-
-//    mword *cond = (mword *)TOS_0(this_bvm);
-//    hard_zap(this_bvm);
-
-//    down(this_bvm);    
-//    dup(this_bvm);
-//    up(this_bvm);    
-
-    eval(this_bvm);
-die
-    mword *result = (mword *)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *else_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
     hard_zap(this_bvm);
 
-    if(is_false(result)){
-        trace
-        push_alloc(this_bvm, else_clause, IMMORTAL);
-    }
-    else{
-        trace
-        push_alloc(this_bvm, then_clause, IMMORTAL);
+    mword *then_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
+    hard_zap(this_bvm);
+
+    mword *cond_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
+    hard_zap(this_bvm);
+
+    dup(this_bvm); //Almost always we need to dup the TOS...
+
+    mword *temp = _newin(IFTE_RSTACK_ENTRIES);
+
+    mword *ifte_select = new_atom;
+    *ifte_select = IFTE_COND;
+
+    (mword*)c(temp,IFTE_RSTACK_RETURN) = (mword*)cdr(this_bvm->code_ptr);
+    (mword*)c(temp,IFTE_RSTACK_THEN)   = then_clause;
+    (mword*)c(temp,IFTE_RSTACK_ELSE)   = else_clause;
+    (mword*)c(temp,IFTE_RSTACK_SELECT) = ifte_select;
+
+    push_alloc_rstack(this_bvm, temp, IFTE);
+
+    car(this_bvm->advance_type) = BVM_CONTINUE;
+
+    this_bvm->code_ptr = cond_clause;
+
+    return this_bvm;
+
+}
+
+
+//
+// babel_operator
+bvm_cache *let(bvm_cache *this_bvm){
+
+    fatal("implementation broken");
+    mword *body = get_from_stack( this_bvm, TOS_0( this_bvm ) );
+    hard_zap(this_bvm);
+
+    mword *lex_list = get_from_stack( this_bvm, TOS_0( this_bvm ) );
+    hard_zap(this_bvm);
+
+    // get length of lex var list
+    mword length = _len(lex_list);
+          length += LET_RSTACK_ENTRIES;
+
+    // allocate rstack block big enough to fit
+    mword *temp = _newin(length);
+    mword *list = lex_list;
+
+    (mword*)c(temp,LET_RSTACK_RETURN) = (mword*)cdr(this_bvm->code_ptr);
+    (mword*)c(temp,LET_RSTACK_LIST)   = list;
+
+    // copy current contents of the lex variables 
+    //   to the rstack block
+    mword i = LET_RSTACK_ENTRIES;
+    while(!is_nil(list)){ //FIXME Breaks due to car/cdr can't handle hash-refs
+        c(temp,i) = car(car(car(list)));
+//        c(temp,i) = car(list);
+        list = (mword*)cdr(list);
+        i++;
     }
 
-    eval(this_bvm);
+    // eval the body
+    push_alloc_rstack(this_bvm, temp, LET);
+
+    this_bvm->code_ptr = body;
+
+    car(this_bvm->advance_type) = BVM_CONTINUE;
+
+    return this_bvm;
+
+}
+
+
+//FIXME: Busted. See ifte to get it right.
+// babel_operator
+bvm_cache *ifop(bvm_cache *this_bvm){
+
+    fatal("unimplemented");
+//   { > 0 } { "greater than zero\n" << } if
+
+//    mword *then_clause = get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) );
+//    hard_zap(this_bvm);
+//
+//    mword *cond_clause = get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) );
+//    hard_zap(this_bvm);
+//
+//    dup(this_bvm); //Almost always we need to dup the TOS...
+//
+//    mword *temp = _newin(IFOP_RSTACK_ENTRIES);
+//
+//    (mword*)c(temp,IFOP_RSTACK_RETURN) = (mword*)cdr(this_bvm->code_ptr);
+//    (mword*)c(temp,IFOP_RSTACK_THEN)   = then_clause;
+//
+//    push_alloc_rstack(this_bvm, temp, IFOP);
+//
+//    car(this_bvm->advance_type) = BVM_CONTINUE;
+//
+//    this_bvm->code_ptr = cond_clause;
 
     return this_bvm;
 
 }
 
 //
+// babel_operator
 bvm_cache *gotoop(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     this_bvm->code_ptr = (mword*)scar(scar(this_bvm->stack_ptr));
 
     hard_zap(this_bvm);
@@ -126,9 +214,11 @@ bvm_cache *gotoop(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *loop(bvm_cache *this_bvm){
 
-    mword *body = (mword *)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *body = TOS_0(this_bvm);
     hard_zap(this_bvm);
 
     mword *temp = _newin(LOOP_RSTACK_ENTRIES);
@@ -150,29 +240,11 @@ bvm_cache *loop(bvm_cache *this_bvm){
 
 }
 
-
-// TOS-0 body
-// TOS-1 lexical variable list
-bvm_cache *let(bvm_cache *this_bvm){
-
-    // get length of lex var list
-    // allocate rstack block big enough to fit
-    // copy current contents of the lex variables 
-    //   to the rstack block
-    // eval the body
-
-    // last/next
-    //   restore prior contents of the lex variables from the rstack
-    //   pop rstack
-
-    return this_bvm;
-
-}
-
-
 //
+// babel_operator
 bvm_cache *last(bvm_cache *this_bvm){ 
 
+    fatal("stack fix not done");
     mword *rstack_entry;
     mword *result;
     int done=0;
@@ -261,6 +333,7 @@ bvm_cache *last(bvm_cache *this_bvm){
 //}
 
 //
+// babel_operator
 bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 
     mword *rstack_entry;
@@ -268,15 +341,34 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
     mword *temp;
 
     //FIXME: Handle empty rstack
-
-//    while(      return_type(this_bvm->rstack_ptr) == DOWN 
-//            ||  return_type(this_bvm->rstack_ptr) == NEST){
-//        up(this_bvm);
-//    }
+    warn("implementation unstable");
 
     if(return_type(this_bvm->rstack_ptr) == EVAL){
 
         this_bvm->code_ptr = (mword*)car(pop_rstack(this_bvm));
+
+    }
+    else if(return_type(this_bvm->rstack_ptr) == LET){
+
+        rstack_entry = (mword*)RTOS_0(this_bvm);
+
+        // last/next
+        //   restore prior contents of the lex variables from the rstack
+        //   pop rstack
+        mword* list = (mword*)rstack_entry[LET_RSTACK_LIST];
+
+        // copy current contents of the lex variables 
+        //   to the rstack block
+        mword i = LET_RSTACK_ENTRIES;
+        while(!is_nil(list)){ //FIXME Breaks due to car/cdr can't handle hash-refs
+            c((mword*)c((mword*)c(list,0),0),0) = c(rstack_entry,i);
+//            *(mword*)car(list) = *(mword*)c(rstack_entry,i);
+            list = (mword*)cdr(list);
+            i++;
+        }
+
+        this_bvm->code_ptr = (mword*)rstack_entry[TIMES_RSTACK_RETURN];
+        pop_rstack(this_bvm);
 
     }
     else if(return_type(this_bvm->rstack_ptr) == LOOP){
@@ -302,6 +394,46 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
         }
 
     }
+    else if(return_type(this_bvm->rstack_ptr) == IFTE){
+
+        rstack_entry = (mword*)RTOS_0(this_bvm);
+        mword *clause;
+
+        if( car(rstack_entry[IFTE_RSTACK_SELECT]) == IFTE_BODY ){
+            this_bvm->code_ptr = (mword*)rstack_entry[IFTE_RSTACK_RETURN];
+            pop_rstack(this_bvm);
+        }
+        else{ // car(rstack_entry[IFTE_RSTACK_SELECT]) == IFTE_COND
+            if( is_false( get_from_stack( this_bvm, TOS_0( this_bvm ) ) ) ){
+                clause = (mword*)rstack_entry[IFTE_RSTACK_ELSE];
+            }
+            else{
+                clause = (mword*)rstack_entry[IFTE_RSTACK_THEN];
+            }
+            hard_zap(this_bvm);
+            this_bvm->code_ptr = clause;
+            *(mword*)rstack_entry[IFTE_RSTACK_SELECT] = IFTE_BODY;
+        }
+
+    }
+    else if(return_type(this_bvm->rstack_ptr) == IFOP){
+
+        rstack_entry = (mword*)RTOS_0(this_bvm);
+        mword *clause;
+
+        if( is_false( get_from_stack( this_bvm, TOS_0( this_bvm ) ) ) ){
+            this_bvm->code_ptr = (mword*)rstack_entry[IFOP_RSTACK_RETURN];
+            pop_rstack(this_bvm);
+
+        }
+        else{
+            clause = (mword*)rstack_entry[IFOP_RSTACK_THEN];
+            pop_rstack(this_bvm);
+            _eval(this_bvm, clause, (mword*)rstack_entry[IFOP_RSTACK_RETURN]);
+        }
+        hard_zap(this_bvm);
+
+    }
     else if(return_type(this_bvm->rstack_ptr) == WHILEOP){ //XXX buggy...
 
         rstack_entry = (mword*)RTOS_0(this_bvm);
@@ -311,7 +443,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
             *(mword*)rstack_entry[WHILE_RSTACK_ITER] = car(rstack_entry[WHILE_RSTACK_ITER]) + 1;
         }
         else{ // car(rstack_entry[WHILE_RSTACK_SELECT]) == WHILE_COND
-            if( is_false((mword*)TOS_0(this_bvm)) ){
+            if( is_false(TOS_0(this_bvm)) ){
                 this_bvm->code_ptr = (mword*)rstack_entry[WHILE_RSTACK_RETURN];
                 pop_rstack(this_bvm);
             }
@@ -377,9 +509,10 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
         this_bvm->code_ptr = (mword*)rstack_entry[NEST_RSTACK_RETURN];
         pop_rstack(this_bvm);
 
-        temp = (mword*)TOS_0(this_bvm);
+        temp = TOS_0(this_bvm);
 
-        this_bvm->stack_ptr = (mword*)rstack_entry[NEST_RSTACK_STACK];
+        this_bvm->stack_ptr  = (mword*)rstack_entry[NEST_RSTACK_STACK];
+        this_bvm->ustack_ptr = (mword*)rstack_entry[NEST_RSTACK_USTACK];
         push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
 
 //        error("next: found NEST while trying to execute NEXT");
@@ -394,8 +527,10 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 }
 
 // (body) [x] times
+// babel_operator
 bvm_cache *times(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     mword *temp;
     mword *times;
 
@@ -405,7 +540,7 @@ bvm_cache *times(bvm_cache *this_bvm){
         *times = car(TOS_0(this_bvm));
         hard_zap(this_bvm);
 
-        mword *body = (mword*)TOS_0(this_bvm);
+        mword *body = TOS_0(this_bvm);
         hard_zap(this_bvm);
 
         mword *temp = _newin(TIMES_RSTACK_ENTRIES);
@@ -435,12 +570,14 @@ bvm_cache *times(bvm_cache *this_bvm){
 // "dig" through the rstack until it finds a
 // looping rstack entry in case we're buried in evals
 // or nesting.
+// babel_operator
 bvm_cache *iter(bvm_cache *this_bvm){
 
 //    if(return_type(this_bvm->rstack_ptr) != TIMES){
 //        return this_bvm;
 //    }
 
+    fatal("stack fix not done");
     mword *rstack_entry = (mword*)RTOS_0(this_bvm);
 
     mword *result = new_atom;
@@ -474,12 +611,14 @@ bvm_cache *iter(bvm_cache *this_bvm){
 }
 
 // (body) (cond) while
+// babel_operator
 bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 
-    mword *cond_block = (mword*)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *cond_block = TOS_0(this_bvm);
     hard_zap(this_bvm);
 
-    mword *body = (mword*)TOS_0(this_bvm);
+    mword *body = TOS_0(this_bvm);
     hard_zap(this_bvm);
 
     mword *block_sel = new_atom;
@@ -506,13 +645,15 @@ bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 }
 
 // (body) (list) each
+// babel_operator
 bvm_cache *each(bvm_cache *this_bvm){
 
-    mword *body = (mword*)TOS_0(this_bvm);
+    fatal("stack fix not done");
+    mword *body = TOS_0(this_bvm);
     hard_zap(this_bvm);
 
 // FIXME: Catch the empty-list condition...
-    mword *list = (mword*)TOS_0(this_bvm);
+    mword *list = TOS_0(this_bvm);
     hard_zap(this_bvm);
 
     mword *temp = _newin(EACH_RSTACK_ENTRIES);
@@ -537,6 +678,7 @@ bvm_cache *each(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *dieop(bvm_cache *this_bvm){
     fprintf(stderr, "Died.\n");
     exit(0);
@@ -545,16 +687,18 @@ bvm_cache *dieop(bvm_cache *this_bvm){
 
 // (body) [array] eachar
 // (body) {array} eachar
+// babel_operator
 bvm_cache *eachar(bvm_cache *this_bvm){
 
 // FIXME: Catch the empty-list condition...
 
+    fatal("stack fix not done");
     mword *result;
 
-    mword *body = (mword*)TOS_0(this_bvm);
+    mword *body = TOS_0(this_bvm);
     hard_zap(this_bvm);
 
-    mword *array = (mword*)TOS_0(this_bvm);
+    mword *array = TOS_0(this_bvm);
     hard_zap(this_bvm);
 
     mword *count = new_atom;
@@ -591,8 +735,10 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *conjure(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
 
     car(this_bvm->advance_type) = BVM_RETURN;

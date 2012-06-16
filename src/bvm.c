@@ -279,12 +279,12 @@
 //}
 
 //
+// babel_operator
 bvm_cache *bvm_interp(bvm_cache *this_bvm){
 
     bvm_cache *discard;
     babel_op op_ptr;
 
-//    while( 1 ){//FIXME: This is not correct long-term   car(this_bvm->steps) --
     while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
 
         if(is_nil((mword*)scar(this_bvm->code_ptr))){
@@ -296,15 +296,10 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
         }
 
         if( is_inte(car(this_bvm->code_ptr)) ){
-//            if(is_href((mword*)car(car(this_bvm->code_ptr)))){
-//                error("bvm_interp: hash-reference detected on stack");
-//                die;
-//            }
-            push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), IMMORTAL);
-//            this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
+//            push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), IMMORTAL);
+            push_alloc(this_bvm, (mword*)car(this_bvm->code_ptr), IMMORTAL);
         }
         else if( is_leaf(car(this_bvm->code_ptr)) ){
-//            opcode_switch(car(car(this_bvm->code_ptr)));
             mword opcode = car(car(this_bvm->code_ptr));
 
 //            d(car(car(this_bvm->code_ptr)))
@@ -342,11 +337,12 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *babelop(bvm_cache *this_bvm){
 
     bvm_cache new_bvm;
 
-    new_bvm.self = (mword*)TOS_0(this_bvm);
+    new_bvm.self = TOS_0(this_bvm);
     hard_zap(this_bvm);
 
     load_bvm_cache(&new_bvm);
@@ -377,9 +373,11 @@ bvm_cache *babelop(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *bvmcode(bvm_cache *this_bvm){
 
-    push_alloc(this_bvm, this_bvm->code_ptr, IMMORTAL); 
+   fatal("stack fix not done");
+   push_alloc(this_bvm, this_bvm->code_ptr, IMMORTAL); 
     // XXX: These operators are inherently dangerous in 
     // combination with the mortal operator
 
@@ -388,8 +386,10 @@ bvm_cache *bvmcode(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *bvmstack(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     push_alloc(this_bvm, this_bvm->stack_ptr, IMMORTAL);
 
     return this_bvm;
@@ -397,8 +397,10 @@ bvm_cache *bvmstack(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *bvmustack(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     push_alloc(this_bvm, this_bvm->ustack_ptr, IMMORTAL);
 
     return this_bvm;
@@ -406,8 +408,10 @@ bvm_cache *bvmustack(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *self(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     flush_bvm_cache(this_bvm);
 
 //    mword *result = _bs2gv(this_bvm->self);
@@ -420,6 +424,7 @@ bvm_cache *self(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *rsvd(bvm_cache *this_bvm){
 
     d(car(car(this_bvm->code_ptr)))
@@ -430,6 +435,7 @@ bvm_cache *rsvd(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *boilerplate(bvm_cache *this_bvm){
 
 //    printf(
@@ -438,6 +444,7 @@ bvm_cache *boilerplate(bvm_cache *this_bvm){
 //    Clayton Bauman (c) 2012, see LICENSE for details\n\n", 
 //    BABEL_VERSION, __DATE__, __TIME__);
 
+    fatal("stack fix not done");
     char msg[256];
 
     sprintf(msg, 

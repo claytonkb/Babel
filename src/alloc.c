@@ -9,8 +9,10 @@
 #include "bstruct.h"
 
 // "shallow del"
+// babel_operator
 bvm_cache *free_op(bvm_cache *this_bvm){
 
+    fatal("stack fix not done");
     bfree(TOS_0(this_bvm));
     hard_zap(this_bvm);
 
@@ -19,9 +21,11 @@ bvm_cache *free_op(bvm_cache *this_bvm){
 }
 
 //
+// babel_operator
 bvm_cache *del(bvm_cache *this_bvm){
 
-    _del((mword*)TOS_0(this_bvm));
+    fatal("stack fix not done");
+    _del(TOS_0(this_bvm));
     hard_zap(this_bvm);
 
     return this_bvm;
