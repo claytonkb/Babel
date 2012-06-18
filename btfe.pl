@@ -27,7 +27,9 @@ my $proj_name = $ARGV[0];
 my $section_name = qr/[_A-Za-z][_A-Za-z0-9]*/;
 my $sigil_re     = qr/[\*\$&%!]/;
 
-unshift @ARGV, "pb/opcodes.pb";
+#unshift @ARGV, "pb/opcodes.pb";
+
+my $sections = {};
 
 while($#ARGV>-1){
     $asm_file = shift @ARGV;
@@ -36,21 +38,21 @@ while($#ARGV>-1){
     close ASM_FILE;
 }
 
-                    clean           ( \@asm_file );
-my $sections =      get_sections    ( \@asm_file );
-#print Dumper($sections);
-#die;
+#                    clean           ( \@asm_file );
+parse_ntb       ( \@asm_file, 0, $sections );
+print Dumper($sections);
+die;
 
-                    section_parse   ( $sections->{$_}) for (keys %{$sections});
-
-#                    assemble        ( $sections, $sections->{'main'} );
-#                    linkit          ( $sections, 'main', $obj_out, 0 );
-
-                    assemble        ( $sections, $sections->{'root'} );
-                    linkit          ( $sections, 'root', $obj_out, 0 );
-
-                    send_obj        ( $proj_name, $obj_out, $sections);
-
+#                    section_parse   ( $sections->{$_}) for (keys %{$sections});
+#
+##                    assemble        ( $sections, $sections->{'main'} );
+##                    linkit          ( $sections, 'main', $obj_out, 0 );
+#
+#                    assemble        ( $sections, $sections->{'root'} );
+#                    linkit          ( $sections, 'root', $obj_out, 0 );
+#
+#                    send_obj        ( $proj_name, $obj_out, $sections);
+#
 #print Dumper($sections);
 
 #########################################################################
@@ -60,18 +62,20 @@ my $sections =      get_sections    ( \@asm_file );
 #########################################################################
 
 sub clean{
+
     my $asm_file = shift;
     remove_comments($asm_file);
     remove_ws      ($asm_file);
+
 }
 
 sub remove_comments{
 
     my $asm_file = shift;
 
-    foreach my $line (@{$asm_file}){
-        $line =~ s/--.*$//; #Strips a line-comment
-    }
+#    foreach my $line (@{$asm_file}){
+#        $line =~ s/--.*$//; #Strips a line-comment
+#    }
 
 }
 
@@ -98,121 +102,127 @@ sub remove_ws{
 #
 #########################################################################
 
-sub get_sections{
+sub parse_ntb{
 
-    my $asm_file = shift;
-    my $sections;
-    my $current_section;
-    my $match;
-    my $current_sigil;
+    my $ntb_file = shift;
+    my $left_edge = shift;
+    my $sections = shift;
+    my $next_section=0;
 
-    #Create root section
-    $sections->{'root'}{src} = [];
-    $sections->{'root'}{ptr} = 0;
-    $sections->{'root'}{asmd} = 0;
-    $sections->{'root'}{bin_ptr} = undef;
-    $sections->{'root'}{bin} = [];
-#    push @{$sections->{'nil'}{src}}, "[nil nil]";
-                                              #stack ustack rstack jump  sym  TID       argv  steps   advance
-    push @{$sections->{'root'}{src}}, "[ main nil    nil    nil    nil   nil  thread_id nil   steps   advance_type ]";
+    while(1){
 
-    $sections->{'thread_id'}{src} = [];
-    $sections->{'thread_id'}{ptr} = 0;
-    $sections->{'thread_id'}{asmd} = 0;
-    $sections->{'thread_id'}{bin_ptr} = undef;
-    $sections->{'thread_id'}{bin} = [];
-#    push @{$sections->{'nil'}{src}}, "[nil nil]";
-                                              #stack ustack rstack jump  sym  TID argv steps advance
-    push @{$sections->{'thread_id'}{src}}, "{0}";
-
-    $sections->{'steps'}{src} = [];
-    $sections->{'steps'}{ptr} = 0;
-    $sections->{'steps'}{asmd} = 0;
-    $sections->{'steps'}{bin_ptr} = undef;
-    $sections->{'steps'}{bin} = [];
-#    push @{$sections->{'nil'}{src}}, "[nil nil]";
-                                              #stack ustack rstack jump  sym  TID argv steps advance
-    push @{$sections->{'steps'}{src}}, "{-1}";
-
-    $sections->{'advance_type'}{src} = [];
-    $sections->{'advance_type'}{ptr} = 0;
-    $sections->{'advance_type'}{asmd} = 0;
-    $sections->{'advance_type'}{bin_ptr} = undef;
-    $sections->{'advance_type'}{bin} = [];
-#    push @{$sections->{'nil'}{src}}, "[nil nil]";
-                                              #stack ustack rstack jump  sym  TID argv steps advance
-    push @{$sections->{'advance_type'}{src}}, "{0}";
-
-
-    # Create nil for use by lists
-    $sections->{'nil'}{src} = [];
-    $sections->{'nil'}{ptr} = 0;
-    $sections->{'nil'}{asmd} = 0;
-    $sections->{'nil'}{bin_ptr} = undef;
-    $sections->{'nil'}{bin} = [];
-#    push @{$sections->{'nil'}{src}}, "[nil nil]";
-    push @{$sections->{'nil'}{src}}, "nil&";
-
-    for(@{$asm_file}){
-#        if(/^([a-zA-Z0-9_]+):/){
-        if(/^($section_name)(${sigil_re}?):/){
-
-            $current_section = $1;
-            $current_sigil   = defined $2 ? $2 : undef;
-
-            $sections->{$current_section}{src}     = [];
-            $sections->{$current_section}{ptr}     = 0;
-            $sections->{$current_section}{asmd}    = 0;
-            $sections->{$current_section}{bin_ptr} = undef;
-            $sections->{$current_section}{bin}     = [];
-            $sections->{$current_section}{sigil}   = "DIRECT_REF";
-
-            if(defined $current_sigil){
-                for($current_sigil){
-                    /\*/ and $sections->{$current_section}{sigil} = "LEX_SUB";
-                    /\$/ and $sections->{$current_section}{sigil} = "DIRECT_REF";
-                    /&/  and $sections->{$current_section}{sigil} = "INDIRECT_REF";
-                    /%/  and $sections->{$current_section}{sigil} = "HASH_REF";
-                    /!/  and $sections->{$current_section}{sigil} = "AUTO_EVAL";
-                }
-            }
-
-#            if(/\@/){
-#                $sections->{$current_section}{nest} = 0;
-#            }
-#            else{
-#                $sections->{$current_section}{nest} = 1;
-#            }
-
-#            ($match) = $_ =~ /^[a-zA-Z0-9_]+:(.+)$/;
-            ($match) = $_ =~ /^${section_name}${sigil_re}?:(.+)$/;
-            if(defined $match){
-                push @{$sections->{$current_section}{src}}, $match;
-            }
-            next;
-
+        if($left_edge == 0){
+            $next_section = discard_null_context($ntb_file,0);
+            return if($next_section == $#{$ntb_file});
         }
-        push @{$sections->{$current_section}{src}}, $_;
+
+        my ($label, $sigil, $remainder) = get_label(undent($ntb_file->[$next_section],$left_edge));
+
+        $sections->{$label}{sigil} = $sigil;
+
+        if(defined $remainder){
+            push @{$sections->{$label}{lines}}, $remainder;
+        }
+
+        my $next_left_edge = get_next_left_edge($ntb_file,$next_section+1,$left_edge);
+
+        if($next_left_edge > $left_edge){
+            parse_ntb( $ntb_file->[$next_section+1..$#{$ntb_file}], $next_left_edge, $sections->{$label}{subsections} );
+        }
+        elsif($next_left_edge < $left_edge){
+            return;
+        }
+
     }
 
-    for(keys %{$sections}){
-        $sections->{$_}{src} = join '', @{$sections->{$_}{src}};
+}
 
-#        next if $_ eq 'root';
-#        next if $_ eq 'thread_id';
-#        next if $_ eq 'steps';
-#        next if $_ eq 'advance_type';
-#        next if $_ eq 'nil';
-#        next if $_ eq 'main';
-
-#        next unless $sections->{$_}{nest};
+#sub get_context_type{
 #
-#        print "$_ ";
+#    $ntb_file = shift;
+#    $current_line = shift;
+#    $left_edge = shift;
+#
+#    while( !is_empty( $ntb_file->[$current_line] ) ){
+#        $current_line++;
+#    }
+#
+#    return $current_line;
+#
+#}
 
-#        $sections->{$_}{src} = '[ ' . $sections->{$_}{src} . ' ]';
+sub get_next_left_edge{
+
+    my $ntb_file = shift;
+    my $current_line = shift;
+    my $left_edge = shift;
+
+    while( is_empty( $ntb_file->[$current_line] ) ){
+        $current_line++;
     }
 
-    return $sections;
+    return get_dent($ntb_file->[$current_line]);
+
+}
+
+sub is_empty{
+
+    my $line = shift;
+    return $line =~ /^\s*$/;
+
+}
+
+sub get_dent{
+
+    my $line = shift;
+    $line =~ /(\s*)/;
+    return length($1) if defined $1;
+    return 0;
+
+}
+
+sub get_label{
+
+    my $line = shift;
+
+    my ($label, $sigil, $remainder) 
+        = $line =~ /^($section_name)($sigil_re?)\s*:\s(.*)/;
+
+    $sigil = sigil_type($sigil) if defined $sigil;
+
+    return ($label, $sigil, $remainder);
+
+}
+
+
+sub discard_null_context{
+
+    my $ntb_file = shift;
+    my $current_line = shift;
+    my $left_edge = 0;
+
+    while( !is_label( undent( $ntb_file->[$current_line], $left_edge) ) ){
+        $current_line++;
+    }
+
+    return $current_line;
+
+}
+
+sub is_label{
+
+    my $line = shift;
+    return 1 if $line =~ /^${section_name}$sigil_re?\s*:/;
+    return 0;
+
+}
+
+sub undent{
+
+    my $line = shift;
+    my $dent = shift;
+
+    return substr( $line, $dent, length($line) );
 
 }
 
@@ -247,6 +257,8 @@ sub assemble{
 #        unshift @{$this_section->{bin}}, 0;
         assemble_hash_ref($this_section);
     }
+#    elsif($this_section->{obj}[0] eq "ALIAS"){
+#    }
     else{
         push @{$this_section->{bin}}, 0;
         $this_section->{bin}[0] = (-1 * assemble_interior($sections, $this_section) * $MWORD_SIZE);
@@ -570,6 +582,8 @@ sub section_parse{
     my $section = shift;
     my $new_array_ref;
     my $token;
+    my $sigil;
+    my @hash;
 
     my $src = $section->{src};
     $section->{obj} = [];
@@ -590,20 +604,39 @@ sub section_parse{
         return;
     }
 
-
-
-    my @hash = is_hash_ref($section);
-    if($#hash > -1){
-        $section->{obj} = ["HASH_REF", @hash];
-#        push @{$obj}, ["HASH_REF", @hash];
-#my $j;
-#for($j=$#hash;$j>=0;$j--){
-#    printf("%08x", $hash[$j]);
-#}
-#print "\n";
-#die;
+    ($token, $sigil) = is_label_sigil($section);
+    if(defined $token){
+        if(    $sigil eq "LEX_SUB"      
+            or $sigil eq "DIRECT_REF"   
+            or $sigil eq "INDIRECT_REF" 
+            or $sigil eq "AUTO_EVAL" ){
+            print "Syntax error\n";
+            die;
+        }
+        elsif($sigil eq  "HASH_REF"){
+            @hash = bytes_to_mwords(Hash::Pearson16::pearson16_hash($token));
+            $section->{obj} = ["HASH_REF", @hash];
+        }
+        else{
+            print "Syntax error\n";
+            die;
+#            $section->{obj} = ["ALIAS", $token];
+        }
         return;
     }
+
+#    my @hash = is_hash_ref($section);
+#    if($#hash > -1){
+#        $section->{obj} = ["HASH_REF", @hash];
+##        push @{$obj}, ["HASH_REF", @hash];
+##my $j;
+##for($j=$#hash;$j>=0;$j--){
+##    printf("%08x", $hash[$j]);
+##}
+##print "\n";
+##die;
+#        return;
+#    }
 
     if(is_interior_array_begin($section)){
 #        $section->{typ} = "interior_arr";
@@ -696,6 +729,7 @@ sub interior_array{
 
     my $label;
     my @hash;
+    my $sigil;
 
     while(1){
 
@@ -725,6 +759,40 @@ sub interior_array{
             next;
         }
 
+
+        ($token, $sigil) = is_label_sigil($section);
+        if(defined $token){
+            if(    $sigil eq "LEX_SUB"      
+                or $sigil eq "DIRECT_REF"   
+                or $sigil eq "INDIRECT_REF" 
+                or $sigil eq "AUTO_EVAL" ){
+                print "Syntax error\n";
+                die;
+            }
+            elsif($sigil eq  "HASH_REF"){
+                @hash = bytes_to_mwords(Hash::Pearson16::pearson16_hash($token));
+                push @{$obj}, ["HASH_REF", @hash];
+            }
+            else{
+                push @{$obj}, ["LABEL", "$token"];
+            }
+            next;
+        }
+
+        $token = is_string($section);
+        if(defined $token){
+            $token = '$token = "' . $token . '"';
+            eval($token);
+            push @{$obj}, ["STRING", "$token"];
+            next;
+        }
+
+        $token = is_numeric($section);
+        if(defined $token){
+            push @{$obj}, ["NUMERIC", 0+$token];
+            next;
+        }
+
         @hash = is_hash_ref($section);
         if($#hash > -1){
             push @{$obj}, ["HASH_REF", @hash];
@@ -734,12 +802,6 @@ sub interior_array{
 #}
 #print "\n";
 #die;
-            next;
-        }
-
-        $token = is_numeric($section);
-        if(defined $token){
-            push @{$obj}, ["NUMERIC", 0+$token];
             next;
         }
 
@@ -754,14 +816,6 @@ sub interior_array{
 #            push @{$obj}, ["EXP_LABEL", "$label"];
 #            next;
 #        }
-
-        $token = is_string($section);
-        if(defined $token){
-            $token = '$token = "' . $token . '"';
-            eval($token);
-            push @{$obj}, ["STRING", "$token"];
-            next;
-        }
 
         print "Syntax error\n";
         die;
@@ -973,42 +1027,50 @@ sub is_label_sigil{
 
     my $string = substr($section->{src}, $section->{ptr});
     my $sigil = "";
+    my $label;
 
 #   $string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/;
     
 #    if($string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/){
-    if($string =~ /^(\s*$section_name)($sigil_re?)/){
-        $sigil = $2 if defined $2;
+    if($string =~ /^(\s*${section_name}$sigil_re?)/){
+
+#        print "$1\n";
+
         $section->{ptr} += length $1;
 
-#        $string =~ /^\s*([A-Za-z_][A-Za-z_0-9]*)/;
-        $string =~ /^\s*($section_name)/;
-        return $1;
+        $string =~ /^\s*($section_name)($sigil_re?)/;
+        $label = $1;
+
+        $sigil = sigil_type($2) if defined $2;
+
+
+        return ($label, $sigil);
+
     }
 
     return undef;
 
 }
 
-sub is_label{
-
-    my $section = shift;
-
-    my $string = substr($section->{src}, $section->{ptr});
-
-#   $string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/;
-    
-#    if($string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/){
-    if($string =~ /^(\s*$section_name)/){
-        $section->{ptr} += length $1;
-#        $string =~ /^\s*([A-Za-z_][A-Za-z_0-9]*)/;
-        $string =~ /^\s*($section_name)/;
-        return $1;
-    }
-
-    return undef;
-
-}
+#sub is_label{
+#
+#    my $section = shift;
+#
+#    my $string = substr($section->{src}, $section->{ptr});
+#
+##   $string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/;
+#    
+##    if($string =~ /^(\s*[A-Za-z_][A-Za-z_0-9]*)/){
+#    if($string =~ /^(\s*$section_name)/){
+#        $section->{ptr} += length $1;
+##        $string =~ /^\s*([A-Za-z_][A-Za-z_0-9]*)/;
+#        $string =~ /^\s*($section_name)/;
+#        return $1;
+#    }
+#
+#    return undef;
+#
+#}
 
 sub is_hash_ref{
 
@@ -1069,6 +1131,11 @@ sub is_numeric{
         $section->{ptr} += length $1;
         $string =~ /^\s*0x([A-Fa-f0-9]+)/;
         return hex($1);
+    }
+
+    if($string =~ /^(\s*0\b)/){
+        $section->{ptr} += length $1;
+        return 0;
     }
 
     return undef;
