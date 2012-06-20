@@ -34,17 +34,22 @@ my $sections = {};
 #while($#ARGV>-1){
     $asm_file = shift @ARGV;
     open ASM_FILE, $asm_file;
-    push @asm_file, <ASM_FILE>;
+#    push @asm_file, <ASM_FILE>;
+    @asm_file = <ASM_FILE>;
     close ASM_FILE;
 #}
 
 $asm_file = \@asm_file;
 
-my $first_line = discard_null_context($asm_file);
+my $first_line = 0+discard_null_context($asm_file, 0);
 
 my $left_edge = get_dent($asm_file->[$first_line]);
 
-parse_ntb       ( $asm_file->[$first_line..$#{$asm_file}] , $left_edge, $sections );
+#my $size_asm_file = $#{$asm_file};
+
+@{$asm_file} = @{$asm_file}[$first_line..$#asm_file];
+
+parse_ntb( $asm_file, $left_edge, $sections );
 
 print Dumper($sections);
 die;
@@ -69,80 +74,105 @@ die;
 
 sub parse_ntb{
 
-    my $ntb_file = shift;
+    my $ntb_file  = shift;
     my $left_edge = shift;
-    my $sections = shift;
-#    my $next_section=0;
+    my $sections  = shift;
+    my $current_line = 0;
+    my ($label, $sigil, $remainder);
+    my $next_left_edge;
 
-    #get label
-    my ($label, $sigil, $remainder) = get_label(undent($ntb_file->[$next_section],$left_edge));
+    while( $current_line <= $#{$ntb_file} ){
 
-    #find next, non-empty line
-    #next_left_edge = get dent(next, non-empty line)
-    #if next_left_edge > left_edge
-    #   recurse
-    #else if next_left_edge < left_edge
-    #else (next_left_edge == left_edge)
-    #   iterate
+        if( is_label( undent( $ntb_file->[$current_line], $left_edge) ) ){
 
-#    $sections->{$label}{sigil} = $sigil if defined $sigil;
-#
-#        if(defined $remainder){
-#            push @{$sections->{$label}{lines}}, $remainder;
-#        }
-#
-#        my $next_left_edge = get_next_left_edge($ntb_file,$next_section+1,$left_edge);
-#
-#        if($next_left_edge > $left_edge){
-#            parse_ntb( $ntb_file->[$next_section+1..$#{$ntb_file}], $next_left_edge, $sections->{$label}{subsections} );
-#        }
-#        elsif($next_left_edge < $left_edge){
-#            return;
-#        }
-#
-#    }
+            ($label, $sigil, $remainder) = get_label(undent($ntb_file->[$current_line],$left_edge));
+
+            $sections->{$label}{sigil} = $sigil if defined $sigil;
+            push(@{$sections->{$label}{text}}, $remainder) if defined $remainder;
+
+            $current_line = find_next_non_empty_line( [ @{$ntb_file}[$current_line..$#{$ntb_file}] ], $current_line );
+
+            $next_left_edge = get_dent( $ntb_file->[$current_line] );
+
+            if($next_left_edge > $left_edge){
+                ($current_line,$next_left_edge) = parse_ntb( [ @{$ntb_file}[$current_line .. $#{$ntb_file}] ], $next_left_edge, $sections->{$label} );
+                if(($next_left_edge == $left_edge) 
+                        and ($current_line < $#{$ntb_file})){
+                    next;
+                }
+                else{
+                    return ( $current_line, get_dent( $ntb_file->[$current_line] ) );
+                }
+            }
+            elsif($next_left_edge < $left_edge){
+                return ( $current_line, $next_left_edge );
+            }
+            else{ #($next_left_edge == $left_edge)
+                if($current_line < $#{$ntb_file}){
+                    next;
+                }
+                else{
+                    return ( $current_line, get_dent( $ntb_file->[$current_line] ) );
+                }
+            }
+
+        }
+        else{
+
+            while( $current_line <= $#{$ntb_file} 
+                    and ( get_dent($ntb_file->[$current_line]) > $left_edge
+                    or is_empty($ntb_file->[$current_line]))){
+                push @{$sections->{text}}, $ntb_file->[$current_line];
+                $current_line++;
+            }
+
+            return ( $current_line, get_dent( $ntb_file->[$current_line] ) );
+            
+        }
+
+    }
 
 }
 
-#sub get_context_type{
-#
-#    $ntb_file = shift;
-#    $current_line = shift;
-#    $left_edge = shift;
-#
-#    while( !is_empty( $ntb_file->[$current_line] ) ){
-#        $current_line++;
-#    }
-#
-#    return $current_line;
-#
-#}
-
-sub get_next_left_edge{
+sub find_next_non_empty_line{
 
     my $ntb_file = shift;
     my $current_line = shift;
-    my $left_edge = shift;
 
     while( is_empty( $ntb_file->[$current_line] ) ){
         $current_line++;
     }
 
-    return get_dent($ntb_file->[$current_line]);
+    return $current_line;
 
 }
 
-sub is_empty{
+#sub get_next_left_edge{
+#
+#    my $ntb_file = shift;
+#    my $current_line = shift;
+#    my $left_edge = shift;
+#
+#    while( is_empty( $ntb_file->[$current_line] ) ){
+#        $current_line++;
+#    }
+#    die;
+#
+#    return get_dent($ntb_file->[$current_line]);
+#
+#}
+
+sub is_empty{ #tabs show up as non-empty ... 
 
     my $line = shift;
-    return $line =~ /^\s*$/;
+    return $line =~ /^ *$/;
 
 }
 
 sub get_dent{
 
     my $line = shift;
-    $line =~ /(\s*)/;
+    $line =~ /( *)\S/;
     return length($1) if defined $1;
     return 0;
 
@@ -153,7 +183,7 @@ sub get_label{
     my $line = shift;
 
     my ($label, $sigil, $remainder) 
-        = $line =~ /^($section_name)($sigil_re?)\s*:\s(.*)/;
+        = $line =~ /^($section_name)($sigil_re?) *:(.*)/;
 
     $sigil = sigil_type($sigil) if defined $sigil;
 
@@ -179,7 +209,7 @@ sub discard_null_context{
 sub is_label{
 
     my $line = shift;
-    return 1 if $line =~ /^${section_name}$sigil_re?\s*:/;
+    return 1 if $line =~ /^${section_name}$sigil_re? *:/;
     return 0;
 
 }
