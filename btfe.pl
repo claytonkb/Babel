@@ -31,15 +31,21 @@ my $sigil_re     = qr/[\*\$&%!]/;
 
 my $sections = {};
 
-while($#ARGV>-1){
+#while($#ARGV>-1){
     $asm_file = shift @ARGV;
     open ASM_FILE, $asm_file;
     push @asm_file, <ASM_FILE>;
     close ASM_FILE;
-}
+#}
 
-#                    clean           ( \@asm_file );
-parse_ntb       ( \@asm_file, 0, $sections );
+$asm_file = \@asm_file;
+
+my $first_line = discard_null_context($asm_file);
+
+my $left_edge = get_dent($asm_file->[$first_line]);
+
+parse_ntb       ( $asm_file->[$first_line..$#{$asm_file}] , $left_edge, $sections );
+
 print Dumper($sections);
 die;
 
@@ -57,47 +63,6 @@ die;
 
 #########################################################################
 #
-# Sub-routine definitions
-#
-#########################################################################
-
-sub clean{
-
-    my $asm_file = shift;
-    remove_comments($asm_file);
-    remove_ws      ($asm_file);
-
-}
-
-sub remove_comments{
-
-    my $asm_file = shift;
-
-#    foreach my $line (@{$asm_file}){
-#        $line =~ s/--.*$//; #Strips a line-comment
-#    }
-
-}
-
-sub remove_ws{
-
-    my $asm_file = shift;
-    my @asm_file = @{$asm_file};
-
-    chomp for @asm_file;
-
-    splice(@{$asm_file});
-
-    for(@asm_file){
-        unless(/^\s*$/){
-            push @{$asm_file}, $_;
-        }
-    }
-
-}
-
-#########################################################################
-#
 # PRE-PARSER
 #
 #########################################################################
@@ -107,33 +72,35 @@ sub parse_ntb{
     my $ntb_file = shift;
     my $left_edge = shift;
     my $sections = shift;
-    my $next_section=0;
+#    my $next_section=0;
 
-    while(1){
+    #get label
+    my ($label, $sigil, $remainder) = get_label(undent($ntb_file->[$next_section],$left_edge));
 
-        if($left_edge == 0){
-            $next_section = discard_null_context($ntb_file,0);
-            return if($next_section == $#{$ntb_file});
-        }
+    #find next, non-empty line
+    #next_left_edge = get dent(next, non-empty line)
+    #if next_left_edge > left_edge
+    #   recurse
+    #else if next_left_edge < left_edge
+    #else (next_left_edge == left_edge)
+    #   iterate
 
-        my ($label, $sigil, $remainder) = get_label(undent($ntb_file->[$next_section],$left_edge));
-
-        $sections->{$label}{sigil} = $sigil;
-
-        if(defined $remainder){
-            push @{$sections->{$label}{lines}}, $remainder;
-        }
-
-        my $next_left_edge = get_next_left_edge($ntb_file,$next_section+1,$left_edge);
-
-        if($next_left_edge > $left_edge){
-            parse_ntb( $ntb_file->[$next_section+1..$#{$ntb_file}], $next_left_edge, $sections->{$label}{subsections} );
-        }
-        elsif($next_left_edge < $left_edge){
-            return;
-        }
-
-    }
+#    $sections->{$label}{sigil} = $sigil if defined $sigil;
+#
+#        if(defined $remainder){
+#            push @{$sections->{$label}{lines}}, $remainder;
+#        }
+#
+#        my $next_left_edge = get_next_left_edge($ntb_file,$next_section+1,$left_edge);
+#
+#        if($next_left_edge > $left_edge){
+#            parse_ntb( $ntb_file->[$next_section+1..$#{$ntb_file}], $next_left_edge, $sections->{$label}{subsections} );
+#        }
+#        elsif($next_left_edge < $left_edge){
+#            return;
+#        }
+#
+#    }
 
 }
 
