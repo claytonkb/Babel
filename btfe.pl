@@ -81,50 +81,74 @@ sub parse_ntb{
     my ($label, $sigil, $remainder);
     my $next_left_edge;
 
-    while( $current_line <= $#{$ntb_file} ){
+    while( $current_line < $#{$ntb_file} ){
 
         if( is_label( undent( $ntb_file->[$current_line], $left_edge) ) ){
 
             ($label, $sigil, $remainder) = get_label(undent($ntb_file->[$current_line],$left_edge));
 
+            $sections->{$label} = {};
             $sections->{$label}{sigil} = $sigil if defined $sigil;
             push(@{$sections->{$label}{text}}, $remainder) if defined $remainder;
 
-            $current_line = find_next_non_empty_line( [ @{$ntb_file}[$current_line..$#{$ntb_file}] ], $current_line );
+            $current_line = find_next_non_empty_line( $ntb_file, $current_line+1 );
+            print "asdf: $current_line\n";
 
             $next_left_edge = get_dent( $ntb_file->[$current_line] );
 
             if($next_left_edge > $left_edge){
+                print "A\n";
                 ($current_line,$next_left_edge) = parse_ntb( [ @{$ntb_file}[$current_line .. $#{$ntb_file}] ], $next_left_edge, $sections->{$label} );
+
+                print "$next_left_edge\n";
+                print "$left_edge\n";
+
                 if(($next_left_edge == $left_edge) 
-                        and ($current_line < $#{$ntb_file})){
+                        and ($current_line < $#{$ntb_file}-2)){
+                    $current_line++;
+                    print "B\n";
+                    die;
                     next;
                 }
                 else{
+                    print "C\n";
                     return ( $current_line, get_dent( $ntb_file->[$current_line] ) );
                 }
             }
             elsif($next_left_edge < $left_edge){
+                print "D\n";
                 return ( $current_line, $next_left_edge );
             }
             else{ #($next_left_edge == $left_edge)
+                print "E\n";
                 if($current_line < $#{$ntb_file}){
+                    print "F\n";
+                    $current_line++;
                     next;
                 }
                 else{
+                    print "G\n";
                     return ( $current_line, get_dent( $ntb_file->[$current_line] ) );
                 }
             }
 
         }
         else{
-
+            print "H\n";
             while( $current_line <= $#{$ntb_file} 
-                    and ( get_dent($ntb_file->[$current_line]) > $left_edge
+                    and ( (get_dent($ntb_file->[$current_line]) >= $left_edge)
                     or is_empty($ntb_file->[$current_line]))){
-                push @{$sections->{text}}, $ntb_file->[$current_line];
+                print "I\n";
+                if(is_empty($ntb_file->[$current_line])){
+                    push @{$sections->{text}}, $ntb_file->[$current_line],$left_edge;
+                }
+                else{
+                    push @{$sections->{text}}, undent($ntb_file->[$current_line],$left_edge);
+                }
                 $current_line++;
             }
+
+            print "zxcv: $ntb_file->[$current_line]\n";
 
             return ( $current_line, get_dent( $ntb_file->[$current_line] ) );
             
