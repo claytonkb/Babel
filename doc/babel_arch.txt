@@ -4,6 +4,120 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- color tags? -----
+
+ref-list has type-indicator per list entry
+
+- re-summary of bstruct
+
+    pointer always points at first data entry
+    X.s -> pointer-1
+    X.s < 0     interior array
+    X.s > 0     leaf array
+    X.s = 0     tagged
+        X.r -> pointer-2 (only exists if X.s=0)
+        X.r < 0     tagged interior array
+        X.r > 0     tagged leaf array
+        X.r = 0     reserved
+        X.tag -> pointer-6 (128-bit hash tag)
+
+benefits:
+    - leaf/interior for "untyped" data
+        - fast; don't require tag check
+    - can have built-in typing for typed data
+    - still maintains structural transparency
+    - extensible (x.r=0 reserved)
+
+----- s-expr syntax for babel -----
+
+(section <section-name> ... )
+
+(array ... )
+
+(values ... )
+
+(list ... )
+
+(code ... )
+
+(hash ... )
+
+(namespace ... )
+
+
+----- Reference re-design -----
+
+Ideally, the "look-up" syntax should be able to traverse anywhere in a
+bstruct.
+
+Propose: Two types of reference - compile-time and run-time
+
+Compile-time references just use "plain name" syntax:
+
+foo.bar/baz[10 3](17 5)/bop
+
+Propose: To implement run-time references, the meaning of X.s == 0 is changed
+
+Instead of containing a single hash-reference, it indicates this points
+to a reference-list.
+
+A reference-list is constructed in Bipedal using the <> brackets.
+
+<foo%>
+
+... performs a dynamic reference to foo. The syntax is like any other list.
+
+The first element of an auto-lookup list can be a pointer. If it is not
+a pointer, then the root-namespace is used for the first hash-lookup 
+(if any).
+
+Successive elements can be:
+
+    - A single value
+        Would be nice to be able to look up via string (auto-hashing)
+    - A hash
+    - A "nested" auto-lookup
+
+< foo < bar > >
+
+< foo& < bar > >
+
+The () and [] are just syntactical sugar - (3) just translates to [1 1 1 0]
+
+Directory syntax
+
+There are two kinds of "directory" structure in Babel. The first is
+"static" directory and the second is dynamic directory. The static 
+directory is indicated by the dot-separator:
+
+foo.bar.baz
+
+The dynamic directory structure is indicated by the slash-separator:
+
+foo/bar/baz
+
+The two syntax forms can be mixed:
+
+foo.bar/baz
+
+/foo/bar --> dynamic dir look-up starting from root-namespace
+/foo.bar --> static dir look-up starting from root-namespace
+foo/bar --> dynamic dir look-up, relative to current-namespace
+./foo/bar --> same
+../foo/bar --> same, but accessing parent-namespace
+./foo.bar --> static dir look-up, relative to current-namespace
+foo.bar --> same
+
+Nested, relative, file-relative namespace look-ups
+
+foo:
+    bar: 3
+    baz: { bar << } --> Works
+
+block vs. flow syntax for directories and namespaces
+: vs. = (rwx)
+
+
 ----- Stack re-work -----
 
 One final (hopefully!) stack re-work needed... the following code works
@@ -32,6 +146,10 @@ By default, this will work fine in code-context:
 (foo show cr <<)
 
 ----- Hard vs. soft operator names -----
+
+Some operators (such as print) should have a "soft" definition that
+can change over time, i.e. as pseudo-operators. Others should have a
+definite meaning no matter what (hard).
 
 ----- Make operators empty stack safe -----
 
@@ -139,28 +257,6 @@ etc.
 
 A random test-harness will turn up lots of corner-case bugs and greatly 
 increase confidence in Babel's overall health and robustness.
-
------ Lisp macros -> Babel constant-folding -----
-
-Consider:
-
-(defmacro sq (x)
-    '(* ,x ,x))
-
-Everywhere 'sq' is seen in Lisp code, a substitution is performed at compile-time.
-
-In Babel, we handle this through constant-folding:
-
-sq!: { dup * }
-
-main: { 3 sq }
-
-In this case, main will compile down to 9
-
-In Babel, there is no clear distinction between a function and a macro.
-
-However, we still do need an intelligent way to "return a function"... currently,
-this requires a lot of manual coding.
 
 ----- memory management redux -----
 

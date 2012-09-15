@@ -4,12 +4,14 @@
 package Babel::FrontEnd;
 
 use strict;
+use Carp;
 use feature 'state';
 no warnings 'recursion'; # Get "deep recursion" on large .pb files otherwise
 use Hash::Pearson16;
 
 use YAML::XS;
 use Data::Dumper;
+#use File::Spec;
 
 my @asm_file;
 my $asm_file;
@@ -23,8 +25,14 @@ my $proj_name = $ARGV[0];
 
 #my $section_name = qr/[_A-Za-z\+-<>=!~#%\.\$\?\/\|^][_A-Za-z0-9\+-<>=!~#%\.\$\?\/\|^]*/;
 
-my $section_name = qr/[_A-Za-z][_A-Za-z0-9]*/;
-my $sigil_re     = qr/[\*\$&%!]/;
+my $section_name   = qr/[_A-Za-z][_A-Za-z0-9]*/;
+
+#my $section_name   = qr/ (?: \/ | \.\/ | \.\.\/ ) 
+#                         (?: (?: [^\/\*\$&%!#@] | \\[^\/] )+ \/? )+ /x;
+my $sigil_re       = qr/[\*\$&%!#@]/;
+my $array_begin  = qr/[\[\({<]/;
+my $array_end    = qr/[\]\)}>]/;
+my $non_array    = qr/[^\[\({<\]\)}>]/;
 
 #unshift @ARGV, "pb/opcodes.pb";
 
@@ -38,9 +46,16 @@ my $sections = {};
     close ASM_FILE;
 #}
 
-$asm_file = \@asm_file;
+$sections = parse_ntb_file(\@asm_file);
 
-$sections = parse_ntb_file($asm_file);
+balanced_parse_all_sections($sections);
+
+translate_all_sections($sections);
+
+#chomp foreach (@asm_file);
+#$asm_file = join ' ', @asm_file;
+#clean_string(\$asm_file);
+#$sections = balanced_parse(\$asm_file);
 
 print Dumper($sections);
 die;
@@ -63,17 +78,45 @@ die;
 #
 #########################################################################
 
+# Each section can, recursively, have a null-context that terminates EITHER
+# with further section-definitions or a balanced-expression
+
 sub parse_ntb_file{
 
     my $ntb_file = shift;
 
     my $first_line = discard_null_context($ntb_file, 0);
-    my $left_edge = get_dent($ntb_file->[$first_line]);
+
+    return if $first_line < 0;
 
     #trim off the null-context
     @{$ntb_file} = @{$ntb_file}[$first_line..$#{$ntb_file}];
 
-    gather_sections( $ntb_file, $first_line, $left_edge, $sections );
+    parse_ntb($ntb_file);
+
+}
+
+sub parse_ntb{
+
+    my $ntb_file = shift;
+    my $sections = {};
+
+    my $left_edge = get_dent($ntb_file->[0]);
+
+    my $test_line = undent($ntb_file->[0],$left_edge);
+
+    if(is_label($test_line)){
+        gather_sections( $ntb_file, 0, $left_edge, $sections );
+        foreach my $section ( keys %{$sections} ){
+            my $parsed_sections = parse_ntb($sections->{$section}{text});
+            foreach my $parsed_section (keys %{$parsed_sections}){
+                $sections->{$section}{$parsed_section} = $parsed_sections->{$parsed_section};
+            }
+        }
+    }
+    else{
+        gather_text( $ntb_file, 0, $left_edge, $sections );
+    }
 
     return $sections;
 
@@ -85,67 +128,111 @@ sub gather_sections{
 
     my ($label, $sigil, $remainder);
     my $next_line;
-    my $count=0;
+    my $dent_left_edge;
 
     gather_next_section:
 
-        die if ( !is_label( undent( $ntb_file->[$current_line], $left_edge) ) );
+         return (-1, 0) if $current_line > $#{$ntb_file};
+
+#        die if ( !is_label( undent( $ntb_file->[$current_line], $left_edge) ) );
 
         ($label, $sigil, $remainder) = get_label( undent( $ntb_file->[$current_line], $left_edge ) );
 
-        $sections->{$label}{sigil} = $sigil if defined $sigil;
-        if(defined $remainder and !is_empty($remainder) ){
-            push(@{$sections->{$label}{text}}, $remainder);
+#        print "$label\n" if defined $label;
+#        print "$sigil\n" if defined $sigil;
+
+        unless($label eq "" and $sigil eq "QUOTE_BLOCK"){
+            $sections->{$label}{sigil} = $sigil if defined $sigil;
+            if(defined $remainder and !is_empty($remainder) ){
+                die if $sigil eq "QUOTE_BLOCK";
+                push(@{$sections->{$label}{text}}, $remainder);
+            }
         }
 
         $next_line = find_next_non_empty_line( $ntb_file, $current_line+1 );
+        return (-1, 0) if($next_line < 0);
 
-        die if($count++ > 10);
-        return (-1, 0) if $next_line < 0;
-        my $next_left_edge = get_dent( $ntb_file->[$next_line] );
+        $dent_left_edge = get_dent( $ntb_file->[$next_line] );
 
-        if($next_left_edge == $left_edge){
-            #die if (exists $sections->{$label}{text});
+        if($dent_left_edge == $left_edge){
             $current_line = $next_line;
             goto gather_next_section;
         }
-        elsif($next_left_edge > $left_edge){
-            if( is_label( undent( $ntb_file->[$next_line], $next_left_edge) ) ){
-                die if (exists $sections->{$label}{text});
-                ($next_line, $next_left_edge) = gather_sections( $ntb_file, $next_line, $next_left_edge, $sections->{$label} );
-                if($next_left_edge == $left_edge){
-                    $current_line = $next_line;
-                    goto gather_next_section;
-                }
-                else{
-                    return ($next_line, $next_left_edge);
+
+        return (-1, 0) if $dent_left_edge < $left_edge;
+
+        $current_line = $next_line;
+
+        gather_next_line:
+            unless($label eq "" and $sigil eq "QUOTE_BLOCK"){
+                push @{$sections->{$label}{text}}, undent( $ntb_file->[$current_line], $dent_left_edge );
+            }
+            
+            if($current_line < $#{$ntb_file}){
+                if( ( get_dent( $ntb_file->[$current_line+1] ) >= $dent_left_edge )
+                    or is_empty( $ntb_file->[$current_line+1] ) ){
+
+                    $current_line++;
+                    goto gather_next_line;
+
                 }
             }
-            else{
-                ($next_line, $next_left_edge) = gather_text($ntb_file, $next_line, $next_left_edge, $sections->{$label});
-                if($next_left_edge == $left_edge){
-                    $current_line = $next_line;
-                    goto gather_next_section;
-                }
-                else{
-                    return ($next_line, $next_left_edge);
-                }
-            }
-        }
-        else{ #($next_left_edge < $left_edge)
-            return ($next_line, $next_left_edge);
-        }
+
+        return (-1, 0) if $current_line == $#{$ntb_file}; #EOF
+
+        $current_line = find_next_non_empty_line( $ntb_file, $current_line+1 );
+        return (-1, 0) if $current_line < 0;
+        goto gather_next_section;
 
 }
 
 sub gather_text{
 
     my ($ntb_file, $current_line, $left_edge, $sections) = @_;
+#    my $next_left_edge;
+
+#    while(  $current_line <= $#{$ntb_file}
+#            and ( (   get_dent( $ntb_file->[$current_line] ) >= $left_edge )
+#                or    is_empty( $ntb_file->[$current_line] ) ) ){
+#            push @{$sections->{text}}, undent( $ntb_file->[$current_line], $left_edge );
+#            $current_line++;
+#    }
+#
+#    if($current_line > $#{$ntb_file}){ #EOF
+#        print "hereA\n";
+#        return (-1, 0);
+#    }
+#    else{
+#        print "hereB\n";
+#        return ($current_line, get_dent($ntb_file->[$current_line]) );
+#    }
+    $sections->{leaf} = 1;
+
+    gather_next_line:
+        push @{$sections->{text}}, undent( $ntb_file->[$current_line], $left_edge );
+        
+        if($current_line < $#{$ntb_file}){
+            if( ( get_dent( $ntb_file->[$current_line+1] ) >= $left_edge )
+                or is_empty( $ntb_file->[$current_line+1] ) ){
+
+                $current_line++;
+                goto gather_next_line;
+
+            }
+        }
+
+    return (-1, 0) if $current_line == $#{$ntb_file}; #EOF
+
+}
+
+
+sub gather_comment{ 
+
+    my ($ntb_file, $current_line, $left_edge) = @_;
 
     while(  $current_line <= $#{$ntb_file}
             and ( (   get_dent( $ntb_file->[$current_line] ) >= $left_edge )
                 or    is_empty( $ntb_file->[$current_line] ) ) ){
-        push @{$sections->{text}}, undent( $ntb_file->[$current_line], $left_edge );
         $current_line++;
     }
 
@@ -163,7 +250,10 @@ sub find_next_non_empty_line{
     my $ntb_file = shift;
     my $current_line = shift;
 
-    while( is_empty( $ntb_file->[$current_line] ) 
+    return -1 if $current_line > $#{$ntb_file};
+
+    while( ( is_empty( $ntb_file->[$current_line] ) 
+            or is_comment($ntb_file->[$current_line]) )
             and $current_line < $#{$ntb_file} ){
         $current_line++;
     }
@@ -176,17 +266,31 @@ sub find_next_non_empty_line{
 
 }
 
-sub is_empty{ #tabs show up as non-empty ... 
+sub is_empty{ #tabs show up as non-empty!!! 
 
     my $line = shift;
+    carp "blah" if not defined $line;
+
     return $line =~ /^ *$/;
+
+}
+
+sub is_comment{
+
+    my $line = shift;
+    carp "blah" if not defined $line;
+
+    return $line =~ /^ *--/;
 
 }
 
 sub get_dent{
 
     my $line = shift;
-    $line =~ /( *)\S/;
+    if(not defined $line){
+        carp "blah";
+    }
+    $line =~ /( *)[^ ]/;
     return length($1) if defined $1;
     return 0;
 
@@ -197,7 +301,7 @@ sub get_label{
     my $line = shift;
 
     my ($label, $sigil, $remainder) 
-        = $line =~ /^($section_name)($sigil_re?) *:(.*)/;
+        = $line =~ /^($section_name?)($sigil_re?) *:(.*)/;
 
     $sigil = sigil_type($sigil) if defined $sigil;
 
@@ -211,18 +315,27 @@ sub discard_null_context{
     my $ntb_file = shift;
     my $current_line = shift;
 
-    while( !is_label( $ntb_file->[$current_line] ) ){
+    while(  ( $current_line <= $#{$ntb_file} )
+            and ( $ntb_file->[$current_line] !~ /^---/ ) ){
         $current_line++;
     }
+
+    $current_line = find_next_non_empty_line( $ntb_file, $current_line+1 );
 
     return $current_line;
 
 }
 
+sub is_comment_block_label{
+    my $line = shift;
+    return 1 if $line =~ /^# *:/;
+    return 0;
+}
+
 sub is_label{
 
     my $line = shift;
-    return 1 if $line =~ /^${section_name}$sigil_re? *:/;
+    return 1 if $line =~ /^${section_name}?$sigil_re? *:/;
     return 0;
 
 }
@@ -237,6 +350,45 @@ sub undent{
 
 }
 
+sub sigil_type {
+    for(shift){
+        /\*/ and return "LEX_SUB";
+        /\$/ and return "INDIRECT_REF";
+        /&/  and return   "DIRECT_REF";
+        /%/  and return "HASH_REF";
+        /!/  and return "AUTO_EVAL";
+        /#/  and return "QUOTE_BLOCK";
+        /@/  and return "LOCATION_LABEL";
+    }
+}
+
+sub balanced_parse_all_sections{
+
+    my $sections = shift;
+
+    if(exists $sections->{leaf}){       
+        my $temp = join ' ', @{$sections->{text}};
+        $temp =~ tr{\n}{ }; #FIXME: This may be unnecessary... there's a bug here
+        #print "$temp\n";
+        $sections->{parsed} = balanced_parse( \$temp );
+    }
+    else{
+        foreach my $section (keys %{$sections}){
+            next if $section eq "text";
+            next if $section eq "sigil";
+            balanced_parse_all_sections($sections->{$section});
+        }
+    }
+    
+}
+
+sub join_lines { # need to handle line comments and quote-blocks properly
+    my $lines = shift;
+    $lines = join ' ', @{$lines};
+    my ($temp) = $lines =~ s/\n/ /g;
+    return $temp;
+}
+
 #########################################################################
 #
 # BALANCED EXPRESSION PARSER
@@ -244,11 +396,298 @@ sub undent{
 #########################################################################
 
 # ( a [ b c { d e f } g ] h i ( j ) k )
-sub parse_balanced_expr{
+sub balanced_parse{ #FIXME: Doesn't enforce matching paren-type
 
-    my $expr = shift;
+    my $string      = shift;
+    my $expression  = [];
+
+    clean_string($string);
+
+    if( not ${$string} =~ /^($array_begin)/ ){
+        print ".${$string}.\n";
+        die;
+    }
+
+    my ($paren) = ${$string} =~ /^($array_begin)/;
+    push @{$expression}, get_paren_type($paren);
+
+    ${$string} = substr(${$string}, 1);
+
+    my $paren_type = $1;
+
+    begin_balanced:
+        clean_string($string);
+        my ($non_array_context) = ${$string} =~ /^($non_array*)/;
+
+        if(defined $non_array_context 
+                and length($non_array_context) > 0){
+#            print "non_array_context .${$string}.\n";
+            ${$string} = substr(${$string}, length($non_array_context));
+            clean_string(\$non_array_context);
+            push @{$expression}, $non_array_context;
+        }
+
+        if(${$string} =~ /^$array_begin/){
+#            print "array_begin .${$string}.\n";
+            #${$string} = substr(${$string}, 1);
+            push @{$expression}, balanced_parse($string, $expression);
+            goto begin_balanced;
+        }
+        elsif(${$string} =~ /^($array_end)/){
+#            print "array_end .${$string}.\n";
+            ${$string} = substr(${$string}, 1);
+            die if not is_matching_paren($paren_type, $1);
+            return $expression;
+        }
+        else{
+            die;
+            #reached the end-of-string, syntax error
+        }
 
 }
+
+sub is_matching_paren{
+    my ($open_paren, $close_paren) = @_;
+    return 1 if (get_paren_type($open_paren) eq get_paren_type($close_paren));
+    return 0;
+}
+
+sub clean_string{
+    my $string = shift;
+    carp if(!ref($string));
+
+    ${$string} =~ s/^\s*//;
+    ${$string} =~ s/\s*$//;
+}
+
+sub get_paren_type {
+    for(shift){
+        /\(/ and return "LIST_PAREN";
+        /\)/ and return "LIST_PAREN";
+        /\[/ and return "ARRAY_PAREN";
+        /\]/ and return "ARRAY_PAREN";
+        /{/  and return "CODE_LIST_PAREN";
+        /}/  and return "CODE_LIST_PAREN";
+        /</  and return "BRACKET_PAREN";
+        />/  and return "BRACKET_PAREN";
+    }
+}
+
+#########################################################################
+#
+# TRANSLATOR
+#
+#########################################################################
+
+sub translate_all_sections{
+
+    my $sections = shift;
+
+    if(exists $sections->{leaf}){
+        $sections->{translated} = translate_balanced_expression($sections->{parsed});
+    }
+    else{
+        foreach my $section (keys %{$sections}){
+            next if $section eq "text";
+            next if $section eq "sigil";
+            translate_all_sections($sections->{$section});
+        }
+    }
+
+}
+
+sub translate_balanced_expression{
+
+    my $expression = shift;
+    my $result_expression = [];
+
+    foreach my $element (@{$expression}){
+        if( $element eq "LIST_PAREN" ){
+            push @{$result_expression}, "LIST";
+            next;
+        }
+        if( $element eq "ARRAY_PAREN" ){
+            push @{$result_expression}, "ARRAY";
+            next;
+        }
+        if( $element eq "CODE_LIST_PAREN" ){
+            push @{$result_expression}, "CODE_LIST";
+            next;
+        }
+        if( $element eq "BRACKET_PAREN" ){
+            push @{$result_expression}, "BRACKET";
+            next;
+        }
+
+        if(ref($element) eq 'ARRAY'){
+            push @{$result_expression}, translate_balanced_expression($element);
+        }
+        else{
+            my $translated_expression = translate($element);
+            push(@{$result_expression},$_) foreach(@{$translated_expression});
+        }
+    }
+
+    return $result_expression;
+
+}
+
+sub translate{
+
+    my $string = shift;
+    my $chunks = [];
+#    my $string = $section->{text};
+
+    my $chunk = get_next_chunk(\$string);
+
+    while(defined $chunk){
+        push @{$chunks}, $chunk;
+        $chunk = get_next_chunk(\$string);
+    }
+
+    return $chunks;
+
+}
+
+sub get_next_chunk{
+
+    my $string = shift;
+    my $chunk;
+
+    retry_get_next_chunk:
+
+        clean_string($string);
+
+        $chunk = chunk_get_label(${$string});
+        if(defined $chunk){
+            ${$string} = substr(${$string}, length($chunk));
+            my ($label, $sigil) = $chunk =~ /($section_name)($sigil_re?)/;
+
+            if(defined $sigil and length($sigil) > 0){
+                $sigil = sigil_type($sigil);
+            }
+            else{
+                $sigil = "NONE";
+            }
+            return ["LABEL", $label, $sigil];
+        }
+
+        $chunk = is_string(${$string});
+        if(defined $chunk){
+            ${$string} = substr(${$string}, length($chunk));
+            eval("\$chunk = $chunk;");
+            return ["STRING", "$chunk"];
+        }
+
+        $chunk = is_numeric(${$string});
+        if(defined $chunk){
+            ${$string} = substr(${$string}, length($chunk));
+            return ["NUMERIC", 0+$chunk];
+        }
+
+        if(${$string} =~ /(--.*\n)/){ # discard line comments
+            ${$string} = substr(${$string}, length($1));
+            goto retry_get_next_chunk;
+        }
+
+        return undef;
+    
+}
+
+sub chunk_get_label{
+
+    my $string = shift;
+
+#my $section_name = qr/[_A-Za-z][_A-Za-z0-9]*/;
+#my $sigil_re     = qr/[\*\$&%!#]/;
+
+    my ($label, $sigil) = $string =~ /^(${section_name})($sigil_re?)/;
+
+    return "$label$sigil" if defined $sigil;
+    return $label if defined $label;
+
+    return undef;
+
+}
+
+sub is_numeric{
+
+    my $string = shift;
+
+    if($string =~ /^0+\b/){
+        return 0;
+    }
+
+    if( $string =~ /^(-?[1-9][0-9]*)\b/ ){
+        return 0+$1;
+    }
+
+    if($string =~ /^0x([A-Fa-f0-9]+)\b/){
+        return hex($1);
+    }
+
+    if($string =~ /^0b([01]+)\b/){
+        return 0+bin2dec($1);
+    }
+
+    return undef;
+
+}
+
+sub bin2dec { return unpack("N", pack("B32", substr("0" x 32 . shift, -32))) }
+
+#my $str = '" this is a \" quoted string"';
+#if ($str =~ $RE{quoted}) {
+#  # do something
+#}
+sub is_string{
+
+    my $string = shift;
+
+    #/"(?:[^\\"]|\\.)*"/
+    #/'(?:[^\\']|\\.)*'/
+
+    if($string =~ /^("(?:[^\\"]|\\.)*")/){
+        return "$1";
+    }
+    elsif($string =~ /^('(?:[^\\']|\\.)*')/){
+        return "$1";
+    }
+
+    return undef;
+
+}
+
+#########################################################################
+#
+# DISAMBIGUATION (LEAF/INTERIOR)
+#
+#########################################################################
+
+# for each array
+#     - if it has a number or string in it, it's a leaf-array
+#     - if it has any label with a sigil other than * in it, it's an interior-array
+#     - if still unresolved
+#       - recurse into each label
+#       - unless EVERY label is a lex-sub'ing leaf-array, this is an interior-array
+#     - any arrays which have not been disambiguated by the above rules are
+#       interior arrays
+
+#########################################################################
+#
+# LEXICAL SUBSTITUTION
+#
+#########################################################################
+
+
+
+#########################################################################
+#
+# REFERENCE CONNECTION (DIRECT/INDIRECT)
+#
+#########################################################################
+
+
 
 #########################################################################
 #
@@ -1133,55 +1572,6 @@ sub bytes_to_mwords{
 
 }
 
-sub is_numeric{
-
-    my $section = shift;
-
-    my $string = substr($section->{src}, $section->{ptr});
-
-    if($string =~ /^(\s*-?[1-9][0-9]*)/ or $string =~ /^(\s*0+)[^x]/ ){
-        $section->{ptr} += length $1;
-        $string =~ /^\s*(-?[0-9]+)/;
-        return 0+$1;
-    }
-
-    if($string =~ /^(\s*0x[A-Fa-f0-9]+)/){
-        $section->{ptr} += length $1;
-        $string =~ /^\s*0x([A-Fa-f0-9]+)/;
-        return hex($1);
-    }
-
-    if($string =~ /^(\s*0\b)/){
-        $section->{ptr} += length $1;
-        return 0;
-    }
-
-    return undef;
-
-}
-
-sub is_string{
-
-    my $section = shift;
-
-    my $string = substr($section->{src}, $section->{ptr});
-
-#    $string =~ /^(\s*"[^"]*")/;
-    
-    if($string =~ /^(\s*"[^"]*")/){
-        $section->{ptr} += length $1;
-        $string =~ /^\s*"([^"]*)"/;
-        return "$1";
-    }
-    elsif($string =~ /^(\s*'[^']*')/){
-        $section->{ptr} += length $1;
-        $string =~ /^\s*'([^']*)'/;
-        return "$1";
-    }
-
-    return undef;
-
-}
 
 sub is_quick_wrap{
 
@@ -1231,16 +1621,6 @@ sub is_list_end{
 
     return 0;
 
-}
-
-sub sigil_type {
-    for(shift){
-        /\*/ and return "LEX_SUB";
-        /\$/ and return "INDIRECT_REF";
-        /&/  and return   "DIRECT_REF";
-        /%/  and return "HASH_REF";
-        /!/  and return "AUTO_EVAL";
-    }
 }
 
 sub str2vec {
