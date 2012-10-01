@@ -1,0 +1,44 @@
+-- Babel syntax test file
+
+-- Lexical substitution
+sub_list*: (1 2 3)
+
+-- Hash-reference
+hash_ref%: "xyz"
+
+subbed_list: (sub_list 4 5 6 hash_ref) -- eq: (1 2 3 4 5 6 hash_ref%)
+
+-- Direct-reference
+direct_ref&: "abc"
+
+code_list: { [direct_ref] << } -- eq: ( ["abc"] << )
+
+-- Auto-eval
+add2: { 2 + }
+
+auto_eval: { 3 add2! }
+
+-- Indirect reference
+foo: [1 2 3]
+bar: [foo$ [4] [5]]
+-- eq: bar: [[[1 2 3]] [4] [5]]
+
+-- Labels
+list_with_labels:
+    ( a@ "a"
+      b@ "b"
+      c@ "c" )
+
+-- Alias
+foo: bar
+
+-- Quotes
+q#:
+    Here is some quoted text.
+
+qf#:
+    Folding-quote block. 
+    There are no newlines in this block.
+
+    
+

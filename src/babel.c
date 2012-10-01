@@ -26,15 +26,17 @@ int main(int argc, char **argv){
 //      printf ("The current path is: %s",pPath);
 //    die;
 
-    bvm_cache root_bvm;
+//    bvm_cache root_bvm;
 
-    bvm_interp( interp_init(&root_bvm, argc, argv) );
+//    bvm_interp( interp_init(&root_bvm, argc, argv) );
 
 //    printf("%s\n",_bs2gv(root_bvm.stack_ptr));
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.
     //stdout8). The user must request this behavior with a switch.
+
+    printf("Hello, world\n");
 
     return 0;
 
