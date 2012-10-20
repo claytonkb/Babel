@@ -14,9 +14,9 @@ direct_ref&: "abc"
 code_list: { [direct_ref] << } -- eq: ( ["abc"] << )
 
 -- Auto-eval
-add2: { 2 + }
+add2!: { 2 + }
 
-auto_eval: { 3 add2! }
+auto_eval: { 3 add2 }
 
 -- Indirect reference
 foo: [1 2 3]
@@ -39,6 +39,4 @@ q#:
 qf#:
     Folding-quote block. 
     There are no newlines in this block.
-
-    
 

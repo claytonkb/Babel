@@ -11,22 +11,15 @@ ref-list has type-indicator per list entry
 - re-summary of bstruct
 
     pointer always points at first data entry
-    X.s -> pointer-1
-    X.s < 0     interior array
-    X.s > 0     leaf array
-    X.s = 0     tagged
-        X.r -> pointer-2 (only exists if X.s=0)
-        X.r < 0     tagged interior array
-        X.r > 0     tagged leaf array
-        X.r = 0     reserved
-        X.tag -> pointer-6 (128-bit hash tag)
+    X.s @ pointer-1
+        X.s < 0     interior array
+        X.s > 0     leaf array
+        X.s = 0     tagged list
 
-benefits:
-    - leaf/interior for "untyped" data
-        - fast; don't require tag check
-    - can have built-in typing for typed data
-    - still maintains structural transparency
-    - extensible (x.r=0 reserved)
+    A tagged-list is a Lisp-style list that begins with a "tag" that is
+    intercepted by the Babel interpreter. A tag is just a 128-bit hash.
+    While the tag can be used to implement typing, it should not be 
+    thought of as a type per se.
 
 ----- s-expr syntax for babel -----
 
@@ -43,7 +36,6 @@ benefits:
 (hash ... )
 
 (namespace ... )
-
 
 ----- Reference re-design -----
 
@@ -100,13 +92,13 @@ The two syntax forms can be mixed:
 
 foo.bar/baz
 
-/foo/bar --> dynamic dir look-up starting from root-namespace
-/foo.bar --> static dir look-up starting from root-namespace
-foo/bar --> dynamic dir look-up, relative to current-namespace
-./foo/bar --> same
+/foo/bar   --> dynamic dir look-up starting from root-namespace
+/foo.bar   --> static dir look-up starting from root-namespace
+foo/bar    --> dynamic dir look-up, relative to current-namespace
+./foo/bar  --> same
 ../foo/bar --> same, but accessing parent-namespace
-./foo.bar --> static dir look-up, relative to current-namespace
-foo.bar --> same
+./foo.bar  --> static dir look-up, relative to current-namespace
+foo.bar    --> same
 
 Nested, relative, file-relative namespace look-ups
 
@@ -116,7 +108,6 @@ foo:
 
 block vs. flow syntax for directories and namespaces
 : vs. = (rwx)
-
 
 ----- Stack re-work -----
 
@@ -152,6 +143,8 @@ can change over time, i.e. as pseudo-operators. Others should have a
 definite meaning no matter what (hard).
 
 ----- Make operators empty stack safe -----
+
+
 
 ----- data-flow -----
 
