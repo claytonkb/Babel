@@ -141,6 +141,12 @@ sub gather_sections{
 #        print "$label\n" if defined $label;
 #        print "$sigil\n" if defined $sigil;
 
+#        if($sigil eq "QUOTE_BLOCK"){
+#            print "$label\n" if defined $label;
+#            print "$sigil\n" if defined $sigil;
+#            die;
+#        }
+
         unless($label eq "" and $sigil eq "QUOTE_BLOCK"){
             $sections->{$label}{sigil} = $sigil if defined $sigil;
             if(defined $remainder and !is_empty($remainder) ){
@@ -370,7 +376,7 @@ sub balanced_parse_all_sections{
         my $temp = join ' ', @{$sections->{text}};
         $temp =~ tr{\n}{ }; #FIXME: This may be unnecessary... there's a bug here
         #print "$temp\n";
-        $sections->{parsed} = balanced_parse( \$temp );
+        $sections->{parsed} = balanced_parse( \$temp ) if $sections->{sigil} ne "QUOTE_BLOCK";
     }
     else{
         foreach my $section (keys %{$sections}){
@@ -396,12 +402,22 @@ sub join_lines { # need to handle line comments and quote-blocks properly
 #########################################################################
 
 # ( a [ b c { d e f } g ] h i ( j ) k )
-sub balanced_parse{ #FIXME: Doesn't enforce matching paren-type
+sub balanced_parse{
 
     my $string      = shift;
     my $expression  = [];
 
     clean_string($string);
+
+    my ($non_array_context) = ${$string} =~ /^($non_array*)/;
+    if(defined $non_array_context 
+            and length($non_array_context) > 0){
+#            print "non_array_context .${$string}.\n";
+        ${$string} = substr(${$string}, length($non_array_context));
+        clean_string(\$non_array_context);
+        push @{$expression}, $non_array_context;
+        return $expression;
+    }
 
     if( not ${$string} =~ /^($array_begin)/ ){
         print ".${$string}.\n";
@@ -417,7 +433,7 @@ sub balanced_parse{ #FIXME: Doesn't enforce matching paren-type
 
     begin_balanced:
         clean_string($string);
-        my ($non_array_context) = ${$string} =~ /^($non_array*)/;
+        ($non_array_context) = ${$string} =~ /^($non_array*)/;
 
         if(defined $non_array_context 
                 and length($non_array_context) > 0){
@@ -484,7 +500,9 @@ sub translate_all_sections{
     my $sections = shift;
 
     if(exists $sections->{leaf}){
-        $sections->{translated} = translate_balanced_expression($sections->{parsed});
+        if($sections->{sigil} ne "QUOTE_BLOCK"){
+            $sections->{translated} = translate_balanced_expression($sections->{parsed});
+        }
     }
     else{
         foreach my $section (keys %{$sections}){
