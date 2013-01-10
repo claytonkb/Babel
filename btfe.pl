@@ -636,16 +636,16 @@ sub is_numeric{
         return 0;
     }
 
-    if( $string =~ /^(-?[1-9][0-9]*)\b/ ){
-        return 0+$1;
-    }
-
     if($string =~ /^0x([A-Fa-f0-9]+)\b/){
         return hex($1);
     }
 
     if($string =~ /^0b([01]+)\b/){
         return 0+bin2dec($1);
+    }
+
+    if( $string =~ /^(-?[1-9][0-9]*)\b/ ){
+        return 0+$1;
     }
 
     return undef;

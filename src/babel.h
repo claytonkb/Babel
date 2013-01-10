@@ -41,6 +41,8 @@ mword *empty_string;
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 void init_interp_jump_table(bvm_cache *this_bvm);
 bvm_cache *endian(bvm_cache *this_bvm);
+void print_env(void);
+void dump_mem(mword *mem, int size);
 
 #define BIG_ENDIAN    0
 #define LITTLE_ENDIAN 1

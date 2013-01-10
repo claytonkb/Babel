@@ -35,21 +35,24 @@ while($#ARGV>-1){
     close ASM_FILE;
 }
 
-#Section:       ( z <section-name> ... )
-#Values:        ( q ... )
-#Pointers:      ( x ... )
-#List:          ( k ... )
-#Tagged-list:   ( j ... )
+#Values:        ( j ... )
+#Pointers:      ( k ... )
+#Tagged-List:   ( q ... )
+#List:          ( x ... )
+#Cosntant:      ( z ... )
 
 $asm_file = clean     ( \@asm_file );
             $sections = balanced_parse( \$asm_file );
-            translate($sections);
-            encode($sections);
+        #translate($sections);
+            my $obj = encode($sections);
+
             #assemble  ( $sections, $asm_file );
             #linkit    ( $sections, 'root', $obj_out, 0 );
             #send_obj  ( $proj_name, $obj_out, $sections);
 
 print Dumper($sections);
+#print Dumper($obj);
+dump_obj($obj->{root});
 
 #########################################################################
 #
@@ -193,62 +196,65 @@ sub is_matching_paren{
     return 0;
 }
 
-#########################################################################
+##########################################################################
+##
+## TRANSLATOR
+##
+## Evaluates each token according to its syntactical type
+##
+##########################################################################
 #
-# TRANSLATOR
+#sub translate{
 #
-# Evaluates each token according to its syntactical type
+#    my $tree = shift;
+#    my $eval_string;
 #
-#########################################################################
-
-sub translate{
-
-    my $tree = shift;
-    my $eval_string;
-
-    foreach my $branch (@{$tree}){
-
-        if(ref($branch) eq "ARRAY"){
-            translate($branch);
-        }
-        elsif(ref($branch) eq ""){
-
-            if($branch =~ /^(\s*-?[1-9][0-9]*)$/ or $branch =~ /^(\s*0+)[^x]$/ ){
-                #$branch =~ s/^\s*(-?[0-9]+)//;
-                $branch = 0+$1;
-            }
-            elsif($branch =~ /^(\s*0x[A-Fa-f0-9]+)$/){
-                #$branch =~ s/^\s*0x([A-Fa-f0-9]+)//;
-                $branch = hex($1);
-            }
-            elsif($branch =~ /^\s*"[^"]*"$/){
-                $eval_string = "\$branch = $branch;";
-                die unless eval($eval_string);
-                $branch = "\"$branch\"";
-            }
-            elsif($branch =~ /^\s*'([^']*)'$/ or $branch =~ /^$section_name$/ ){
-                #$branch = "$1";
-                #Do nothing
-            }
-            else{
-                print "Error: .$branch.\n" and die;
-            }
-        
-        }
-        else{
-            print "ref type: " . ref($branch) . "\n";
-            die;
-        }
-
-    }
-
-}
+#    foreach my $branch (@{$tree}){
+#
+#        if(ref($branch) eq "ARRAY"){
+#            translate($branch);
+#        }
+#        elsif(ref($branch) eq ""){
+#
+#            if($branch =~ /^(\s*-?[1-9][0-9]*)$/ or $branch =~ /^(\s*0+)[^x]$/ ){
+#                #$branch =~ s/^\s*(-?[0-9]+)//;
+#                $branch = 0+$1;
+#            }
+#            elsif($branch =~ /^(\s*0x[A-Fa-f0-9]+)$/){
+#                #$branch =~ s/^\s*0x([A-Fa-f0-9]+)//;
+#                $branch = hex($1);
+#            }
+#            elsif($branch =~ /^\s*"[^"]*"$/){
+#                $eval_string = "\$branch = $branch;";
+#                die unless eval($eval_string);
+#                $branch = "\"$branch\"";
+#            }
+#            elsif($branch =~ /^\s*'([^']*)'$/ or $branch =~ /^$section_name$/ ){
+#                #$branch = "$1";
+#                #Do nothing
+#            }
+#            else{
+#                print "Error: .$branch.\n" and die;
+#            }
+#        
+#        }
+#        else{
+#            print "ref type: " . ref($branch) . "\n";
+#            die;
+#        }
+#
+#    }
+#
+#}
 
 #########################################################################
 #
 # ENCODER
 #
 #########################################################################
+
+#
+#
 sub encode{
 
     my $parse_tree = shift;
@@ -262,7 +268,7 @@ sub encode{
 
     #print Dumper($symbol_table) and die;
 
-    encode_section($symbol_table, 'root', $obj);
+    encode_section($symbol_table, $obj, 'root');
 
     return $obj;
 
@@ -273,14 +279,15 @@ sub encode{
 sub encode_section{
 
     my $symbol_table = shift;
-    my $section_name = shift;
     my $obj = shift;
+    my $section_name = shift;
 
     if(exists $obj->{$section_name}){
         return;
     }
     else{
-        encode_tree($symbol_table, $section_name, $obj);
+        $obj->{$section_name} = [];
+        encode_tree($symbol_table, $obj, $symbol_table->{$section_name}, $obj->{$section_name});
     }
 
 }
@@ -289,18 +296,19 @@ sub encode_section{
 #
 sub encode_tree{
 
-    my $symbol_table = shift;
-    my $section_name = shift;
-    my $obj = shift;
+    my ($symbol_table, $obj, $symbol_section, $obj_section) = @_;
 
-    if($symbol_table->{$section_name}[0] eq 'x'){ #values
-        encode_values($symbol_table, $section_name, $obj);
+    if   ($symbol_section->[0] eq 'j'){ #values
+        encode_values($symbol_table, $obj, $symbol_section, $obj_section);
     }
-    elsif($symbol_table->{$section_name}[0] eq 'q'){ #pointers
+    elsif($symbol_section->[0] eq 'q'){ #pointers
+        encode_pointers($symbol_table, $obj, $symbol_section, $obj_section);
     }
-    elsif($symbol_table->{$section_name}[0] eq 'k'){ #list
+    elsif($symbol_section->[0] eq 'k'){ #tagged-list
     }
-    elsif($symbol_table->{$section_name}[0] eq 'j'){ #tagged-list
+    elsif($symbol_section->[0] eq 'x'){ #list
+    }
+    elsif($symbol_section->[0] eq 'z'){ #constant
     }
     else{
         die;
@@ -310,45 +318,129 @@ sub encode_tree{
 
 sub encode_values{
 
-    my $symbol_table = shift;
-    my $section_name = shift;
-    my $obj = shift;
-    my $branch;
+    my ($symbol_table, $obj, $symbol_section, $obj_section) = @_;
+    my $eval_string;
+    my @str_vec;
 
-    if(exists $obj->{$section_name}){
-        return;
+    my @values = @{$symbol_section};
+    shift @values;
+
+    foreach my $value (@values){
+        if($value =~ /^(\s*-?[1-9][0-9]*)$/ or $value =~ /^(\s*0+)[^x]$/ ){
+            #$branch =~ s/^\s*(-?[0-9]+)//;
+            push @{$obj_section}, 1+$1-1; #FORCE Perl to treat it as numeric
+        }
+        elsif($value =~ /^(\s*0x[A-Fa-f0-9]+)$/){
+            #$branch =~ s/^\s*0x([A-Fa-f0-9]+)//;
+            push @{$obj_section}, hex($1);
+        }
+        elsif($value =~ /^\s*"[^"]*"$/){
+            $eval_string = "\$value = $value;";
+            die unless eval($eval_string);
+            $value = "\"$value\"";
+            @str_vec = str2vec($value);
+            push @{$obj_section}, @str_vec;
+        }
+        elsif($value =~ /^\s*'([^']*)'$/){
+            @str_vec = str2vec($value);
+            push @{$obj_section}, @str_vec;
+        }
+        elsif($value =~ /^$section_name$/){
+        }
+        else{
+            print "Error: .$value.\n" and die;
+        }            
     }
-    else{
 
-        my $eval_string;
-        my @values = @{$symbol_table->{$section_name}};
-        shift @values;
-        
-        foreach my $value (@values){
-            if($value =~ /^(\s*-?[1-9][0-9]*)$/ or $value =~ /^(\s*0+)[^x]$/ ){
-                #$branch =~ s/^\s*(-?[0-9]+)//;
-                $branch = 0+$1;
-            }
-            elsif($value =~ /^(\s*0x[A-Fa-f0-9]+)$/){
-                #$branch =~ s/^\s*0x([A-Fa-f0-9]+)//;
-                $branch = hex($1);
-            }
-            elsif($value =~ /^\s*"[^"]*"$/){
-                $eval_string = "\$value = $value;";
-                die unless eval($eval_string);
-                $value = "\"$value\"";
-            }
-            elsif($value =~ /^\s*'([^']*)'$/ or $value =~ /^$section_name$/ ){
-                #$branch = "$1";
-                #Do nothing
-            }
-            else{
-                print "Error: .$value.\n" and die;
-            }            
+    unshift @{$obj_section}, -1*$MWORD_SIZE*($#{$obj_section}+1);
+
+}
+
+sub encode_pointers{
+
+    my ($symbol_table, $obj, $symbol_section, $obj_section) = @_;
+    my $eval_string;
+    my @str_vec;
+
+}
+
+sub dump_obj{
+
+    my $obj = shift;
+    my $i = 0;
+    
+    for my $word (@{$obj}) {
+        printf("%04x %08x\n", $i++, $word);
+    }
+
+}
+
+sub str2vec {
+
+    my $str = shift;
+
+    my $index = 0;
+    my $my_len;
+    my @vec;
+
+    while(1){
+        $my_len = length( substr( $str, $index ) );
+        if($my_len == 0){
+#            push @vec, 0xffffffff;
+            push @vec, 0x00000000;
+            last;
+        }
+        elsif($my_len == 1){
+            push @vec, ord( substr( $str, $index, 1 ) );
+            push @vec, 0xffffff00;
+#            push @vec, 0x000000ff;
+            last;
+        }
+        elsif($my_len == 2){
+            push @vec, 
+                (
+                     ord( substr( $str, $index, 1 ) ) 
+                    |
+                    (ord( substr( $str, $index+1, 1 ) ) << 8)
+                )
+                ;
+            push @vec, 0xffff0000;
+#            push @vec, 0x0000ffff;
+            last;
+        }
+        elsif($my_len == 3){
+            push @vec, 
+                (
+                     ord( substr( $str, $index, 1 ) ) 
+                    |
+                    (ord( substr( $str, $index+1, 1 ) ) << 8)
+                    |
+                    (ord( substr( $str, $index+2, 1 ) ) << 16)
+                )
+                ;
+            push @vec, 0xff000000;
+#            push @vec, 0x00ffffff;
+            last;
+        }
+        else{
+            push @vec, 
+                (
+                     ord( substr( $str, $index, 1 ) ) 
+                    |
+                    (ord( substr( $str, $index+1, 1 ) ) << 8)
+                    |
+                    (ord( substr( $str, $index+2, 1 ) ) << 16)
+                    |
+                    (ord( substr( $str, $index+3, 1 ) ) << 24)
+                )
+                ;
+            $index+=4;
         }
 
     }
 
+    return @vec;
 
 }
+
 

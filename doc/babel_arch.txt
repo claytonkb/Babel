@@ -4,6 +4,39 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- env vars -----
+
+http://msdn.microsoft.com/en-us/library/windows/desktop/ms683187(v=vs.85).aspx
+
+void print_env(void){
+
+    char *l_EnvStr;
+    l_EnvStr = GetEnvironmentStrings();
+
+    LPTSTR l_str = l_EnvStr;
+
+    int count = 0;
+    while (1)
+    {
+        if (*l_str == 0) break;
+        while (*l_str != 0) l_str++;
+        l_str++;
+        count++;
+    }
+
+    int i;
+    for (i = 0; i < count; i++)
+    {
+        printf("%s\n", l_EnvStr);
+        while(*l_EnvStr != '\0')
+            l_EnvStr++;
+        l_EnvStr++;
+    }
+
+    FreeEnvironmentStrings(l_EnvStr);
+
+}
+
 ----- color tags? -----
 
 ref-list has type-indicator per list entry
@@ -21,21 +54,49 @@ ref-list has type-indicator per list entry
     While the tag can be used to implement typing, it should not be 
     thought of as a type per se.
 
------ s-expr syntax for babel -----
+----- Syntax rework -----
 
-(section <section-name> ... )
+ [] -> array brackets (pointer or value... eventually)
+ () -> pure list brackets
+ {} -> tagged-list brackets
 
-(array ... )
+The tagged-list brackets can emulate the other brackets:
 
-(values ... )
+    { list ... }  <==> ( ... )
+    { ptr ... }   <==> [ ... ]  (pointers)
+    { val ... }   <==> [ ... ]  (values)
 
-(list ... )
+Basically, tagged-list is basically Babel's version of an S-expr.
 
-(code ... )
+The namespace syntax can be constructed with tagged-lists:
 
-(hash ... )
+    foo:
+        bar: nil
+        baz: nil
 
-(namespace ... )
+        <==>
+
+    { name foo { name bar nil } { name baz nil } }
+
+You can surround valid Babel with an ign tagged-list to ignore it:
+
+    { ign ... }
+
+To create a code-list:
+
+    { code ... }
+
+To create a bvm:
+
+    { bvm ... }
+
+To create a reference list:
+
+    { ref ... }
+
+This is how nil is actually implemented: { ref nil }
+
+The full tag that gets hashed is: /babel/tag/<tag-name>
 
 ----- Reference re-design -----
 
@@ -282,6 +343,10 @@ Dealing with duplicates:
 
     MEMORY THAT CAN BE AUTO-FREED MUST BE POINTED AT FROM ONLY ONE PLACE
     ALL OTHERS MUST BE REFERENCES OR MANUALLY MEMORY MANAGED
+
+Conclusion: Besides the stack, the BVM is itself the primary unit of
+memory-management. The BVM can "save/restore" itself at any point in
+order to get a fresh allocation when it hits its memory usage limits.
 
 ----- backtracking: -----
 
