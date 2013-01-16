@@ -1,11 +1,18 @@
 -- sparse.pl test code
 
+( (root (k branch) )
+    (branch (x (j 1) ) ) )
+
+-- (   (root   
+--         (k nil))
+--     (nil (q 'nil' nil)))
+
 -- ( ( root ( j "Hello, world" ) ) )
 
-(   (root ( k branch ( j 1 2 3 ) ) )
-    (branch (k root nil (j 4 value 6) ) ) 
-    (value (j 17 23 31) ) 
-    (nil (q 'nil' (k nil nil))) )
+-- (   (root ( k branch ( j 1 2 3 ) ) )
+--     (branch (k root nil (j 4 value 6) ) ) 
+--     (value (j 17 23 31) ) 
+--     (nil (q 'nil' (k nil nil))) )
 
 -- ((root 
 --     (k (k (j 1 2 3) (j 4 5 6)) 

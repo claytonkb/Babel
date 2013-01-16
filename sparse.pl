@@ -445,15 +445,34 @@ sub encode_list{
         $car = $#{$obj_section}-1;
         $cdr = $#{$obj_section};
 
-        $obj_section->[$car] = $offset+$#{$obj_section}+2;
-        encode_tree($symbol_table, $obj, $element, $obj_section, $offset);
+        if(ref($element) eq ""){
+            if(exists $obj->{$element}){
+                $obj_section->[$car] = $obj->{$element}{addr};
+            }
+            else{
+                encode_section($symbol_table, $obj, $element, $#{$obj_section}+1);
+                push @{$obj_section}, @{$obj->{$element}{code}};
+                $obj_section->[$car] = $obj->{$element}{addr};
+            }
+        }  
+        else{
+            $obj_section->[$car] = $offset+$#{$obj_section}+2;
+            encode_tree($symbol_table, $obj, $element, $obj_section, $offset);
+        }      
         $obj_section->[$cdr] = $offset+$#{$obj_section}+2;
 
     }
 
+    if(!exists $obj->{nil}){
+        create_nil($obj, $obj_section);
+        #$obj_section->[$car] = $obj->{$element}{addr};
+    }
+
+    $obj_section->[$cdr] = $obj->{nil}{addr};
+
     #add nil
     #e974b23a 71cf647b 8c2f644d 3023f4e7
-    push @{$obj_section}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $#{$obj_section}+2, $#{$obj_section}+2);
+    #push @{$obj_section}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $#{$obj_section}+2, $#{$obj_section}+2);
 
 }
 
@@ -493,11 +512,48 @@ sub encode_tagged_list{
         $car = $#{$obj_section}-1;
         $cdr = $#{$obj_section};
 
-        $obj_section->[$car] = $offset+$#{$obj_section}+2;
-        encode_tree($symbol_table, $obj, $element, $obj_section, $offset);
+        if(ref($element) eq ""){
+            if(exists $obj->{$element}){
+                $obj_section->[$car] = $obj->{$element}{addr};
+            }
+            else{
+                encode_section($symbol_table, $obj, $element, $#{$obj_section}+1);
+                push @{$obj_section}, @{$obj->{$element}{code}};
+                $obj_section->[$car] = $obj->{$element}{addr};
+            }
+        }  
+        else{
+            $obj_section->[$car] = $offset+$#{$obj_section}+2;
+            encode_tree($symbol_table, $obj, $element, $obj_section, $offset);
+        }      
         $obj_section->[$cdr] = $offset+$#{$obj_section}+2;
 
+#        push @{$obj_section}, -2*$MWORD_SIZE;
+#        for(1..2){
+#            push @{$obj_section}, 0xdeadbeef;
+#        }
+#
+#        $car = $#{$obj_section}-1;
+#        $cdr = $#{$obj_section};
+#
+#        $obj_section->[$car] = $offset+$#{$obj_section}+2;
+#        encode_tree($symbol_table, $obj, $element, $obj_section, $offset);
+#        $obj_section->[$cdr] = $offset+$#{$obj_section}+2;
+#
     }
+
+    #add nil
+    #e974b23a 71cf647b 8c2f644d 3023f4e7
+    #push @{$obj_section}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $#{$obj_section}+2, $#{$obj_section}+2);
+
+}
+
+sub create_nil{
+
+    my ($obj, $obj_section) = @_;
+    print Dumper($obj) and die;
+
+    $obj->{nil}{addr} = $#{$obj_section}+2;
 
     #add nil
     #e974b23a 71cf647b 8c2f644d 3023f4e7
