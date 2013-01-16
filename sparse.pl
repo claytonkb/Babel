@@ -2,6 +2,8 @@
 
 # s-expression parser (sparse) - A low-level "assembler" for Babel constructs
 
+# TODO: Empty lists, bare values, catch non-existent symbols
+
 use strict;
 use feature 'state';
 no warnings 'recursion'; # Get "deep recursion" on large .pb files otherwise
@@ -46,13 +48,12 @@ $asm_file = clean     ( \@asm_file );
             tokenize($sections);
             my $obj = encode($sections);
 
-            #assemble  ( $sections, $asm_file );
-            #linkit    ( $sections, 'root', $obj_out, 0 );
-            #send_obj  ( $proj_name, $obj_out, $sections);
-
 #print Dumper($sections);
-print Dumper($obj);
-dump_obj($obj->{root}{code});
+#print Dumper($obj);
+#dump_obj($obj->{root}{code});
+
+create_lst($proj_name, $obj->{root}{code}, $obj);
+create_bbl($proj_name, $obj->{root}{code});
 
 #########################################################################
 #
@@ -403,14 +404,14 @@ sub encode_pointers{
                 #$obj->{$pointer}{code} = [];
                 #$obj->{$pointer}{addr} = $#{$obj_section}+1;
                 #encode_tree($symbol_table, $obj, $symbol_table->{$pointer}, $obj->{$pointer}{code}, $#{$obj_section}+1);
-                encode_section($symbol_table, $obj, $pointer, $#{$obj_section}+1);
+                encode_section($symbol_table, $obj, $pointer, $offset+$#{$obj_section}+1);
                 push @{$obj_section}, @{$obj->{$pointer}{code}};
                 $obj_section->[$first_pointer+$i] = $obj->{$pointer}{addr};
             }
         }
         else{
             $obj_section->[$first_pointer+$i] = $offset+$#{$obj_section}+2;
-            encode_tree($symbol_table, $obj, $pointer, $obj_section, $offset);
+            encode_tree($symbol_table, $obj, $pointer, $obj_section, $#{$obj_section}+1);
         }
         $i++;
 
@@ -450,29 +451,25 @@ sub encode_list{
                 $obj_section->[$car] = $obj->{$element}{addr};
             }
             else{
-                encode_section($symbol_table, $obj, $element, $#{$obj_section}+1);
+                encode_section($symbol_table, $obj, $element, $offset+$#{$obj_section}+1);
                 push @{$obj_section}, @{$obj->{$element}{code}};
                 $obj_section->[$car] = $obj->{$element}{addr};
             }
-        }  
+        }
         else{
             $obj_section->[$car] = $offset+$#{$obj_section}+2;
             encode_tree($symbol_table, $obj, $element, $obj_section, $offset);
-        }      
+        }
         $obj_section->[$cdr] = $offset+$#{$obj_section}+2;
 
     }
 
     if(!exists $obj->{nil}){
-        create_nil($obj, $obj_section);
+        create_nil($obj, $obj_section, $offset);
         #$obj_section->[$car] = $obj->{$element}{addr};
     }
 
     $obj_section->[$cdr] = $obj->{nil}{addr};
-
-    #add nil
-    #e974b23a 71cf647b 8c2f644d 3023f4e7
-    #push @{$obj_section}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $#{$obj_section}+2, $#{$obj_section}+2);
 
 }
 
@@ -517,47 +514,116 @@ sub encode_tagged_list{
                 $obj_section->[$car] = $obj->{$element}{addr};
             }
             else{
-                encode_section($symbol_table, $obj, $element, $#{$obj_section}+1);
+                encode_section($symbol_table, $obj, $element, $offset+$#{$obj_section}+1);
                 push @{$obj_section}, @{$obj->{$element}{code}};
                 $obj_section->[$car] = $obj->{$element}{addr};
             }
-        }  
+        }
         else{
             $obj_section->[$car] = $offset+$#{$obj_section}+2;
             encode_tree($symbol_table, $obj, $element, $obj_section, $offset);
-        }      
+        }
         $obj_section->[$cdr] = $offset+$#{$obj_section}+2;
 
-#        push @{$obj_section}, -2*$MWORD_SIZE;
-#        for(1..2){
-#            push @{$obj_section}, 0xdeadbeef;
-#        }
-#
-#        $car = $#{$obj_section}-1;
-#        $cdr = $#{$obj_section};
-#
-#        $obj_section->[$car] = $offset+$#{$obj_section}+2;
-#        encode_tree($symbol_table, $obj, $element, $obj_section, $offset);
-#        $obj_section->[$cdr] = $offset+$#{$obj_section}+2;
-#
     }
 
-    #add nil
-    #e974b23a 71cf647b 8c2f644d 3023f4e7
-    #push @{$obj_section}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $#{$obj_section}+2, $#{$obj_section}+2);
+    if(!exists $obj->{nil}){
+        create_nil($obj, $obj_section, $offset);
+        #$obj_section->[$car] = $obj->{$element}{addr};
+    }
+
+    $obj_section->[$cdr] = $obj->{nil}{addr};
 
 }
 
 sub create_nil{
 
-    my ($obj, $obj_section) = @_;
-    print Dumper($obj) and die;
+    my ($obj, $obj_section, $offset) = @_;
+    #print Dumper($obj) and die;
 
-    $obj->{nil}{addr} = $#{$obj_section}+2;
+    $obj->{nil}{addr} = $offset+$#{$obj_section}+2;
 
     #add nil
     #e974b23a 71cf647b 8c2f644d 3023f4e7
-    push @{$obj_section}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $#{$obj_section}+2, $#{$obj_section}+2);
+    push @{$obj_section}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $offset+$#{$obj_section}+2, $offset+$#{$obj_section}+2);
+
+}
+
+
+#########################################################################
+#
+# FILE OUTPUT
+#
+#########################################################################
+
+#
+#
+sub create_lst{
+
+    my $lst_file = shift;
+    my $obj_root = shift;
+    my $obj = shift;
+    my $i = 0;
+
+    open LST_FILE, ">${lst_file}.lst" or die "Couldn't create .lst: $!";
+
+    for my $word (@{$obj_root}) {
+        printf LST_FILE ("%04x %08x\n", $i++, $word);
+    }
+
+    foreach (sort keys %{$obj}){
+        if(defined $obj->{$_}{addr}){
+#            my $op = $_;
+#            $op =~ s/%/%%/g;
+##            printf("$op\n");
+            printf LST_FILE ("%08x $_\n", $obj->{$_}{addr});
+        }
+    }
+
+
+    close LST_FILE;
+
+}
+
+#
+#
+sub create_bbl{
+
+    my $bbl_file = shift;
+    my $obj_root = shift;
+
+    open BBL_FILE, ">${bbl_file}.bbl" or die "Couldn't create .bbl: $!";
+    binmode BBL_FILE;
+
+    for(@{$obj_root}){
+        print  BBL_FILE pack("V",  $_);
+    }
+
+    close BBL_FILE;
+
+}
+
+#
+#
+sub create_c{
+
+#    my $c_file = shift;
+#    my $obj_root = shift;
+#
+#    open C_FILE,   ">${c_file}.c" or die "Couldn't create .c: $!";
+#    printf C_FILE ("#define BBL_SIZE %d\nunsigned bbl[BBL_SIZE] = {", $#{$obj_out} + 1);
+#
+#    my $i = 0;
+#    for(0..$#{$obj_out}){
+#        if($i % 8 == 0){
+#            print C_FILE "\n    ";
+#        }
+#        printf   C_FILE ("0x%08x, ",                      $obj_out->[$_] & 0xffffffff);
+#        $i++;
+#    }
+#
+#    print C_FILE "\n};\n";
+#    close C_FILE;
 
 }
 

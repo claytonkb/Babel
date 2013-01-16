@@ -1,7 +1,10 @@
 -- sparse.pl test code
 
-( (root (k branch) )
-    (branch (x (j 1) ) ) )
+((root (q 'foo' (k root root))))
+
+-- ((root (x a))
+--     (a (q 'foo' (x b)))
+--     (b (j 42)))
 
 -- (   (root   
 --         (k nil))
