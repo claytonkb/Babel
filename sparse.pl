@@ -54,6 +54,7 @@ $asm_file = clean     ( \@asm_file );
 
 create_lst($proj_name, $obj->{root}{code}, $obj);
 create_bbl($proj_name, $obj->{root}{code});
+create_c($proj_name, $obj->{root}{code});
 
 #########################################################################
 #
@@ -607,23 +608,23 @@ sub create_bbl{
 #
 sub create_c{
 
-#    my $c_file = shift;
-#    my $obj_root = shift;
-#
-#    open C_FILE,   ">${c_file}.c" or die "Couldn't create .c: $!";
-#    printf C_FILE ("#define BBL_SIZE %d\nunsigned bbl[BBL_SIZE] = {", $#{$obj_out} + 1);
-#
-#    my $i = 0;
-#    for(0..$#{$obj_out}){
-#        if($i % 8 == 0){
-#            print C_FILE "\n    ";
-#        }
-#        printf   C_FILE ("0x%08x, ",                      $obj_out->[$_] & 0xffffffff);
-#        $i++;
-#    }
-#
-#    print C_FILE "\n};\n";
-#    close C_FILE;
+    my $c_file = shift;
+    my $obj_root = shift;
+
+    open C_FILE,   ">${c_file}.c" or die "Couldn't create .c: $!";
+    printf C_FILE ("#define BBL_SIZE %d\nunsigned bbl[BBL_SIZE] = {", $#{$obj_root} + 1);
+
+    my $i = 0;
+    for(@{$obj_root}){
+        if($i++ % 8 == 0){
+            print C_FILE "\n    ";
+        }
+        printf   C_FILE ("0x%08x, ", $_ & 0xffffffff);
+        #$i++;
+    }
+
+    print C_FILE "\n};\n";
+    close C_FILE;
 
 }
 

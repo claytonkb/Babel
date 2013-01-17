@@ -49,7 +49,7 @@ int main(int argc, char **argv){
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
 //bvm_cache *interp_init(int argc, char **argv){
 
-    #include "construct.pb.c"
+    #include "construct.sp.c"
 
     pearson16_init();    //Babel hash-function init
 

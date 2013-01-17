@@ -4,7 +4,7 @@ if(!-e 'bin'){
     mkdir 'bin';
 }
 
-system("perl proto_babel.pl src/construct.pb pb/opcodes.pb");
+system("perl sparse.pl src/construct.sp");
 
 `rm -f bin/babel.exe`;
 
