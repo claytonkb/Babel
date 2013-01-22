@@ -22,10 +22,14 @@ int main(int argc, char **argv){
 
     #include "construct.sp.c"
 
-    int i;
-    for(i=0;i<BBL_SIZE;i++){
-        printf("%08x %08x\n", i, bbl[i]);
-    }
+    mword *loaded_bbl = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
+    rclean(loaded_bbl);
+    _dump(loaded_bbl);
+
+//    int i;
+//    for(i=0;i<BBL_SIZE;i++){
+//        printf("%08x %08x\n", i, bbl[i]);
+//    }
 
 //    char * pPath;
 //    pPath = getenv ("PATH");
@@ -42,8 +46,6 @@ int main(int argc, char **argv){
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.
     //stdout8). The user must request this behavior with a switch.
-
-    printf("Hello, world\n");
 
     return 0;
 
