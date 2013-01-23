@@ -48,7 +48,7 @@ bvm_cache *hash8(bvm_cache *this_bvm){
 //
 mword *_hash8(mword *key){
 
-    return _pearson16(_newlfz(HASH_SIZE), key, _arlen8(key));
+    return _pearson16(_newlfi(HASH_SIZE,0), key, _arlen8(key));
 
 }
 

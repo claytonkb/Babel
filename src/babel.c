@@ -24,19 +24,24 @@ int main(int argc, char **argv){
     pearson16_init();    //Babel hash-function init
     init_nil();
 
-    printf("%d\n", is_nil(nil));
-    printf("%d\n", is_inte(nil));
-    printf("%d\n", is_leaf(nil));
-    printf("%d\n", is_tlist(nil));
-    printf("%x\n", (mword)scar(nil));
-    printf("%x\n", (mword)scdr(nil));
-    printf("%x\n", tcar(nil));
-    printf("%x\n", tcdr(nil));
-    printf("%x\n", s(nil));
-    printf("%x\n", ttag(nil,0));
-    printf("%x\n", ttag(nil,1));
-    printf("%x\n", ttag(nil,2));
-    printf("%x\n", ttag(nil,3)); //FIXME: Returning 0
+//    printf("%d\n", is_nil(nil));
+//    printf("%d\n", is_inte(nil));
+//    printf("%d\n", is_leaf(nil));
+//    printf("%d\n", is_tlist(nil));
+//    printf("%x\n", (mword)scar(nil));
+//    printf("%x\n", (mword)scdr(nil));
+//    printf("%x\n", tcar(nil));
+//    printf("%x\n", tcdr(nil));
+//    printf("%x\n", s(nil));
+//    printf("%x", ttag(nil,3));
+//    printf("%x", ttag(nil,2));
+//    printf("%x", ttag(nil,1));
+//    printf("%x\n", ttag(nil,0)); //FIXME: Returning 0
+
+    mword *loaded_bbl = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
+    //printf("%x\n", s(loaded_bbl));
+    _dump(loaded_bbl);
+    printf("Hello, world\n");
 
 //    char * pPath;
 //    pPath = getenv ("PATH");
@@ -59,23 +64,22 @@ int main(int argc, char **argv){
 }
 
 // Should be called only once per bvm instance
+// FIXME: This is a broken implementation since we cannot switch instances...
 void init_nil(void){
 
-    mword *ptr = malloc( MWORDS( 3 + HASH_SIZE ) ); // 3 = s-field + car + cdr
+    mword *ptr = malloc( MWORDS( 3 + HASH_SIZE + 1 ) ); // 3 = s-field + car + cdr
 
-    mword *hash_init  = _newlfz(HASH_SIZE);
-    mword *nil_string = C2B("nil");
-    mword *nil_hash   = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
+    mword *nil_hash   = _hash8(C2B("nil"));
 
     ptr[0] = 0; // X.s = 0 -> tagged-list
 
     //FIXME: 32-bit specific... also, this whole thing is inelegant
-    ptr[1] = nil_hash[1];
-    ptr[2] = nil_hash[2];
-    ptr[3] = nil_hash[3];
-    ptr[4] = nil_hash[4];
+    ptr[1] = nil_hash[0];
+    ptr[2] = nil_hash[1];
+    ptr[3] = nil_hash[2];
+    ptr[4] = nil_hash[3];
 
-    nil = ptr + 1;
+    nil = (ptr + 1);
 
     ptr[5] = (mword)nil;
     ptr[6] = (mword)nil;

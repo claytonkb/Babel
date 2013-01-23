@@ -92,14 +92,14 @@ mword *_newlf(mword size){
 }
 
 //
-mword *_newlfz(mword size){
+mword *_newlfi(mword size, mword init){
 
     mword *ptr = malloc( MWORDS(size+1) );
     if(ptr == NULL){
-        error("_newlfz: malloc returned NULL");
+        error("_newlfi: malloc returned NULL");
     }
 
-    memset((char*)ptr,0,MWORDS(size+1));
+    memset((char*)ptr,init,MWORDS(size+1));
     ptr[0] = size * MWORD_SIZE;
 
     return ptr+1;

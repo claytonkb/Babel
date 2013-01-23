@@ -167,7 +167,9 @@ mword *_bs2gv(mword *bs){
 
     // Figure out buffer size
     // Safety buffer of 2kb + (32 * _mu) XXX: WHY 100?? Ran into problems on this before!!
-    mword initial_buf_size = (1<<11) + (100 * _mu(bs));
+    //mword initial_buf_size = (1<<11) + (100 * _mu(bs));
+
+    mword initial_buf_size = 2<<16;
 
     char *buffer = malloc(initial_buf_size); //FIXME: malloc
     mword buf_size=0;
@@ -204,6 +206,8 @@ mword rbs2gv(mword *bs, char *buffer){
     int i;
     mword buf_size=0;
     int clipped=0;
+
+    die;
 
     if( TRAVERSED(bs) ){
         return 0;

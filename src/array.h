@@ -32,7 +32,8 @@ mword *_mkin(mword *entries, mword size);
 
 mword *_newlf(mword size);
 mword *_newin(mword size);
-mword *_newlfz(mword size);
+//mword *_newlfz(mword size);
+mword *_newlfi(mword size, mword init);
 mword _arlen8(mword *string);
 mword  alignment_word8(mword size8);
 mword  dec_alignment_word8(mword alignment_word);
