@@ -9,7 +9,6 @@
 #include "array.h"
 #include "bvm_opcodes.h"
 #include "list.h"
-#include "ref.h"
 
 ////
 ////
@@ -161,21 +160,21 @@ mword *load_tree(
             c(new_arr,i) = c(tree,offset+i);
         }
     }
-    else{ //href
-        new_arr = _newref((mword*)(tree+offset));
-
-//        d(num_elem)
+    else{ //FIXME: href
+//        new_arr = _newref((mword*)(tree+offset));
+//
+////        d(num_elem)
+////        for(i=0; i<num_elem; i++){
+////            d(c(new_arr,i))// = c(tree,offset+i);
+////        }
+//
+//        c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
+//        c(LUT_abs,*LUT_offset) = (mword)new_arr;
+//        *LUT_offset = *LUT_offset+1;
+//
 //        for(i=0; i<num_elem; i++){
-//            d(c(new_arr,i))// = c(tree,offset+i);
+//            c(new_arr,i) = c(tree,offset+i);
 //        }
-
-        c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
-        c(LUT_abs,*LUT_offset) = (mword)new_arr;
-        *LUT_offset = *LUT_offset+1;
-
-        for(i=0; i<num_elem; i++){
-            c(new_arr,i) = c(tree,offset+i);
-        }
     }
 
     s(tree+offset) |= 0x1; //Mark dumped

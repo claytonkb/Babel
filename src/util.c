@@ -46,6 +46,7 @@ bvm_cache *sleepop(bvm_cache *this_bvm){
     DWORD seconds = (DWORD)car(TOS_0(this_bvm));
     zap(this_bvm);
 
+    //FIXME: Windows-specific!
     Sleep(seconds*1000);
 
     return this_bvm;

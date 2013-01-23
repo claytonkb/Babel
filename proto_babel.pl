@@ -8,13 +8,13 @@ use Hash::Pearson16;
 use YAML::XS;
 use Data::Dumper;
 
-#my @my_hash = Hash::Pearson16::pearson16_hash("nil");
-#my $j;
-#for($j=$#my_hash;$j>=0;$j--){
-#    printf("%02x", $my_hash[$j]);
-#}
-#print "\n";
-#die;
+my @my_hash = Hash::Pearson16::pearson16_hash("nil");
+my $j;
+for($j=$#my_hash;$j>=0;$j--){
+    printf("%02x", $my_hash[$j]);
+}
+print "\n";
+die;
 
 #open YAML_FILE, shift;
 #my $yaml_file = join '', <YAML_FILE>;

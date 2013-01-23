@@ -99,21 +99,21 @@ mword rbbl2str(mword *bs, char *buffer){
 
     int num_entries = size(bs);
 
-    if( is_href(bs) ){
-
-        MARK_TRAVERSED(bs);
-
-        buf_size += sprintf(buffer+buf_size, "{{ ");
-
-        for(i=0; i<num_entries; i++){
-            buf_size += sprintf(buffer+buf_size, "0x%x ", *(mword *)(bs+i));
-        }
-
-        buf_size += sprintf(buffer+buf_size, "}} ");
-
-        return buf_size; 
-
-    }
+//    if( is_href(bs) ){
+//
+//        MARK_TRAVERSED(bs);
+//
+//        buf_size += sprintf(buffer+buf_size, "{{ ");
+//
+//        for(i=0; i<num_entries; i++){
+//            buf_size += sprintf(buffer+buf_size, "0x%x ", *(mword *)(bs+i));
+//        }
+//
+//        buf_size += sprintf(buffer+buf_size, "}} ");
+//
+//        return buf_size; 
+//
+//    }
 
     MARK_TRAVERSED(bs);
 
@@ -211,18 +211,19 @@ mword rbs2gv(mword *bs, char *buffer){
 
     int num_entries = size(bs);
 
-    if( is_href(bs) ){
-        buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)bs);
-        for(i=0; i<HASH_SIZE; i++){
-            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(bs+i));
-            if(i<(HASH_SIZE-1)){
-                buf_size += sprintf(buffer+buf_size, "|");
-            }
-        }
-        buf_size += sprintf(buffer+buf_size, "\"];\n");
-
-    }
-    else if(is_inte(bs)){
+//    if( is_href(bs) ){
+//        buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)bs);
+//        for(i=0; i<HASH_SIZE; i++){
+//            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(bs+i));
+//            if(i<(HASH_SIZE-1)){
+//                buf_size += sprintf(buffer+buf_size, "|");
+//            }
+//        }
+//        buf_size += sprintf(buffer+buf_size, "\"];\n");
+//
+//    }
+//    else if(is_inte(bs)){
+    if(is_inte(bs)){
 
         MARK_TRAVERSED(bs);
 
@@ -506,10 +507,10 @@ mword _rnlf(mword *bs){
             count += _rnlf((mword *)*(bs+i));
         }
     }
-    else if(is_href(bs)){
-        MARK_TRAVERSED(bs);
-        count = 0;
-    }
+//    else if(is_href(bs)){
+//        MARK_TRAVERSED(bs);
+//        count = 0;
+//    }
     else if(is_leaf(bs)){ // is_leaf
         MARK_TRAVERSED(bs);
         count = 1;
@@ -562,10 +563,10 @@ mword _rnhref(mword *bs){
             count += _rnhref((mword *)*(bs+i));
         }
     }
-    else if(is_href(bs)){
-        MARK_TRAVERSED(bs);
-        count = 1;
-    }
+//    else if(is_href(bs)){
+//        MARK_TRAVERSED(bs);
+//        count = 1;
+//    }
     else if(is_leaf(bs)){
         MARK_TRAVERSED(bs);
         count = 0;
@@ -612,7 +613,8 @@ mword _rnin(mword *bs){
         return 0;
     }
 
-    if(is_leaf(bs) || is_href(bs)){
+//    if(is_leaf(bs) || is_href(bs)){
+    if(is_leaf(bs)){
         MARK_TRAVERSED(bs);
         count = 0;
     }
@@ -725,10 +727,10 @@ mword _rnhword(mword *bs){
             count += _rnhword((mword *)*(bs+i));
         }
     }
-    else if(is_href(bs)){
-        count = size(bs);
-        MARK_TRAVERSED(bs);
-    }
+//    else if(is_href(bs)){
+//        count = size(bs);
+//        MARK_TRAVERSED(bs);
+//    }
     else if(is_leaf(bs)){
         MARK_TRAVERSED(bs);
         count = 0;

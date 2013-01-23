@@ -12,7 +12,6 @@
 #include "string.h"
 #include "util.h"
 #include "load.h"
-#include "ref.h"
 #include "bstruct.h"
 #include "stack.h"
 
@@ -22,14 +21,22 @@ int main(int argc, char **argv){
 
     #include "construct.sp.c"
 
-    mword *loaded_bbl = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
-    rclean(loaded_bbl);
-    _dump(loaded_bbl);
+    pearson16_init();    //Babel hash-function init
+    init_nil();
 
-//    int i;
-//    for(i=0;i<BBL_SIZE;i++){
-//        printf("%08x %08x\n", i, bbl[i]);
-//    }
+    printf("%d\n", is_nil(nil));
+    printf("%d\n", is_inte(nil));
+    printf("%d\n", is_leaf(nil));
+    printf("%d\n", is_tlist(nil));
+    printf("%x\n", (mword)scar(nil));
+    printf("%x\n", (mword)scdr(nil));
+    printf("%x\n", tcar(nil));
+    printf("%x\n", tcdr(nil));
+    printf("%x\n", s(nil));
+    printf("%x\n", ttag(nil,0));
+    printf("%x\n", ttag(nil,1));
+    printf("%x\n", ttag(nil,2));
+    printf("%x\n", ttag(nil,3)); //FIXME: Returning 0
 
 //    char * pPath;
 //    pPath = getenv ("PATH");
@@ -51,11 +58,37 @@ int main(int argc, char **argv){
 
 }
 
+// Should be called only once per bvm instance
+void init_nil(void){
+
+    mword *ptr = malloc( MWORDS( 3 + HASH_SIZE ) ); // 3 = s-field + car + cdr
+
+    mword *hash_init  = _newlfz(HASH_SIZE);
+    mword *nil_string = C2B("nil");
+    mword *nil_hash   = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
+
+    ptr[0] = 0; // X.s = 0 -> tagged-list
+
+    //FIXME: 32-bit specific... also, this whole thing is inelegant
+    ptr[1] = nil_hash[1];
+    ptr[2] = nil_hash[2];
+    ptr[3] = nil_hash[3];
+    ptr[4] = nil_hash[4];
+
+    nil = ptr + 1;
+
+    ptr[5] = (mword)nil;
+    ptr[6] = (mword)nil;
+
+}
+
 //interp_init()
 //  Initializes the root Babel Virtual Machine (BVM)
 //
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
 //bvm_cache *interp_init(int argc, char **argv){
+
+//    #include "construct.sp.c"
 
 //    pearson16_init();    //Babel hash-function init
 //

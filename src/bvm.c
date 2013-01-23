@@ -25,7 +25,6 @@
 #include "hash.h"
 #include "bstruct.h"
 #include "alloc.h"
-#include "ref.h"
 
 //void bvmstep(void){
 //
@@ -307,10 +306,10 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
             op_ptr = (babel_op)this_bvm->jump_table[ opcode % NUM_INTERP_OPCODES ];
             discard = op_ptr(this_bvm);
         }
-        else if( is_href(car(this_bvm->code_ptr)) ){ //TODO: Implement href operator calls!
-            error("bvm_interp: hash-reference detected in code");
-            die;
-        }
+//        else if( is_href(car(this_bvm->code_ptr)) ){ //TODO: Implement href operator calls!
+//            error("bvm_interp: hash-reference detected in code");
+//            die;
+//        }
         else{
             error("bvm_interp: error detected during execution");
             die;

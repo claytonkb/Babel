@@ -27,7 +27,6 @@
 #include "hash.h"
 #include "bstruct.h"
 #include "alloc.h"
-#include "ref.h"
 #include "babel.h"
 
 babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
@@ -646,7 +645,8 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     andop,
     orop,
     notop,
-    ishref, //    ishref,
+    //ishref, //    ishref,
+    rsvd,
     each, //    each,
     rsvd, //    newref,
     span,
@@ -698,7 +698,8 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
 
     //210
     nhword,
-    deref,
+    //deref,
+    rsvd,
     ifop,
     ordop,
     let,

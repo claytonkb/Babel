@@ -15,7 +15,6 @@
 #include "array.h"
 #include "alloc.h"
 #include "bvm_stack.h"
-#include "ref.h"
 #include "eval.h"
 #include "hash.h"
 
@@ -505,9 +504,10 @@ bvm_cache *flip(bvm_cache *this_bvm){
 //
 mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
 
-    while(is_href(stack_entry)){
-        stack_entry = _luha(this_bvm->sym_table, stack_entry);
-    }
+    //FIXME: href
+//    while(is_href(stack_entry)){
+//        stack_entry = _luha(this_bvm->sym_table, stack_entry);
+//    }
 
     return (mword*)stack_entry;
 

@@ -43,6 +43,7 @@ void init_interp_jump_table(bvm_cache *this_bvm);
 bvm_cache *endian(bvm_cache *this_bvm);
 void print_env(void);
 void dump_mem(mword *mem, int size);
+void init_nil(void);
 
 #define BIG_ENDIAN    0
 #define LITTLE_ENDIAN 1
@@ -77,7 +78,7 @@ void dump_mem(mword *mem, int size);
 
 #define ROOT_INTERP_THREAD 0
 
-// This include many reserved opcodes
+// This includes many reserved opcodes
 #define NUM_INTERP_OPCODES 533
 
 #define WINDOWS
@@ -89,21 +90,29 @@ void dump_mem(mword *mem, int size);
 #define LOG_MWORD_SIZE 2
 
 // UTILITIES
-#define s(x)         (*((mword*)x-1))
-#define is_leaf(x)   ((int)s((mword*)x) >  0)
-#define is_inte(x)   ((int)s((mword*)x) <  0)
-#define is_href(x)   ((int)s((mword*)x) == 0)
+#define s(x)          (*((mword*)x-1))
+#define is_leaf(x)    ((int)s((mword*)x) >  0)
+#define is_inte(x)    ((int)s((mword*)x) <  0)
+#define is_tlist(x)   ((int)s((mword*)x) == 0)
 
-#define size(x)      (is_href(x)?HASH_SIZE:(abs(s(x))/MWORD_SIZE))
+//#define is_href(x)   ((int)s((mword*)x) == 0)
+
+//#define size(x)      (is_href(x)?HASH_SIZE:(abs(s(x))/MWORD_SIZE))
+#define size(x)      (abs(s(x))/MWORD_SIZE)
 #define c(x,y)       (*(y + x))
 
-#define is_nil(x)   ( is_href(x) ? (memcmp((x), nil, HASH_SIZE) == 0) : 0 )
+//#define is_nil(x)   ( is_href(x) ? (memcmp((x), nil, HASH_SIZE) == 0) : 0 )
+#define is_nil(x)   ( (mword)(x) == (mword)nil )
 
 #define is_false(x) (    is_leaf(x) && car(x) == 0 \
                      || !is_leaf(x) && is_nil(scar(x)) )
 
-#define car(x)      c((mword*)x,0)
-#define cdr(x)      c((mword*)x,1)
+#define car(x)      c((mword*)(x),0)
+#define cdr(x)      c((mword*)(x),1)
+
+#define ttag(x,y)   c((mword*)x,y)
+#define tcar(x)     c((mword*)x,HASH_SIZE)
+#define tcdr(x)     c((mword*)x,HASH_SIZE+1)
 
 //nil-safe car/cdr:
 #define scar(x)     (is_nil(x) ? nil : car(x))
@@ -113,8 +122,6 @@ void dump_mem(mword *mem, int size);
 
 #define new_cons (_newin(2))
 #define new_atom (_newlf(1))
-
-//XXX we may yet need a generally hash-ref-safe car/cdr
 
 // Stack
 //#define TOS_0(x)             car(car(x->stack_ptr))

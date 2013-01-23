@@ -10,36 +10,35 @@
 #include "pearson16.h"
 #include "bvm.h"
 #include "bvm_opcodes.h"
-#include "ref.h"
 #include "bstruct.h"
 
 
-//
+// FIXME: USES HREF
 mword *new_hash_entry(mword *hash, mword *key, mword *val, mword ref_count, mword bounding){
 
-    mword *href = _newref(hash);
-
-    mword *ref_count_ptr = new_atom;
-    *ref_count_ptr       = ref_count;
-
-    mword *bounding_ptr  = new_atom;
-    *bounding_ptr        = bounding;
-
-    mword *hash_entry    = _newin(HASH_ENTRY_SIZE);
-
-//    (mword*)c(hash_entry,0) = href;
-//    (mword*)c(hash_entry,1) = val;
-//    (mword*)c(hash_entry,2) = key;
-//    (mword*)c(hash_entry,3) = ref_count_ptr;
-//    (mword*)c(hash_entry,4) = bounding_ptr;
-
-    HASH_ENTRY_REF(hash_entry) = href;
-    HASH_ENTRY_VAL(hash_entry) = val;
-    HASH_ENTRY_KEY(hash_entry) = key;
-    HASH_ENTRY_CNT(hash_entry) = ref_count_ptr;
-    HASH_ENTRY_BND(hash_entry) = bounding_ptr;
-
-    return hash_entry;
+//    mword *href = _newref(hash);
+//
+//    mword *ref_count_ptr = new_atom;
+//    *ref_count_ptr       = ref_count;
+//
+//    mword *bounding_ptr  = new_atom;
+//    *bounding_ptr        = bounding;
+//
+//    mword *hash_entry    = _newin(HASH_ENTRY_SIZE);
+//
+////    (mword*)c(hash_entry,0) = href;
+////    (mword*)c(hash_entry,1) = val;
+////    (mword*)c(hash_entry,2) = key;
+////    (mword*)c(hash_entry,3) = ref_count_ptr;
+////    (mword*)c(hash_entry,4) = bounding_ptr;
+//
+//    HASH_ENTRY_REF(hash_entry) = href;
+//    HASH_ENTRY_VAL(hash_entry) = val;
+//    HASH_ENTRY_KEY(hash_entry) = key;
+//    HASH_ENTRY_CNT(hash_entry) = ref_count_ptr;
+//    HASH_ENTRY_BND(hash_entry) = bounding_ptr;
+//
+//    return hash_entry;
 
 }
 
