@@ -569,7 +569,7 @@ sub create_lst{
     open LST_FILE, ">${lst_file}.lst" or die "Couldn't create .lst: $!";
 
     for my $word (@{$obj_root}) {
-        printf LST_FILE ("%04x %08x\n", $i++, $word);
+        printf LST_FILE ("%04x %08x\n", $MWORD_SIZE * $i++, $word);
     }
 
     foreach (sort keys %{$obj}){

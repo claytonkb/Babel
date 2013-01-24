@@ -169,7 +169,7 @@ mword *_bs2gv(mword *bs){
     // Safety buffer of 2kb + (32 * _mu) XXX: WHY 100?? Ran into problems on this before!!
     //mword initial_buf_size = (1<<11) + (100 * _mu(bs));
 
-    mword initial_buf_size = 2<<16;
+    mword initial_buf_size = 2<<16; //FIXME!!!!!!!
 
     char *buffer = malloc(initial_buf_size); //FIXME: malloc
     mword buf_size=0;
@@ -180,6 +180,9 @@ mword *_bs2gv(mword *bs){
     buf_size += rbs2gv(bs, buffer+buf_size);
 
     buf_size += sprintf(buffer+buf_size, "}\n");
+    *(buffer+buf_size) = 0;
+    buf_size++;
+
     //buf_size now contains the final string size of the entire graphviz string
 
     rclean(bs);
@@ -212,10 +215,6 @@ mword rbs2gv(mword *bs, char *buffer){
     }
 
     int num_entries = size(bs);
-
-    if(is_tlist(bs)){
-        die;
-    }
 
 //    if( is_href(bs) ){
 //        buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)bs);
@@ -251,7 +250,7 @@ mword rbs2gv(mword *bs, char *buffer){
         }
 
     }
-    else{ // is_leaf
+    else if(is_leaf(bs)){
         if(num_entries > 8){
             num_entries=8;
             clipped=1;
@@ -271,6 +270,9 @@ mword rbs2gv(mword *bs, char *buffer){
             buf_size += sprintf(buffer+buf_size, "<f%d> ...", i);
         }
         buf_size += sprintf(buffer+buf_size, "\"];\n");
+    }
+    else{ // is_tlist
+        die;
     }
 
     MARK_TRAVERSED(bs);

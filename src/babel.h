@@ -103,7 +103,10 @@ void temp_rbs2gv(mword *bs);
 #define c(x,y)       (*(y + x))
 
 //#define is_nil(x)   ( is_href(x) ? (memcmp((x), nil, HASH_SIZE) == 0) : 0 )
-#define is_nil(x)   ( (mword)(x) == (mword)nil )
+//#define is_nil(x)   ( (mword)(x) == (mword)nil )
+
+#define eqtag(x,y) (memcmp(x, y, HASH_SIZE*MWORD_SIZE))
+#define is_nil(x) ( eqtag(x,nil) == 0 )
 
 #define is_false(x) (    is_leaf(x) && car(x) == 0 \
                      || !is_leaf(x) && is_nil(scar(x)) )

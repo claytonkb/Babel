@@ -125,6 +125,30 @@ mword *_newin(mword size){
 
 }
 
+//
+mword *_newtlist(void){
+
+    mword *ptr = malloc( MWORDS(4 + HASH_SIZE) ); // 4 = s-field + s-field + car + cdr
+
+    if(ptr == NULL){
+        error("_newtlist: malloc returned NULL");
+    }
+
+    //FIXME: 32-bit specific and UGLY
+    ptr[0] = 0;
+    ptr[1] = 0xdeadbeef;
+    ptr[2] = 0xdeadbeef;
+    ptr[3] = 0xdeadbeef;
+    ptr[4] = 0xdeadbeef;
+    ptr[5] = (mword)(-2*MWORD_SIZE);
+    ptr[6] = (mword)nil;
+    ptr[7] = (mword)nil;
+
+    return ptr+1;
+
+}
+
+
 // utility function used for rstack
 mword *_mkin(mword *entries, mword size){
 
