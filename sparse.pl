@@ -257,6 +257,8 @@ sub encode{
 
     #print Dumper($symbol_table) and die;
 
+    my $offset = 0;
+
     encode_section($symbol_table, $obj, 'root', 0);
 
     return $obj;
@@ -273,11 +275,12 @@ sub encode_section{
         $offset) = @_;
 
     if(exists $obj->{$section_name}){
-        return;
+        return $obj->{$section_name}{addr};
     }
     else{
         $obj->{$section_name}{code} = [];
         $obj->{$section_name}{addr} = ($offset+1) * $MWORD_SIZE;
+        #$obj->{$section_name}{addr} = encode_tree($symbol_table, $obj, $symbol_table->{$section_name}, $obj->{$section_name}{code}, $offset);
         encode_tree($symbol_table, $obj, $symbol_table->{$section_name}, $obj->{$section_name}{code}, $offset);
     }
 
@@ -294,16 +297,16 @@ sub encode_tree{
         $offset) = @_;
 
     if   ($symbol_section->[0] eq 'j'){ #values
-        encode_values($symbol_table, $obj, $symbol_section, $obj_section);
+        return encode_values($symbol_table, $obj, $symbol_section, $obj_section);
     }
     elsif($symbol_section->[0] eq 'k'){ #pointers
-        encode_pointers($symbol_table, $obj, $symbol_section, $obj_section, $offset);
+        return encode_pointers($symbol_table, $obj, $symbol_section, $obj_section, $offset);
     }
     elsif($symbol_section->[0] eq 'q'){ #tagged-list
-        encode_tagged_list($symbol_table, $obj, $symbol_section, $obj_section, $offset);
+        return encode_tagged_list($symbol_table, $obj, $symbol_section, $obj_section, $offset);
     }
     elsif($symbol_section->[0] eq 'x'){ #list
-        encode_list($symbol_table, $obj, $symbol_section, $obj_section, $offset);
+        return encode_list($symbol_table, $obj, $symbol_section, $obj_section, $offset);
     }
     elsif($symbol_section->[0] eq 'z'){ #constant
     }
@@ -364,9 +367,13 @@ sub encode_values{
         }            
     }
 
-    unshift @value_list, $MWORD_SIZE*($#value_list+1);
+    unshift @value_list, $MWORD_SIZE * ($#value_list+1);
+
+    my $return_value = $MWORD_SIZE * ($#{$obj_section} + 2);
 
     push @{$obj_section}, @value_list;
+
+    return $return_value;
 
 }
 
@@ -411,12 +418,14 @@ sub encode_pointers{
             }
         }
         else{
-            $obj_section->[$first_pointer+$i] = ($offset+$#{$obj_section}+2) * $MWORD_SIZE; ## <-- XXX Unsure of this...
-            encode_tree($symbol_table, $obj, $pointer, $obj_section, $#{$obj_section}+1);
+            #$obj_section->[$first_pointer+$i] = ($first_pointer+$#pointers+2) * $MWORD_SIZE;
+            $obj_section->[$first_pointer+$i] = encode_tree($symbol_table, $obj, $pointer, $obj_section, $#{$obj_section}+1);
         }
         $i++;
 
     }
+
+    return $first_pointer * $MWORD_SIZE;
 
 }
 
@@ -436,6 +445,7 @@ sub encode_list{
     shift @elements;
 
     #if $#elements=0
+    my $first_pointer = $#{$obj_section}+2;
 
     foreach my $element (@elements){
 
@@ -472,6 +482,8 @@ sub encode_list{
 
     $obj_section->[$cdr] = $obj->{nil}{addr};
 
+    return $first_pointer * $MWORD_SIZE;
+
 }
 
 #
@@ -488,10 +500,13 @@ sub encode_tagged_list{
 
     my @elements = @{$symbol_section};
     shift @elements;
+
     my $plain_tag = shift @elements;
     my $tag;
 
     push @{$obj_section}, 0;
+
+    my $first_pointer = $#{$obj_section}+1;
 
     if($plain_tag =~ /^\s*"([^"]*)"$/ or $plain_tag =~ /^\s*'([^']*)'$/){
         push @{$obj_section}, bytes_to_mwords(Hash::Pearson16::pearson16_hash($1));
@@ -535,6 +550,8 @@ sub encode_tagged_list{
 
     $obj_section->[$cdr] = $obj->{nil}{addr};
 
+    return $first_pointer * $MWORD_SIZE;
+
 }
 
 sub create_nil{
@@ -546,7 +563,7 @@ sub create_nil{
 
     #add nil
     #e974b23a 71cf647b 8c2f644d 3023f4e7
-    push @{$obj_section}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $offset+$#{$obj_section}+2, $offset+$#{$obj_section}+2);
+    push @{$obj_section}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $obj->{nil}{addr}, $obj->{nil}{addr});
 
 }
 
