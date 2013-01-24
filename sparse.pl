@@ -277,7 +277,7 @@ sub encode_section{
     }
     else{
         $obj->{$section_name}{code} = [];
-        $obj->{$section_name}{addr} = $offset+1;
+        $obj->{$section_name}{addr} = ($offset+1) * $MWORD_SIZE;
         encode_tree($symbol_table, $obj, $symbol_table->{$section_name}, $obj->{$section_name}{code}, $offset);
     }
 
@@ -411,7 +411,7 @@ sub encode_pointers{
             }
         }
         else{
-            $obj_section->[$first_pointer+$i] = $offset+$#{$obj_section}+2;
+            $obj_section->[$first_pointer+$i] = ($offset+$#{$obj_section}+2) * $MWORD_SIZE; ## <-- XXX Unsure of this...
             encode_tree($symbol_table, $obj, $pointer, $obj_section, $#{$obj_section}+1);
         }
         $i++;
@@ -458,10 +458,10 @@ sub encode_list{
             }
         }
         else{
-            $obj_section->[$car] = $offset+$#{$obj_section}+2;
+            $obj_section->[$car] = ($offset+$#{$obj_section}+2) * $MWORD_SIZE;
             encode_tree($symbol_table, $obj, $element, $obj_section, $offset);
         }
-        $obj_section->[$cdr] = $offset+$#{$obj_section}+2;
+        $obj_section->[$cdr] = ($offset+$#{$obj_section}+2) * $MWORD_SIZE;
 
     }
 
@@ -542,7 +542,7 @@ sub create_nil{
     my ($obj, $obj_section, $offset) = @_;
     #print Dumper($obj) and die;
 
-    $obj->{nil}{addr} = $offset+$#{$obj_section}+2;
+    $obj->{nil}{addr} = ($offset+$#{$obj_section}+2) * $MWORD_SIZE;
 
     #add nil
     #e974b23a 71cf647b 8c2f644d 3023f4e7

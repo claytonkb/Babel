@@ -93,11 +93,11 @@ mword *_load(mword *tree, mword tree_size){//, mword offset){
 //    mword tree_size  = size(tree);
 //    mword *dest      = 0;
     mword *LUT_abs   = _newin(tree_size);
-    mword *LUT_rel   = _newlf(tree_size);
+    mword *LUT_rel   = _newlfi(tree_size,-1);
 
-        for(i=0; i<tree_size; i++){
-            c(LUT_rel,i) = (mword)-1;
-        }
+//        for(i=0; i<tree_size; i++){
+//            c(LUT_rel,i) = (mword)-1;
+//        }
 
     mword offset     = MWORD_SIZE;
     mword LUT_offset = 0;
@@ -161,6 +161,7 @@ mword *load_tree(
         }
     }
     else{ //FIXME: href
+
 //        new_arr = _newref((mword*)(tree+offset));
 //
 ////        d(num_elem)
@@ -196,6 +197,7 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword *elem){
             return (mword*)c(LUT_abs,i);
         }
         else if(curr_elem == (mword)-1){
+            die; //FIXME: Is this ever a valid case?
             return (mword*)-1;
         }
     }

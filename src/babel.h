@@ -44,6 +44,7 @@ bvm_cache *endian(bvm_cache *this_bvm);
 void print_env(void);
 void dump_mem(mword *mem, int size);
 void init_nil(void);
+void temp_rbs2gv(mword *bs);
 
 #define BIG_ENDIAN    0
 #define LITTLE_ENDIAN 1

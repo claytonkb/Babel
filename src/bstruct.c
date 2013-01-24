@@ -207,13 +207,15 @@ mword rbs2gv(mword *bs, char *buffer){
     mword buf_size=0;
     int clipped=0;
 
-    die;
-
     if( TRAVERSED(bs) ){
         return 0;
     }
 
     int num_entries = size(bs);
+
+    if(is_tlist(bs)){
+        die;
+    }
 
 //    if( is_href(bs) ){
 //        buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)bs);

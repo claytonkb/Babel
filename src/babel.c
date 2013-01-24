@@ -38,10 +38,18 @@ int main(int argc, char **argv){
 //    printf("%x", ttag(nil,1));
 //    printf("%x\n", ttag(nil,0)); //FIXME: Returning 0
 
-    mword *loaded_bbl = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
-    //printf("%x\n", s(loaded_bbl));
+//    printf("%d\n", sizeof(bbl));
+//    die;
+
+    mword *loaded_bbl = _load((mword*)bbl,BBL_SIZE);
+
+//    printf("%x\n", s(loaded_bbl));
+//    printf("%x\n", (mword)*loaded_bbl);
+//    printf("%x\n", c(loaded_bbl,0));
+
+    //temp_rbs2gv(loaded_bbl);
     _dump(loaded_bbl);
-    printf("Hello, world\n");
+//    printf("Hello, world\n");
 
 //    char * pPath;
 //    pPath = getenv ("PATH");
@@ -62,6 +70,48 @@ int main(int argc, char **argv){
     return 0;
 
 }
+
+
+
+//
+void temp_rbs2gv(mword *bs){
+
+    int i;
+
+    if( TRAVERSED(bs) ){
+        return 0;
+    }
+
+    int num_entries = size(bs);
+    printf("%08x\n", (mword)s(bs));
+
+    if(is_tlist(bs)){
+        die;
+    }
+
+    if(is_inte(bs)){
+
+        MARK_TRAVERSED(bs);
+
+        for(i=0; i<num_entries; i++){
+            if(is_nil((mword *)scar(bs+i))){
+                continue;
+            }
+            printf("%08x\n", *(mword *)(bs+i));
+            temp_rbs2gv((mword *)*(bs+i));
+        }
+
+    }
+    else{ // is_leaf
+        for(i=0; i<num_entries; i++){
+            printf("%08x\n", *(mword *)(bs+i));
+        }
+    }
+
+    MARK_TRAVERSED(bs);
+
+}
+
 
 // Should be called only once per bvm instance
 // FIXME: This is a broken implementation since we cannot switch instances...
