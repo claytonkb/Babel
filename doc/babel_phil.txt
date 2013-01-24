@@ -11,7 +11,7 @@ Philosophy of Babel
 
 - Optimize for best performance on the programmer's brain
 
-    Larry Wall's philosophy is that we tend to over-optimize for the machine 
+    Larry Wall has pointed out that we tend to over-optimize for the machine 
     and often fail to optimize for performance on the programmer's mind. This
     results in poor overall performance when code is filled with bugs and 
     sub-optimal algorithms or falls into disrepair due to the difficulty of
@@ -70,6 +70,35 @@ Philosophy of Babel
     more humble approach. While there are 'reflection' 'polymorphism' 
     'pure functional evaluation' 'call with current continuation' and even 
     'lazy evaluation' in Babel, they are not called these things.
+
+- The machine IS the object
+
+    Babel notably lacks classes and objects. After Perl was forced to adopt
+    objects (with the bless operator), isn't it crazy to once again try to
+    have a language without objects?
+
+    My answer is that the machine IS the object - the virtual-machine, that 
+    is. The Babel Virtual Machine (BVM) is an object on steroids - it has
+    a symbol-table, it has code, stack and data, it has I/O, it has resource-
+    limits, etc. It is containerized. Most notably, it can implement and 
+    enforce access rights and code-execution rights.
+
+    To implement objects in Babel would be redundant and kludged - why go for
+    half-hearted objects when you can encapsulate your code into a fully-
+    featured virtual machine?
+
+- The way of no way
+
+    Perl's philosophy is the famous TIMTOWTDI - There Is More Than One Way To
+    Do It. This is one of the many reasons I fell in love with Perl 5. Tim
+    Peters famously expresses a different sentiment in The Zen of Python: 
+    "There should be one - and preferably only one - obvious way to do it."
+
+    Babel is basically attempting to out-Perl5 Perl5 - in Babel, there is NO 
+    way to do it... in the sense that Bruce Lee said, "No way is the way." 
+    I have attempted to avoid creating "ways" to do things at all. Of course,
+    this is not completely possible but, in time, I am confident we can train 
+    Babel to Be Water, My Friend.
 
 - Preserve symmetry over orthogonality
 
