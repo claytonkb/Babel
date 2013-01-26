@@ -13,7 +13,7 @@ mword *load_tree(
         mword *LUT_abs, 
         mword *LUT_rel, 
         mword *LUT_offset);
-mword *get_abs_offset(LUT_rel, LUT_abs, tree);
+mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword elem);
 
 bvm_cache *unload(bvm_cache *this_bvm);
 mword *_unload(mword *bs);

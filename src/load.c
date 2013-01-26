@@ -172,6 +172,10 @@ mword *load_tree(
         c(new_arr,5) = (mword)nil;
         c(new_arr,6) = (mword)nil;
 
+        c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
+        c(LUT_abs,*LUT_offset) = (mword)new_arr;
+        *LUT_offset = *LUT_offset+1;
+
 //        printf("%x", ttag(new_arr,0));
 //        die;
 //
@@ -216,7 +220,7 @@ mword *load_tree(
 }
 
 
-mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword *elem){
+mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword elem){
 
     int i=0;
     int LUT_size = size(LUT_rel);
@@ -224,10 +228,11 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword *elem){
 
     for(;i<LUT_size;i++){
         curr_elem = c(LUT_rel,i);
-        if(curr_elem == (mword)elem){
+        if(curr_elem == elem){
             return (mword*)c(LUT_abs,i);
         }
         else if(curr_elem == (mword)-1){
+            printf("%x\n", elem);
             die; //FIXME: Is this ever a valid case?
             return (mword*)-1;
         }
