@@ -52,9 +52,9 @@ $asm_file = clean     ( \@asm_file );
 #print Dumper($obj);
 #dump_obj($obj->{root}{code});
 
-create_lst($proj_name, $obj->{root}{code}, $obj);
-create_bbl($proj_name, $obj->{root}{code});
-create_c($proj_name, $obj->{root}{code});
+create_lst($proj_name, $obj->{code}{root}, $obj);
+create_bbl($proj_name, $obj->{code}{root});
+create_c  ($proj_name, $obj->{code}{root});
 
 #########################################################################
 #
@@ -564,7 +564,7 @@ sub create_nil{
 
     #add nil
     #e974b23a 71cf647b 8c2f644d 3023f4e7
-    push @{$obj_code}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $obj->{nil}{addr}, $obj->{nil}{addr});
+    push @{$obj_code}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $obj->{addr}{nil}, $obj->{addr}{nil});
 
 }
 
