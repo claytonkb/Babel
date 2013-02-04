@@ -5,5 +5,5 @@
 -- Matrix...
 
 (   (root   (x (j 17) branch) )
-    (branch (x (j 42) root)))
+    (branch (q 'ref' (j 42) root)))
 
