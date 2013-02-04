@@ -52,9 +52,9 @@ $asm_file = clean     ( \@asm_file );
 #print Dumper($obj);
 #dump_obj($obj->{root}{code});
 
-create_lst($proj_name, $obj->{code}{root}, $obj);
-create_bbl($proj_name, $obj->{code}{root});
-create_c  ($proj_name, $obj->{code}{root});
+create_lst($proj_name, $obj);
+#create_bbl($proj_name, $obj->{root}{code});
+#create_c  ($proj_name, $obj->{root}{code});
 
 #########################################################################
 #
@@ -248,7 +248,7 @@ sub encode{
     my $parse_tree = shift;
 
     my $symbol_table = {};
-    my $obj = {};
+#    $obj->{code} = [];
 
     # build symbol-table
     foreach my $named_section (@{$parse_tree}){
@@ -259,10 +259,10 @@ sub encode{
 
     my $offset = 0;
 
-    $obj->{code} = [];
-    encode_section($symbol_table, $obj, 'root', 0);
+    #$obj->{code}{'root'} = [];
+    return encode_section($symbol_table, {}, 'root', \$offset);
 
-    return $obj;
+    #return $obj;
 
 }
 
@@ -271,20 +271,13 @@ sub encode{
 sub encode_section{
 
     my ($symbol_table, 
-        $obj, 
+        $addr_lut, 
         $section_name, 
         $offset) = @_;
 
-    if(exists $obj->{addr}{$section_name}){
-        return $obj->{addr}{$section_name};
-    }
-    else{
-        $obj->{addr}{$section_name} = ($offset+1) * $MWORD_SIZE;
-        #$obj->{$section_name}{addr} = encode_tree($symbol_table, $obj, $symbol_table->{$section_name}, $obj->{$section_name}{code}, $offset);
+    $addr_lut->{$section_name} = ($$offset+1) * $MWORD_SIZE;
 
-        #encode_tree($symbol_table, $obj, $symbol_table->{$section_name}, $obj->{$section_name}{code}, $offset);
-        encode_tree($symbol_table, $obj, $symbol_table->{$section_name}, $offset);
-    }
+    return encode_tree($symbol_table, $addr_lut, $section_name, $offset, $symbol_table->{$section_name});
 
 }
 
@@ -293,29 +286,28 @@ sub encode_section{
 sub encode_tree{
 
     my ($symbol_table, 
-        $obj, 
-        $sub_tree,
-        $offset) = @_;
-
-#    my $symbol_section = $symbol_table->{$section_name};
-#    my $obj_section    = $obj->{$section_name}{code};
+        $addr_lut,
+        $section_name, 
+        $offset,
+        $sub_tree) = @_;
 
     if   ($sub_tree->[0] eq 'j'){ #values
-        return encode_values        ($symbol_table, $obj, $sub_tree);
+        return encode_values        ($sub_tree, $offset);
     }
     elsif($sub_tree->[0] eq 'k'){ #pointers
-        return encode_pointers      ($symbol_table, $obj, $sub_tree, $offset);
+        return encode_pointers      ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
     }
     elsif($sub_tree->[0] eq 'q'){ #tagged-list
-        return encode_tagged_list   ($symbol_table, $obj, $sub_tree, $offset);
+        return encode_tagged_list   ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
     }
     elsif($sub_tree->[0] eq 'x'){ #list
-        return encode_list          ($symbol_table, $obj, $sub_tree, $offset);
+        return encode_list          ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
     }
     elsif($sub_tree->[0] eq 'z'){ #constant
+        die;
     }
     else{
-        die "Unrecognized list type\n";
+        print "Unrecognized list type: $symbol_table->{$section_name}->[0]\n" and die;
     }
 
 }
@@ -324,60 +316,51 @@ sub encode_tree{
 #
 sub encode_values{
 
-    my ($symbol_table, 
-        $obj, 
-        $sub_tree) = @_;
+    my ($sub_tree, $offset) = @_;
 
     my $eval_string;
     my @str_vec;
 
-    my $obj_code = $obj->{code};
-
     my @values = @{$sub_tree};
     shift @values;
 
-    my @value_list = ();
+    $$offset += ($#values+2);
 
-    my $first_value = $#{$obj_code}+1;
+    my $value_list = [];
 
     foreach my $value (@values){
+
         if($value =~ /^(\s*-?[1-9][0-9]*)$/ or $value =~ /^(\s*0+)[^x]$/ ){
-            #$branch =~ s/^\s*(-?[0-9]+)//;
-            push @value_list, 1+$1-1; #FORCE Perl to treat it as numeric
+            push @{$value_list}, 1+$1-1; #FORCE Perl to treat it as numeric
         }
         elsif($value =~ /^(\s*0x[A-Fa-f0-9]+)$/){
-            #$branch =~ s/^\s*0x([A-Fa-f0-9]+)//;
-            push @value_list, hex($1);
+            push @{$value_list}, hex($1);
         }
         elsif($value =~ /^\s*"[^"]*"$/){
+
             $eval_string = "\$value = $value;";
             die unless eval($eval_string);
             $value = "\"$value\"";
+
             @str_vec = str2vec($value);
-            push @value_list, @str_vec;
+            push @{$value_list}, @str_vec;
+
         }
         elsif($value =~ /^\s*'([^']*)'$/){
             @str_vec = str2vec($value);
-            push @value_list, @str_vec;
+            push @{$value_list}, @str_vec;
         }
-#        elsif($value =~ /^($section_name)$/){
-#            my $label = $1;
-#            unless(exists $obj->{$label}){
-#                encode_section($symbol_table, $obj, $label, 0);
-#            }
-#            my @temp = @{$obj->{$label}{code}};
-#            shift @temp;
-#            push @value_list, @temp; #$obj_section->[$first_pointer+$i] = $obj->{$pointer}{addr};            
-#        }
+        elsif($value =~ /^($section_name)$/){
+            die;
+        }
         else{
             print "Error: .$value.\n" and die;
         }            
     }
 
-    unshift @value_list, $MWORD_SIZE * ($#value_list+1);
-    push @{$obj_code}, @value_list;
+    unshift @{$value_list}, $MWORD_SIZE * ($#{$value_list}+1);
 
-    return $first_value * $MWORD_SIZE;
+    return $value_list;
 
 }
 
@@ -386,45 +369,45 @@ sub encode_values{
 sub encode_pointers{
 
     my ($symbol_table, 
-        $obj, 
-        $sub_tree, 
-        $offset) = @_;
+        $addr_lut,
+        $section_name, 
+        $offset,
+        $sub_tree) = @_;
+
+    my $encoded;
 
     my @pointers = @{$sub_tree};
     shift @pointers;
 
-    my $obj_code = $obj->{code};
+    $$offset += ($#pointers+2);
 
-    push @{$obj_code}, -1*$MWORD_SIZE*($#pointers+1);
-
-    my $first_pointer = $#{$obj_code}+1;
-    my $i = 0;
+    my $pointer_list = [];
+    push @{$pointer_list}, -1*$MWORD_SIZE*($#pointers+1);
 
     for(0..$#pointers){
-        push @{$obj_code}, 0xdeadbeef;
+        push @{$pointer_list},0xdeadbeef;
     }
 
+    my $i = 1;
     foreach my $pointer (@pointers){
 
         if(ref($pointer) eq ""){
-            if(exists $obj->{$pointer}){
-                $obj_code->[$first_pointer+$i] = $obj->{addr}{$pointer};
+            unless(exists $addr_lut->{$pointer}){
+                $encoded = encode_section($symbol_table, $addr_lut, $pointer, $offset);
+                push (@{$pointer_list}, $_) for (@{$encoded});
             }
-            else{
-                encode_section($symbol_table, $obj, $pointer, $first_pointer+$#pointers+1);#$offset+$#{$obj_section}+1);
-                #push @{$obj_section}, @{$obj->{$pointer}{code}};
-                $obj_code->[$first_pointer+$i] = $obj->{addr}{$pointer};
-            }
+            $pointer_list->[$i] = $addr_lut->{$pointer};
         }
         else{
-            #$obj_section->[$first_pointer+$i] = ($first_pointer+$#pointers+2) * $MWORD_SIZE;
-            $obj_code->[$first_pointer+$i] = encode_tree($symbol_table, $obj, $sub_tree, $#{$obj_code}+1); #$pointer, $obj_section, $#{$obj_section}+1);
+            $pointer_list->[$i] = $MWORD_SIZE*($$offset+1);
+            $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $pointer);
+            push (@{$pointer_list}, $_) for (@{$encoded});
         }
         $i++;
 
     }
 
-    return $first_pointer * $MWORD_SIZE;
+    return $pointer_list;
 
 }
 
@@ -433,56 +416,57 @@ sub encode_pointers{
 sub encode_list{
 
     my ($symbol_table, 
-        $obj, 
-        $sub_tree, 
-        $offset) = @_;
+        $addr_lut,
+        $section_name, 
+        $offset,
+        $sub_tree) = @_;
 
+    my $encoded;
     my ($car, $cdr);
-
-    my $obj_code = $obj->{code};
 
     my @elements = @{$sub_tree};
     shift @elements;
 
-    #if $#elements=0
-    my $first_pointer = $#{$obj_code}+2;
+    #$$offset += ($#elements+2);
+
+    my $element_list = [];
+    #push @{$element_list}, -1*$MWORD_SIZE*($#elements+1);
 
     foreach my $element (@elements){
 
-        push @{$obj_code}, -2*$MWORD_SIZE;
+        $$offset += 3;
+        push @{$element_list}, -2*$MWORD_SIZE;
         for(1..2){
-            push @{$obj_code}, 0xdeadbeef;
+            push @{$element_list}, 0xdeadbeef;
         }
 
-        $car = $#{$obj_code}-1;
-        $cdr = $#{$obj_code};
+        $car = $#{$element_list}-1;
+        $cdr = $#{$element_list};
 
         if(ref($element) eq ""){
-            if(exists $obj->{$element}){
-                $obj_code->[$car] = $obj->{addr}{$element};
+            unless(exists $addr_lut->{$element}){
+                $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+                push (@{$element_list}, $_) for (@{$encoded});
             }
-            else{
-                encode_section($symbol_table, $obj, $element, $offset+$#{$obj_code}+1);
-                #push @{$obj_code}, @{$obj->{$element}{code}};
-                $obj_code->[$car] = $obj->{addr}{$element};
-            }
+            $element_list->[$car] = $addr_lut->{$element};
         }
         else{
-            $obj_code->[$car] = ($offset+$#{$obj_code}+2) * $MWORD_SIZE;
-            encode_tree($symbol_table, $obj, $element, $obj_code, $offset);
+            $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+            $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $element);
+            push (@{$element_list}, $_) for (@{$encoded});
         }
-        $obj_code->[$cdr] = ($offset+$#{$obj_code}+2) * $MWORD_SIZE;
+        $element_list->[$cdr] = ($$offset+1) * $MWORD_SIZE;
 
     }
 
-    if(!exists $obj->{nil}){
-        create_nil($obj, $obj_code, $offset);
-        #$obj_code->[$car] = $obj->{$element}{addr};
+    if(!exists $addr_lut->{nil}){
+        $encoded = create_nil($addr_lut, $offset);
+        push (@{$element_list}, $_) for (@{$encoded});
     }
 
-    $obj_code->[$cdr] = $obj->{addr}{nil};
+    $element_list->[$cdr] = $addr_lut->{nil};
 
-    return $first_pointer * $MWORD_SIZE;
+    return $element_list;
 
 }
 
@@ -491,80 +475,142 @@ sub encode_list{
 sub encode_tagged_list{
 
     my ($symbol_table, 
-        $obj, 
-        $sub_tree, 
-        $offset) = @_;
+        $addr_lut,
+        $section_name, 
+        $offset,
+        $sub_tree) = @_;
 
+    my $encoded;
     my ($car, $cdr);
-
-    my $obj_code = $obj->{code};
 
     my @elements = @{$sub_tree};
     shift @elements;
 
+    my $element_list = [];
+
     my $plain_tag = shift @elements;
     my $tag;
 
-    push @{$obj_code}, 0;
-
-    my $first_pointer = $#{$obj_code}+1;
+    push @{$element_list}, 0;
 
     if($plain_tag =~ /^\s*"([^"]*)"$/ or $plain_tag =~ /^\s*'([^']*)'$/){
-        push @{$obj_code}, bytes_to_mwords(Hash::Pearson16::pearson16_hash($1));
+        push @{$element_list}, bytes_to_mwords(Hash::Pearson16::pearson16_hash($1));
     }
     else{
         print "Error: .$plain_tag.\n" and die;
     }
 
+    $$offset += 5;
+
     foreach my $element (@elements){
 
-        push @{$obj_code}, -2*$MWORD_SIZE;
+        $$offset += 3;
+        push @{$element_list}, -2*$MWORD_SIZE;
         for(1..2){
-            push @{$obj_code}, 0xdeadbeef;
+            push @{$element_list}, 0xdeadbeef;
         }
 
-        $car = $#{$obj_code}-1;
-        $cdr = $#{$obj_code};
+        $car = $#{$element_list}-1;
+        $cdr = $#{$element_list};
 
         if(ref($element) eq ""){
-            if(exists $obj->{$element}){
-                $obj_code->[$car] = $obj->{addr}{$element};
+            unless(exists $addr_lut->{$element}){
+                $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+                push (@{$element_list}, $_) for (@{$encoded});
             }
-            else{
-                encode_section($symbol_table, $obj, $element, $offset+$#{$obj_code}+1);
-                #push @{$obj_code}, @{$obj->{$element}{code}};
-                $obj_code->[$car] = $obj->{addr}{$element};
-            }
+            $element_list->[$car] = $addr_lut->{$element};
         }
         else{
-            $obj_code->[$car] = $offset+$#{$obj_code}+2;
-            encode_tree($symbol_table, $obj, $element, $obj_code, $offset);
+            $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+            $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $element);
+            push (@{$element_list}, $_) for (@{$encoded});
         }
-        $obj_code->[$cdr] = $offset+$#{$obj_code}+2;
+        $element_list->[$cdr] = ($$offset+1) * $MWORD_SIZE;
 
     }
 
-    if(!exists $obj->{nil}){
-        create_nil($obj, $obj_code, $offset);
-        #$obj_code->[$car] = $obj->{$element}{addr};
+    if(!exists $addr_lut->{nil}){
+        $encoded = create_nil($addr_lut, $offset);
+        push (@{$element_list}, $_) for (@{$encoded});
     }
 
-    $obj_code->[$cdr] = $obj->{addr}{nil};
+    $element_list->[$cdr] = $addr_lut->{nil};
 
-    return $first_pointer * $MWORD_SIZE;
+    return $element_list;
+
+#    my ($symbol_table, 
+#        $obj, 
+#        $sub_tree, 
+#        $offset) = @_;
+#
+#    my ($car, $cdr);
+#
+#    my $obj_code = $obj->{code};
+#
+#    my @elements = @{$sub_tree};
+#    shift @elements;
+#
+#    my $plain_tag = shift @elements;
+#    my $tag;
+#
+#    push @{$obj_code}, 0;
+#
+#    my $first_pointer = $#{$obj_code}+1;
+#
+#    if($plain_tag =~ /^\s*"([^"]*)"$/ or $plain_tag =~ /^\s*'([^']*)'$/){
+#        push @{$obj_code}, bytes_to_mwords(Hash::Pearson16::pearson16_hash($1));
+#    }
+#    else{
+#        print "Error: .$plain_tag.\n" and die;
+#    }
+#
+#    foreach my $element (@elements){
+#
+#        push @{$obj_code}, -2*$MWORD_SIZE;
+#        for(1..2){
+#            push @{$obj_code}, 0xdeadbeef;
+#        }
+#
+#        $car = $#{$obj_code}-1;
+#        $cdr = $#{$obj_code};
+#
+#        if(ref($element) eq ""){
+#            if(exists $obj->{$element}){
+#                $obj_code->[$car] = $obj->{addr}{$element};
+#            }
+#            else{
+#                encode_section($symbol_table, $obj, $element, $offset+$#{$obj_code}+1);
+#                #push @{$obj_code}, @{$obj->{$element}{code}};
+#                $obj_code->[$car] = $obj->{addr}{$element};
+#            }
+#        }
+#        else{
+#            $obj_code->[$car] = $offset+$#{$obj_code}+2;
+#            encode_tree($symbol_table, $obj, $element, $obj_code, $offset);
+#        }
+#        $obj_code->[$cdr] = $offset+$#{$obj_code}+2;
+#
+#    }
+#
+#    if(!exists $obj->{nil}){
+#        create_nil($obj, $obj_code, $offset);
+#        #$obj_code->[$car] = $obj->{$element}{addr};
+#    }
+#
+#    $obj_code->[$cdr] = $obj->{addr}{nil};
+#
+#    return $first_pointer * $MWORD_SIZE;
 
 }
 
 sub create_nil{
 
-    my ($obj, $obj_code, $offset) = @_;
-    #print Dumper($obj) and die;
+    my ($addr_lut, $offset) = @_;
 
-    $obj->{addr}{nil} = ($offset+$#{$obj_code}+2) * $MWORD_SIZE;
+    $addr_lut->{nil} = ($$offset+1) * $MWORD_SIZE;
+    $$offset += 8;
 
-    #add nil
-    #e974b23a 71cf647b 8c2f644d 3023f4e7
-    push @{$obj_code}, (0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $obj->{addr}{nil}, $obj->{addr}{nil});
+    return [ 0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $addr_lut->{nil}, $addr_lut->{nil} ];
 
 }
 
@@ -581,7 +627,7 @@ sub create_lst{
 
     my $lst_file = shift;
     my $obj_root = shift;
-    my $obj = shift;
+#    my $obj = shift;
     my $i = 0;
 
     open LST_FILE, ">${lst_file}.lst" or die "Couldn't create .lst: $!";
@@ -590,16 +636,15 @@ sub create_lst{
         printf LST_FILE ("%04x %08x\n", $MWORD_SIZE * $i++, $word);
     }
 
-    foreach (sort keys %{$obj}){
-        if(defined $obj->{addr}{$_}){
-#            my $op = $_;
-#            $op =~ s/%/%%/g;
-##            printf("$op\n");
-            printf LST_FILE ("%08x $_\n", $obj->{addr}{$_});
-        }
-    }
-
-
+#    foreach (sort keys %{$obj}){
+#        if(defined $obj->{addr}{$_}){
+##            my $op = $_;
+##            $op =~ s/%/%%/g;
+###            printf("$op\n");
+#            printf LST_FILE ("%08x $_\n", $obj->{addr}{$_});
+#        }
+#    }
+#
     close LST_FILE;
 
 }
