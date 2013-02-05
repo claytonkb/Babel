@@ -4,6 +4,36 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- linking -----
+
+Dynamic vs. static
+
+Suppose we have two .bbl files, A.bbl and B.bbl and that one file
+contains references to namespaces that exist in the other. The process
+of linking these together is called static-linking.
+
+Suppose we have a .bbl file, C.bbl and that it contains references
+to namespaces in the running BVM. The process of loading C.bbl is called
+dynamic-linking.
+
+A (dynamic or static) link is denoted by a special kind of reference 
+called a link-reference. Unresolved link-references in the running BVM are 
+dangling-references and can cause the interpreter to exit the BVM should
+it encounter the dangling-reference during execution.
+
+Babel employs a unique method to avoid "name-mangling" in object files:
+every .bbl file which utilizes linkages should follow this naming
+convention:
+
+/<domain-name>/<var-name>
+
+You should use a registered Internet domain-name that you own or control
+to root your symbolics. This has two benefits. First, it makes it unlikely
+that there will be namespace collisions among linkages. Second, it creates
+a way for unresolved linkages to be troubleshot. You are free to manage
+your library names and variables names as you see fit within your domain-
+name space.
+
 ----- env vars -----
 
 http://msdn.microsoft.com/en-us/library/windows/desktop/ms683187(v=vs.85).aspx
