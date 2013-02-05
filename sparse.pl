@@ -53,8 +53,8 @@ $asm_file = clean     ( \@asm_file );
 #dump_obj($obj->{root}{code});
 
 create_lst($proj_name, $obj);
-#create_bbl($proj_name, $obj->{root}{code});
-#create_c  ($proj_name, $obj->{root}{code});
+create_bbl($proj_name, $obj);
+create_c  ($proj_name, $obj);
 
 #########################################################################
 #
