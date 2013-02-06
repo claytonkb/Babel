@@ -4,6 +4,61 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- packages -----
+
+Imagine we have a file - A.bbl - containing the following relative structure:
+
+foo:
+    bar:
+    baz:
+
+Now, let's say we want to install this structure at /frob:
+
+/frob "A.bbl" >>> set
+
+We should now have the following:
+
+frob:
+    foo:
+        bar:
+        baz:
+
+This is "package-ness" - the paths used in A.bbl are relative, not absolute.
+
+----- Damian Conway's Perl6 EXPORT -----
+
+Implements what I hope the Perl 6 symbol export mechanism might look like.
+
+It's very straightforward:
+
+-   If you want a subroutine to be capable of being exported (when explicitly
+    requested in the use arguments), you mark it with the is export trait.
+-   If you want a subroutine to be automatically exported when the module is 
+    used (without specific overriding arguments), you mark it with the 
+    is export(:DEFAULT) trait.
+-   If you want a subroutine to be automatically exported when the module is 
+    used (even if the user specifies overriding arguments), you mark it with 
+    the is export(:MANDATORY) trait.
+-   If the subroutine should also be exported when particular export groups 
+    are requested, you add the names of those export groups to the trait's 
+    argument list.
+
+----- linking (usage models) -----
+
+* at invocation-time (explicit) - a .bbl file can be loaded at 
+  invocation-time through the command-line (namespace merge)
+
+* at invocation-time (implicit) - a .bbl file can be loaded at invocation-
+  time during the compilation process (static linking)
+
+* at run-time (explicit) - a .bbl file can be loaded at run-time by using
+  the load command or during compilation
+
+* at run-time (implicit) - a .bbl file can be loaded at run-time by 
+  encountering an unresolved reference in the running bvm
+  - regular reference -> (namespace merge)
+  - static link -> on-demand static link
+
 ----- linking -----
 
 Dynamic vs. static
@@ -1561,7 +1616,7 @@ List:
     cat
     cut
     join  -> like Perl's
-        ('' 'foo' 'bar') '/' join -> '/foo/bar'
+        ('/' '' 'foo' 'bar') join -> '/foo/bar'
     split
 
     paste

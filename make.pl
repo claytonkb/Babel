@@ -5,6 +5,7 @@ if(!-e 'bin'){
 }
 
 system("perl sparse.pl src/construct.sp");
+system("perl tags.pl");
 
 `rm -f bin/babel.exe`;
 
@@ -13,4 +14,5 @@ system("perl sparse.pl src/construct.sp");
 chomp for @files;
 
 `tcc/tcc.exe -DDEBUG -Wall -o bin/babel.exe @files`;
+
 
