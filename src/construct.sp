@@ -4,6 +4,9 @@
 -- simulations or upload virtual objects when they hack into the 
 -- Matrix...
 
-(   (root   (x (j 17) branch) )
-    (branch (q 'ref' (j 42) root)))
+(   (root   (ptr a b))
+    (a (ptr c d)) 
+    (b (ptr c a)) 
+    (c (ptr d b)) 
+    (d (ptr d a (val 7 8 9))) )
 

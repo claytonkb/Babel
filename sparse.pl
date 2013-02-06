@@ -291,20 +291,17 @@ sub encode_tree{
         $offset,
         $sub_tree) = @_;
 
-    if   ($sub_tree->[0] eq 'j'){ #values
-        return encode_values        ($sub_tree, $offset);
+    if   ($sub_tree->[0] eq 'val'){ #values
+        return encode_values        ($sub_tree, $offset, 0);
     }
-    elsif($sub_tree->[0] eq 'k'){ #pointers
+    elsif($sub_tree->[0] eq 'ptr'){ #pointers
         return encode_pointers      ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
     }
-    elsif($sub_tree->[0] eq 'q'){ #tagged-list
+    elsif($sub_tree->[0] eq 'tlist'){ #tagged-list
         return encode_tagged_list   ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
     }
-    elsif($sub_tree->[0] eq 'x'){ #list
+    elsif($sub_tree->[0] eq 'list'){ #list
         return encode_list          ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
-    }
-    elsif($sub_tree->[0] eq 'z'){ #constant
-        die;
     }
     else{
         print "Unrecognized list type: $symbol_table->{$section_name}->[0]\n" and die;
@@ -316,7 +313,9 @@ sub encode_tree{
 #
 sub encode_values{
 
-    my ($sub_tree, $offset) = @_;
+    my ($sub_tree, 
+        $offset,
+        $single_mode) = @_;
 
     my $eval_string;
     my @str_vec;
@@ -355,7 +354,10 @@ sub encode_values{
         }
         else{
             print "Error: .$value.\n" and die;
-        }            
+        }
+
+        last if $single_mode;
+
     }
 
     unshift @{$value_list}, $MWORD_SIZE * ($#{$value_list}+1);
@@ -392,11 +394,18 @@ sub encode_pointers{
     foreach my $pointer (@pointers){
 
         if(ref($pointer) eq ""){
-            unless(exists $addr_lut->{$pointer}){
-                $encoded = encode_section($symbol_table, $addr_lut, $pointer, $offset);
-                push (@{$pointer_list}, $_) for (@{$encoded});
+        
+            if(is_value($pointer)){
+                encode_values($sub_tree, $offset, 1);
             }
-            $pointer_list->[$i] = $addr_lut->{$pointer};
+            else{
+                unless(exists $addr_lut->{$pointer}){
+                    $encoded = encode_section($symbol_table, $addr_lut, $pointer, $offset);
+                    push (@{$pointer_list}, $_) for (@{$encoded});
+                }
+                $pointer_list->[$i] = $addr_lut->{$pointer};
+            }
+        
         }
         else{
             $pointer_list->[$i] = $MWORD_SIZE*($$offset+1);
@@ -538,71 +547,29 @@ sub encode_tagged_list{
 
     return $element_list;
 
-#    my ($symbol_table, 
-#        $obj, 
-#        $sub_tree, 
-#        $offset) = @_;
+}
+
 #
-#    my ($car, $cdr);
 #
-#    my $obj_code = $obj->{code};
+sub is_value{
+
+#    my $value = shift;
 #
-#    my @elements = @{$sub_tree};
-#    shift @elements;
-#
-#    my $plain_tag = shift @elements;
-#    my $tag;
-#
-#    push @{$obj_code}, 0;
-#
-#    my $first_pointer = $#{$obj_code}+1;
-#
-#    if($plain_tag =~ /^\s*"([^"]*)"$/ or $plain_tag =~ /^\s*'([^']*)'$/){
-#        push @{$obj_code}, bytes_to_mwords(Hash::Pearson16::pearson16_hash($1));
+#    if( $value =~ /^(\s*-?[1-9][0-9]*)$/ or 
+#        $value =~ /^(\s*0+)[^x]$/ or
+#        $value =~ /^(\s*0x[A-Fa-f0-9]+)$/ or
+#        $value =~ /^\s*"[^"]*"$/ or
+#        $value =~ /^\s*'([^']*)'$/){
+#        return 1;
 #    }
-#    else{
-#        print "Error: .$plain_tag.\n" and die;
-#    }
-#
-#    foreach my $element (@elements){
-#
-#        push @{$obj_code}, -2*$MWORD_SIZE;
-#        for(1..2){
-#            push @{$obj_code}, 0xdeadbeef;
-#        }
-#
-#        $car = $#{$obj_code}-1;
-#        $cdr = $#{$obj_code};
-#
-#        if(ref($element) eq ""){
-#            if(exists $obj->{$element}){
-#                $obj_code->[$car] = $obj->{addr}{$element};
-#            }
-#            else{
-#                encode_section($symbol_table, $obj, $element, $offset+$#{$obj_code}+1);
-#                #push @{$obj_code}, @{$obj->{$element}{code}};
-#                $obj_code->[$car] = $obj->{addr}{$element};
-#            }
-#        }
-#        else{
-#            $obj_code->[$car] = $offset+$#{$obj_code}+2;
-#            encode_tree($symbol_table, $obj, $element, $obj_code, $offset);
-#        }
-#        $obj_code->[$cdr] = $offset+$#{$obj_code}+2;
-#
-#    }
-#
-#    if(!exists $obj->{nil}){
-#        create_nil($obj, $obj_code, $offset);
-#        #$obj_code->[$car] = $obj->{$element}{addr};
-#    }
-#
-#    $obj_code->[$cdr] = $obj->{addr}{nil};
-#
-#    return $first_pointer * $MWORD_SIZE;
+
+    return 0;
 
 }
 
+
+#
+#
 sub create_nil{
 
     my ($addr_lut, $offset) = @_;
