@@ -228,7 +228,50 @@ mword rbs2gv(mword *bs, char *buffer){
 //
 //    }
 //    else if(is_inte(bs)){
-    if(is_inte(bs)){
+
+    if(is_tlist(bs) && !is_nil(bs)){ // is_tlist
+        //die;
+
+//        //buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"{{", (mword)bs);
+//        buf_size += sprintf(buffer+buf_size, "s%08x [shape=record,label=\"", (mword)bs);
+//
+//        for(i=0; i<HASH_SIZE; i++){
+//            buf_size += sprintf(buffer+buf_size, "<h%d> %x", i, *(mword *)(bs+i));
+//            buf_size += sprintf(buffer+buf_size, "|");
+//        }
+//
+//        buf_size += sprintf(buffer+buf_size, " <f0> 0 |<f1> 1\"];\n");
+//
+//        for(i=0; i<2; i++){ //There are 2 pointers in a cons: car and cdr
+//            if(is_nil((mword *)scar(bs+HASH_SIZE+1+i))){
+//                continue;
+//            }
+//            buf_size += sprintf(buffer+buf_size, "\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)bs, i, *(mword *)(bs+HASH_SIZE+1+i));
+//            buf_size += rbs2gv((mword *)*(bs+HASH_SIZE+1+i), buffer+buf_size);
+//        }
+//
+
+        //buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"{{", (mword)bs);
+        buf_size += sprintf(buffer+buf_size, "s%08x [shape=record,label=\"", (mword)bs);
+
+        for(i=0; i<HASH_SIZE; i++){
+            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(bs+i));
+            if(i<(HASH_SIZE-1)){
+                buf_size += sprintf(buffer+buf_size, "|");
+            }
+        }
+
+        buf_size += sprintf(buffer+buf_size, "\"];\n");
+
+        buf_size += sprintf(buffer+buf_size, "\"s%08x\":f0 -> \"s%08x\":f0 [arrowhead=\"none\"];\n", (mword)bs, (mword *)(bs+HASH_SIZE+1));
+
+        MARK_TRAVERSED(bs);
+        //printf("%x",s((mword *)(bs+HASH_SIZE+1)));
+        //die;
+        buf_size += rbs2gv((mword *)(bs+HASH_SIZE+1), buffer+buf_size);
+
+    }
+    else if(is_inte(bs)){
 
         MARK_TRAVERSED(bs);
 
@@ -242,6 +285,7 @@ mword rbs2gv(mword *bs, char *buffer){
         buf_size += sprintf(buffer+buf_size, "\"];\n");
 
         for(i=0; i<num_entries; i++){
+            printf("Adrian!\n");
             if(is_nil((mword *)scar(bs+i))){
                 continue;
             }
@@ -250,7 +294,7 @@ mword rbs2gv(mword *bs, char *buffer){
         }
 
     }
-    else if(is_leaf(bs)){
+    else{// if(is_leaf(bs)){
         if(num_entries > 8){
             num_entries=8;
             clipped=1;
@@ -270,9 +314,6 @@ mword rbs2gv(mword *bs, char *buffer){
             buf_size += sprintf(buffer+buf_size, "<f%d> ...", i);
         }
         buf_size += sprintf(buffer+buf_size, "\"];\n");
-    }
-    else{ // is_tlist
-        die;
     }
 
     MARK_TRAVERSED(bs);

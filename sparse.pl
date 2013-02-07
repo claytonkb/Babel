@@ -3,6 +3,7 @@
 # s-expression parser (sparse) - A low-level "assembler" for Babel constructs
 
 # TODO: Empty lists, bare values, catch non-existent symbols
+# FIXME: Quotes not being properly stripped off in quotes in lists...
 
 use strict;
 use feature 'state';
@@ -323,7 +324,8 @@ sub encode_values{
     my @values = @{$sub_tree};
     shift @values;
 
-    $$offset += ($#values+2);
+    #$$offset += ($#values+2);
+    $$offset += 1;
 
     my $value_list = [];
 
@@ -331,9 +333,11 @@ sub encode_values{
 
         if($value =~ /^(\s*-?[1-9][0-9]*)$/ or $value =~ /^(\s*0+)[^x]$/ ){
             push @{$value_list}, 1+$1-1; #FORCE Perl to treat it as numeric
+            $$offset += 1;
         }
         elsif($value =~ /^(\s*0x[A-Fa-f0-9]+)$/){
             push @{$value_list}, hex($1);
+            $$offset += 1;
         }
         elsif($value =~ /^\s*"[^"]*"$/){
 
@@ -343,11 +347,13 @@ sub encode_values{
 
             @str_vec = str2vec($value);
             push @{$value_list}, @str_vec;
-
+            $$offset += ($#str_vec+1);
+            
         }
         elsif($value =~ /^\s*'([^']*)'$/){
             @str_vec = str2vec($value);
             push @{$value_list}, @str_vec;
+            $$offset += ($#str_vec+1);
         }
         elsif($value =~ /^($section_name)$/){
             die;
@@ -396,9 +402,13 @@ sub encode_pointers{
         if(ref($pointer) eq ""){
         
             if(is_value($pointer)){
-                encode_values($sub_tree, $offset, 1);
+                $pointer_list->[$i] = $MWORD_SIZE*($$offset+1);
+                $encoded = encode_values(["val", $pointer], $offset, 1);
+                push (@{$pointer_list}, $_) for (@{$encoded});
+                #printf("A:%x ", $$offset*$MWORD_SIZE);
             }
             else{
+                #printf("B:%x ", $$offset*$MWORD_SIZE);
                 unless(exists $addr_lut->{$pointer}){
                     $encoded = encode_section($symbol_table, $addr_lut, $pointer, $offset);
                     push (@{$pointer_list}, $_) for (@{$encoded});
@@ -408,6 +418,7 @@ sub encode_pointers{
         
         }
         else{
+            #printf("C:%x ", $$offset*$MWORD_SIZE);
             $pointer_list->[$i] = $MWORD_SIZE*($$offset+1);
             $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $pointer);
             push (@{$pointer_list}, $_) for (@{$encoded});
@@ -453,11 +464,21 @@ sub encode_list{
         $cdr = $#{$element_list};
 
         if(ref($element) eq ""){
-            unless(exists $addr_lut->{$element}){
-                $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+
+            if(is_value($element)){
+                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+                $encoded = encode_values(["val", $element], $offset, 1);
                 push (@{$element_list}, $_) for (@{$encoded});
+                #printf("A:%x ", $$offset*$MWORD_SIZE);
             }
-            $element_list->[$car] = $addr_lut->{$element};
+            else{
+                unless(exists $addr_lut->{$element}){
+                    $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+                    push (@{$element_list}, $_) for (@{$encoded});
+                }
+                $element_list->[$car] = $addr_lut->{$element};
+            }
+
         }
         else{
             $element_list->[$car] = $MWORD_SIZE*($$offset+1);
@@ -523,11 +544,19 @@ sub encode_tagged_list{
         $cdr = $#{$element_list};
 
         if(ref($element) eq ""){
-            unless(exists $addr_lut->{$element}){
-                $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+            if(is_value($element)){
+                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+                $encoded = encode_values(["val", $element], $offset, 1);
                 push (@{$element_list}, $_) for (@{$encoded});
+                #printf("A:%x ", $$offset*$MWORD_SIZE);
             }
-            $element_list->[$car] = $addr_lut->{$element};
+            else{
+                unless(exists $addr_lut->{$element}){
+                    $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+                    push (@{$element_list}, $_) for (@{$encoded});
+                }
+                $element_list->[$car] = $addr_lut->{$element};
+            }
         }
         else{
             $element_list->[$car] = $MWORD_SIZE*($$offset+1);
@@ -553,15 +582,15 @@ sub encode_tagged_list{
 #
 sub is_value{
 
-#    my $value = shift;
-#
-#    if( $value =~ /^(\s*-?[1-9][0-9]*)$/ or 
-#        $value =~ /^(\s*0+)[^x]$/ or
-#        $value =~ /^(\s*0x[A-Fa-f0-9]+)$/ or
-#        $value =~ /^\s*"[^"]*"$/ or
-#        $value =~ /^\s*'([^']*)'$/){
-#        return 1;
-#    }
+    my $value = shift;
+
+    if( $value =~ /^(\s*-?[1-9][0-9]*)$/ or 
+        $value =~ /^(\s*0+)[^x]$/ or
+        $value =~ /^(\s*0x[A-Fa-f0-9]+)$/ or
+        $value =~ /^\s*"[^"]*"$/ or
+        $value =~ /^\s*'([^']*)'$/){
+        return 1;
+    }
 
     return 0;
 
@@ -764,5 +793,6 @@ sub str2vec {
     return @vec;
 
 }
+
 
 
