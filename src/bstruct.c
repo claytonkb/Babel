@@ -266,8 +266,15 @@ mword rbs2gv(mword *bs, char *buffer){
         buf_size += sprintf(buffer+buf_size, "\"s%08x\":f0 -> \"s%08x\":f0 [arrowhead=\"none\"];\n", (mword)bs, (mword *)(bs+HASH_SIZE+1));
 
         MARK_TRAVERSED(bs);
-        //printf("%x",s((mword *)(bs+HASH_SIZE+1)));
-        //die;
+        printf("%08x\n",s((mword *)(bs+0)));
+        printf("%08x\n",s((mword *)(bs+1)));
+        printf("%08x\n",s((mword *)(bs+2)));
+        printf("%08x\n",s((mword *)(bs+3)));
+        printf("%08x\n",s((mword *)(bs+4)));
+        printf("%08x\n",s((mword *)(bs+5)));
+        printf("%08x\n",s((mword *)(bs+6)));
+        printf("%08x\n",s((mword *)(bs+7)));
+        die;
         buf_size += rbs2gv((mword *)(bs+HASH_SIZE+1), buffer+buf_size);
 
     }
