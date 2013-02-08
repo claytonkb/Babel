@@ -71,48 +71,6 @@ int main(int argc, char **argv){
 
 }
 
-
-
-//
-void temp_rbs2gv(mword *bs){
-
-    int i;
-
-    if( TRAVERSED(bs) ){
-        return 0;
-    }
-
-    int num_entries = size(bs);
-    printf("%08x\n", (mword)s(bs));
-
-    if(is_tlist(bs)){
-        die;
-    }
-
-    if(is_inte(bs)){
-
-        MARK_TRAVERSED(bs);
-
-        for(i=0; i<num_entries; i++){
-            if(is_nil((mword *)scar(bs+i))){
-                continue;
-            }
-            printf("%08x\n", *(mword *)(bs+i));
-            temp_rbs2gv((mword *)*(bs+i));
-        }
-
-    }
-    else{ // is_leaf
-        for(i=0; i<num_entries; i++){
-            printf("%08x\n", *(mword *)(bs+i));
-        }
-    }
-
-    MARK_TRAVERSED(bs);
-
-}
-
-
 // Should be called only once per bvm instance
 // FIXME: This is a broken implementation since we cannot switch instances...
 void init_nil(void){
@@ -141,6 +99,8 @@ void init_nil(void){
 //
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
 //bvm_cache *interp_init(int argc, char **argv){
+
+
 
 //    #include "construct.sp.c"
 

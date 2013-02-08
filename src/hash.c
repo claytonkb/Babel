@@ -12,7 +12,6 @@
 #include "bvm_opcodes.h"
 #include "bstruct.h"
 
-
 // FIXME: USES HREF
 mword *new_hash_entry(mword *hash, mword *key, mword *val, mword ref_count, mword bounding){
 

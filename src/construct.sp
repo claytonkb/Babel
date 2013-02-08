@@ -4,6 +4,6 @@
 -- simulations or upload virtual objects when they hack into the 
 -- Matrix...
 
-(   (root   (tlist 'foo' 7 8 9)))
--- (   (root   (list 7 8 9)))
+(   (root   (list 1 a 2 3 ))
+    (a   (tlist 'bar' 7 8 9)))
 

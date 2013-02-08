@@ -161,20 +161,33 @@ mword *load_tree(
         }
     }
     else{ //FIXME: 32-bit specific and UGLY
+        s(tree+offset) |= 0x1; //Mark dumped
 
         new_arr = _newtlist();
+
+        c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
+        c(LUT_abs,*LUT_offset) = (mword)new_arr;
+        *LUT_offset = *LUT_offset+1;
 
         c(new_arr,0) = c(tree,offset+0);
         c(new_arr,1) = c(tree,offset+1);
         c(new_arr,2) = c(tree,offset+2);
         c(new_arr,3) = c(tree,offset+3);
         c(new_arr,4) = (mword)(-2*MWORD_SIZE);
-        c(new_arr,5) = (mword)nil;
-        c(new_arr,6) = (mword)nil;
-
-        c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
-        c(LUT_abs,*LUT_offset) = (mword)new_arr;
-        *LUT_offset = *LUT_offset+1;
+//        c(new_arr,5) = (mword)nil;
+//        c(new_arr,6) = (mword)nil;
+        c(new_arr,5) = (mword)load_tree(
+                tree,
+                c(tree,offset+5),
+                LUT_abs, 
+                LUT_rel, 
+                LUT_offset);
+        c(new_arr,6) = (mword)load_tree(
+                tree,
+                c(tree,offset+6),
+                LUT_abs, 
+                LUT_rel, 
+                LUT_offset);
 
 //        printf("%x", ttag(new_arr,0));
 //        die;
