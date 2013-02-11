@@ -45,6 +45,7 @@ void print_env(void);
 void dump_mem(mword *mem, int size);
 void init_nil(void);
 void temp_rbs2gv(mword *bs);
+void init_tags(void);
 
 #define BIG_ENDIAN    0
 #define LITTLE_ENDIAN 1

@@ -1,7 +1,7 @@
 If you are looking for an overview of Babel, see the "Babel Overview" 
 section below.
 
------ Compiling Babel
+----- Compiling Babel 
 
 My scripts are set up using Cygwin and I'm currently compiling for a Win32 
 target using the tcc C compiler (I have the compiler in the repo because I 

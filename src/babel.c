@@ -14,6 +14,14 @@
 #include "load.h"
 #include "bstruct.h"
 #include "stack.h"
+#include "tags.h"
+
+mword btag_nil              [HASH_SIZE] = BABEL_TAG_NIL;
+mword btag_hash_table_entry [HASH_SIZE] = BABEL_TAG_HASH_TABLE;
+mword btag_hash_table_entry [HASH_SIZE] = BABEL_TAG_HASH_TABLE_ENTRY;
+mword btag_hash_bvm         [HASH_SIZE] = BABEL_TAG_BVM;
+mword btag_hash_ref         [HASH_SIZE] = BABEL_TAG_REF;
+mword btag_hash_pure_ref    [HASH_SIZE] = BABEL_TAG_PURE_REF;
 
 //main
 //
@@ -99,8 +107,6 @@ void init_nil(void){
 //
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
 //bvm_cache *interp_init(int argc, char **argv){
-
-
 
 //    #include "construct.sp.c"
 

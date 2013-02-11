@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-package Hash::Pearson16;
+package Hash::Pearson16; 
 
 # These are just random permutations of 0..255, source data is from random.org - the first permutation
 # is taken directly from Pearson's paper. This is not a cryptographic hash so don't use it like one.
