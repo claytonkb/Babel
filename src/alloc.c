@@ -51,6 +51,23 @@ void _del(mword *bs){
 
 }
 
+//_balloc() 
+// checks for NULL pointer
+//
+mword *_balloc(mword size){
+
+    mword *ptr = malloc( MWORDS( size ) ); // 3 = s-field + car + cdr
+
+    if(ptr == NULL){
+        fatal("malloc returned NULL");
+        //FIXME: In future, we will free all memory associated with
+        //the running-bvm and return to the parent-bvm...
+    }
+
+    return ptr;
+
+}
+
 ////
 //bvm_cache *destroy(bvm_cache *this_bvm){
 //

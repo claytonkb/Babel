@@ -15,9 +15,13 @@
 #include "bstruct.h"
 #include "stack.h"
 #include "tags.h"
+#include "hash.h"
+#include "tlist.h"
+#include "list.h"
+#include <stdarg.h>
 
 mword btag_nil              [HASH_SIZE] = BABEL_TAG_NIL;
-mword btag_hash_table_entry [HASH_SIZE] = BABEL_TAG_HASH_TABLE;
+mword btag_hash_table       [HASH_SIZE] = BABEL_TAG_HASH_TABLE;
 mword btag_hash_table_entry [HASH_SIZE] = BABEL_TAG_HASH_TABLE_ENTRY;
 mword btag_hash_bvm         [HASH_SIZE] = BABEL_TAG_BVM;
 mword btag_hash_ref         [HASH_SIZE] = BABEL_TAG_REF;
@@ -51,12 +55,18 @@ int main(int argc, char **argv){
 
     mword *loaded_bbl = _load((mword*)bbl,BBL_SIZE);
 
+//    fprintf(stderr, "%x\n", eqtag(loaded_bbl, btag_hash_table_entry));
+
+//    loaded_bbl = _new_tlist(_hash8(C2B("/babel/tag/hash_table")), _consls(nil, nil));
+    loaded_bbl = _new_hash_table();
+    _dump(loaded_bbl);
+
+
 //    printf("%x\n", s(loaded_bbl));
 //    printf("%x\n", (mword)*loaded_bbl);
 //    printf("%x\n", c(loaded_bbl,0));
 
     //temp_rbs2gv(loaded_bbl);
-    _dump(loaded_bbl);
 //    printf("Hello, world\n");
 
 //    char * pPath;
@@ -79,6 +89,8 @@ int main(int argc, char **argv){
 
 }
 
+
+
 // Should be called only once per bvm instance
 // FIXME: This is a broken implementation since we cannot switch instances...
 void init_nil(void){
@@ -97,8 +109,9 @@ void init_nil(void){
 
     nil = (ptr + 1);
 
-    ptr[5] = (mword)nil;
+    ptr[5] = -2;
     ptr[6] = (mword)nil;
+    ptr[7] = (mword)nil;
 
 }
 

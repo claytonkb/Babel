@@ -34,6 +34,7 @@ mword _rexha(mword *hash_table, mword *hash, mword level);
 bvm_cache *luha(bvm_cache *this_bvm);
 mword *_luha(mword *hash_table, mword *hash);
 mword *_rluha(mword *hash_table, mword *hash, mword level);
+mword *_new_hash_table(void);
 
 //mword *new_hash_entry(mword *hash, mword *val, mword *key, mword ref_count);
 //

@@ -4,6 +4,5 @@
 -- simulations or upload virtual objects when they hack into the 
 -- Matrix...
 
-(   (root   (list 1 a 2 3 ))
-    (a   (tlist 'bar' 7 8 9)))
+(   (root   (tlist '/babel/tag/hash_table_entry' 1 2 3 )))
 
