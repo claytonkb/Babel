@@ -30,7 +30,22 @@ mword *_new_hash_table_entry(mword *hash, mword *key, mword *payload){
         hash = _hash8(key);
     }
 
-    return nil;
+    mword *hash_copy = _newlfi( HASH_SIZE, 0 ); // 1 -> s-field
+    memcpy(hash_copy, hash, MWORDS(HASH_SIZE) );
+
+    mword *key_copy = key;
+
+    if(!is_nil(key)){
+        key_copy = _newlfi( size(key), 0 );
+        memcpy(key_copy, key, MWORDS(size(key)) );
+    }
+
+    return _new_tlist(
+        _hash8(C2B("/babel/tag/hash_table_entry")), 
+        _consls( hash_copy, 
+            _consls( key, 
+                _consls( payload, nil )))
+    );
 
 }
 

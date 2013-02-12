@@ -7,7 +7,7 @@
 bvm_cache *load(bvm_cache *this_bvm);
 //void clean_tree(mword *tree);
 mword *_load(mword *tree, mword tree_size);
-mword *load_tree(
+mword *rload(
         mword *tree, 
         mword offset,
         mword *LUT_abs, 

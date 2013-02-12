@@ -30,10 +30,234 @@ void rclean(mword *bs){
         for(i=0; i<num_elem; i++){
             rclean((mword *)*(bs+i));
         }
-
+    }
+    else if(is_tlist(bs)){
+        rclean(bs+HASH_SIZE+1);
     }
 
 }
+
+//
+//
+void _recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){
+
+    _fn_recurse(bs, bfn, v);
+    rclean(bs);
+
+}
+
+//
+//
+mword _fn_recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){
+
+    int i;
+
+    if( TRAVERSED(bs) ){
+        return 1;
+    }
+
+    if( !bfn(bs,v) ){
+        return 0;
+    }
+
+    if( is_inte(bs) ){
+        int num_elem = size(bs);
+        MARK_TRAVERSED(bs);
+        for(i=0; i<num_elem; i++){
+            if(!_fn_recurse((mword *)*(bs+i),bfn,v)){
+                return 0;
+            }
+        }
+        return 1;
+    }
+    else if( is_tlist(bs) ){
+        MARK_TRAVERSED(bs);
+        _fn_recurse(bs+HASH_SIZE+1,bfn,v);
+    }
+    else{
+        MARK_TRAVERSED(bs);
+    }
+    return 1;
+
+}
+
+// _mu -> memory usage (mnemonic: *nix du)
+// _mu(x) = _nin(x) + _nlf(x) + _ntls(x)*(HASH_SIZE+1) + _nptr(x) + _nva(x)
+//
+mword _mu(mword *bs){
+
+    mword counter=0;
+    _recurse(bs, _rmu, &counter);
+    return counter;
+
+}
+
+//
+//
+mword _rmu(mword *bs, void *v){
+
+    if( is_tlist(bs) ){
+        *v += HASH_SIZE;
+    }
+
+    *v += size(bs)+1;
+
+    return 1;
+
+}
+
+// _nlf -> number of leaf-arrays
+//
+mword _nlf(mword *bs){
+
+    mword counter=0;
+    _recurse(bs, _rnlf, &counter);
+    return counter;
+
+}
+
+//
+//
+mword _rnlf(mword *bs, void *v){
+
+    if( is_leaf(bs) ){
+        *v += 1;
+    }
+
+    return 1;
+
+}
+
+// _nin -> number of interior-arrays
+//
+mword _nin(mword *bs){
+
+    mword counter=0;
+    _recurse(bs, _rnin, &counter);
+    return counter;
+
+}
+
+//
+//
+mword _rnin(mword *bs, void *v){
+
+    if( is_inte(bs) ){
+        *v += 1;
+    }
+
+    return 1;
+
+}
+
+// _ntls -> number of tagged-lists
+//
+mword _ntls(mword *bs){
+
+    mword counter=0;
+    _recurse(bs, _rntls, &counter);
+    return counter;
+
+}
+
+//
+//
+mword _rntls(mword *bs, void *v){
+
+    if( is_tlist(bs) ){
+        *v += 1;
+    }
+
+    return 1;
+
+}
+
+// _nva -> number of values
+//
+mword _nva(mword *bs){
+
+    mword counter=0;
+    _recurse(bs, _rnva, &counter);
+    return counter;
+
+}
+
+//
+//
+mword _rnva(mword *bs, void *v){
+
+    if( is_leaf(bs) ){
+        *v += size(bs);
+    }
+
+    return 1;
+
+}
+
+// _nptr -> number of pointers
+//
+mword _nptr(mword *bs){
+
+    mword counter=0;
+    _recurse(bs, _rnptr, &counter);
+    return counter;
+
+}
+
+//
+//
+mword _rnptr(mword *bs, void *v){
+
+    if( is_inte(bs) ){
+        *v += size(bs);
+    }
+
+    return 1;
+
+}
+
+// _lst -> generate listing
+//
+mword _lst(mword *bs){
+
+    mword counter=0;
+    _recurse(bs, _rlst, &counter);
+    return 1;
+
+}
+
+//
+//
+mword _rlst(mword *bs, void *v){
+
+    int i;
+
+    printf("%04x %08x\n", (*v * MWORD_SIZE), (s(bs) & ~CTL_MASK) );
+    *v += 1;
+
+    if( is_tlist_masked(bs) ){
+        for(i=0;HASH_SIZE;i++){
+            printf("%04x %08x\n", (*v * MWORD_SIZE), c(bs,i));
+            *v += 1;
+        }
+    }
+//    else if( is_leaf_masked(bs) ){
+//        for(i=0;i<size(bs);i++){
+//            printf("%04d %08x\n", *v, c(bs,i));
+//            *v += 1;
+//        }
+//    }
+    else{
+        for(i=0;i<size_masked(bs);i++){
+            printf("%04x %08x\n", (*v * MWORD_SIZE), c(bs,i));
+            *v += 1;
+        }
+    }
+
+    return 1;
+
+}
+
 
 //
 // babel_operator
@@ -476,42 +700,54 @@ bvm_cache *mu(bvm_cache *this_bvm){
 
 }
 
-// Returns the size of a bstruct in mwords
-// mu -> mem usage (mnemonic: *nix du)
-mword _mu(mword *bs){
+//// Returns the size of a bstruct in mwords
+//// mu -> mem usage (mnemonic: *nix du)
+//mword _mu(mword *bs){
+//
+//    mword size = _rmu(bs);
+//    rclean(bs);
+//
+//    return size;
+//
+//}
+//
+////
+////
+//mword _rmu(mword *bs){
+//
+//    int i;
+//    mword count = 0;
+//
+//    if( TRAVERSED(bs) ){
+//        return 0;
+//    }
+//
+//    int num_elem = size(bs);
+//    count = num_elem + 1;
+//
+//    if(is_inte(bs)){
+//        MARK_TRAVERSED(bs);
+//        for(i=0; i<num_elem; i++){
+//            count += _rmu((mword *)*(bs+i));
+//        }
+//    }
+//    else if(is_leaf(bs)){
+//
+//        MARK_TRAVERSED(bs);
+//
+//    }
+//    else{ //tlist
+//        MARK_TRAVERSED(bs);
+//
+//        count += HASH_SIZE;
+//        count += _rmu(bs+HASH_SIZE+1);
+//
+//    }
+//
+//    return count;
+//
+//}
 
-    mword size = _rmu(bs);
-    rclean(bs);
-
-    return size;
-
-}
-
-mword _rmu(mword *bs){
-
-    int i;
-    mword count = 0;
-
-    if( TRAVERSED(bs) ){
-        return 0;
-    }
-
-    int num_elem = size(bs);
-    count = num_elem + 1;
-
-    if(is_inte(bs)){
-        MARK_TRAVERSED(bs);
-        for(i=0; i<num_elem; i++){
-            count += _rmu((mword *)*(bs+i));
-        }
-    }
-    else{
-        MARK_TRAVERSED(bs);
-    }
-
-    return count;
-
-}
 
 //
 // babel_operator
@@ -529,45 +765,45 @@ bvm_cache *nlf(bvm_cache *this_bvm){
 
 }
 
+////
+//mword _nlf(mword *bs){
 //
-mword _nlf(mword *bs){
-
-    mword size = _rnlf(bs);
-    rclean(bs);
-
-    return size;
-
-}
-
+//    mword size = _rnlf(bs);
+//    rclean(bs);
 //
-mword _rnlf(mword *bs){
-
-    int i;
-    mword count = 0;
-
-    if( TRAVERSED(bs) ){
-        return 0;
-    }
-
-    if(is_inte(bs)){
-        int num_elem = size(bs);
-        MARK_TRAVERSED(bs);
-        for(i=0; i<num_elem; i++){
-            count += _rnlf((mword *)*(bs+i));
-        }
-    }
-//    else if(is_href(bs)){
-//        MARK_TRAVERSED(bs);
-//        count = 0;
+//    return size;
+//
+//}
+//
+////
+//mword _rnlf(mword *bs){
+//
+//    int i;
+//    mword count = 0;
+//
+//    if( TRAVERSED(bs) ){
+//        return 0;
 //    }
-    else if(is_leaf(bs)){ // is_leaf
-        MARK_TRAVERSED(bs);
-        count = 1;
-    }
-
-    return count;
-
-}
+//
+//    if(is_inte(bs)){
+//        int num_elem = size(bs);
+//        MARK_TRAVERSED(bs);
+//        for(i=0; i<num_elem; i++){
+//            count += _rnlf((mword *)*(bs+i));
+//        }
+//    }
+////    else if(is_href(bs)){
+////        MARK_TRAVERSED(bs);
+////        count = 0;
+////    }
+//    else if(is_leaf(bs)){ // is_leaf
+//        MARK_TRAVERSED(bs);
+//        count = 1;
+//    }
+//
+//    return count;
+//
+//}
 
 //
 // babel_operator
@@ -642,43 +878,43 @@ bvm_cache *nin(bvm_cache *this_bvm){
 
 }
 
+////
+//mword _nin(mword *bs){
 //
-mword _nin(mword *bs){
-
-    mword size = _rnin(bs);
-    rclean(bs);
-
-    return size;
-
-}
-
+//    mword size = _rnin(bs);
+//    rclean(bs);
 //
-mword _rnin(mword *bs){
-
-    int i;
-    mword count = 0;
-
-    if( TRAVERSED(bs) ){
-        return 0;
-    }
-
-//    if(is_leaf(bs) || is_href(bs)){
-    if(is_leaf(bs)){
-        MARK_TRAVERSED(bs);
-        count = 0;
-    }
-    else{
-        int num_elem = size(bs);
-        MARK_TRAVERSED(bs);
-        for(i=0; i<num_elem; i++){
-            count += _rnin((mword *)*(bs+i));
-        }
-        count++;
-    }
-
-    return count;
-
-}
+//    return size;
+//
+//}
+//
+////
+//mword _rnin(mword *bs){
+//
+//    int i;
+//    mword count = 0;
+//
+//    if( TRAVERSED(bs) ){
+//        return 0;
+//    }
+//
+////    if(is_leaf(bs) || is_href(bs)){
+//    if(is_leaf(bs)){
+//        MARK_TRAVERSED(bs);
+//        count = 0;
+//    }
+//    else{
+//        int num_elem = size(bs);
+//        MARK_TRAVERSED(bs);
+//        for(i=0; i<num_elem; i++){
+//            count += _rnin((mword *)*(bs+i));
+//        }
+//        count++;
+//    }
+//
+//    return count;
+//
+//}
 
 //
 // babel_operator
@@ -696,41 +932,41 @@ bvm_cache *nva(bvm_cache *this_bvm){
 
 }
 
+////
+//mword _nva(mword *bs) {
 //
-mword _nva(mword *bs) {
-
-    mword size = _rnva(bs);
-    rclean(bs);
-
-    return size;
-
-}
-
-// 
-mword _rnva(mword *bs){
-
-    int i;
-    mword count = 0;
-
-    if( TRAVERSED(bs) ){
-        return 0;
-    }
-
-    int num_elem = size(bs);
-
-    if(is_inte(bs)){
-        MARK_TRAVERSED(bs);
-        for(i=0; i<num_elem; i++){
-            count += _rnva((mword *)*(bs+i));
-        }
-    }
-    else if(is_leaf(bs)){
-        count = num_elem;
-    }
-
-    return count;
-
-}
+//    mword size = _rnva(bs);
+//    rclean(bs);
+//
+//    return size;
+//
+//}
+//
+//// 
+//mword _rnva(mword *bs){
+//
+//    int i;
+//    mword count = 0;
+//
+//    if( TRAVERSED(bs) ){
+//        return 0;
+//    }
+//
+//    int num_elem = size(bs);
+//
+//    if(is_inte(bs)){
+//        MARK_TRAVERSED(bs);
+//        for(i=0; i<num_elem; i++){
+//            count += _rnva((mword *)*(bs+i));
+//        }
+//    }
+//    else if(is_leaf(bs)){
+//        count = num_elem;
+//    }
+//
+//    return count;
+//
+//}
 
 
 //
@@ -797,7 +1033,7 @@ bvm_cache *npt(bvm_cache *this_bvm){
     fatal("stack fix not done");
     mword *result    = new_atom;
 
-    *result = _npt(TOS_0(this_bvm));
+//    *result = _npt(TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     push_alloc(this_bvm, result, MORTAL);
@@ -806,38 +1042,38 @@ bvm_cache *npt(bvm_cache *this_bvm){
 
 }
 
+////
+//mword _npt(mword *bs) {
 //
-mword _npt(mword *bs) {
-
-    mword size = _rnpt(bs);
-    rclean(bs);
-
-    return size;
-
-}
-
-// 
-mword _rnpt(mword *bs){
-
-    int i;
-    mword count = 0;
-
-    if( TRAVERSED(bs) ){
-        return 0;
-    }
-
-    if(is_inte(bs)){
-        int num_elem = size(bs);
-        MARK_TRAVERSED(bs);
-        for(i=0; i<num_elem; i++){
-            count += _rnpt((mword *)*(bs+i));
-        }
-        count += num_elem;
-    }
-
-    return count;
-
-}
+//    mword size = _rnpt(bs);
+//    rclean(bs);
+//
+//    return size;
+//
+//}
+//
+//// 
+//mword _rnpt(mword *bs){
+//
+//    int i;
+//    mword count = 0;
+//
+//    if( TRAVERSED(bs) ){
+//        return 0;
+//    }
+//
+//    if(is_inte(bs)){
+//        int num_elem = size(bs);
+//        MARK_TRAVERSED(bs);
+//        for(i=0; i<num_elem; i++){
+//            count += _rnpt((mword *)*(bs+i));
+//        }
+//        count += num_elem;
+//    }
+//
+//    return count;
+//
+//}
 
 //
 // babel_operator

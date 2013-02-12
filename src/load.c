@@ -10,16 +10,6 @@
 #include "bvm_opcodes.h"
 #include "list.h"
 
-////
-////
-////void load(void){
-////
-////    mword *tree = global_VM-1;
-////    load_tree(tree, 1*MWORD_SIZE);
-////    clean_tree(global_VM);
-////
-////}
-
 //
 // babel_operator
 bvm_cache *load(bvm_cache *this_bvm){
@@ -38,53 +28,6 @@ bvm_cache *load(bvm_cache *this_bvm){
 
 }
 
-////void _load(mword *tree){//, mword offset){
-////
-//////    mword *tree = global_VM-1;
-////    load_tree(tree, 1*MWORD_SIZE);
-////    clean_tree(tree+1);
-////
-////}
-////
-//////load_tree
-//////
-////void load_tree(mword *tree, mword offset){
-//////void _load(mword *tree, mword offset){
-////
-////    int i;
-////    #define tree_base (mword)tree;
-////    offset /= MWORD_SIZE ;
-////
-//////    if(offset > global_machine_page_size){
-//////        except("load_tree: offset out of bounds", __FILE__, __LINE__);
-//////    }
-////
-////    if( s(tree+offset) & (MWORD_SIZE-1) ){ //Already loaded
-////        return;
-////    }
-////
-////    int num_elem = size(tree+offset);
-////
-//////    if( 
-//////            offset+num_elem > global_machine_page_size 
-//////            ||
-//////            num_elem == 0
-//////      ){
-//////        except("load_tree: array size is incorrect", __FILE__, __LINE__);
-//////    }
-////    
-////    s(tree+offset) |= 0x1; //Mark visited
-////
-////    if( is_inte(tree+offset) ){
-////
-////        for(i=0; i<num_elem; i++){
-////            load_tree(tree, (mword)*(tree+offset+i));
-////            *(tree+offset+i) += tree_base;
-////        }
-////
-////    }
-////
-////}
 
 mword *_load(mword *tree, mword tree_size){//, mword offset){
 
@@ -102,7 +45,7 @@ mword *_load(mword *tree, mword tree_size){//, mword offset){
     mword offset     = MWORD_SIZE;
     mword LUT_offset = 0;
 
-    return load_tree(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
+    return rload(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
 
 //    mword *tree = global_VM-1;
 //    load_tree_reset(tree, 1*MWORD_SIZE);
@@ -110,9 +53,9 @@ mword *_load(mword *tree, mword tree_size){//, mword offset){
 
 }
 
-//load_tree_reset
+//rload
 //
-mword *load_tree(
+mword *rload(
         mword *tree, 
         mword offset,
         mword *LUT_abs, 
@@ -140,7 +83,7 @@ mword *load_tree(
         *LUT_offset = *LUT_offset+1;        
 
         for(i=0; i<num_elem; i++){
-            c(new_arr,i) = (mword)load_tree(
+            c(new_arr,i) = (mword)rload(
                 tree,
                 c(tree,offset+i),
                 LUT_abs, 
@@ -176,54 +119,20 @@ mword *load_tree(
         c(new_arr,4) = (mword)(-2*MWORD_SIZE);
 //        c(new_arr,5) = (mword)nil;
 //        c(new_arr,6) = (mword)nil;
-        c(new_arr,5) = (mword)load_tree(
+        c(new_arr,5) = (mword)rload(
                 tree,
                 c(tree,offset+5),
                 LUT_abs, 
                 LUT_rel, 
                 LUT_offset);
-        c(new_arr,6) = (mword)load_tree(
+        c(new_arr,6) = (mword)rload(
                 tree,
                 c(tree,offset+6),
                 LUT_abs, 
                 LUT_rel, 
                 LUT_offset);
 
-//        printf("%x", ttag(new_arr,0));
-//        die;
-//
-//        c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
-//        c(LUT_abs,*LUT_offset) = (mword)new_arr;
-//        *LUT_offset = *LUT_offset+1;
-//
-//        c(new_arr,4) = (mword)load_tree(
-//            tree,
-//            c(tree,offset+4),
-//            LUT_abs, 
-//            LUT_rel, 
-//            LUT_offset);
-//
-//        c(new_arr,5) = (mword)load_tree(
-//            tree,
-//            c(tree,offset+5),
-//            LUT_abs, 
-//            LUT_rel, 
-//            LUT_offset);
 
-//        new_arr = _newref((mword*)(tree+offset));
-//
-////        d(num_elem)
-////        for(i=0; i<num_elem; i++){
-////            d(c(new_arr,i))// = c(tree,offset+i);
-////        }
-//
-//        c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
-//        c(LUT_abs,*LUT_offset) = (mword)new_arr;
-//        *LUT_offset = *LUT_offset+1;
-//
-//        for(i=0; i<num_elem; i++){
-//            c(new_arr,i) = c(tree,offset+i);
-//        }
     }
 
     s(tree+offset) |= 0x1; //Mark dumped
@@ -255,74 +164,7 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword elem){
 
 }
 
-//
-//void dump(void){
-//
-//    dump_tree(global_VM);
-//    clean_tree(global_VM);
-//
-//}
-//
-//void dump_tree(mword *tree){
-//
-//    int i;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){ //Already dumped
-//        return;
-//    }
-//
-//    int num_elem = size(tree);
-//    s(tree) |= 0x1; //Mark dumped
-//
-////    printf("num_elem %08x\n", num_elem);
-//
-//    for(i=0; i<num_elem; i++){
-//        printf("%08x %08x\n", (mword)(tree+i), (mword *)*(tree+i));
-//        if(is_inte(tree)){
-//            dump_tree((mword *)*(tree+i));
-//        }
-//    }
-//
-//}
-//
-//void arser(void){
-//
-//    arser_tree(global_VM);
-//    clean_tree(global_VM);
-//
-//}
-//
-//
-//void arser_tree(mword *tree){
-//
-//    int i;
-//
-//    if( s(tree) & (MWORD_SIZE-1) ){ //Already dumped
-//        return;
-//    }
-//
-//    int num_elem = size(tree);
-//    printf("-------- %08x\n", (mword)s(tree));
-//    s(tree) |= 0x1; //Mark dumped
-//
-////    printf("num_elem %08x\n", num_elem);
-//
-//    for(i=0; i<num_elem; i++){
-//        if(is_inte(tree)){
-//            printf("%08x %08x\n", (mword)(tree+i), (mword)((mword *)*(tree+i)));
-//        }
-//        else{
-//            printf("%08x %08x\n", (mword)(tree+i), (mword *)*(tree+i));
-//        }
-//    }
-//
-//    for(i=0; i<num_elem; i++){
-//        if(is_inte(tree)){
-//            arser_tree((mword *)*(tree+i));
-//        }
-//    }
-//
-//}
+
 
 //
 // babel_operator
@@ -348,9 +190,9 @@ mword *_unload(mword *bs){//, mword offset){
     mword bs_size     = _mu   (bs);
     mword num_arrays  = _nin  (bs);
           num_arrays += _nlf  (bs);
-          num_arrays += _nhref(bs);
+          num_arrays += _ntls (bs);
 
-    mword *dest      = _newlf(bs_size); // Error: returns wrong size due to hash-refs
+    mword *dest      = _newlf(bs_size);
     mword *LUT_abs   = _newin(num_arrays);
     mword *LUT_rel   = _newin(num_arrays);
     mword offset     = 0;
@@ -384,7 +226,6 @@ mword _runload(
 //    printf("-------- %08x\n", (mword)s(bs));
     *(dest+(*offset)) = s(bs);
     *offset = *offset+1;
-    MARK_TRAVERSED(bs); //s(bs) |= 0x1; //Mark dumped
 
     c(LUT_abs,*LUT_offset) = (mword)bs;
     c(LUT_rel,*LUT_offset) = *offset;
@@ -393,6 +234,8 @@ mword _runload(
     mword local_offset = *offset;
 
     if(is_inte(bs)){
+//        printf("A ");
+        MARK_TRAVERSED(bs);
         *offset = *offset + num_elem;
         for(i=0; i<num_elem; i++){
             c(dest,local_offset+i) = _runload(
@@ -406,11 +249,27 @@ mword _runload(
                 ;
         }
     }
-    else{
+    else if(is_leaf(bs)){
+//        printf("B ");
+        MARK_TRAVERSED(bs);
         for(i=0; i<num_elem; i++){
             c(dest,(*offset)) = c(bs,i);
             *offset = *offset+1;
         }
+    }
+    else{ //tlist
+//        printf("C ");
+        MARK_TRAVERSED(bs);
+        for(i=0; i<HASH_SIZE; i++){
+            c(dest,(*offset)) = c(bs,i);
+            *offset = *offset+1;
+        }
+        _runload((mword*)bs+HASH_SIZE+1, 
+                    LUT_abs, 
+                    LUT_rel, 
+                    dest, 
+                    offset, 
+                    LUT_offset);
     }
 
     return local_offset;
