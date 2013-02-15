@@ -29,134 +29,55 @@ mword *_new_hash_table_entry(mword *hash, mword *key, mword *payload){
     if(is_nil(hash)){
         hash = _hash8(key);
     }
-
-    mword *hash_copy = _newlfi( HASH_SIZE, 0 ); // 1 -> s-field
-    memcpy(hash_copy, hash, MWORDS(HASH_SIZE) );
-
-    mword *key_copy = key;
+    else{
+        hash = _cp(hash);
+    }
 
     if(!is_nil(key)){
-        key_copy = _newlfi( size(key), 0 );
-        memcpy(key_copy, key, MWORDS(size(key)) );
+        key = _cp(key);
     }
 
     return _new_tlist(
         _hash8(C2B("/babel/tag/hash_table_entry")), 
-        _consls( hash_copy, 
-            _consls( key, 
+        _consls( hash,
+            _consls( key,
                 _consls( payload, nil )))
     );
 
 }
 
-// FIXME: USES HREF
-mword *new_hash_entry(mword *hash, mword *key, mword *val, mword ref_count, mword bounding){
-
-//    mword *href = _newref(hash);
-//
-//    mword *ref_count_ptr = new_atom;
-//    *ref_count_ptr       = ref_count;
-//
-//    mword *bounding_ptr  = new_atom;
-//    *bounding_ptr        = bounding;
-//
-//    mword *hash_entry    = _newin(HASH_ENTRY_SIZE);
-//
-////    (mword*)c(hash_entry,0) = href;
-////    (mword*)c(hash_entry,1) = val;
-////    (mword*)c(hash_entry,2) = key;
-////    (mword*)c(hash_entry,3) = ref_count_ptr;
-////    (mword*)c(hash_entry,4) = bounding_ptr;
-//
-//    HASH_ENTRY_REF(hash_entry) = href;
-//    HASH_ENTRY_VAL(hash_entry) = val;
-//    HASH_ENTRY_KEY(hash_entry) = key;
-//    HASH_ENTRY_CNT(hash_entry) = ref_count_ptr;
-//    HASH_ENTRY_BND(hash_entry) = bounding_ptr;
-//
-//    return hash_entry;
-
-}
 
 //
-mword *_insha(mword *hash_table, mword *hash, mword *val){
+mword *_insha(mword *hash_table, mword *hash, mword *key, mword *payload){
 
-    mword *result;
     mword *temp;
     mword cons_side;
 
-//    mword *hash = _hash8(key);
-    mword *key = empty_string;
+        
 
-    if(is_nil(hash_table)){
-        cons_side = _cxr1(hash,0);
-        temp = new_hash_entry(hash, key, val, (mword)-1, 0);
-        result = new_cons;
-        c(result,cons_side) = (mword)temp;
-//printf("%s",_bs2gv(temp));
-    }
-    else{
-        _rinskha(hash_table, hash, key, val, 0);
-        result = hash_table;
-    }
-
-    return result;
-
-}
-
-// inskha - insert with key into hash
-// babel_operator
-bvm_cache *inskha(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *hash_table = TOS_2(this_bvm);
-    mword *key        = TOS_1(this_bvm);
-    mword *val        = TOS_0(this_bvm);
-
-    mword *result = _inskha(hash_table, key, val);
-
-    zap(this_bvm);
-    zap(this_bvm);
-    zap(this_bvm);
-
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Revisit
-
-//printf("%s\n\n",_bs2gv(this_bvm->stack_ptr));
-
-//    _dump(this_bvm->stack_ptr);
-//    die;
-
-    return this_bvm;
+//    mword *result;
+//
+////    mword *hash = _hash8(key);
+//    mword *key = empty_string;
+//
+//    if(is_nil(hash_table)){
+//        cons_side = _cxr1(hash,0);
+//        temp = new_hash_entry(hash, key, val, (mword)-1, 0);
+//        result = new_cons;
+//        c(result,cons_side) = (mword)temp;
+////printf("%s",_bs2gv(temp));
+//    }
+//    else{
+//        _rinskha(hash_table, hash, key, val, 0);
+//        result = hash_table;
+//    }
+//
+//    return result;
 
 }
 
 //
-mword *_inskha(mword *hash_table, mword *key, mword *val){
-
-    mword *result;
-    mword *temp;
-    mword cons_side;
-
-    mword *hash = _hash8(key);
-
-    if(is_nil(hash_table)){
-        cons_side = _cxr1(hash,0);
-        temp = new_hash_entry(hash, key, val, (mword)-1, 0);
-        result = new_cons;
-        c(result,cons_side) = (mword)temp;
-//printf("%s",_bs2gv(temp));
-    }
-    else{
-        _rinskha(hash_table, hash, key, val, 0);
-        result = hash_table;
-    }
-
-    return result;
-
-}
-
-//
-void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level){
+void _rinsha(mword *hash_table, mword *hash, mword *key, mword *val, mword level){
 
     mword *temp;
     mword cons_side   = _cxr1(hash,level);
@@ -202,6 +123,109 @@ void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword leve
     }
 
 }
+
+//
+//
+//
+//
+//// inskha - insert with key into hash
+//// babel_operator
+//bvm_cache *inskha(bvm_cache *this_bvm){
+//
+//    fatal("stack fix not done");
+//    mword *hash_table = TOS_2(this_bvm);
+//    mword *key        = TOS_1(this_bvm);
+//    mword *val        = TOS_0(this_bvm);
+//
+//    mword *result = _inskha(hash_table, key, val);
+//
+//    zap(this_bvm);
+//    zap(this_bvm);
+//    zap(this_bvm);
+//
+//    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Revisit
+//
+////printf("%s\n\n",_bs2gv(this_bvm->stack_ptr));
+//
+////    _dump(this_bvm->stack_ptr);
+////    die;
+//
+//    return this_bvm;
+//
+//}
+//
+////
+//mword *_inskha(mword *hash_table, mword *key, mword *val){
+//
+//    mword *result;
+//    mword *temp;
+//    mword cons_side;
+//
+//    mword *hash = _hash8(key);
+//
+//    if(is_nil(hash_table)){
+//        cons_side = _cxr1(hash,0);
+//        temp = new_hash_entry(hash, key, val, (mword)-1, 0);
+//        result = new_cons;
+//        c(result,cons_side) = (mword)temp;
+////printf("%s",_bs2gv(temp));
+//    }
+//    else{
+//        _rinskha(hash_table, hash, key, val, 0);
+//        result = hash_table;
+//    }
+//
+//    return result;
+//
+//}
+//
+////
+//void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level){
+//
+//    mword *temp;
+//    mword cons_side   = _cxr1(hash,level);
+//    mword *next_level = (mword*)c(hash_table,cons_side);
+//
+//    // 1. cons_side = nil
+//    //      insert
+//    // 2. cons_side is inte AND size = 2
+//    //      recurse
+//    // 3. cons_side is inte AND size = HASH_ENTRY_SIZE
+//    //      split and insert
+//
+////    printf("%x\n",s(next_level));
+//
+//    if(is_nil(next_level)){
+//
+//        (mword*)c(hash_table,cons_side) 
+//            = new_hash_entry(hash, key, val, (mword)-1, 0);
+//
+//    }
+//    else if(is_inte(next_level) && size(next_level) == 2){
+//
+//        _rinskha((mword*)c(hash_table,cons_side), hash, key, val, level+1);
+//
+//    }
+//    else if(is_inte(next_level) && size(next_level) == HASH_ENTRY_SIZE){
+//
+//        mword *colliding_hash_ref           = HASH_ENTRY_REF(next_level);
+//        mword colliding_next_cons_side      = _cxr1(colliding_hash_ref,level+1);
+//
+//        temp = new_cons;
+//        (mword *)c(temp,colliding_next_cons_side) = next_level;
+//
+//        (mword*)c(hash_table,cons_side)     = temp;
+//
+//        _rinskha((mword*)c(hash_table,cons_side), hash, key, val, level+1);
+//
+//    }
+//    else{
+//        //printf("%s",_bs2gv(next_level));
+//        //die
+//        error("_rinskha: Error inserting into hash");
+//    }
+//
+//}
 
 //
 // babel_operator

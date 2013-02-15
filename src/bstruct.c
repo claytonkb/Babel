@@ -12,6 +12,7 @@
 #include "except.h"
 #include "io.h"
 #include "hash.h"
+#include "alloc.h"
 
 // recursively cleans a bstruct after traversal
 void rclean(mword *bs){
@@ -241,12 +242,6 @@ mword _rlst(mword *bs, void *v){
             *v += 1;
         }
     }
-//    else if( is_leaf_masked(bs) ){
-//        for(i=0;i<size(bs);i++){
-//            printf("%04d %08x\n", *v, c(bs,i));
-//            *v += 1;
-//        }
-//    }
     else{
         for(i=0;i<size_masked(bs);i++){
             printf("%04x %08x\n", (*v * MWORD_SIZE), c(bs,i));
@@ -258,6 +253,18 @@ mword _rlst(mword *bs, void *v){
 
 }
 
+//
+//
+mword *_cp(mword *bs){
+
+    mword *temp = _unload(bs);
+    
+    bs = _load(temp, size(temp));
+    bfree(temp);
+
+    return bs;    
+
+}
 
 //
 // babel_operator

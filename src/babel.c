@@ -53,13 +53,13 @@ int main(int argc, char **argv){
 //    printf("%d\n", sizeof(bbl));
 //    die;
 
-    mword *loaded_bbl = _load((mword*)bbl,BBL_SIZE);
+//    mword *loaded_bbl = _load((mword*)bbl,BBL_SIZE);
 
 //    fprintf(stderr, "%x\n", eqtag(loaded_bbl, btag_hash_table_entry));
 
 //    loaded_bbl = _new_tlist(_hash8(C2B("/babel/tag/hash_table")), _consls(nil, nil));
 
-//    mword *loaded_bbl = _new_hash_table_entry(nil,C2B("foo"),nil);
+    mword *loaded_bbl = _new_hash_table_entry(nil,C2B("foo"),nil);
 //    fprintf(stderr, "%d\n", _mu(loaded_bbl));
 //    fprintf(stderr, "%d\n", _nlf(loaded_bbl));
 //    fprintf(stderr, "%d\n", _nin(loaded_bbl));
@@ -68,8 +68,10 @@ int main(int argc, char **argv){
 //    fprintf(stderr, "%d\n", _nptr(loaded_bbl));
 
 //    _lst(loaded_bbl);
-    loaded_bbl = _unload(loaded_bbl);
-    loaded_bbl = _load(loaded_bbl,size(loaded_bbl));
+//    loaded_bbl = _unload(loaded_bbl);
+//    loaded_bbl = _load(loaded_bbl,size(loaded_bbl));
+
+//    loaded_bbl = _cp(loaded_bbl);
 
 //    int i;
 //    for(i=0;i<size(loaded_bbl);i++){

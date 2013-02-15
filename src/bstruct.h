@@ -42,6 +42,8 @@ mword _rnptr(mword *bs, void *v);
 mword _lst(mword *bs);
 mword _rlst(mword *bs, void *v);
 
+mword *_cp(mword *bs);
+
 
 bvm_cache *bbl2str(bvm_cache *this_bvm);
 mword rbbl2str(mword *bs, char *buffer);
