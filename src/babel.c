@@ -59,7 +59,35 @@ int main(int argc, char **argv){
 
 //    loaded_bbl = _new_tlist(_hash8(C2B("/babel/tag/hash_table")), _consls(nil, nil));
 
-    mword *loaded_bbl = _new_hash_table_entry(nil,C2B("foo"),nil);
+    mword *hash_table = _new_hash_table();
+
+//    _insha(     hash_table, 
+//                nil, 
+//                C2B("foo"), 
+//                _new_hash_table_entry(  nil, 
+//                                        C2B("foo"), 
+//                                        nil ) );
+//
+//    _insha(     hash_table, 
+//                nil, 
+//                C2B("bar"), 
+//                _new_hash_table_entry(  nil, 
+//                                        C2B("bar"), 
+//                                        nil ) );
+//
+//    _insha(     hash_table, 
+//                nil, 
+//                C2B("baz"), 
+//                _new_hash_table_entry(  nil, 
+//                                        C2B("baz"),
+//                                        nil ) );
+
+    hash_insert(hash_table, "foo", nil);
+    hash_insert(hash_table, "bar", nil);
+    hash_insert(hash_table, "baz", nil);
+
+    _dump(hash_table);
+
 //    fprintf(stderr, "%d\n", _mu(loaded_bbl));
 //    fprintf(stderr, "%d\n", _nlf(loaded_bbl));
 //    fprintf(stderr, "%d\n", _nin(loaded_bbl));
@@ -78,7 +106,7 @@ int main(int argc, char **argv){
 //        printf("%04x %08x\n", i * MWORD_SIZE, c(loaded_bbl,i));
 //    }
 
-    _dump(loaded_bbl);
+//    _dump(loaded_bbl);
 
 
 //    printf("%x\n", s(loaded_bbl));

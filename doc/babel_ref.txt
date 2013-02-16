@@ -42,7 +42,7 @@ encountered, I have collected them in one place here:
         *           cimul           same as C
         /           cidiv           same as C
         %           curem           same as C
-        =           ceq             same as C
+        =           ceq             same as C ==
         <           cilt            same as C
         >           cigt            same as C
         >=          cige            same as C

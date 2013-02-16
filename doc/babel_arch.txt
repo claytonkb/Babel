@@ -4,6 +4,39 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- bvm organization -----
+
+bvm (tlist) -> encodes compatibility
+hard_root (tlist)
+    bvm_code (tlist)
+    bvm_stack (tlist)
+    jump_table (tlist)
+    sym_table (tlist)
+        hash
+            /runtime
+                /env
+                /hdd
+                /network
+                /alloc
+                /tag
+                /etc
+            /persist
+                /self (soft_root)
+
+bvm_code
+    code
+    rstack
+
+bvm_stack
+    dstack
+    ustack
+
+sym_table
+    hash_table
+
+jump_table
+    list (opcodes)
+
 ----- packages -----
 
 Imagine we have a file - A.bbl - containing the following relative structure:

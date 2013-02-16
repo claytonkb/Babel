@@ -97,6 +97,8 @@ void init_tags(void);
 #define is_inte(x)    ((int)s((mword*)x) <  0)
 #define is_tlist(x)   ((int)s((mword*)x) == 0)
 
+#define is_conslike(x) (is_inte(x) && size(x) == 2)
+
 //#define is_href(x)   ((int)s((mword*)x) == 0)
 
 //#define size(x)      (is_href(x)?HASH_SIZE:(abs(s(x))/MWORD_SIZE))
@@ -116,8 +118,12 @@ void init_tags(void);
 #define cdr(x)      c((mword*)(x),1)
 
 #define ttag(x,y)   c((mword*)x,y)
-#define tcar(x)     c((mword*)x,HASH_SIZE)
-#define tcdr(x)     c((mword*)x,HASH_SIZE+1)
+
+#define _tcar(x)     c((mword*)x,HASH_SIZE+1)
+#define _tcdr(x)     c((mword*)x,HASH_SIZE+2)
+
+#define tcar(x)     (is_tlist(x) ? _tcar(x) : car(x))
+#define tcdr(x)     (is_tlist(x) ? _tcdr(x) : cdr(x))
 
 //nil-safe car/cdr:
 #define scar(x)     (is_nil(x) ? nil : car(x))

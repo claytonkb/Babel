@@ -14,7 +14,8 @@ my $tags =
         "BABEL_TAG_PURE_REF"    => "/babel/tag/pure_ref",
         "BABEL_TAG_HASH_TABLE"  => "/babel/tag/hash_table",
         "BABEL_TAG_HASH_TABLE_ENTRY"  => "/babel/tag/hash_table_entry",
-        "BABEL_TAG_BVM"         => "/babel/tag/bvm",    };
+        "BABEL_TAG_BVM"         => "/babel/tag/bvm",    
+        "BABEL_TAG_COMPAT"       => "WINDOWS;32", };
 
 open C_FILE,   ">src/tags.h" or die "Couldn't create src/tags.h: $!";
 
