@@ -4,6 +4,9 @@
 #ifndef BVM_H
 #define BVM_H
 
+// XXX UNSAFE; Gets the code-pointer from a bvm hard-root
+#define bvm_code_ptr(x) car(tcar(tcar(x)))
+
 void bbl2gv(mword *tree);
 mword tree_bbl2gv(mword *tree);
 bvm_cache *babelop(bvm_cache *this_bvm);

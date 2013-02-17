@@ -20,12 +20,12 @@
 #include "list.h"
 #include <stdarg.h>
 
-mword btag_nil              [HASH_SIZE] = BABEL_TAG_NIL;
-mword btag_hash_table       [HASH_SIZE] = BABEL_TAG_HASH_TABLE;
-mword btag_hash_table_entry [HASH_SIZE] = BABEL_TAG_HASH_TABLE_ENTRY;
-mword btag_hash_bvm         [HASH_SIZE] = BABEL_TAG_BVM;
-mword btag_hash_ref         [HASH_SIZE] = BABEL_TAG_REF;
-mword btag_hash_pure_ref    [HASH_SIZE] = BABEL_TAG_PURE_REF;
+//mword btag_nil              [HASH_SIZE] = BABEL_TAG_NIL;
+//mword btag_hash_table       [HASH_SIZE] = BABEL_TAG_HASH_TABLE;
+//mword btag_hash_table_entry [HASH_SIZE] = BABEL_TAG_HASH_TABLE_ENTRY;
+//mword btag_hash_bvm         [HASH_SIZE] = BABEL_TAG_BVM;
+//mword btag_hash_ref         [HASH_SIZE] = BABEL_TAG_REF;
+//mword btag_hash_pure_ref    [HASH_SIZE] = BABEL_TAG_PURE_REF;
 
 //main
 //
@@ -53,13 +53,16 @@ int main(int argc, char **argv){
 //    printf("%d\n", sizeof(bbl));
 //    die;
 
-//    mword *loaded_bbl = _load((mword*)bbl,BBL_SIZE);
+    mword *loaded_bbl = _load((mword*)bbl,BBL_SIZE);
+    fprintf(stderr, "%08x\n",c((mword*)bvm_code_ptr(loaded_bbl),0));
+//    fprintf(stderr, "%d\n", is_bvm(loaded_bbl));
+    _dump(loaded_bbl);
 
 //    fprintf(stderr, "%x\n", eqtag(loaded_bbl, btag_hash_table_entry));
 
 //    loaded_bbl = _new_tlist(_hash8(C2B("/babel/tag/hash_table")), _consls(nil, nil));
 
-    mword *hash_table = _new_hash_table();
+//    mword *hash_table = _new_hash_table();
 
 //    _insha(     hash_table, 
 //                nil, 
@@ -82,11 +85,11 @@ int main(int argc, char **argv){
 //                                        C2B("baz"),
 //                                        nil ) );
 
-    hash_insert(hash_table, "foo", nil);
-    hash_insert(hash_table, "bar", nil);
-    hash_insert(hash_table, "baz", nil);
-
-    _dump(hash_table);
+//    hash_insert(hash_table, "foo", nil);
+//    hash_insert(hash_table, "bar", nil);
+//    hash_insert(hash_table, "baz", nil);
+//
+//    _dump(hash_table);
 
 //    fprintf(stderr, "%d\n", _mu(loaded_bbl));
 //    fprintf(stderr, "%d\n", _nlf(loaded_bbl));

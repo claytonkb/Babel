@@ -83,6 +83,7 @@ void init_tags(void);
 // This includes many reserved opcodes
 #define NUM_INTERP_OPCODES 533
 
+// Operating-system compatibility
 #define WINDOWS
 //#define STAR_NIX
 
@@ -108,8 +109,18 @@ void init_tags(void);
 //#define is_nil(x)   ( is_href(x) ? (memcmp((x), nil, HASH_SIZE) == 0) : 0 )
 //#define is_nil(x)   ( (mword)(x) == (mword)nil )
 
-#define eqtag(x,y) (memcmp(x, y, HASH_SIZE*MWORD_SIZE))
-#define is_nil(x) ( eqtag(x,nil) == 0 )
+#define tagcmp(x,y) ( (is_tlist(x) || (size(x) >= HASH_SIZE)) ? (memcmp(x, y, HASH_SIZE*MWORD_SIZE)) : -1 )
+#define is_nil(x) ( tagcmp(x,nil) == 0 )
+
+// XXX UNSAFE; use this only where we know for sure we have a tlist...
+#define is_nil_fast(x) ( (memcmp(x, nil, HASH_SIZE*MWORD_SIZE)) == 0 )
+
+//const mword *temp = { 0x57f6f4a0, 0x2c7f7366, 0x4888046e, 0x74b75e8f };
+
+#include "tags.h"
+
+#define is_bvm(x) ( tagcmp((x),BABEL_TAG_BVM) == 0 )
+#define is_ref(x) ( tagcmp((x),BABEL_TAG_REF) == 0 )
 
 #define is_false(x) (    is_leaf(x) && car(x) == 0 \
                      || !is_leaf(x) && is_nil(scar(x)) )

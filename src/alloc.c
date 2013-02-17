@@ -52,17 +52,19 @@ void _del(mword *bs){
 }
 
 //_balloc() 
-// checks for NULL pointer
 //
 mword *_balloc(mword size){
+
+    // FIXME: Check allocation limit; except if exceeded
 
     mword *ptr = malloc( MWORDS( size ) ); // 3 = s-field + car + cdr
 
     if(ptr == NULL){
         fatal("malloc returned NULL");
-        //FIXME: In future, we will free all memory associated with
-        //the running-bvm and return to the parent-bvm...
+        //FIXME: Exception
     }
+
+    //FIXME: Put ptr into the bvm's alloc table
 
     return ptr;
 

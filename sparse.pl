@@ -29,27 +29,31 @@ my $array_begin     = qr/[\[\({<]/;
 my $array_end       = qr/[\]\)}>]/;
 my $non_array       = qr/[^\[\({<\]\)}>]/;
 
-my $sections = {};
+my $sections = [];
+my @asm_files;
 
 while($#ARGV>-1){
     $asm_file = shift @ARGV;
     open ASM_FILE, $asm_file;
-    push @asm_file, <ASM_FILE>;
+    $asm_file = [<ASM_FILE>];
+    push @asm_files, $asm_file;
     close ASM_FILE;
 }
 
-#Values:        ( j ... )
-#Pointers:      ( k ... )
-#Tagged-List:   ( q ... )
-#List:          ( x ... )
-#Cosntant:      ( z ... )
+#$sections = balanced_parse( clean( $asm_files[0] ) );
 
-$asm_file = clean     ( \@asm_file );
-            $sections = balanced_parse( \$asm_file );
-            tokenize($sections);
-            my $obj = encode($sections);
+for $asm_file (@asm_files){
+    $asm_file = clean( $asm_file );
+    #$sections = balanced_parse( \$asm_file );
+    my $parsed = balanced_parse( \$asm_file );
+    splice( @{$sections}, 0, 0, @{$parsed} );
+}
 
-#print Dumper($sections);
+#print Dumper($sections) and die;
+
+tokenize($sections);
+my $obj = encode($sections);
+
 #print Dumper($obj);
 #dump_obj($obj->{root}{code});
 
@@ -276,6 +280,10 @@ sub encode_section{
         $section_name, 
         $offset) = @_;
 
+    if($section_name eq "nil"){ # If nil is reference prior to creation of the first list...
+        return create_nil($addr_lut, $offset);
+    }
+
     $addr_lut->{$section_name} = ($$offset+1) * $MWORD_SIZE;
 
     return encode_tree($symbol_table, $addr_lut, $section_name, $offset, $symbol_table->{$section_name});
@@ -303,6 +311,9 @@ sub encode_tree{
     }
     elsif($sub_tree->[0] eq 'list'){ #list
         return encode_list          ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
+    }
+    elsif($sub_tree->[0] eq 'hash'){ #hash
+        return encode_hash        ($sub_tree, $offset, 0);
     }
     else{
         print "Unrecognized list type: $symbol_table->{$section_name}->[0]\n" and die;
@@ -343,7 +354,7 @@ sub encode_values{
 
             $eval_string = "\$value = $value;";
             die unless eval($eval_string);
-            $value = "\"$value\"";
+            #$value = "\"$value\"";
 
             @str_vec = str2vec($value);
             push @{$value_list}, @str_vec;
@@ -351,7 +362,7 @@ sub encode_values{
             
         }
         elsif($value =~ /^\s*'([^']*)'$/){
-            @str_vec = str2vec($value);
+            @str_vec = str2vec($1);
             push @{$value_list}, @str_vec;
             $$offset += ($#str_vec+1);
         }
@@ -371,6 +382,55 @@ sub encode_values{
     return $value_list;
 
 }
+
+
+#
+#
+sub encode_hash{
+
+    my ($sub_tree, 
+        $offset) = @_;
+
+    my $eval_string;
+    my @str_vec;
+
+    my @values = @{$sub_tree};
+    shift @values;
+
+    #$$offset += ($#values+2);
+    $$offset += 1;
+
+    my $value_list = [];
+    my $value = $values[0];
+    my @hash = ();
+
+    if($value =~ /^\s*"[^"]*"$/){
+
+        $eval_string = "\$value = $value;";
+        die unless eval($eval_string);
+
+        @hash = bytes_to_mwords(Hash::Pearson16::pearson16_hash($value));
+        push @{$value_list}, @hash;
+        $$offset += ($#hash+1);
+        
+    }
+    elsif($value =~ /^\s*'([^']*)'$/){
+
+        @hash = bytes_to_mwords(Hash::Pearson16::pearson16_hash($1));
+        push @{$value_list}, @hash;
+        $$offset += ($#hash+1);
+        
+    }
+    else{
+        print "Error: .$value.\n" and die;
+    }
+
+    unshift @{$value_list}, $MWORD_SIZE * ($#{$value_list}+1);
+
+    return $value_list;
+
+}
+
 
 #
 #
