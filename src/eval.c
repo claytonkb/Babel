@@ -38,7 +38,7 @@ void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){
 
     this_bvm->code_ptr = eval_body;
 
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
 }
 
@@ -52,14 +52,14 @@ bvm_cache *nest(bvm_cache *this_bvm){
 
     mword *new_stack = TOS_0(this_bvm);
     hard_zap(this_bvm);
-//    push_alloc_rstack(this_bvm, (mword*)this_bvm->stack_ptr, NEST);
+//    push_alloc_rstack(this_bvm, (mword*)this_bvm->dstack_ptr, NEST);
 
 //    clear(this_bvm);
 
-    mword *save_stack  = this_bvm->stack_ptr;
+    mword *save_stack  = this_bvm->dstack_ptr;
     mword *save_ustack = this_bvm->ustack_ptr;
 
-//    this_bvm->stack_ptr = nil; // clear the stack
+//    this_bvm->dstack_ptr = nil; // clear the stack
 
     clear(this_bvm); // clear the stack
 
@@ -79,7 +79,7 @@ bvm_cache *nest(bvm_cache *this_bvm){
 
     this_bvm->code_ptr = body;
 
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
     return this_bvm;    
 
@@ -115,7 +115,7 @@ bvm_cache *ifte(bvm_cache *this_bvm){
 
     push_alloc_rstack(this_bvm, temp, IFTE);
 
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
     this_bvm->code_ptr = cond_clause;
 
@@ -161,7 +161,7 @@ bvm_cache *let(bvm_cache *this_bvm){
 
     this_bvm->code_ptr = body;
 
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -203,11 +203,11 @@ bvm_cache *ifop(bvm_cache *this_bvm){
 bvm_cache *gotoop(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
-    this_bvm->code_ptr = (mword*)scar(scar(this_bvm->stack_ptr));
+    this_bvm->code_ptr = (mword*)scar(scar(this_bvm->dstack_ptr));
 
     hard_zap(this_bvm);
 
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -232,7 +232,7 @@ bvm_cache *loop(bvm_cache *this_bvm){
 
     push_alloc_rstack(this_bvm, temp, LOOP);
 
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
     this_bvm->code_ptr = body;
 
@@ -318,7 +318,7 @@ bvm_cache *last(bvm_cache *this_bvm){
         die;
     }
 
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
 }
 
@@ -511,7 +511,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 
         temp = TOS_0(this_bvm);
 
-        this_bvm->stack_ptr  = (mword*)rstack_entry[NEST_RSTACK_STACK];
+        this_bvm->dstack_ptr  = (mword*)rstack_entry[NEST_RSTACK_STACK];
         this_bvm->ustack_ptr = (mword*)rstack_entry[NEST_RSTACK_USTACK];
         push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
 
@@ -555,7 +555,7 @@ bvm_cache *times(bvm_cache *this_bvm){
 
         push_alloc_rstack(this_bvm, temp, TIMES);
 
-        car(this_bvm->advance_type) = BVM_CONTINUE;
+        icar(this_bvm->advance_type) = BVM_CONTINUE;
 
         this_bvm->code_ptr = body;
     
@@ -636,7 +636,7 @@ bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 
     push_alloc_rstack(this_bvm, temp, WHILEOP);
 
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
     this_bvm->code_ptr = cond_block;
     
@@ -667,7 +667,7 @@ bvm_cache *each(bvm_cache *this_bvm){
          
     push_alloc_rstack(this_bvm, temp, EACH);
 
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
     this_bvm->code_ptr = body;
 
@@ -716,7 +716,7 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
     push_alloc_rstack(this_bvm, temp, EACHAR);
 
-    car(this_bvm->advance_type) = BVM_CONTINUE;
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
     this_bvm->code_ptr = body;
 
@@ -741,7 +741,7 @@ bvm_cache *conjure(bvm_cache *this_bvm){
     fatal("stack fix not done");
     this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
 
-    car(this_bvm->advance_type) = BVM_RETURN;
+    icar(this_bvm->advance_type) = BVM_RETURN;
 
     return this_bvm;
 

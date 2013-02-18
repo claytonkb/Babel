@@ -36,6 +36,9 @@ mword *_newin(mword size);
 mword *_newlfi(mword size, mword init);
 mword *_newtlist(void);
 
+inline mword* val(mword *leaf, mword index);
+mword *_newva(mword value);
+
 mword _arlen8(mword *string);
 mword  alignment_word8(mword size8);
 mword  dec_alignment_word8(mword alignment_word);

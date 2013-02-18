@@ -7,7 +7,8 @@
 #include "babel.h"
 
 mword *_deref(mword *bs, mword *ref_list);
-mword *_ref_cxr(mword *array, mword offset);
+
+static mword *rderef(mword *bs, mword *ref_list);
 
 #endif //HASH_H
 

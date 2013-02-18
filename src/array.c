@@ -77,6 +77,8 @@ bvm_cache *isinte(bvm_cache *this_bvm){
 
 }
 
+// _newlf
+// New Leaf-array
 //
 mword *_newlf(mword size){
 
@@ -91,6 +93,8 @@ mword *_newlf(mword size){
 
 }
 
+// _newlfi
+// New Leaf-array with Initialization
 //
 mword *_newlfi(mword size, mword init){
 
@@ -105,6 +109,36 @@ mword *_newlfi(mword size, mword init){
     return ptr+1;
 
 }
+
+
+// indexes a leaf-array and creates a leaf-array to hold its result
+//
+inline mword* val(mword *leaf, mword index){ // val#
+
+    mword *temp = new_atom;
+    c(temp,0) = c(leaf,index);
+    return temp;
+
+} //val
+
+
+// Accepts a data value and returns a leaf-array
+// of size 1 containing that data value
+//
+mword *_newva(mword value){
+
+    mword *ptr = malloc( MWORDS(1) );
+    if(ptr == NULL){
+        error("_newva: malloc returned NULL");
+    }
+
+    ptr[0] = MWORD_SIZE;
+    ptr[1] = value;
+
+    return ptr+1;
+
+}
+
 
 //
 mword *_newin(mword size){
@@ -126,7 +160,7 @@ mword *_newin(mword size){
 }
 
 //
-mword *_newtlist(void){
+mword *_newtlist(void){ // _newtlist# DEPRECATE
 
     mword *ptr = malloc( MWORDS(4 + HASH_SIZE) ); // 4 = s-field + s-field + car + cdr
 

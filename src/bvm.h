@@ -5,7 +5,12 @@
 #define BVM_H
 
 // XXX UNSAFE; Gets the code-pointer from a bvm hard-root
-#define bvm_code_ptr(x) car(tcar(tcar(x)))
+#define bvm_code_ptr(x)     car(car(x))
+#define bvm_rstack_ptr(x)   car(cdr(car(x)))
+#define bvm_dstack_ptr(x)   car(car(cdr(x)))
+#define bvm_ustack_ptr(x)   car(cdr(car(cdr(x))))
+#define bvm_jump_table(x)   car(car(cdr(cdr(x))))
+#define bvm_sym_table(x)    car(car(cdr(cdr(cdr(x)))))
 
 void bbl2gv(mword *tree);
 mword tree_bbl2gv(mword *tree);

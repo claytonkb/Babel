@@ -379,7 +379,7 @@ mword rbbl2str(mword *bs, char *buffer){
 // babel_operator
 bvm_cache *bs2gv(bvm_cache *this_bvm){
 
-//    _dump(this_bvm->stack_ptr)
+//    _dump(this_bvm->dstack_ptr)
 //        die
 
     mword *result = new_atom;
@@ -517,7 +517,7 @@ mword rbs2gv(mword *bs, char *buffer){
         buf_size += sprintf(buffer+buf_size, "\"];\n");
 
         for(i=0; i<num_entries; i++){
-            if(is_nil((mword *)scar(bs+i))){
+            if(is_nil((mword *)lcar(bs+i))){
                 continue;
             }
             buf_size += sprintf(buffer+buf_size, "\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)bs, i, *(mword *)(bs+i));

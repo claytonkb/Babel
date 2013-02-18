@@ -322,10 +322,10 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
             break;
         }
         else{
-            car(this_bvm->advance_type) = BVM_ADVANCE;
+            icar(this_bvm->advance_type) = BVM_ADVANCE;
         }
 
-        car(this_bvm->steps)--;
+        icar(this_bvm->steps)--;
 
     }
 
@@ -336,8 +336,8 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
 }
 
 //
-// babel_operator
-bvm_cache *babelop(bvm_cache *this_bvm){
+//
+bvm_cache *babelop(bvm_cache *this_bvm){ // babelop#
 
     bvm_cache new_bvm;
 
@@ -389,7 +389,7 @@ bvm_cache *bvmcode(bvm_cache *this_bvm){
 bvm_cache *bvmstack(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
-    push_alloc(this_bvm, this_bvm->stack_ptr, IMMORTAL);
+    push_alloc(this_bvm, this_bvm->dstack_ptr, IMMORTAL);
 
     return this_bvm;
 
@@ -456,21 +456,23 @@ bvm_cache *boilerplate(bvm_cache *this_bvm){
 
 }
 
+
 //
-bvm_cache *load_bvm_cache(bvm_cache *this_bvm){
+//
+bvm_cache *load_bvm_cache(bvm_cache *this_bvm){ // load_bvm_cache#
 
     mword *self = this_bvm->self;
 
-    this_bvm->code_ptr      = (mword*)c(self,0);
-    this_bvm->stack_ptr     = (mword*)c(self,1);
-    this_bvm->ustack_ptr    = (mword*)c(self,2);
-    this_bvm->rstack_ptr    = (mword*)c(self,3);
-    this_bvm->jump_table    = (mword*)c(self,4);
-    this_bvm->sym_table     = (mword*)c(self,5);
-    this_bvm->thread_id     = (mword*)c(self,6);
-    this_bvm->argv          = (mword*)c(self,7);
-    this_bvm->steps         = (mword*)c(self,8);
-    this_bvm->advance_type  = (mword*)c(self,9);
+    this_bvm->code_ptr      = (mword*)bvm_code_ptr(self);
+    this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(self);
+    this_bvm->dstack_ptr     = (mword*)bvm_dstack_ptr(self);
+    this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(self);
+    this_bvm->jump_table    = (mword*)bvm_jump_table(self);
+    this_bvm->sym_table     = (mword*)bvm_sym_table(self);
+//    this_bvm->thread_id     = (mword*)c(self,6);
+//    this_bvm->argv          = (mword*)c(self,7);
+//    this_bvm->steps         = (mword*)c(self,8);
+//    this_bvm->advance_type  = (mword*)c(self,9);
 
     return this_bvm;
 
@@ -482,7 +484,7 @@ bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){
     mword *self = this_bvm->self;
 
     (mword*)c(self,0) = this_bvm->code_ptr;
-    (mword*)c(self,1) = this_bvm->stack_ptr;
+    (mword*)c(self,1) = this_bvm->dstack_ptr;
     (mword*)c(self,2) = this_bvm->ustack_ptr;
     (mword*)c(self,3) = this_bvm->rstack_ptr;
     (mword*)c(self,4) = this_bvm->jump_table;

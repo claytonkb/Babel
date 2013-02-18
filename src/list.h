@@ -27,6 +27,9 @@ mword *_ith(mword *list, mword i);
 mword *_list_end(mword *list);
 mword *_list_next_to_end(mword *list);
 mword *_consls(mword *car_field, mword *cdr_field);
+
+mword *consa(mword *car_field, mword *cdr_field);
+
 mword _len(mword *list);
 
 bvm_cache *walk(bvm_cache *this_bvm);

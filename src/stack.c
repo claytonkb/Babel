@@ -29,9 +29,9 @@ void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
     STACK_ENTRY_VAL(new_stack_entry) = operand;
     STACK_ENTRY_LIF(new_stack_entry) = type;
 
-    cons(new_stack_cons, new_stack_entry, this_bvm->stack_ptr);
+    cons(new_stack_cons, new_stack_entry, this_bvm->dstack_ptr);
 
-    this_bvm->stack_ptr = new_stack_cons;
+    this_bvm->dstack_ptr = new_stack_cons;
 
 }
 
@@ -72,19 +72,19 @@ void push_alloc_ustack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 //
 bvm_cache *hard_zap(bvm_cache *this_bvm){
 
-    if(is_nil(this_bvm->stack_ptr)){
+    if(is_nil(this_bvm->dstack_ptr)){
         return this_bvm;
     }
 
-    mword *temp_stack_ptr = (mword*)cdr(this_bvm->stack_ptr);
+    mword *temp_stack_ptr = (mword*)cdr(this_bvm->dstack_ptr);
 
-//    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr)));
-//    bfree(car(this_bvm->stack_ptr));
-//    bfree(this_bvm->stack_ptr);
+//    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->dstack_ptr)));
+//    bfree(car(this_bvm->dstack_ptr));
+//    bfree(this_bvm->dstack_ptr);
 
     free_stack_entry(this_bvm);
 
-    this_bvm->stack_ptr = temp_stack_ptr;
+    this_bvm->dstack_ptr = temp_stack_ptr;
 
     return this_bvm;
 
@@ -93,28 +93,28 @@ bvm_cache *hard_zap(bvm_cache *this_bvm){
 //
 bvm_cache *zap(bvm_cache *this_bvm){
 
-    if(is_nil(this_bvm->stack_ptr)){
+    if(is_nil(this_bvm->dstack_ptr)){
         return this_bvm;
     }
 
-    mword *temp_stack_ptr = (mword*)cdr(this_bvm->stack_ptr);
+    mword *temp_stack_ptr = (mword*)cdr(this_bvm->dstack_ptr);
 
-    mword *val = STACK_ENTRY_VAL((mword*)car(this_bvm->stack_ptr));
-    mword lifetime = car(STACK_ENTRY_LIF((mword*)car(this_bvm->stack_ptr)));
+    mword *val = STACK_ENTRY_VAL((mword*)car(this_bvm->dstack_ptr));
+    mword lifetime = car(STACK_ENTRY_LIF((mword*)car(this_bvm->dstack_ptr)));
 
-//    zap_switch(car(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr))))
+//    zap_switch(car(STACK_ENTRY_TYP((mword*)car(this_bvm->dstack_ptr))))
 
 //    if( lifetime == MORTAL ){
-//        _del(STACK_ENTRY_VAL((mword*)car(this_bvm->stack_ptr)));
+//        _del(STACK_ENTRY_VAL((mword*)car(this_bvm->dstack_ptr)));
 //    }
 
-//    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->stack_ptr)));
-//    bfree(car(this_bvm->stack_ptr));
-//    bfree(this_bvm->stack_ptr);
+//    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->dstack_ptr)));
+//    bfree(car(this_bvm->dstack_ptr));
+//    bfree(this_bvm->dstack_ptr);
 
     free_stack_entry(this_bvm);
 
-    this_bvm->stack_ptr = temp_stack_ptr;    
+    this_bvm->dstack_ptr = temp_stack_ptr;    
 
     return this_bvm;
 
@@ -122,9 +122,9 @@ bvm_cache *zap(bvm_cache *this_bvm){
 
 void free_stack_entry(bvm_cache *this_bvm){
 
-    bfree(STACK_ENTRY_LIF((mword*)car(this_bvm->stack_ptr)));
-    bfree(car(this_bvm->stack_ptr));
-    bfree(this_bvm->stack_ptr);
+    bfree(STACK_ENTRY_LIF((mword*)car(this_bvm->dstack_ptr)));
+    bfree(car(this_bvm->dstack_ptr));
+    bfree(this_bvm->dstack_ptr);
 
 }
 
@@ -174,7 +174,7 @@ bvm_cache *sel(bvm_cache *this_bvm){
 
     // stack_ptr -> A -> B -> C -> D
     // B->D
-//    mword *temp = (mword*)cdr(this_bvm->stack_ptr);
+//    mword *temp = (mword*)cdr(this_bvm->dstack_ptr);
 //    cdr(temp) = cdr(cdr(temp));
 
     if(!is_false(select)){
@@ -215,7 +215,7 @@ bvm_cache *dup(bvm_cache *this_bvm){
 //    }
 
     fatal("stack fix not done");
-    if(is_nil(this_bvm->stack_ptr))
+    if(is_nil(this_bvm->dstack_ptr))
         return this_bvm;
 
     mword *result = TOS_0(this_bvm); //XXX: Note we do NOT use get_from_stack()
@@ -240,20 +240,20 @@ bvm_cache *swap(bvm_cache *this_bvm){
     // stack must have two items on it - depth() could be used here, 
     // but we don't need to take the length of the stack; this is faster:
     if( 
-        is_nil(this_bvm->stack_ptr)
+        is_nil(this_bvm->dstack_ptr)
             ||
-        is_nil(scdr(this_bvm->stack_ptr))
+        is_nil(scdr(this_bvm->dstack_ptr))
     ){
         return;
     }
 
-    mword *A = this_bvm->stack_ptr;
-    mword *B = (mword*)cdr(this_bvm->stack_ptr);
+    mword *A = this_bvm->dstack_ptr;
+    mword *B = (mword*)cdr(this_bvm->dstack_ptr);
     mword *C = (mword*)scdr(B);
 
-    this_bvm->stack_ptr = B;
-    (mword*)cdr(B) = A;
-    (mword*)cdr(A) = C;
+    this_bvm->dstack_ptr = B;
+    (mword*)icdr(B) = A;
+    (mword*)icdr(A) = C;
 
     return this_bvm;
 
@@ -264,7 +264,7 @@ bvm_cache *swap(bvm_cache *this_bvm){
 bvm_cache *down(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
-    if(is_nil(this_bvm->stack_ptr))
+    if(is_nil(this_bvm->dstack_ptr))
         return this_bvm;
 
     push_alloc_ustack(this_bvm, TOS_0(this_bvm), DOWN);
@@ -288,7 +288,7 @@ bvm_cache *up(bvm_cache *this_bvm){
         push_alloc(this_bvm,(mword*)car(pop_ustack(this_bvm)),IMMORTAL); //FIXME: Revisit
     }
 //    else if(return_type(this_bvm->rstack_ptr) == NEST){
-////        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+////        this_bvm->dstack_ptr = (mword*)car(pop_rstack(this_bvm));
 //
 //        // XXX fairly yucky code:
 //        temp = new_atom;
@@ -300,7 +300,7 @@ bvm_cache *up(bvm_cache *this_bvm){
 //
 //        temp = (mword*)TOS_0(this_bvm);
 //
-//        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+//        this_bvm->dstack_ptr = (mword*)car(pop_rstack(this_bvm));
 //        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
 //
 //    }
@@ -327,7 +327,7 @@ bvm_cache *take(bvm_cache *this_bvm){
     int i;
 
     if(count == -1){
-        while(!is_nil(this_bvm->stack_ptr)){
+        while(!is_nil(this_bvm->dstack_ptr)){
             list_entry = TOS_0(this_bvm);
             temp = new_cons;
             cons(   temp,
@@ -365,7 +365,7 @@ bvm_cache *take(bvm_cache *this_bvm){
 //        return nil;
 //
 //    mword *A = new_cons;
-//    mword *B = (mword*)car(car(this_bvm->stack_ptr));
+//    mword *B = (mword*)car(car(this_bvm->dstack_ptr));
 //
 //    hard_zap(this_bvm);
 //
@@ -383,7 +383,7 @@ bvm_cache *depth(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
     mword *result = new_atom;
-    *result = _len((mword*)this_bvm->stack_ptr);
+    *result = _len((mword*)this_bvm->dstack_ptr);
 
     push_alloc(this_bvm, result, MORTAL);
 
@@ -427,7 +427,7 @@ bvm_cache *clear(bvm_cache *this_bvm){
 //    }
 
     fatal("stack fix not done");
-    this_bvm->stack_ptr  = nil;
+    this_bvm->dstack_ptr  = nil;
     this_bvm->ustack_ptr = nil;
 
     return this_bvm;
@@ -440,11 +440,11 @@ bvm_cache *clear(bvm_cache *this_bvm){
 //    mword *new_stack = (mword*)TOS_0(this_bvm);
 //
 //    hard_zap(this_bvm);
-//    push_alloc_rstack(this_bvm, (mword*)this_bvm->stack_ptr, NEST);
+//    push_alloc_rstack(this_bvm, (mword*)this_bvm->dstack_ptr, NEST);
 //
 ////    clear(this_bvm);
 //
-//    this_bvm->stack_ptr = nil; // clear the stack
+//    this_bvm->dstack_ptr = nil; // clear the stack
 //
 ////    rgive(this_bvm, new_stack);
 //
@@ -463,7 +463,7 @@ bvm_cache *clear(bvm_cache *this_bvm){
 ////        push_alloc(this_bvm,(mword*)car(pop_ustack(this_bvm)),IMMORTAL); //FIXME: Revisit
 ////    }
 //    if(return_type(this_bvm->rstack_ptr) == NEST){
-////        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+////        this_bvm->dstack_ptr = (mword*)car(pop_rstack(this_bvm));
 //
 //        // XXX fairly yucky code:
 ////        temp = new_atom;
@@ -475,7 +475,7 @@ bvm_cache *clear(bvm_cache *this_bvm){
 //
 //        temp = (mword*)TOS_0(this_bvm);
 //
-//        this_bvm->stack_ptr = (mword*)car(pop_rstack(this_bvm));
+//        this_bvm->dstack_ptr = (mword*)car(pop_rstack(this_bvm));
 //        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
 //
 //    }
@@ -493,8 +493,8 @@ bvm_cache *clear(bvm_cache *this_bvm){
 bvm_cache *flip(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
-    mword *temp          = this_bvm->stack_ptr;
-    this_bvm->stack_ptr  = this_bvm->ustack_ptr;
+    mword *temp          = this_bvm->dstack_ptr;
+    this_bvm->dstack_ptr  = this_bvm->ustack_ptr;
     this_bvm->ustack_ptr = temp;
 
     return this_bvm;

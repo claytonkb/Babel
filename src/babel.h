@@ -15,27 +15,30 @@
 
 // TYPEDEFS
 typedef void(*std_fn_ptr)(void);
-typedef unsigned mword;
+
+typedef unsigned mword; // mword#
 typedef signed   smword;
 
 typedef struct {
-    mword *self;
+
     mword *code_ptr;
-    mword *stack_ptr;
-    mword *ustack_ptr;
     mword *rstack_ptr;
+
+    mword *dstack_ptr;
+    mword *ustack_ptr;
+
     mword *jump_table;
     mword *sym_table;
+    mword *self;
+
     mword *thread_id;
     mword *argv;
     mword *steps;
     mword *advance_type;
+
 } bvm_cache;
 
-typedef bvm_cache *(*babel_op)(bvm_cache *);
-
-mword *nil;
-mword *empty_string;
+typedef bvm_cache *(*babel_op)(bvm_cache *); // bvm_cache#
 
 //bvm_cache *interp_init(int argc, char **argv);
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
@@ -51,6 +54,9 @@ void init_tags(void);
 #define LITTLE_ENDIAN 1
 
 // GLOBALS
+mword *nil; // nil#
+mword *empty_string;
+
 //mword*      internal_global_VM; //Interpreter-visible machine pointer
 //mword*      global_VM;          //Machine pointer
 ////mword       global_machine_page_size;
@@ -58,20 +64,21 @@ void init_tags(void);
 //int         exception_type;
 
 // CONSTANTS
-#define MWORD_SIZE sizeof(mword)
-#define MWORD_BIT_SIZE (MWORD_SIZE << 3)
-#define MWORDS(x) ((x)*MWORD_SIZE)
+#define MWORD_SIZE sizeof(mword) // MWORD_SIZE#
+#define MWORD_BIT_SIZE (MWORD_SIZE << 3) // MWORD_BIT_SIZE#
+#define MWORDS(x) ((x)*MWORD_SIZE) // MWORDS#
 
 // The control field consists of the LSBs of the s-field
 // The LSB of the s-field is currently defined for use in 
 // bstruct-traversal
-#define CTL_MASK (MWORD_SIZE-1)
 
-#define STRLEN(s) (sizeof(s)-1)
-#define C2B(x)    (_c2b(x, STRLEN(x)))
 
-#define HASH_BIT_SIZE 128
-#define HASH_SIZE (HASH_BIT_SIZE/MWORD_BIT_SIZE)
+#define CTL_MASK (MWORD_SIZE-1) // CTL_MASK#
+#define STRLEN(s) (sizeof(s)-1) // STRLEN#
+#define C2B(x)    (_c2b(x, STRLEN(x))) // C2B#
+
+#define HASH_BIT_SIZE 128 // HASH_BIT_SIZE#
+#define HASH_SIZE (HASH_BIT_SIZE/MWORD_BIT_SIZE) // HASH_SIZE#
 
 // IA32 uses 4k pages and multiples...
 #define ALLOC_PAGE_SIZE 4096
@@ -93,68 +100,86 @@ void init_tags(void);
 #define LOG_MWORD_SIZE 2
 
 // UTILITIES
-#define s(x)          (*((mword*)x-1))
-#define is_leaf(x)    ((int)s((mword*)x) >  0)
-#define is_inte(x)    ((int)s((mword*)x) <  0)
-#define is_tlist(x)   ((int)s((mword*)x) == 0)
+#define s(x)          (*((mword*)x-1)) // s#
 
-#define is_conslike(x) (is_inte(x) && size(x) == 2)
+#define is_leaf(x)    ((int)s((mword*)x) >  0) // is_leaf#
+#define is_inte(x)    ((int)s((mword*)x) <  0) // is_inte#
+#define is_tlist(x)   ((int)s((mword*)x) == 0) // is_tlist#
 
-//#define is_href(x)   ((int)s((mword*)x) == 0)
+#define is_conslike(x) (is_inte(x) && size(x) == 2) // is_conslike#
 
-//#define size(x)      (is_href(x)?HASH_SIZE:(abs(s(x))/MWORD_SIZE))
-#define size(x)      (abs(s(x))/MWORD_SIZE)
-#define c(x,y)       (*(y + x))
+#define size(x)      (abs(s(x))/MWORD_SIZE) // size#
+#define c(x,y)       (*((mword*)x + y)) // c#
 
-//#define is_nil(x)   ( is_href(x) ? (memcmp((x), nil, HASH_SIZE) == 0) : 0 )
-//#define is_nil(x)   ( (mword)(x) == (mword)nil )
-
-#define tagcmp(x,y) ( (is_tlist(x) || (size(x) >= HASH_SIZE)) ? (memcmp(x, y, HASH_SIZE*MWORD_SIZE)) : -1 )
-#define is_nil(x) ( tagcmp(x,nil) == 0 )
+#define tagcmp(x,y) ( (is_tlist(x) || (size(x) >= HASH_SIZE)) ? (memcmp((mword*)x, y, HASH_SIZE*MWORD_SIZE)) : -1 ) // tagcmp#
+#define is_nil(x) ( tagcmp(x,nil) == 0 ) // is_nil#
 
 // XXX UNSAFE; use this only where we know for sure we have a tlist...
-#define is_nil_fast(x) ( (memcmp(x, nil, HASH_SIZE*MWORD_SIZE)) == 0 )
+#define is_nil_fast(x) ( (memcmp(x, nil, HASH_SIZE*MWORD_SIZE)) == 0 ) // is_nil_fast#
 
-//const mword *temp = { 0x57f6f4a0, 0x2c7f7366, 0x4888046e, 0x74b75e8f };
+// XXX UNSAFE; use this only where we know for sure we are 
+// working with interprer-allocated mem (fastest is_nil)
+#define is_nil_interp(x) ( (mword*)x == nil ) // is_nil_interp#
 
 #include "tags.h"
 
-#define is_bvm(x) ( tagcmp((x),BABEL_TAG_BVM) == 0 )
-#define is_ref(x) ( tagcmp((x),BABEL_TAG_REF) == 0 )
+#define is_bvm(x) ( tagcmp((x),BABEL_TAG_BVM) == 0 ) // is_bvm#
+#define is_ref(x) ( tagcmp((x),BABEL_TAG_REF) == 0 ) // is_ref#
 
-#define is_false(x) (    is_leaf(x) && car(x) == 0 \
-                     || !is_leaf(x) && is_nil(scar(x)) )
+//#define car(x)      c((mword*)(x),0) // car#
+//#define cdr(x)      c((mword*)(x),1) // cdr#
+//
+//#define _tcar(x)     c((mword*)x,HASH_SIZE+1) // _tcar#
+//#define _tcdr(x)     c((mword*)x,HASH_SIZE+2) // _tcdr#
+//
+////tlist-safe car/cdr:
+//#define tcar(x)     (is_tlist(x) ? _tcar(x) : car(x)) // tcar#
+//#define tcdr(x)     (is_tlist(x) ? _tcdr(x) : cdr(x)) // tcdr#
+//
+////nil-safe car/cdr:
+#define scar(x)     (is_nil(x) ? nil : car(x)) // scar#
+#define scdr(x)     (is_nil(x) ? nil : cdr(x)) // scdr#
 
-#define car(x)      c((mword*)(x),0)
-#define cdr(x)      c((mword*)(x),1)
 
-#define ttag(x,y)   c((mword*)x,y)
+//car/cdr rework:
+//internal car/cdr (not list-safe or tlist-safe):
+#define icar(x)     c((mword*)(x),0)
+#define icdr(x)     c((mword*)(x),1)
 
-#define _tcar(x)     c((mword*)x,HASH_SIZE+1)
-#define _tcdr(x)     c((mword*)x,HASH_SIZE+2)
+//tlist-safe car/cdr:
+#define tcar(x)     c((mword*)x,HASH_SIZE+1)
+#define tcdr(x)     c((mword*)x,HASH_SIZE+2)
 
-#define tcar(x)     (is_tlist(x) ? _tcar(x) : car(x))
-#define tcdr(x)     (is_tlist(x) ? _tcdr(x) : cdr(x))
+//list-safe car/cdr (not tlist safe):
+#define lcar(x)     (is_nil(x) ? nil : icar(x))
+#define lcdr(x)     (is_nil(x) ? nil : icdr(x))
 
-//nil-safe car/cdr:
-#define scar(x)     (is_nil(x) ? nil : car(x))
-#define scdr(x)     (is_nil(x) ? nil : cdr(x))
+//General-purpose car/cdr:
+#define car(x)     (is_tlist(x) ? tcar(x) : icar(x))
+#define cdr(x)     (is_tlist(x) ? tcdr(x) : icdr(x))
 
-#define cons(a,b,c) car(a) = (mword)(b); cdr(a) = (mword)(c);
+// is_false#
+#define is_false(x) (    is_leaf(x) && icar(x) == 0 \
+                     ||  is_nil(car(x)) )
+//                     || !is_leaf(x) && is_nil(car(x)) )
 
-#define new_cons (_newin(2))
-#define new_atom (_newlf(1))
+
+// non-allocating cons
+#define cons(a,b,c) icar(a) = (mword)(b); icdr(a) = (mword)(c); // cons#
+
+#define new_cons (_newin(2)) // new_cons#
+#define new_atom (_newlfi(1,0)) // new_atom#
 
 // Stack
-//#define TOS_0(x)             car(car(x->stack_ptr))
-//#define TOS_1(x)         car(car(cdr(x->stack_ptr)))
-//#define TOS_2(x)     car(car(cdr(cdr(x->stack_ptr))))
+//#define TOS_0(x)             car(car(x->dstack_ptr))
+//#define TOS_1(x)         car(car(cdr(x->dstack_ptr)))
+//#define TOS_2(x)     car(car(cdr(cdr(x->dstack_ptr))))
 
-#define TOS_0(x)             (mword*)car(car(car(x->stack_ptr)))
-#define TOS_1(x)         (mword*)car(car(car(cdr(x->stack_ptr))))
-#define TOS_2(x)     (mword*)car(car(car(cdr(cdr(x->stack_ptr)))))
+#define TOS_0(x)             (mword*)icar(icar(icar(x->dstack_ptr)))
+#define TOS_1(x)         (mword*)icar(icar(icar(icdr(x->dstack_ptr))))
+#define TOS_2(x)     (mword*)icar(icar(icar(icdr(icdr(x->dstack_ptr)))))
 
-#define RTOS_0(x)            car(car(x->rstack_ptr))
+#define RTOS_0(x)            icar(icar(x->rstack_ptr))
 
 #define STACK_ENTRY_SIZE 2
 
@@ -189,13 +214,14 @@ void init_tags(void);
 // DEBUG
 #define DIE_CODE 1
 #define QUOTEME(x) #x
-#define d(x) printf("%s %08x\n", QUOTEME(x), x);
-#define _dump(x) printf("%s\n", _bs2gv(x));
-#define die  fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);
-#define warn(x) fprintf(stderr, "WARNING: %s at %s line %d\n", x, __FILE__, __LINE__);
-#define error(x) fprintf(stderr, "ERROR: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__);
-#define trace fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);
-#define fatal(x) fprintf(stderr, "ERROR: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); die;
+#define d(x) printf("%s %08x\n", QUOTEME(x), x);  // d#
+#define _dump(x) printf("%s\n", _bs2gv(x));  // _dump#
+#define die      fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);  // die#
+#define warn(x)  fprintf(stderr, "WARNING: %s at %s line %d\n", x, __FILE__, __LINE__);  // warn#
+#define error(x) fprintf(stderr, "ERROR: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // error#
+#define trace    fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);   // trace#
+#define fatal(x) fprintf(stderr, "ERROR: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); die;  // fatal#
+#define enhance(x) fprintf(stderr, "ENHANCEMENT: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // enhance#
 
 #endif //BABEL_H
 

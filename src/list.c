@@ -72,6 +72,7 @@ bvm_cache *consls(bvm_cache *this_bvm){
 }
 
 //
+//
 mword *_consls(mword *car_field, mword *cdr_field){
 
     mword *temp_cons = new_cons;
@@ -81,6 +82,21 @@ mword *_consls(mword *car_field, mword *cdr_field){
     return temp_cons;
 
 }
+
+
+// Allocating cons
+//
+mword *consa(mword *car_field, mword *cdr_field){ // consa#
+
+    mword *temp_cons = new_cons;
+
+    cons(temp_cons, car_field, cdr_field);
+
+    return temp_cons;
+
+}
+
+
 
 //
 // babel_operator
@@ -371,7 +387,7 @@ mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr){
 
     mword *temp = (mword*)cdr(list);
 
-    (mword*)cdr(list) = new_cdr;
+    (mword*)icdr(list) = new_cdr;
 
     if(is_nil(temp))
         return list;

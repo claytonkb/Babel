@@ -19,117 +19,32 @@
 #include "tlist.h"
 #include "list.h"
 #include <stdarg.h>
-
-//mword btag_nil              [HASH_SIZE] = BABEL_TAG_NIL;
-//mword btag_hash_table       [HASH_SIZE] = BABEL_TAG_HASH_TABLE;
-//mword btag_hash_table_entry [HASH_SIZE] = BABEL_TAG_HASH_TABLE_ENTRY;
-//mword btag_hash_bvm         [HASH_SIZE] = BABEL_TAG_BVM;
-//mword btag_hash_ref         [HASH_SIZE] = BABEL_TAG_REF;
-//mword btag_hash_pure_ref    [HASH_SIZE] = BABEL_TAG_PURE_REF;
+#include "ref.h"
 
 //main
 //
 int main(int argc, char **argv){
 
-    #include "construct.sp.c"
-
-    pearson16_init();    //Babel hash-function init
-    init_nil();
-
-//    printf("%d\n", is_nil(nil));
-//    printf("%d\n", is_inte(nil));
-//    printf("%d\n", is_leaf(nil));
-//    printf("%d\n", is_tlist(nil));
-//    printf("%x\n", (mword)scar(nil));
-//    printf("%x\n", (mword)scdr(nil));
-//    printf("%x\n", tcar(nil));
-//    printf("%x\n", tcdr(nil));
-//    printf("%x\n", s(nil));
-//    printf("%x", ttag(nil,3));
-//    printf("%x", ttag(nil,2));
-//    printf("%x", ttag(nil,1));
-//    printf("%x\n", ttag(nil,0)); //FIXME: Returning 0
-
-//    printf("%d\n", sizeof(bbl));
-//    die;
-
-    mword *loaded_bbl = _load((mword*)bbl,BBL_SIZE);
-    fprintf(stderr, "%08x\n",c((mword*)bvm_code_ptr(loaded_bbl),0));
-//    fprintf(stderr, "%d\n", is_bvm(loaded_bbl));
-    _dump(loaded_bbl);
-
-//    fprintf(stderr, "%x\n", eqtag(loaded_bbl, btag_hash_table_entry));
-
-//    loaded_bbl = _new_tlist(_hash8(C2B("/babel/tag/hash_table")), _consls(nil, nil));
-
-//    mword *hash_table = _new_hash_table();
-
-//    _insha(     hash_table, 
-//                nil, 
-//                C2B("foo"), 
-//                _new_hash_table_entry(  nil, 
-//                                        C2B("foo"), 
-//                                        nil ) );
+//    #include "construct.sp.c"
 //
-//    _insha(     hash_table, 
-//                nil, 
-//                C2B("bar"), 
-//                _new_hash_table_entry(  nil, 
-//                                        C2B("bar"), 
-//                                        nil ) );
+//    pearson16_init();    //Babel hash-function init
+//    init_nil();
 //
-//    _insha(     hash_table, 
-//                nil, 
-//                C2B("baz"), 
-//                _new_hash_table_entry(  nil, 
-//                                        C2B("baz"),
-//                                        nil ) );
-
-//    hash_insert(hash_table, "foo", nil);
-//    hash_insert(hash_table, "bar", nil);
-//    hash_insert(hash_table, "baz", nil);
+//    mword *loaded_bbl = _load((mword*)bbl,BBL_SIZE);
 //
-//    _dump(hash_table);
-
-//    fprintf(stderr, "%d\n", _mu(loaded_bbl));
-//    fprintf(stderr, "%d\n", _nlf(loaded_bbl));
-//    fprintf(stderr, "%d\n", _nin(loaded_bbl));
-//    fprintf(stderr, "%d\n", _ntls(loaded_bbl));
-//    fprintf(stderr, "%d\n", _nva(loaded_bbl));
-//    fprintf(stderr, "%d\n", _nptr(loaded_bbl));
-
-//    _lst(loaded_bbl);
-//    loaded_bbl = _unload(loaded_bbl);
-//    loaded_bbl = _load(loaded_bbl,size(loaded_bbl));
-
-//    loaded_bbl = _cp(loaded_bbl);
-
-//    int i;
-//    for(i=0;i<size(loaded_bbl);i++){
-//        printf("%04x %08x\n", i * MWORD_SIZE, c(loaded_bbl,i));
-//    }
-
+//    //loaded_bbl = _deref((mword*)car(cdr(bvm_code_ptr(loaded_bbl))), (mword*)car(bvm_code_ptr(loaded_bbl)));
+//
 //    _dump(loaded_bbl);
 
+    bvm_cache root_bvm;
 
-//    printf("%x\n", s(loaded_bbl));
-//    printf("%x\n", (mword)*loaded_bbl);
-//    printf("%x\n", c(loaded_bbl,0));
+    interp_init(&root_bvm, argc, argv);
 
-    //temp_rbs2gv(loaded_bbl);
-//    printf("Hello, world\n");
+    //mword *hash_table = new_hash_table();
+    //_dump(hash_table);
 
-//    char * pPath;
-//    pPath = getenv ("PATH");
-//    if (pPath!=NULL)
-//      printf ("The current path is: %s",pPath);
-//    die;
-
-//    bvm_cache root_bvm;
-
-//    bvm_interp( interp_init(&root_bvm, argc, argv) );
-
-//    printf("%s\n",_bs2gv(root_bvm.stack_ptr));
+    //hash_insert( root_bvm.sym_table, "foo", nil );
+    _dump(root_bvm.sym_table);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.
@@ -165,105 +80,111 @@ void init_nil(void){
 
 }
 
-//interp_init()
+
 //  Initializes the root Babel Virtual Machine (BVM)
 //
-bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){
+bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){ // interp_init#
 //bvm_cache *interp_init(int argc, char **argv){
 
-//    #include "construct.sp.c"
+    #include "construct.sp.c"
 
-//    pearson16_init();    //Babel hash-function init
-//
-//    time_t rawtime;
-//    char time_string[30];
-//    time( &rawtime );    
-//    strcpy( time_string, ctime(&rawtime) );
-//    mword *time_string_key = _c2b(time_string, 30);
-//
-////    bvm_cache root_bvm;
-//
-//    // FIXME: strcpy and strlen... get rid
-//    // This needs to be enhanced to look in the hidden section for a 
-//    // pre-defined seed, it should also save the value it used in the
-//    // hidden section
-//    mword *time_hash = new_hash();
-//    mword *hash_init = new_hash();
-//    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
-//    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
-//
-//    //initialize nil (global constant)
+    pearson16_init();    //Babel hash-function init
+
+    time_t rawtime;
+    char time_string[30];
+    time( &rawtime );    
+    strcpy( time_string, ctime(&rawtime) );
+    mword *time_string_key = _c2b(time_string, 30);
+
+//    bvm_cache root_bvm;
+
+    // FIXME: strcpy and strlen... get rid
+    // This needs to be enhanced to look in the hidden section for a 
+    // pre-defined seed, it should also save the value it used in the
+    // hidden section
+    mword *time_hash = new_hash();
+    mword *hash_init = new_hash();
+    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
+    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
+
+    //initialize nil (global constant)
+    init_nil();
+    
 //    mword *hash_init  = new_hash();
 //    mword *nil_string = C2B("nil");
 //    nil               = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
 //    nil               = _newref(nil);
-//
-//    //initialize empty_string (global constant)
-//    empty_string = _newlfz(1);
-//
+
+    //initialize empty_string (global constant)
+    empty_string = _newlfi(1,0);
+
 //    root_bvm->self = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
-//
-//    load_bvm_cache(root_bvm);
-//
-//    //Override TID
-//    car(root_bvm->thread_id)     = ROOT_INTERP_THREAD;
-//
-//    init_interp_jump_table(root_bvm);
-//
-//    //initialize argv
-//    //XXX This will change when we add CLI processing:
-//    #define NUM_BABEL_INTERP_ARGS 1 
-//    if(argc <= NUM_BABEL_INTERP_ARGS){
-//        root_bvm->argv = nil;
-//    }
-//    else{
-//
-//        root_bvm->argv = _newin(argc-NUM_BABEL_INTERP_ARGS);
-//
-//        //Note: Each argument can be up to 64KB in size... this is unreasonably large
-//        //but could never reasonably become a design limitation in the future yet it is
-//        //still finite to protect against overflow attacks
-//        #define MAX_ARG_SIZE (1<<16)
-//        int i;
-//        for( i = NUM_BABEL_INTERP_ARGS; i < argc; i++ ){
-//            (mword*)c((mword*)root_bvm->argv, i-NUM_BABEL_INTERP_ARGS)
-//                = _c2b(argv[i], 100);
-//        }
-//    }
-//
-//    return root_bvm;
-//
-//    //TODO
-//    //- Check stdin
-//    //    - if non-empty:
-//    //        read and place lines on stack
-//    //        unless user uses a switch to say "don't do this"
-//    //    - If empty, check command-line
-//    //        perform CLI auto-parse:
-//    //            TOS contains a list of all default arguments - if no default
-//    //            arguments, nil
-//    //            TOS-1 contains a hash with each CLI parameter and the 
-//    //            argument following it, if any. Can handle --switch,
-//    //            -switch=1, etc. Can't handle flags but those can be 
-//    //            decoded by hand.
-//    //        unless user uses a switch to say "don't do this"
-//
-//    //TODO: Configure root BVM resource limits (hidden)
-//
-//    //    time_t rawtime;
-//    //    char time_string[30];
-//    //    time( &rawtime );    
-//    //    strcpy( time_string, ctime(&rawtime) );
-//    //    mword *time_string_key = _c2b(time_string, 30);
-//    //
-//    //    // FIXME: strcpy and strlen... get rid
-//    //    // This needs to be enhanced to look in the hidden section for a 
-//    //    // pre-defined seed, it should also save the value it used in the
-//    //    // hidden section
-//    //    mword *time_hash = new_hash();
-//    //    mword *hash_init = new_hash();
-//    //    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
-//    //    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
+    root_bvm->self = _load((mword*)bbl,BBL_SIZE);
+
+    load_bvm_cache(root_bvm);
+
+    //Override TID
+    //icar(root_bvm->thread_id)     = ROOT_INTERP_THREAD;
+
+    //init_interp_jump_table(root_bvm);
+
+    //initialize argv
+    //XXX This will change when we add CLI processing:
+    #define NUM_BABEL_INTERP_ARGS 1 
+    if(argc <= NUM_BABEL_INTERP_ARGS){
+        root_bvm->argv = nil;
+    }
+    else{
+
+        root_bvm->argv = _newin(argc-NUM_BABEL_INTERP_ARGS);
+
+        //Note: Each argument can be up to 64KB in size... this is unreasonably large
+        //but could never reasonably become a design limitation in the future yet it is
+        //still finite to protect against overflow attacks
+        #define MAX_ARG_SIZE (1<<16)
+        int i;
+        for( i = NUM_BABEL_INTERP_ARGS; i < argc; i++ ){
+            (mword*)c((mword*)root_bvm->argv, i-NUM_BABEL_INTERP_ARGS)
+                = _c2b(argv[i], 100);
+        }
+
+    }
+
+    hash_insert( root_bvm->sym_table, "/babel/tag/argv", root_bvm->argv );
+
+    return root_bvm;
+
+    //TODO
+    //- Check stdin
+    //    - if non-empty:
+    //        read and place lines on stack
+    //        unless user uses a switch to say "don't do this"
+    //    - If empty, check command-line
+    //        perform CLI auto-parse:
+    //            TOS contains a list of all default arguments - if no default
+    //            arguments, nil
+    //            TOS-1 contains a hash with each CLI parameter and the 
+    //            argument following it, if any. Can handle --switch,
+    //            -switch=1, etc. Can't handle flags but those can be 
+    //            decoded by hand.
+    //        unless user uses a switch to say "don't do this"
+
+    //TODO: Configure root BVM resource limits (hidden)
+
+    //    time_t rawtime;
+    //    char time_string[30];
+    //    time( &rawtime );    
+    //    strcpy( time_string, ctime(&rawtime) );
+    //    mword *time_string_key = _c2b(time_string, 30);
+    //
+    //    // FIXME: strcpy and strlen... get rid
+    //    // This needs to be enhanced to look in the hidden section for a 
+    //    // pre-defined seed, it should also save the value it used in the
+    //    // hidden section
+    //    mword *time_hash = new_hash();
+    //    mword *hash_init = new_hash();
+    //    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
+    //    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
 }
 
@@ -307,6 +228,7 @@ bvm_cache *endian(bvm_cache *this_bvm){
     return this_bvm;
 
 }
+
 
 // Clayton Bauman 2011
 

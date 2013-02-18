@@ -3,37 +3,57 @@
 
 #include "ref.h"
 #include "array.h"
+#include "bstruct.h"
 
-// _deref
+
 // Dereferences a reference-list
 //
-mword *_deref(mword *bs, mword *ref_list){
+mword *_deref(mword *bs, mword *ref_list){ // _deref#
 
-    if (is_nil(ref_list)) return bs;
-
-    if (is_tlist(bs) || is_leaf(bs)){
-        die;
-    }
-    else{
-        return _deref(_ref_cxr(bs,(mword)tcar(tcar(ref_list))),(mword*)cdr(ref_list));
-    }
+//    return rderef(bs,(mword*)tcar(ref_list));
+    return rderef(bs,(mword*)car(ref_list));
 
 }
 
+
 //
-mword *_ref_cxr(mword *array, mword offset){
+//
+static mword *rderef(mword *bs, mword *ref_list){ // rderef#
 
-    mword *temp;
+    mword *rl = (mword*)car(ref_list);
 
-    if(is_leaf(array)){
-        temp = new_atom;
-        c(temp,0) = c(array, offset);
+    if (is_nil(ref_list)){
+        return bs;
     }
-    else{
-        temp = (mword*)c(array, offset);
+    else if (is_ref(rl)){
+        enhance("Nested references not supported");
+        die;
+    }
+    else if (is_tlist(rl)){
+        enhance("Hash references not supported");
+        die;
+    }
+    else if(is_leaf(rl)){
+        if(is_leaf(bs)){
+            return val(bs,car(rl));
+        }
+        else if(is_tlist(bs)){
+            if(car(rl)){
+                bs = (mword*)tcar(bs);
+            }
+            else{
+                bs = (mword*)tcdr(bs);
+            }
+        }
+        else{
+            bs = (mword*)c(bs,car(rl) % size(bs));
+        }
+    }
+    else{ // is_inte(rl)
+        fatal("Bad reference");
     }
 
-    return temp;
+    return rderef(bs,(mword*)cdr(ref_list));
 
 }
 
