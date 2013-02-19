@@ -44,7 +44,8 @@ int main(int argc, char **argv){
     //_dump(hash_table);
 
     //hash_insert( root_bvm.sym_table, "foo", nil );
-    _dump(root_bvm.sym_table);
+
+    _dump(root_bvm.self);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.
@@ -150,7 +151,13 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){ // interp_in
 
     }
 
-    hash_insert( root_bvm->sym_table, "/babel/tag/argv", root_bvm->argv );
+    root_bvm->steps = new_atom;
+    c(root_bvm->steps,0) = (mword)-1;
+
+    hash_insert( root_bvm->sym_table, "argv",  root_bvm->argv );
+    hash_insert( root_bvm->sym_table, "srand", time_hash );
+    hash_insert( root_bvm->sym_table, "steps", root_bvm->steps );
+    hash_insert( root_bvm->sym_table, "soft_root", nil );
 
     return root_bvm;
 

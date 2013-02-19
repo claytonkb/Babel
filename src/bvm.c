@@ -465,13 +465,13 @@ bvm_cache *load_bvm_cache(bvm_cache *this_bvm){ // load_bvm_cache#
 
     this_bvm->code_ptr      = (mword*)bvm_code_ptr(self);
     this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(self);
-    this_bvm->dstack_ptr     = (mword*)bvm_dstack_ptr(self);
+    this_bvm->dstack_ptr    = (mword*)bvm_dstack_ptr(self);
     this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(self);
     this_bvm->jump_table    = (mword*)bvm_jump_table(self);
     this_bvm->sym_table     = (mword*)bvm_sym_table(self);
 //    this_bvm->thread_id     = (mword*)c(self,6);
 //    this_bvm->argv          = (mword*)c(self,7);
-//    this_bvm->steps         = (mword*)c(self,8);
+//    this_bvm->steps         = (mword)-1;
 //    this_bvm->advance_type  = (mword*)c(self,9);
 
     return this_bvm;
