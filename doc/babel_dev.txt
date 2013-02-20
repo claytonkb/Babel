@@ -1,6 +1,41 @@
 Babel dev
 
-This document is basically just a todo-list.
+This document is a todo-list.
+
+- Get jump_table working again
+
+- Fix TOS/RTOS/etc.
+
+- Implement (ref ...)
+
+- Implement (code ...)
+
+- exha/luha/rmha/etc.
+
+- List dev
+    - append/part/reverse 
+    - transpose/cart/perm
+    - sort/filter/uniq
+        review quick-sort (remember heaps)
+        filter is a lot like while
+        uniq should be easy
+
+- cond
+
+- move
+
+- Implement let
+
+- Basic "text match" operators
+    seq
+    alt
+
+- Nested text blocks
+
+- command-line argument processing in rt.pb
+    Allow switch-select debug mode
+
+- Namespaces...
 
 #- Fix load()
 #    Currently, load does an "in-place" load. Implement an algo based on 
@@ -26,36 +61,25 @@ This document is basically just a todo-list.
 #- rstack re-write
 #    - Each rstack operator needs to perform a SINGLE push/pop
 #      and store all its state in a list
-    - Still buggy
+#    - Still buggy
 
 #- nth/ith
 #    Rename cxr
 #    Implement for lists
 
-- List dev
-    - append/part/reverse 
-    - transpose/cart/perm
-    - sort/filter/uniq
-        review quick-sort (remember heaps)
-        filter is a lot like while
-        uniq should be easy
-
-- cond
-
-- move
 
 #- retool _*ha to tree_*ha for internal use of hash operators.
-    - done except for keysha
-- keysha has a bug... causes "Can't spawn.." error whenever it is used
-even though it succeeds... probably some kind of out-of-bounds array
-access
-
-- paste has some weird bug... try pasting, then doing keysha from the
-  pasted copy... doesn't work right
-    - wrcar/wrcdr/wrcxr (get rid of paste-as-such)
-
-- cheat off bvm.pb to implement a quick-and-dirty hash-based BVM with 
-proto_babel.pl
+#    - done except for keysha
+#- keysha has a bug... causes "Can't spawn.." error whenever it is used
+#even though it succeeds... probably some kind of out-of-bounds array
+#access
+#
+#- paste has some weird bug... try pasting, then doing keysha from the
+#  pasted copy... doesn't work right
+#    - wrcar/wrcdr/wrcxr (get rid of paste-as-such)
+#
+#- cheat off bvm.pb to implement a quick-and-dirty hash-based BVM with 
+#proto_babel.pl
 
 #- create a separate progressive-hashing operator... phash/phash8 so we
 #don't have to type [{0 0 0 0}] every time to hash something
@@ -63,32 +87,30 @@ proto_babel.pl
 #- Implement each/loop/etc. in preparation for nested hashes
 #    - each is (hopefully) implemented
 #    - implement loop
-    - next/last have lots of bugs in them... probably need to implement
-        a case-specific behavior for these operators.
+#    - next/last have lots of bugs in them... probably need to implement
+#        a case-specific behavior for these operators.
 #    - implement for (eachar?)
 
 #- insha has a bug. See A/B/C.dot snapshots
 
-- Compress insha to special case of inskha
+#- Compress insha to special case of inskha
 
-- Major re-write: Change to hash-based BVM.
-    - We can keep the old byte-based code for a new data-structure called
-    a "filesystem" or fs, which will know how to read a data-structure out
-    of memory, off disk or a combination (implement caching).
-    - Re-write proto_babel.pl
+#- Major re-write: Change to hash-based BVM.
+#    - We can keep the old byte-based code for a new data-structure called
+#    a "filesystem" or fs, which will know how to read a data-structure out
+#    of memory, off disk or a combination (implement caching).
+#    - Re-write proto_babel.pl
 
-- Hash-ref work
-    - add hash-ref to bbl2gv (DONE)
-    - add hash-ref to bvm_interp (partially done)
-    - fix size() (DONE)
-    - get_TOS()
+#- Hash-ref work
+#    - add hash-ref to bbl2gv (DONE)
+#    - add hash-ref to bvm_interp (partially done)
+#    - fix size() (DONE)
+#    - get_TOS()
 
-- Fix cp of lists... nil doesn't copy correctly
-    - unload operator needs to be given a list of symbols to "recognize"
-    - load operator will have to be enhanced to handle more complex 
-    structures
-
-- Nested text blocks
+#- Fix cp of lists... nil doesn't copy correctly
+#    - unload operator needs to be given a list of symbols to "recognize"
+#    - load operator will have to be enhanced to handle more complex 
+#    structures
 
 #- Both nil and 0 should be treated as false for cond's, loops etc.
 #    [(1 2 3 4)]
@@ -97,41 +119,26 @@ proto_babel.pl
 #    while
 #In theory, should leave (2 3 4 5) on TOS
 
-- Fix zap()
-    Implement per-opcode destructor table
+#- Fix zap()
+#    Implement per-opcode destructor table
+#
+#- Implement _zap()
+#    This is an unconditional zap used by operators that re-arranged the 
+#    stack
 
-- Implement _zap()
-    This is an unconditional zap used by operators that re-arranged the 
-    stack
+#- Implement operand-checking wrappers
+#    Naming convention:
+#    foo()   -> non-operand-checking, stack operator
+#    _foo()  -> non-operand-checking, non-stack operator
+#    foo_()  -> operand-checking, stack operator
+#    _foo_() -> operand-checking, non-stack operator (?)
 
-- Implement stack-temporary mem allocation (see babel_guts.txt)
+#- Implement hidden section layout
 
-- Implement operand-checking wrappers
-    Naming convention:
-    foo()   -> non-operand-checking, stack operator
-    _foo()  -> non-operand-checking, non-stack operator
-    foo_()  -> operand-checking, stack operator
-    _foo_() -> operand-checking, non-stack operator (?)
+#- bvm_init rat's nest...
+#    - PRNG seed
+#    - Pearson init (should happen ONCE per INTERPRETER RESET)
+#    - argv
 
-- Implement hidden section layout
-
-- bvm_init rat's nest...
-    - PRNG seed
-    - Pearson init (should happen ONCE per INTERPRETER RESET)
-    - argv
-
-- Basic "text match" operators
-    seq
-    alt
-
-- command-line argument processing in rt.pb
-    Allow switch-select debug mode
-
-- Implement operator jump table
-
-- rmha
-    Cheat off unload/cp()?
-
-- Namespaces...
 
 

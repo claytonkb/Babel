@@ -127,8 +127,6 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){ // interp_in
     //Override TID
     //icar(root_bvm->thread_id)     = ROOT_INTERP_THREAD;
 
-    //init_interp_jump_table(root_bvm);
-
     //initialize argv
     //XXX This will change when we add CLI processing:
     #define NUM_BABEL_INTERP_ARGS 1 
@@ -158,6 +156,8 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){ // interp_in
     hash_insert( root_bvm->sym_table, "srand", time_hash );
     hash_insert( root_bvm->sym_table, "steps", root_bvm->steps );
     hash_insert( root_bvm->sym_table, "soft_root", nil );
+
+    //init_interp_jump_table(root_bvm);
 
     return root_bvm;
 
