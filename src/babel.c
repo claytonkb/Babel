@@ -40,12 +40,17 @@ int main(int argc, char **argv){
 
     interp_init(&root_bvm, argc, argv);
 
+    printf("Hello!\n");
+    bvm_interp(&root_bvm);
+
+    printf("Hello!\n"); //FIXME: We're not getting here!
+
     //mword *hash_table = new_hash_table();
     //_dump(hash_table);
 
     //hash_insert( root_bvm.sym_table, "foo", nil );
 
-    _dump(root_bvm.self);
+    //_dump(root_bvm.self);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.
@@ -157,7 +162,7 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){ // interp_in
     hash_insert( root_bvm->sym_table, "steps", root_bvm->steps );
     hash_insert( root_bvm->sym_table, "soft_root", nil );
 
-    //init_interp_jump_table(root_bvm);
+    init_interp_jump_table(root_bvm);
 
     return root_bvm;
 

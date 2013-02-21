@@ -284,9 +284,13 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
     bvm_cache *discard;
     babel_op op_ptr;
 
+//    printf("%08x", car(this_bvm->steps));
+//
+//    die;
+
     while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
 
-        if(is_nil((mword*)scar(this_bvm->code_ptr))){
+        if(is_nil((mword*)car(this_bvm->code_ptr))){
             if(!is_nil(this_bvm->rstack_ptr)){
                 next(this_bvm);
                 continue;
@@ -295,6 +299,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
         }
 
         if( is_inte(car(this_bvm->code_ptr)) ){
+            die;
 //            push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), IMMORTAL);
             push_alloc(this_bvm, (mword*)car(this_bvm->code_ptr), IMMORTAL);
         }
@@ -471,8 +476,8 @@ bvm_cache *load_bvm_cache(bvm_cache *this_bvm){ // load_bvm_cache#
     this_bvm->sym_table     = (mword*)bvm_sym_table(self);
 //    this_bvm->thread_id     = (mword*)c(self,6);
 //    this_bvm->argv          = (mword*)c(self,7);
-//    this_bvm->steps         = (mword)-1;
-//    this_bvm->advance_type  = (mword*)c(self,9);
+    this_bvm->steps         = _newlfi(1,-1);
+    this_bvm->advance_type  = _newlfi(1,0);
 
     return this_bvm;
 

@@ -678,8 +678,8 @@ bvm_cache *each(bvm_cache *this_bvm){
 }
 
 //
-// babel_operator
-bvm_cache *dieop(bvm_cache *this_bvm){
+//
+bvm_cache *dieop(bvm_cache *this_bvm){ // dieop#
     fprintf(stderr, "Died.\n");
     exit(0);
 }

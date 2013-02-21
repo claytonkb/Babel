@@ -3,7 +3,7 @@
 -- This is the code and symbmol-table for The Construct, the
 -- root virtual machine...
 
-(   (code   (val 0xdead))
+(   (code   (list 0x100))
 
     (symbol (list nil)))
 
