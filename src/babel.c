@@ -36,8 +36,9 @@ int main(int argc, char **argv){
 //
 
     bvm_cache root_bvm;
+    bvm_cache *this_bvm = &root_bvm;
 
-    interp_init(&root_bvm, argc, argv);
+    interp_init(this_bvm, argc, argv);
 
     //fprintf(stderr, "%d\n", _exha( (mword*)car(root_bvm.sym_table) , _hash8(C2B("foo"))));
 
@@ -52,9 +53,14 @@ int main(int argc, char **argv){
 
     //_push(root_bvm.dstack_ptr, _newva(0xbead));
 
-    flush_bvm_cache(&root_bvm);
+    pushd(this_bvm,_newva(0xbead),SELF_ALLOC);
+    pushd(this_bvm,_newva(0xaced),SELF_ALLOC);
+    popd(this_bvm);
+    //pop_dstack(this_bvm);
 
-    _dump(root_bvm.self);
+    flush_bvm_cache(this_bvm);
+
+    _dump(this_bvm->self);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.

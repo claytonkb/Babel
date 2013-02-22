@@ -168,10 +168,18 @@ mword *empty_string;
                      ||  is_nil(car(x)) )
 //                     || !is_leaf(x) && is_nil(car(x)) )
 
+//FIXME: Remove this_bvm:
 #define get_sym(x)   ( _luha( (mword*)car(this_bvm->sym_table), _hash8(C2B(x))) )   // get_sym#
 #define set_sym(x,y) hash_insert( this_bvm->sym_table, (x), (y) ) // set_sym#
 
-#define pushd(x,y) push_dstack(this_bvm, new_dstack_entry(x,y))
+#define pushd(x,y,z) push_udr_stack(x->dstack_ptr, new_dstack_entry(y,z)) // pushd#
+#define popd(x) pop_udr_stack(x->dstack_ptr) // popd#
+
+#define pushu(x,y,z) push_udr_stack(x->ustack_ptr, new_dstack_entry(y,z)) // pushu#
+#define popu(x) pop_udr_stack(x->ustack_ptr) // popu#
+
+#define pushr(x,y,z) push_udr_stack(x->rstack_ptr, new_rstack_entry(y,z)) // pushr#
+#define popr(x) pop_udr_stack(x->rstack_ptr) // popr#
 
 // non-allocating cons
 #define cons(a,b,c) icar(a) = (mword)(b); icdr(a) = (mword)(c); // cons#

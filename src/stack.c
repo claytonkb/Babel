@@ -32,11 +32,29 @@ mword *new_dstack_entry(mword *operand, mword alloc_type){ // new_dstack_entry#
 
 //
 //
-void push_dstack(bvm_cache *this_bvm, mword *dstack_entry){ // push_dstack#
+void push_udr_stack(mword *stack_ptr, mword *stack_entry){ // push_udr_stack#
 
-    mword *temp = this_bvm->dstack_ptr;
+    (mword*)c(stack_ptr,0) = _unshift((mword*)c(stack_ptr,0), stack_entry);
 
-    this_bvm->dstack_ptr = _unshift(this_bvm->dstack_ptr, dstack_entry);
+}
+
+
+//
+//
+mword *pop_udr_stack(mword *stack_ptr){ // pop_udr_stack#
+
+    return _shift(stack_ptr);
+
+}
+
+
+//
+//
+mword *new_rstack_entry(mword *operand, mword alloc_type){ // new_rstack_entry#
+
+    return
+        consa( operand,
+            consa( _newva(alloc_type), nil ));
 
 }
 
@@ -58,6 +76,8 @@ void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
     this_bvm->dstack_ptr = new_stack_cons;
 
 }
+
+
 
 //
 void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type){

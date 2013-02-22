@@ -5,7 +5,9 @@
 #define STACK_H
 
 mword *new_dstack_entry(mword *operand, mword alloc_type);
-void push_dstack(bvm_cache *this_bvm, mword *dstack_entry);
+void push_udr_stack(mword *stack_ptr, mword *stack_entry);
+mword *pop_udr_stack(mword *stack_ptr);
+mword *new_rstack_entry(mword *operand, mword alloc_type);
 
 bvm_cache *hard_zap     (bvm_cache *this_bvm);
 bvm_cache *swap         (bvm_cache *this_bvm);

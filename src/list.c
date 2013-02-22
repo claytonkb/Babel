@@ -7,7 +7,7 @@
 #include "bvm_opcodes.h"
 #include "except.h"
 #include "array.h"
-
+#include "bstruct.h"
 
 //
 //
@@ -48,17 +48,18 @@ inline mword *_unshift(mword *list, mword *bs){ // _unshift#
 }
 
 
-//
+// FIXME: icar doesn't work with tlists...
 //
 inline mword *_shift(mword *list){ // _shift#
 
     if(is_nil(list)) return nil;
 
-    mword *temp = lcdr(list);
+    mword *temp = (mword*)icar(list);
 
     if(is_nil(temp)) return nil;
-
-    (mword*)c(list,1) = nil;
+    
+    icar(list) = icdr(icar(list));
+    (mword*)icdr(temp) = nil;
 
     return temp;
 
