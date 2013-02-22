@@ -4,6 +4,9 @@
 #ifndef STACK_H
 #define STACK_H
 
+mword *new_dstack_entry(mword *operand, mword alloc_type);
+void push_dstack(bvm_cache *this_bvm, mword *dstack_entry);
+
 bvm_cache *hard_zap     (bvm_cache *this_bvm);
 bvm_cache *swap         (bvm_cache *this_bvm);
 bvm_cache *sel          (bvm_cache *this_bvm);

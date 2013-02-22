@@ -12,18 +12,18 @@
 
     (bvm_code   (tlist '/babel/tag/bvm_code'
                     code
-                    rstack))
+                    nil)) -- rstack
 
-        (rstack (val 0xbabe))
+        -- (rstack (ptr nil))
 
     (bvm_stack  (tlist '/babel/tag/bvm_stack' 
-                    dstack
-                    ustack))
+                    (list nil   -- dstack
+                    nil))) -- ustack
 
-        (dstack (val 0xface))
-        (ustack (val 0xbead))
+        -- (dstack (ptr nil))
+        -- (ustack (ptr nil))
 
-    (jump_table (tlist '/babel/tag/jump_table' (val 0xfade) ))
+    (jump_table (tlist '/babel/tag/jump_table' nil ))
 
     (sym_table (tlist '/babel/tag/sym_table' sym_table_hash_table ))
 

@@ -37,6 +37,15 @@ void _insha(mword *hash_table, mword *hash, mword *key, mword *entry);
 mword *new_hash_table_entry(mword *hash, mword *key, mword *payload);
 static void rinsha(mword *hash_table, mword *hash, mword *key, mword *entry, mword level);
 
+mword _exha(mword *hash_table, mword *hash);
+static mword rexha(mword *hash_table, mword *hash, mword level);
+
+mword *_luha(mword *hash_table, mword *hash);
+static mword *rluha(mword *hash_table, mword *hash, mword level);
+
+mword _rmha(mword *hash_table, mword *hash);
+static mword rrmha(mword *hash_table, mword *hash, mword level);
+
 //bvm_cache *inskha(bvm_cache *this_bvm);
 //mword *_inskha(mword *hash_table, mword *key, mword *val);
 //void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level);

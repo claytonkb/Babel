@@ -4,6 +4,23 @@
 #ifndef LIST_H
 #define LIST_H
 
+inline mword *_push(mword *list, mword *bs);
+inline mword *_pop(mword *list);
+inline mword *_unshift(mword *list, mword *bs);
+inline mword *_shift(mword *list);
+mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr);
+mword *_bons(mword *list);
+mword *_ls2lf(mword *list);
+mword *_ith(mword *list, mword i);
+mword *_list_end(mword *list);
+mword *_list_next_to_end(mword *list);
+mword *_consls(mword *car_field, mword *cdr_field);
+mword *consa(mword *car_field, mword *cdr_field);
+mword _len(mword *list);
+mword *_walk(mword *bs, mword *walk_list);
+
+bvm_cache *walk(bvm_cache *this_bvm);
+
 bvm_cache *carindex(bvm_cache *this_bvm);
 bvm_cache *cdrindex(bvm_cache *this_bvm);
 bvm_cache *isnil(bvm_cache *this_bvm);
@@ -19,21 +36,6 @@ bvm_cache *pop(bvm_cache *this_bvm);
 bvm_cache *unshift(bvm_cache *this_bvm);
 bvm_cache *shift(bvm_cache *this_bvm);
 bvm_cache *reverse(bvm_cache *this_bvm);
-mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr);
-
-mword *_bons(mword *list);
-mword *_ls2lf(mword *list);
-mword *_ith(mword *list, mword i);
-mword *_list_end(mword *list);
-mword *_list_next_to_end(mword *list);
-mword *_consls(mword *car_field, mword *cdr_field);
-
-mword *consa(mword *car_field, mword *cdr_field);
-
-mword _len(mword *list);
-
-bvm_cache *walk(bvm_cache *this_bvm);
-mword *_walk(mword *bs, mword *walk_list);
 
 #endif //LIST_H
 

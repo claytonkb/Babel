@@ -679,7 +679,7 @@ bvm_cache *trav(bvm_cache *this_bvm){
 mword *_trav(mword *bs, mword *trav_list){
 
     if(is_nil((mword*)cdr(trav_list))){// return bs;
-        return _cxr(bs, car(car(trav_list)));
+        //return _cxr(bs, car(car(trav_list))); //FIXME cxr change
     }
     else{
         if (!is_inte(bs)){ error("_trav: Can't traverse non-interior array"); die; }
@@ -702,7 +702,7 @@ bvm_cache *mu(bvm_cache *this_bvm){
     push_alloc(this_bvm, result, MORTAL);
 
     return this_bvm;
-    
+
 //    printf("size %d\n", size_tree(global_VM));
 
 }

@@ -18,6 +18,27 @@
 #include "eval.h"
 #include "hash.h"
 
+
+//
+//
+mword *new_dstack_entry(mword *operand, mword alloc_type){ // new_dstack_entry#
+
+    return
+        consa( operand,
+            consa( _newva(alloc_type), nil ));
+
+}
+
+
+//
+//
+void push_dstack(bvm_cache *this_bvm, mword *dstack_entry){ // push_dstack
+
+    _push(this_bvm->dstack_ptr, dstack_entry);
+
+}
+
+
 //
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 

@@ -126,15 +126,15 @@ mword *empty_string;
 #define is_bvm(x) ( tagcmp((x),BABEL_TAG_BVM) == 0 ) // is_bvm#
 #define is_ref(x) ( tagcmp((x),BABEL_TAG_REF) == 0 ) // is_ref#
 
-//#define car(x)      c((mword*)(x),0) // car#
-//#define cdr(x)      c((mword*)(x),1) // cdr#
+//#define car(x)      c((mword*)(x),0) // 
+//#define cdr(x)      c((mword*)(x),1) // 
 //
-//#define _tcar(x)     c((mword*)x,HASH_SIZE+1) // _tcar#
-//#define _tcdr(x)     c((mword*)x,HASH_SIZE+2) // _tcdr#
+//#define _tcar(x)     c((mword*)x,HASH_SIZE+1) // 
+//#define _tcdr(x)     c((mword*)x,HASH_SIZE+2) // 
 //
 ////tlist-safe car/cdr:
-//#define tcar(x)     (is_tlist(x) ? _tcar(x) : car(x)) // tcar#
-//#define tcdr(x)     (is_tlist(x) ? _tcdr(x) : cdr(x)) // tcdr#
+//#define tcar(x)     (is_tlist(x) ? _tcar(x) : car(x)) // 
+//#define tcdr(x)     (is_tlist(x) ? _tcdr(x) : cdr(x)) // 
 //
 ////nil-safe car/cdr:
 #define scar(x)     (is_nil(x) ? nil : car(x)) // scar#
@@ -143,20 +143,24 @@ mword *empty_string;
 
 //car/cdr rework:
 //internal car/cdr (not list-safe or tlist-safe):
-#define icar(x)     c((mword*)(x),0)
-#define icdr(x)     c((mword*)(x),1)
+#define icar(x)     c((mword*)(x),0) // icar#
+#define icdr(x)     c((mword*)(x),1) // icdr#
 
 //tlist-safe car/cdr:
-#define tcar(x)     c((mword*)x,HASH_SIZE+1)
-#define tcdr(x)     c((mword*)x,HASH_SIZE+2)
+#define tcar(x)     c((mword*)x,HASH_SIZE+1) // tcar#
+#define tcdr(x)     c((mword*)x,HASH_SIZE+2) // tcdr#
 
 //list-safe car/cdr (not tlist safe):
-#define lcar(x)     (is_nil(x) ? nil : icar(x))
-#define lcdr(x)     (is_nil(x) ? nil : icdr(x))
+#define lcar(x)     (is_nil(x) ? nil : icar(x)) // lcar#
+#define lcdr(x)     (is_nil(x) ? nil : icdr(x)) // lcdr#
 
 //General-purpose car/cdr:
-#define car(x)     (is_tlist(x) ? tcar(x) : icar(x))
-#define cdr(x)     (is_tlist(x) ? tcdr(x) : icdr(x))
+#define car(x)      (is_tlist(x) ? tcar(x) : icar(x)) // car#
+#define cdr(x)      (is_tlist(x) ? tcdr(x) : icdr(x)) // cdr#
+
+//General-purpose cxr:
+#define tcxr(x,y)     c((mword*)x,HASH_SIZE+1+(y%2)) // txcr#
+#define  cxr(x,y)     (is_tlist(x) ? tcxr(x,y) : c((mword*)(x),y)) // cxr#
 
 // is_false#
 #define is_false(x) (    is_leaf(x) && icar(x) == 0 \
@@ -217,10 +221,10 @@ mword *empty_string;
 #define d(x) printf("%s %08x\n", QUOTEME(x), x);  // d#
 #define _dump(x) printf("%s\n", _bs2gv(x));  // _dump#
 #define die      fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);  // die#
-#define warn(x)  fprintf(stderr, "WARNING: %s at %s line %d\n", x, __FILE__, __LINE__);  // warn#
-#define error(x) fprintf(stderr, "ERROR: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // error#
+#define warn(x)  fprintf(stderr, "WARNING: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__);  // warn#
+#define error(x) fprintf(stderr, "ERROR: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); // error#
 #define trace    fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);   // trace#
-#define fatal(x) fprintf(stderr, "ERROR: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); die;  // fatal#
+#define fatal(x) fprintf(stderr, "FATAL: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); die;  // fatal#
 #define enhance(x) fprintf(stderr, "ENHANCEMENT: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // enhance#
 
 #endif //BABEL_H

@@ -8,6 +8,63 @@
 #include "except.h"
 #include "array.h"
 
+
+//
+//
+inline mword *_push(mword *list, mword *bs){ // _push#
+
+    mword *endls = _list_end(list);
+    (mword*)c(endls,1) = consa( bs, nil );
+
+    return list;
+
+}
+
+
+//
+//
+inline mword *_pop(mword *list){ // _pop#
+
+    if(is_nil(list)) return nil;
+
+    mword *endls = _list_next_to_end(list);
+
+    if(is_nil(endls)) return nil;
+
+    mword *temp = (mword*)c(endls,1);
+    (mword*)c(endls,1) = nil;
+
+    return temp;
+
+}
+
+
+//
+//
+inline mword *_unshift(mword *list, mword *bs){ // _unshift#
+
+    return consa( bs, list );
+
+}
+
+
+//
+//
+inline mword *_shift(mword *list){ // _shift#
+
+    if(is_nil(list)) return nil;
+
+    mword *temp = lcdr(list);
+
+    if(is_nil(temp)) return nil;
+
+    (mword*)c(list,1) = nil;
+
+    return temp;
+
+}
+
+
 //
 // babel_operator
 bvm_cache *carindex(bvm_cache *this_bvm){
@@ -213,6 +270,7 @@ bvm_cache *shift(bvm_cache *this_bvm){
     return this_bvm;
 
 }
+
 
 //
 // babel_operator

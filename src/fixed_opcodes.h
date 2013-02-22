@@ -405,7 +405,8 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     rsvd,
     cut,
     trunc,
-    cxr,
+    //cxr,
+    rsvd,
     rsvd,
     rsvd,
 

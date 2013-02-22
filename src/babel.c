@@ -40,17 +40,20 @@ int main(int argc, char **argv){
 
     interp_init(&root_bvm, argc, argv);
 
-    printf("Hello!\n");
-    bvm_interp(&root_bvm);
+    //fprintf(stderr, "%d\n", _exha( (mword*)car(root_bvm.sym_table) , _hash8(C2B("foo"))));
 
-    printf("Hello!\n"); //FIXME: We're not getting here!
+    //mword *temp = _luha( (mword*)car(root_bvm.sym_table) , _hash8(C2B("argv")));
+    //_dump(temp);
 
     //mword *hash_table = new_hash_table();
-    //_dump(hash_table);
 
-    //hash_insert( root_bvm.sym_table, "foo", nil );
+    //hash_insert( root_bvm.sym_table, "foo", _newva(0xbade) );
+    //hash_insert( root_bvm.sym_table, "foo", _newva(0xcede) );
+    //_rmha( (mword*)car(root_bvm.sym_table) , _hash8(C2B("foo")));
 
-    //_dump(root_bvm.self);
+    _push(root_bvm.dstack_ptr, _newva(0xbead));
+
+    _dump(root_bvm.self);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.

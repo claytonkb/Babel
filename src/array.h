@@ -4,7 +4,7 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
-bvm_cache *cxr(bvm_cache *this_bvm);
+//bvm_cache *cxr(bvm_cache *this_bvm);
 bvm_cache *sfield(bvm_cache *this_bvm);
 bvm_cache *arlen(bvm_cache *this_bvm);
 bvm_cache *islf(bvm_cache *this_bvm);
@@ -15,7 +15,7 @@ bvm_cache *cut(bvm_cache *this_bvm);
 bvm_cache *newin(bvm_cache *this_bvm);
 bvm_cache *newlf(bvm_cache *this_bvm);
 bvm_cache *trunc(bvm_cache *this_bvm);
-bvm_cache *cxr(bvm_cache *this_bvm);
+//bvm_cache *cxr(bvm_cache *this_bvm);
 bvm_cache *arcat(bvm_cache *this_bvm);
 bvm_cache *arcmp(bvm_cache *this_bvm);
 bvm_cache *ar2ls(bvm_cache *this_bvm);
@@ -47,7 +47,7 @@ int    _arcmp(mword *left, mword *right);
 mword  _cxr1(mword *val, mword bit);
 mword _cxr8(mword *val, mword bit);
 mword *_ar2ls(mword *arr);
-mword *_cxr(mword *array, mword offset);
+//mword *_cxr(mword *array, mword offset);
 
 bvm_cache *perm(bvm_cache *this_bvm);
 void _perm(mword *src, mword *dest, mword *perm_matrix);

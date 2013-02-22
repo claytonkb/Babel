@@ -11,6 +11,8 @@
 #include "bvm.h"
 #include "load.h"
 
+
+
 //
 // babel_operator
 bvm_cache *sfield(bvm_cache *this_bvm){
@@ -258,46 +260,46 @@ bvm_cache *slice(bvm_cache *this_bvm){
 
 }
 
+////
+//// babel_operator
+//bvm_cache *cxr(bvm_cache *this_bvm){
 //
-// babel_operator
-bvm_cache *cxr(bvm_cache *this_bvm){
-
+////    if(is_leaf(array)){
+////        temp = new_atom;
+////        c(temp,0) = c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
+////    }
+////    else{
+////        temp = (mword*)c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
+////    }
+//
+//    mword *result = new_atom;
+//    (mword*)*result = _cxr(TOS_1(this_bvm), car(TOS_0(this_bvm)));
+//
+//    hard_zap(this_bvm);
+//    hard_zap(this_bvm);
+//
+//    push_alloc(this_bvm, result, IMMORTAL); //FIXME: May depend on input
+//
+//    return this_bvm;
+//
+//}
+//
+////
+//mword *_cxr(mword *array, mword offset){
+//
+//    mword *temp;
+//
 //    if(is_leaf(array)){
 //        temp = new_atom;
-//        c(temp,0) = c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
+//        c(temp,0) = c(array, offset);
 //    }
 //    else{
-//        temp = (mword*)c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
+//        temp = (mword*)c(array, offset);
 //    }
-
-    mword *result = new_atom;
-    (mword*)*result = _cxr(TOS_1(this_bvm), car(TOS_0(this_bvm)));
-
-    hard_zap(this_bvm);
-    hard_zap(this_bvm);
-
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: May depend on input
-
-    return this_bvm;
-
-}
-
 //
-mword *_cxr(mword *array, mword offset){
-
-    mword *temp;
-
-    if(is_leaf(array)){
-        temp = new_atom;
-        c(temp,0) = c(array, offset);
-    }
-    else{
-        temp = (mword*)c(array, offset);
-    }
-
-    return temp;
-
-}
+//    return temp;
+//
+//}
 
 //
 //mword _cxr8(mword *val, mword bit){
