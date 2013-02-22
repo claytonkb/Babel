@@ -112,7 +112,8 @@ mword *empty_string;
 #define c(x,y)       (*((mword*)x + y)) // c#
 
 #define tagcmp(x,y) ( (is_tlist(x) || (size(x) >= HASH_SIZE)) ? (memcmp((mword*)x, y, HASH_SIZE*MWORD_SIZE)) : -1 ) // tagcmp#
-#define is_nil(x) ( tagcmp(x,nil) == 0 ) // is_nil#
+#define tageq(x,y)  ( tagcmp(x,y) == 0 ) // tageq#
+#define is_nil(x)   ( tageq(x,nil) ) // is_nil#
 
 // XXX UNSAFE; use this only where we know for sure we have a tlist...
 #define is_nil_fast(x) ( (memcmp(x, nil, HASH_SIZE*MWORD_SIZE)) == 0 ) // is_nil_fast#
@@ -167,6 +168,10 @@ mword *empty_string;
                      ||  is_nil(car(x)) )
 //                     || !is_leaf(x) && is_nil(car(x)) )
 
+#define get_sym(x)   ( _luha( (mword*)car(this_bvm->sym_table), _hash8(C2B(x))) )   // get_sym#
+#define set_sym(x,y) hash_insert( this_bvm->sym_table, (x), (y) ) // set_sym#
+
+#define pushd(x,y) push_dstack(this_bvm, new_dstack_entry(x,y))
 
 // non-allocating cons
 #define cons(a,b,c) icar(a) = (mword)(b); icdr(a) = (mword)(c); // cons#
@@ -230,4 +235,5 @@ mword *empty_string;
 #endif //BABEL_H
 
 // Clayton Bauman 2011
+
 

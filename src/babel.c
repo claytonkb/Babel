@@ -25,16 +25,15 @@
 //
 int main(int argc, char **argv){
 
-//    #include "construct.sp.c"
-//
 //    pearson16_init();    //Babel hash-function init
 //    init_nil();
 //
 //    mword *loaded_bbl = _load((mword*)bbl,BBL_SIZE);
-//
-//    //loaded_bbl = _deref((mword*)car(cdr(bvm_code_ptr(loaded_bbl))), (mword*)car(bvm_code_ptr(loaded_bbl)));
-//
 //    _dump(loaded_bbl);
+//    die;
+
+    //loaded_bbl = _deref((mword*)car(cdr(bvm_code_ptr(loaded_bbl))), (mword*)car(bvm_code_ptr(loaded_bbl)));
+//
 
     bvm_cache root_bvm;
 
@@ -51,7 +50,9 @@ int main(int argc, char **argv){
     //hash_insert( root_bvm.sym_table, "foo", _newva(0xcede) );
     //_rmha( (mword*)car(root_bvm.sym_table) , _hash8(C2B("foo")));
 
-    _push(root_bvm.dstack_ptr, _newva(0xbead));
+    //_push(root_bvm.dstack_ptr, _newva(0xbead));
+
+    flush_bvm_cache(&root_bvm);
 
     _dump(root_bvm.self);
 
@@ -66,7 +67,7 @@ int main(int argc, char **argv){
 
 
 // Should be called only once per bvm instance
-// FIXME: This is a broken implementation since we cannot switch instances...
+// FIXME: Everything about this is COMPLETELY busted...
 void init_nil(void){
 
     mword *ptr = malloc( MWORDS( 3 + HASH_SIZE + 1 ) ); // 3 = s-field + car + cdr
@@ -92,20 +93,28 @@ void init_nil(void){
 
 //  Initializes the root Babel Virtual Machine (BVM)
 //
-bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){ // interp_init#
+bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv){ // interp_init#
 //bvm_cache *interp_init(int argc, char **argv){
 
     #include "construct.sp.c"
 
     pearson16_init();    //Babel hash-function init
 
+    //initialize nil (global constant)
+    init_nil();
+    
+    //load the root bvm
+    this_bvm->self = _load((mword*)bbl,BBL_SIZE);
+    this_bvm->sym_table = (mword*)bvm_sym_table(this_bvm->self);
+
+    //initialize empty_string (global constant)
+    empty_string = _newlfi(1,0);
+
     time_t rawtime;
     char time_string[30];
     time( &rawtime );    
     strcpy( time_string, ctime(&rawtime) );
     mword *time_string_key = _c2b(time_string, 30);
-
-//    bvm_cache root_bvm;
 
     // FIXME: strcpy and strlen... get rid
     // This needs to be enhanced to look in the hidden section for a 
@@ -116,34 +125,15 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){ // interp_in
     time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
     init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
-    //initialize nil (global constant)
-    init_nil();
-    
-//    mword *hash_init  = new_hash();
-//    mword *nil_string = C2B("nil");
-//    nil               = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
-//    nil               = _newref(nil);
-
-    //initialize empty_string (global constant)
-    empty_string = _newlfi(1,0);
-
-//    root_bvm->self = _load((mword*)bbl,sizeof(bbl)/MWORD_SIZE);
-    root_bvm->self = _load((mword*)bbl,BBL_SIZE);
-
-    load_bvm_cache(root_bvm);
-
-    //Override TID
-    //icar(root_bvm->thread_id)     = ROOT_INTERP_THREAD;
-
     //initialize argv
     //XXX This will change when we add CLI processing:
     #define NUM_BABEL_INTERP_ARGS 1 
     if(argc <= NUM_BABEL_INTERP_ARGS){
-        root_bvm->argv = nil;
+        this_bvm->argv = nil;
     }
     else{
 
-        root_bvm->argv = _newin(argc-NUM_BABEL_INTERP_ARGS);
+        this_bvm->argv = _newin(argc-NUM_BABEL_INTERP_ARGS);
 
         //Note: Each argument can be up to 64KB in size... this is unreasonably large
         //but could never reasonably become a design limitation in the future yet it is
@@ -151,23 +141,29 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){ // interp_in
         #define MAX_ARG_SIZE (1<<16)
         int i;
         for( i = NUM_BABEL_INTERP_ARGS; i < argc; i++ ){
-            (mword*)c((mword*)root_bvm->argv, i-NUM_BABEL_INTERP_ARGS)
+            (mword*)c((mword*)this_bvm->argv, i-NUM_BABEL_INTERP_ARGS)
                 = _c2b(argv[i], 100);
         }
 
     }
 
-    root_bvm->steps = new_atom;
-    c(root_bvm->steps,0) = (mword)-1;
+    set_sym("steps",            _newva((mword)-1) );
+    set_sym("thread_id",        _newva(0) );
+    set_sym("advance_type",     _newva((mword)BVM_ADVANCE) );
+    set_sym("argv",             this_bvm->argv );
+    set_sym("srand",            time_hash );
+    set_sym("soft_root",        nil );
 
-    hash_insert( root_bvm->sym_table, "argv",  root_bvm->argv );
-    hash_insert( root_bvm->sym_table, "srand", time_hash );
-    hash_insert( root_bvm->sym_table, "steps", root_bvm->steps );
-    hash_insert( root_bvm->sym_table, "soft_root", nil );
+    //hash_insert( this_bvm->sym_table, "argv",  this_bvm->argv );
+    //hash_insert( this_bvm->sym_table, "srand", time_hash );
+    //hash_insert( this_bvm->sym_table, "steps", this_bvm->steps );
+    //hash_insert( this_bvm->sym_table, "soft_root", nil );
 
-    init_interp_jump_table(root_bvm);
+    load_bvm_cache(this_bvm);
 
-    return root_bvm;
+    init_interp_jump_table(this_bvm);
+
+    return this_bvm;
 
     //TODO
     //- Check stdin
@@ -185,21 +181,6 @@ bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv){ // interp_in
     //        unless user uses a switch to say "don't do this"
 
     //TODO: Configure root BVM resource limits (hidden)
-
-    //    time_t rawtime;
-    //    char time_string[30];
-    //    time( &rawtime );    
-    //    strcpy( time_string, ctime(&rawtime) );
-    //    mword *time_string_key = _c2b(time_string, 30);
-    //
-    //    // FIXME: strcpy and strlen... get rid
-    //    // This needs to be enhanced to look in the hidden section for a 
-    //    // pre-defined seed, it should also save the value it used in the
-    //    // hidden section
-    //    mword *time_hash = new_hash();
-    //    mword *hash_init = new_hash();
-    //    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
-    //    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
 }
 
@@ -246,4 +227,5 @@ bvm_cache *endian(bvm_cache *this_bvm){
 
 
 // Clayton Bauman 2011
+
 

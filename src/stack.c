@@ -32,13 +32,16 @@ mword *new_dstack_entry(mword *operand, mword alloc_type){ // new_dstack_entry#
 
 //
 //
-void push_dstack(bvm_cache *this_bvm, mword *dstack_entry){ // push_dstack
+void push_dstack(bvm_cache *this_bvm, mword *dstack_entry){ // push_dstack#
 
-    _push(this_bvm->dstack_ptr, dstack_entry);
+    mword *temp = this_bvm->dstack_ptr;
+
+    this_bvm->dstack_ptr = _unshift(this_bvm->dstack_ptr, dstack_entry);
 
 }
 
 
+//
 //
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 

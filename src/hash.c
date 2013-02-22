@@ -104,7 +104,7 @@ static void rinsha(mword *hash_table, mword *hash, mword *key, mword *entry, mwo
     }
     else if(is_tlist(next_level)){ //XXX: We are ASSUMING it's a hash_table_entry...
 
-        if(tagcmp(car(next_level),hash) == 0){ //already exists...
+        if(tageq(car(next_level),hash)){ //already exists...
 
             payload = (mword*)cdr(cdr(next_level));
             c(payload,0) = car(cdr(cdr(entry)));
@@ -164,7 +164,7 @@ static mword rexha(mword *hash_table, mword *hash, mword level){ // rexha#
         rexha((mword*)c(hash_table,cons_side), hash, level+1);
     }
     else if(is_tlist(next_level)){ // XXX ASSUMES well-formed hash-entry
-        return (tagcmp(car(next_level),hash) == 0);
+        return (tageq(car(next_level),hash));
     }
 
 }
@@ -252,7 +252,7 @@ static mword rrmha(mword *hash_table, mword *hash, mword level){ // rrmha#
     }
     else if(is_tlist(next_level)){ // XXX ASSUMES well-formed hash-entry
 
-        if(tagcmp(car(next_level),hash) == 0){ //match
+        if(tageq(car(next_level),hash)){ //match
             (mword*)c(hash_table,cons_side) = nil; //FIXME: De-allocation
             return 1;
         }

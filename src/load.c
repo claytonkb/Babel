@@ -155,6 +155,7 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword elem){
         }
         else if(curr_elem == (mword)-1){
             printf("%x\n", elem);
+            fatal("Something went wrong");
             die; //FIXME: Is this ever a valid case?
             return (mword*)-1;
         }

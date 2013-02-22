@@ -316,8 +316,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
 //            die;
 //        }
         else{
-            error("bvm_interp: error detected during execution");
-            die;
+            fatal("error detected during execution");
         }
 
         if(car(this_bvm->advance_type) == BVM_ADVANCE){
@@ -474,30 +473,30 @@ bvm_cache *load_bvm_cache(bvm_cache *this_bvm){ // load_bvm_cache#
     this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(self);
     this_bvm->jump_table    = (mword*)bvm_jump_table(self);
     this_bvm->sym_table     = (mword*)bvm_sym_table(self);
-//    this_bvm->thread_id     = (mword*)c(self,6);
-//    this_bvm->argv          = (mword*)c(self,7);
-    this_bvm->steps         = _newlfi(1,-1);
-    this_bvm->advance_type  = _newlfi(1,0);
+    this_bvm->steps         = get_sym("steps");
+    this_bvm->advance_type  = get_sym("advance_type");
+    this_bvm->thread_id     = get_sym("thread_id");
 
     return this_bvm;
 
 }
 
+
+//
 //
 bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){
 
     mword *self = this_bvm->self;
 
-    (mword*)c(self,0) = this_bvm->code_ptr;
-    (mword*)c(self,1) = this_bvm->dstack_ptr;
-    (mword*)c(self,2) = this_bvm->ustack_ptr;
-    (mword*)c(self,3) = this_bvm->rstack_ptr;
-    (mword*)c(self,4) = this_bvm->jump_table;
-    (mword*)c(self,5) = this_bvm->sym_table;
-    (mword*)c(self,6) = this_bvm->thread_id;
-    (mword*)c(self,7) = this_bvm->argv;
-    (mword*)c(self,8) = this_bvm->steps;
-    (mword*)c(self,9) = this_bvm->advance_type;
+    (mword*)bvm_code_ptr(self)      = this_bvm->code_ptr;
+    (mword*)bvm_rstack_ptr(self)    = this_bvm->rstack_ptr;
+    (mword*)bvm_dstack_ptr(self)    = this_bvm->dstack_ptr;
+    (mword*)bvm_ustack_ptr(self)    = this_bvm->ustack_ptr;
+    (mword*)bvm_jump_table(self)    = this_bvm->jump_table;
+    (mword*)bvm_sym_table(self)     = this_bvm->sym_table;
+    set_sym("steps",                  this_bvm->steps);
+    set_sym("advance_type",           this_bvm->advance_type);
+    set_sym("thread_id",              this_bvm->thread_id);
 
     return this_bvm;
 
