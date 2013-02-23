@@ -9,7 +9,7 @@
 
 //
 //
-mword *_new_tlist(mword *hash, mword *list){
+mword *new_tlist(mword *hash, mword *list){ // new_tlist#
 
     mword *ptr = balloc( MWORDS( 3 + HASH_SIZE + 1 ) ); // 3 = s-field + car + cdr
     int i;

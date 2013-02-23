@@ -163,14 +163,11 @@ mword *empty_string;
 #define tcxr(x,y)     c((mword*)x,HASH_SIZE+1+(y%2)) // txcr#
 #define  cxr(x,y)     (is_tlist(x) ? tcxr(x,y) : c((mword*)(x),y)) // cxr#
 
-// is_false#
-#define is_false(x) (    is_leaf(x) && icar(x) == 0 \
-                     ||  is_nil(car(x)) )
+#define is_false(x) (    is_leaf(x) && icar(x) == 0 ||  is_nil(car(x)) ) // is_false#
 //                     || !is_leaf(x) && is_nil(car(x)) )
 
-//FIXME: Remove this_bvm:
-#define get_sym(x)   ( _luha( (mword*)car(this_bvm->sym_table), _hash8(C2B(x))) )   // get_sym#
-#define set_sym(x,y) hash_insert( this_bvm->sym_table, (x), (y) ) // set_sym#
+#define get_sym(x,y)   ( _luha( (mword*)car(x->sym_table), _hash8(C2B(y))) )   // get_sym#
+#define set_sym(x,y,z) hash_insert( x->sym_table, (y), (z) ) // set_sym#
 
 #define pushd(x,y,z) push_udr_stack(x->dstack_ptr, new_dstack_entry(y,z)) // pushd#
 #define popd(x) pop_udr_stack(x->dstack_ptr) // popd#
@@ -181,7 +178,13 @@ mword *empty_string;
 #define pushr(x,y,z) push_udr_stack(x->rstack_ptr, new_rstack_entry(y,z)) // pushr#
 #define popr(x) pop_udr_stack(x->rstack_ptr) // popr#
 
+#define mkref(x,y) ( new_tlist( \
+                        _hash8(C2B("/babel/tag/ref")), \
+                        consa( _hash8(C2B(x)), \
+                            consa( y, nil ) ) ) )
+
 // non-allocating cons
+// XXX: Doesn't work with tlists...
 #define cons(a,b,c) icar(a) = (mword)(b); icdr(a) = (mword)(c); // cons#
 
 #define new_cons (_newin(2)) // new_cons#

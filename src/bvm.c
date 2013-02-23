@@ -26,285 +26,94 @@
 #include "bstruct.h"
 #include "alloc.h"
 
-//void bvmstep(void){
-//
-////    global_steps = car(TOS_0);
-////    zap();
 ////
-////    mword *bvm = (mword*)TOS_0;
-////    zap();
+//// babel_operator
+//bvm_cache *bvm_interp(bvm_cache *this_bvm){
+//
+//    bvm_cache *discard;
+//    babel_op op_ptr;
+//
+////    printf("%08x", car(this_bvm->steps));
 ////
-////    _bvmstep(bvm);
+////    die;
 //
-//    global_steps = (mword)car(TOS_0);
-//    zap();
+//    while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
 //
-//    _bvmstep((mword*)TOS_0);
+//        if(is_nil((mword*)car(this_bvm->code_ptr))){
+//            if(!is_nil(this_bvm->rstack_ptr)){
+//                next(this_bvm);
+//                continue;
+//            }
+//            break; // XXX An unexpected nil in code-stream can cause an exit... may be bad
+//        }
+//
+//        if( is_inte(car(this_bvm->code_ptr)) ){
+//            die;
+////            push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), IMMORTAL);
+//            push_alloc(this_bvm, (mword*)car(this_bvm->code_ptr), IMMORTAL);
+//        }
+//        else if( is_leaf(car(this_bvm->code_ptr)) ){
+//            mword opcode = car(car(this_bvm->code_ptr));
+//
+////            d(car(car(this_bvm->code_ptr)))
+//
+//            op_ptr = (babel_op)this_bvm->jump_table[ opcode % NUM_INTERP_OPCODES ];
+//            discard = op_ptr(this_bvm);
+//        }
+////        else if( is_href(car(this_bvm->code_ptr)) ){ //TODO: Implement href operator calls!
+////            error("bvm_interp: hash-reference detected in code");
+////            die;
+////        }
+//        else{
+//            fatal("error detected during execution");
+//        }
+//
+//        if(car(this_bvm->advance_type) == BVM_ADVANCE){
+//            this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
+//        }
+//        else if(car(this_bvm->advance_type) == BVM_RETURN){
+//            break;
+//        }
+//        else{
+//            icar(this_bvm->advance_type) = BVM_ADVANCE;
+//        }
+//
+//        icar(this_bvm->steps)--;
+//
+//    }
+//
+//    flush_bvm_cache(this_bvm);
+//
+//    return this_bvm;
 //
 //}
 //
-//void bvmexec(void){
-//
-////    bbl2gv();
-////    die
-//
-//    global_steps = (mword) -1;
-//    _bvmstep((mword*)TOS_0);
-//    zap();
-//
-//}
-//
-//void _bvmstep(mword *bvm){
-//
-////    mword *saved_bvm = internal_global_VM;
-////    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
-////
-////    internal_global_VM = bvm;
-////    global_VM = (mword *)cdr(internal_global_VM);
-////    (mword*)global_argv = saved_global_argv;  //FIXME
-////
-////    bvm_interp();
-////
-//////    mword *after_interp_global_VM = internal_global_VM;
-////
-////    internal_global_VM = saved_bvm;
-////    global_VM = (mword*)cdr(internal_global_VM);
-////
-//////    push_alloc(after_interp_global_VM, BVMKILL); //FIXME: Appropriating BVMKILL...
-//
-//    mword *saved_bvm = internal_global_VM;
-//    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
-//
-//    internal_global_VM = bvm;
-//    global_VM = (mword *)cdr(internal_global_VM);
-//
-////FIXME NIL-CONVERSION:
-////    (mword*)global_argv = saved_global_argv;  //FIXME
-//
-////    bvm_interp();
-//    bvm_interp2();
-//
-//    internal_global_VM = saved_bvm;
-//    global_VM = (mword*)cdr(internal_global_VM);
-//
-//}
-//
-////
-//void _bvmexec(mword *bvm){
-//
-//    mword *saved_bvm = internal_global_VM;
-//    mword *saved_global_argv = (mword*)global_argv; //FIXME: All this global_argv code needs to be re-implemented CORRECTLY
-//
-//    internal_global_VM = bvm;
-//    global_VM = (mword *)cdr(internal_global_VM);
-//
-//// FIXME NIL-CONVERSION:
-////    (mword*)global_argv = saved_global_argv;  //FIXME
-//
-//    bvm_interp();
-//
-//    internal_global_VM = saved_bvm;
-//    global_VM = (mword*)cdr(internal_global_VM);
-//
-//}
-//
-//void _bvm_init(mword *bvm, int argc, char **argv){
-//
-//    pearson16_init();
-//
-//    time_t rawtime;
-//    char time_string[30];
-//    time( &rawtime );    
-//    strcpy( time_string, ctime(&rawtime) );
-//    mword *time_string_key = _c2b(time_string, 30);
-//
-//    // FIXME: strcpy and strlen... get rid
-//    // This needs to be enhanced to look in the hidden section for a 
-//    // pre-defined seed, it should also save the value it used in the
-//    // hidden section
-//    mword *time_hash = new_hash();
-//    mword *hash_init = new_hash();
-//    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
-//    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
-//
-//    //Set global_nil
-//    mword *hash_init = new_hash();
-//    mword *nil_string = C2B("nil");
-//    global_nil = _pearson16(hash_init, nil_string, (mword)strlen((char*)nil_string));
-//
-////    printf("  0x%x ", global_nil[0]);
-////    printf("0x%x ", global_nil[1]);
-////    printf("0x%x ", global_nil[2]);
-////    printf("0x%x\n", global_nil[3]);
-////
-////    mword *test_string = C2B("test");
-////    mword *test = _pearson16(hash_init, test_string, (mword)strlen((char*)test_string));
-////
-////    printf("%d\n", is_nil(test));
-//
-////    internal_global_VM = bvm+1;
-//    internal_global_VM = bvm;
-//    global_VM = (mword *)cdr(internal_global_VM);
-//
-//    init_global_argv(argc, argv);
-//
-//}
 
-//////bvm_init
-//////
-//void bvm_init(mword *bvm){
-//
-//    pearson16_init();
-//
-//    time_t rawtime;
-//    char time_string[30];
-//    time( &rawtime );    
-//    strcpy( time_string, ctime(&rawtime) );
-//    mword *time_string_key = _c2b(time_string, 30);
-//
-//    // FIXME: strcpy and strlen... get rid
-//    // This needs to be enhanced to look in the hidden section for a 
-//    // pre-defined seed, it should also save the value it used in the
-//    // hidden section
-//    mword *time_hash = new_hash();
-//    mword *hash_init = new_hash();
-//    time_hash = _pearson16(hash_init, time_string_key, (mword)strlen((char*)time_string_key));
-//    init_by_array(time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
-//
-////    internal_global_VM = bvm+1;
-//    internal_global_VM = bvm;
-//    global_VM = (mword *)cdr(internal_global_VM);
-//
-//}
-
-//DEPRECATED:
-////bvm_interp
-////
-//void bvm_interp(void){
-////
-////    mword* discard;
-////
-////    while(global_steps--){//FIXME: This is not correct long-term
-////
-////        if(car(code_ptr) == (mword)nil){
-////            if(_end_of_code()) continue;
-////            break;
-//////            if(!rstack_empty){
-//////                while(alloc_type(RTOS_0) == DOWN){
-//////                    up();
-//////                }
-//////                if(alloc_type(RTOS_0) == NEST){
-//////                    up();
-//////                }
-//////                if(alloc_type(RTOS_0) == TIMES){
-//////                    if(car(car(RTOS_2)) > 1){
-//////                        c((mword*)car(RTOS_2),0) = car(car(RTOS_2)) - 1;
-//////                        (mword*)code_ptr = (mword*)car(RTOS_0);
-//////                    }
-//////                    else{
-//////                        discard = pop_rstack();
-//////                        (mword*)code_ptr = (mword*)car(pop_rstack());
-//////                        discard = pop_rstack();
-//////                    }
-//////                }
-//////                else if(alloc_type(RTOS_0) == WHILEOP){
-//////                    if(!is_false((mword*)TOS_0)){
-//////                        zap();
-//////                        (mword*)code_ptr = (mword*)car(RTOS_0);
-//////                        push_alloc_rstack((mword*)car(RTOS_2), 0);
-//////                    }
-//////                    else{
-//////                        zap();
-//////                        discard = pop_rstack();
-//////                        (mword*)code_ptr = (mword*)car(pop_rstack());
-//////                        discard = pop_rstack();
-//////                    }
-//////                }
-//////                else if(alloc_type(RTOS_0) == EACH){
-//////                    if(cdr(car(RTOS_2)) != nil){
-//////                        c((mword*)RTOS_2,0) = cdr(car(RTOS_2));
-//////                        push_alloc((mword*)car(car(RTOS_2)),EACH);
-//////                        (mword*)code_ptr = (mword*)car(RTOS_0);
-//////                    }
-//////                    else{
-//////                        discard = pop_rstack();
-//////                        (mword*)code_ptr = (mword*)car(pop_rstack());
-//////                        discard = pop_rstack();
-//////                    }
-//////                }
-//////                else if(alloc_type(RTOS_0) == EACHAR){
-//////                    if(car(car(RTOS_3)) < size((mword*)car(RTOS_2))-1){
-//////                        *((mword*)car(RTOS_3)) = car(car(RTOS_3)) + 1;
-//////                        push_alloc((mword*)c((mword*)car(RTOS_2),car(car(RTOS_3))),EACHAR);
-//////                        (mword*)code_ptr = (mword*)car(RTOS_0);
-//////                    }
-//////                    else{
-//////                        discard = pop_rstack();
-//////                        (mword*)code_ptr = (mword*)car(pop_rstack());
-//////                        discard = pop_rstack();
-//////                        discard = pop_rstack();
-//////                    }
-//////                }
-//////                else if(alloc_type(RTOS_0) == LOOP){
-//////                    (mword*)code_ptr = (mword*)car(RTOS_0);
-//////                }
-//////                else{
-//////                    (mword*)code_ptr = (mword*)car(pop_rstack());
-//////                }
-//////                continue;
-//////            }
-//////            else{
-//////                break;
-//////            }
-////        }
-////
-////        if( is_inte((mword *)car(code_ptr)) ){
-////            push_alloc((mword*)car(car(code_ptr)), SELF_ALLOC);
-////        }
-////        else if( is_leaf((mword *)car(code_ptr)) ){
-////            opcode_switch(car(car(code_ptr)))
-////        }
-////        else if( is_href((mword *)car(code_ptr)) ){ //FIXME: Implement href operator calls!
-////            except("bvm_interp: hash-reference detected in code", __FILE__, __LINE__);
-////        }
-////        else{
-////            except("bvm_interp: error detected during execution", __FILE__, __LINE__);
-////        }
-////
-////        code_ptr = cdr(code_ptr);
-////
-////    }
-//
-//}
 
 //
-// babel_operator
-bvm_cache *bvm_interp(bvm_cache *this_bvm){
+//
+bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
 
     bvm_cache *discard;
     babel_op op_ptr;
 
-//    printf("%08x", car(this_bvm->steps));
-//
-//    die;
-
     while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
 
         if(is_nil((mword*)car(this_bvm->code_ptr))){
-            if(!is_nil(this_bvm->rstack_ptr)){
-                next(this_bvm);
-                continue;
-            }
+//            if(!is_nil(this_bvm->rstack_ptr)){
+//                next(this_bvm);
+//                continue;
+//            }
             break; // XXX An unexpected nil in code-stream can cause an exit... may be bad
         }
 
-        if( is_inte(car(this_bvm->code_ptr)) ){
+        if( is_inte(car(car(this_bvm->code_ptr))) ){
             die;
 //            push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), IMMORTAL);
             push_alloc(this_bvm, (mword*)car(this_bvm->code_ptr), IMMORTAL);
         }
-        else if( is_leaf(car(this_bvm->code_ptr)) ){
-            mword opcode = car(car(this_bvm->code_ptr));
+        else if( is_leaf(car(car(this_bvm->code_ptr))) ){
+            mword opcode = c(car(car(this_bvm->code_ptr)),0);
 
 //            d(car(car(this_bvm->code_ptr)))
 
@@ -320,12 +129,14 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
         }
 
         if(car(this_bvm->advance_type) == BVM_ADVANCE){
-            this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
+            icar(this_bvm->code_ptr) = cdr(car(this_bvm->code_ptr));
         }
         else if(car(this_bvm->advance_type) == BVM_RETURN){
+            die;
             break;
         }
         else{
+            die;
             icar(this_bvm->advance_type) = BVM_ADVANCE;
         }
 
@@ -338,6 +149,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){
     return this_bvm;
 
 }
+
 
 //
 //
@@ -374,6 +186,7 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop#
     return this_bvm;
 
 }
+
 
 //
 // babel_operator
@@ -473,9 +286,9 @@ bvm_cache *load_bvm_cache(bvm_cache *this_bvm){ // load_bvm_cache#
     this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(self);
     this_bvm->jump_table    = (mword*)bvm_jump_table(self);
     this_bvm->sym_table     = (mword*)bvm_sym_table(self);
-    this_bvm->steps         = get_sym("steps");
-    this_bvm->advance_type  = get_sym("advance_type");
-    this_bvm->thread_id     = get_sym("thread_id");
+    this_bvm->steps         = get_sym(this_bvm, "steps");
+    this_bvm->advance_type  = get_sym(this_bvm, "advance_type");
+    this_bvm->thread_id     = get_sym(this_bvm, "thread_id");
 
     return this_bvm;
 
@@ -484,7 +297,7 @@ bvm_cache *load_bvm_cache(bvm_cache *this_bvm){ // load_bvm_cache#
 
 //
 //
-bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){
+bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){ // flush_bvm_cache#
 
     mword *self = this_bvm->self;
 
@@ -494,9 +307,9 @@ bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){
     (mword*)bvm_ustack_ptr(self)    = this_bvm->ustack_ptr;
     (mword*)bvm_jump_table(self)    = this_bvm->jump_table;
     (mword*)bvm_sym_table(self)     = this_bvm->sym_table;
-    set_sym("steps",                  this_bvm->steps);
-    set_sym("advance_type",           this_bvm->advance_type);
-    set_sym("thread_id",              this_bvm->thread_id);
+    set_sym(this_bvm, "steps",        this_bvm->steps);
+    set_sym(this_bvm, "advance_type", this_bvm->advance_type);
+    set_sym(this_bvm, "thread_id",    this_bvm->thread_id);
 
     return this_bvm;
 

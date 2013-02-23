@@ -19,10 +19,10 @@
 //
 mword *new_hash_table(void){ // new_hash_table#
 
-//    return _new_tlist(  _hash8(C2B("/babel/tag/hash_table")), 
+//    return new_tlist(  _hash8(C2B("/babel/tag/hash_table")), 
 //                        _consls( _consls(nil, nil), nil ) );
 
-    return _new_tlist(  _hash8(C2B("/babel/tag/hash_table")), 
+    return new_tlist(  _hash8(C2B("/babel/tag/hash_table")), 
                         consa( consa(nil, nil), nil ) );
 
 }
@@ -43,7 +43,7 @@ mword *new_hash_table_entry(mword *hash, mword *key, mword *payload){  // new_ha
         key = _cp(key);
     }
 
-    return _new_tlist(
+    return new_tlist(
         _hash8(C2B("/babel/tag/hash_table_entry")), 
         consa( hash,
             consa( key,

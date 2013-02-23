@@ -35,10 +35,19 @@ int main(int argc, char **argv){
     //loaded_bbl = _deref((mword*)car(cdr(bvm_code_ptr(loaded_bbl))), (mword*)car(bvm_code_ptr(loaded_bbl)));
 //
 
+
     bvm_cache root_bvm;
     bvm_cache *this_bvm = &root_bvm;
 
     interp_init(this_bvm, argc, argv);
+
+//    _dump( mkref("foo", _newva(0x42)) );
+//    //_dump( new_tlist( _hash8(C2B("/babel/tag/ref")), nil) );
+//    die;
+
+//    bvm_interp(this_bvm);
+
+
 
     //fprintf(stderr, "%d\n", _exha( (mword*)car(root_bvm.sym_table) , _hash8(C2B("foo"))));
 
@@ -53,14 +62,23 @@ int main(int argc, char **argv){
 
     //_push(root_bvm.dstack_ptr, _newva(0xbead));
 
-    pushd(this_bvm,_newva(0xbead),SELF_ALLOC);
-    pushd(this_bvm,_newva(0xaced),SELF_ALLOC);
-    popd(this_bvm);
-    //pop_dstack(this_bvm);
+//    pushd(this_bvm,_newva(0xbead),SELF_ALLOC);
+//    pushd(this_bvm,_newva(0xaced),SELF_ALLOC);
+//    popd(this_bvm);
+//
+//    pushu(this_bvm,_newva(0xdeed),SELF_ALLOC);
+//    pushu(this_bvm,_newva(0xcafe),SELF_ALLOC);
+//    popu(this_bvm);
+//
+//    pushr(this_bvm,_newva(0xface),SELF_ALLOC);
+//    pushr(this_bvm,_newva(0xebbed),SELF_ALLOC);
+//    //popr(this_bvm);
 
     flush_bvm_cache(this_bvm);
 
-    _dump(this_bvm->self);
+    _dump(_deref(this_bvm->code_ptr, consa(_newva(0), consa(_newva(0), nil))));
+
+//    _dump(this_bvm->self);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.
@@ -153,12 +171,12 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv){ // interp_in
 
     }
 
-    set_sym("steps",            _newva((mword)-1) );
-    set_sym("thread_id",        _newva(0) );
-    set_sym("advance_type",     _newva((mword)BVM_ADVANCE) );
-    set_sym("argv",             this_bvm->argv );
-    set_sym("srand",            time_hash );
-    set_sym("soft_root",        nil );
+    set_sym(this_bvm, "steps",          _newva((mword)-1) );
+    set_sym(this_bvm, "thread_id",      _newva(0) );
+    set_sym(this_bvm, "advance_type",   _newva((mword)BVM_ADVANCE) );
+    set_sym(this_bvm, "argv",           this_bvm->argv );
+    set_sym(this_bvm, "srand",          time_hash );
+    set_sym(this_bvm, "soft_root",      nil );
 
     //hash_insert( this_bvm->sym_table, "argv",  this_bvm->argv );
     //hash_insert( this_bvm->sym_table, "srand", time_hash );

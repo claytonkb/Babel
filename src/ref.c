@@ -10,8 +10,8 @@
 //
 mword *_deref(mword *bs, mword *ref_list){ // _deref#
 
-//    return rderef(bs,(mword*)tcar(ref_list));
-    return rderef(bs,(mword*)car(ref_list));
+    //return rderef(bs,(mword*)car(ref_list));
+    return rderef(bs,ref_list);
 
 }
 
@@ -22,6 +22,9 @@ static mword *rderef(mword *bs, mword *ref_list){ // rderef#
 
     mword *rl = (mword*)car(ref_list);
 
+//    _dump(ref_list);
+//    die;
+
     if (is_nil(ref_list)){
         return bs;
     }
@@ -30,6 +33,7 @@ static mword *rderef(mword *bs, mword *ref_list){ // rderef#
         die;
     }
     else if (is_tlist(rl)){
+        _dump(rl);
         enhance("Hash references not supported");
         die;
     }

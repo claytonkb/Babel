@@ -6,7 +6,7 @@
 
 #include "babel.h"
 
-mword *_new_tlist(mword *hash, mword *list);
+mword *new_tlist(mword *hash, mword *list);
 
 
 #endif //HASH_H

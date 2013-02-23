@@ -11,7 +11,7 @@
                     sym_table))
 
     (bvm_code   (tlist '/babel/tag/bvm_code'
-                    code
+                    (list code)
                     nil))
 
         -- (rstack (list nil))
