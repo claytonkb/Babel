@@ -178,10 +178,10 @@ mword *empty_string;
 #define pushr(x,y,z) push_udr_stack(x->rstack_ptr, new_rstack_entry(y,z)) // pushr#
 #define popr(x) pop_udr_stack(x->rstack_ptr) // popr#
 
-#define mkref(x,y) ( new_tlist( \
+//#define mkref(x)  mkref#
+#define mkref(x) ( new_tlist( \
                         _hash8(C2B("/babel/tag/ref")), \
-                        consa( _hash8(C2B(x)), \
-                            consa( y, nil ) ) ) )
+                            consa( x, nil ) ) )
 
 // non-allocating cons
 // XXX: Doesn't work with tlists...

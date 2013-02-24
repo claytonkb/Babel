@@ -4,6 +4,34 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- goto/eval/call -----
+
+goto -> simple branch  
+
+----- sparse: macros -----
+
+( X .... )
+
+X -> list type
+
+Permit "macro" lists:
+
+(macro 'foo' ...)
+
+... -> equivalent to contents of a Babel code-list (code ...)
+
+EXAMPLE:
+
+(macro 'foo' shift reverse)
+
+(foo a b c)
+
+1. The list (a b c) is placed on TOS
+2. The list is shifted leaving (b c)
+3. The list is then reversed leaving (c b)
+4. (c b) is now substituted back into the "parse-tree"
+   where (foo a b c) had been.
+
 ----- code re-structuring -----
 
 "babel_op" macro

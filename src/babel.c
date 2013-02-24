@@ -76,7 +76,8 @@ int main(int argc, char **argv){
 
     flush_bvm_cache(this_bvm);
 
-    _dump(_deref(this_bvm->code_ptr, consa(_newva(0), consa(_newva(0), nil))));
+//    _dump(_deref(this_bvm->code_ptr, consa(_newva(0), consa(_newva(0), nil))));
+     _dump( _deref( this_bvm->sym_table, car( mkref( consa( C2B("foo"), nil ) ) ) ) );
 
 //    _dump(this_bvm->self);
 
