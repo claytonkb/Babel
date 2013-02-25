@@ -108,9 +108,12 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
         }
 
         if( is_inte(car(car(this_bvm->code_ptr))) ){
-            die;
-//            push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), IMMORTAL);
-            push_alloc(this_bvm, (mword*)car(this_bvm->code_ptr), IMMORTAL);
+//            die;
+//            push_alloc(this_bvm, (mword*)car(this_bvm->code_ptr), IMMORTAL);
+            pushd( this_bvm, (mword*)car(car(this_bvm->code_ptr)), IMMORTAL );
+//            flush_bvm_cache(this_bvm);
+//            _dump(this_bvm->self);
+//            die;
         }
         else if( is_leaf(car(car(this_bvm->code_ptr))) ){
             mword opcode = c(car(car(this_bvm->code_ptr)),0);

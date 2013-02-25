@@ -116,11 +116,13 @@ mword *_pearson16(mword* sinit, mword *skey, mword strlen){
 
 }
 
-mword *new_hash(void){
+
+//FIXME: Move this to HASH.C!!!
+mword *new_hash(void){ // new_hash#
 
     mword *ptr = malloc( MWORDS(HASH_SIZE+1) );
     if(ptr == NULL){
-        error("new_hash: malloc returned NULL");
+        error("malloc returned NULL");
     }
 
     ptr[0] = HASH_SIZE * MWORD_SIZE;

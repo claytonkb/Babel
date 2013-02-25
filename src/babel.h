@@ -183,6 +183,11 @@ mword *empty_string;
                         _hash8(C2B("/babel/tag/ref")), \
                             consa( x, nil ) ) )
 
+//#define mktlist(x) mktlist#
+#define mktlist(x) ( new_tlist( \
+                        _hash8(C2B(x)), \
+                            consa( nil, nil ) ) )
+
 // non-allocating cons
 // XXX: Doesn't work with tlists...
 #define cons(a,b,c) icar(a) = (mword)(b); icdr(a) = (mword)(c); // cons#

@@ -35,7 +35,6 @@ int main(int argc, char **argv){
     //loaded_bbl = _deref((mword*)car(cdr(bvm_code_ptr(loaded_bbl))), (mword*)car(bvm_code_ptr(loaded_bbl)));
 //
 
-
     bvm_cache root_bvm;
     bvm_cache *this_bvm = &root_bvm;
 
@@ -45,9 +44,9 @@ int main(int argc, char **argv){
 //    //_dump( new_tlist( _hash8(C2B("/babel/tag/ref")), nil) );
 //    die;
 
-//    bvm_interp(this_bvm);
+    bvm_interp(this_bvm);
 
-
+//    printf("hello!\n");
 
     //fprintf(stderr, "%d\n", _exha( (mword*)car(root_bvm.sym_table) , _hash8(C2B("foo"))));
 
@@ -74,12 +73,14 @@ int main(int argc, char **argv){
 //    pushr(this_bvm,_newva(0xebbed),SELF_ALLOC);
 //    //popr(this_bvm);
 
-    flush_bvm_cache(this_bvm);
 
 //    _dump(_deref(this_bvm->code_ptr, consa(_newva(0), consa(_newva(0), nil))));
-     _dump( _deref( this_bvm->sym_table, car( mkref( consa( C2B("foo"), nil ) ) ) ) );
 
-//    _dump(this_bvm->self);
+//REFERENCES:
+//    _dump( _deref( (mword*)car(this_bvm->sym_table), mkref( consa( mktlist("argv"), consa( _newva(3), nil ) ) ) ) );
+
+    flush_bvm_cache(this_bvm);
+    _dump(this_bvm->self);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.

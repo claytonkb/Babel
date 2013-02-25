@@ -4,14 +4,15 @@
 #include "ref.h"
 #include "array.h"
 #include "bstruct.h"
-
+#include "tlist.h"
+#include "hash.h"
 
 // Dereferences a reference-list
 //
 mword *_deref(mword *bs, mword *ref_list){ // _deref#
 
     //return rderef(bs,(mword*)car(ref_list));
-    return rderef(bs,ref_list);
+    return rderef(bs,(mword*)car(ref_list));
 
 }
 
@@ -22,10 +23,7 @@ static mword *rderef(mword *bs, mword *ref_list){ // rderef#
 
     mword *rl = (mword*)car(ref_list);
 
-//    _dump(ref_list);
-//    die;
-
-    if (is_nil(ref_list)){
+    if (is_nil(rl)){
         return bs;
     }
     else if (is_ref(rl)){
@@ -33,9 +31,9 @@ static mword *rderef(mword *bs, mword *ref_list){ // rderef#
         die;
     }
     else if (is_tlist(rl)){
-        _dump(rl);
-        enhance("Hash references not supported");
-        die;
+        //_dump(extract_hash(rl));
+        bs = _luha( bs, extract_hash(rl) );
+        //die;
     }
     else if(is_leaf(rl)){
         if(is_leaf(bs)){

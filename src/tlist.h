@@ -7,7 +7,7 @@
 #include "babel.h"
 
 mword *new_tlist(mword *hash, mword *list);
-
+mword *extract_hash(mword *tlist);
 
 #endif //HASH_H
 

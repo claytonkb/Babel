@@ -4,9 +4,80 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
------ goto/eval/call -----
+----- Babel "functions" synopsis -----
 
 goto -> simple branch  
+
+    foo goto
+
+eval -> branch with return
+
+    foo eval bar   -- (returns to bar after doing foo)
+
+up/down -> Permits movement between the ustack and dstack
+
+nest -> Permits "nesting" to allow a function to monopolize the stack
+
+take -> Permits the use of "lexical" variables
+    Better performance than full-blown symbols and better clarity 
+    than stack operations for certain kinds of operations
+
+give -> Opposite of take
+
+---- sparse: lexical vs. symbols ------
+
+    Bare-word: lexical reference
+        
+        foo
+
+    $-sigil: symbolic
+
+        foo$ (gets turned into a reference)
+
+        shorthand for: (ref 'foo')
+
+Example:
+
+    bar$: 
+       ^This means "enter a pointer to this in the sym_table"
+
+    foo:
+        { (a b c d) take
+            a b *            a is really foo/a LEXICAL ONLY
+            a c * +
+            b d * +
+            c d / +
+            b c * + } <-- this gets put in foo/_bstruct LEXICAL ONLY
+
+    If a, b, c and d don't refer to anything, they are just initialized 
+    to nil by sparse.
+
+    { a$ << }
+      ^Data-reference
+
+    { "foo" a! }
+            ^Code-reference (gets eval'd)
+
+    { a ! }
+      ^ ^ 
+      | eval operator
+      lexical
+
+    { a$ ! }
+      ^  ^ 
+      |  eval operator
+      Data-reference
+
+----- take -----
+
+Currently take can only accept a numeric argument. If take is given
+a list as argument, it will take the length of the list's worth of
+items off the stack and modify the list to place pointers to the
+stack items in the given list:
+
+    ( a b c ) take
+
+Now, a points to what was TOS, b to what was TOS-1, etc.
 
 ----- sparse: macros -----
 

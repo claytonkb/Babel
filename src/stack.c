@@ -1,9 +1,6 @@
 // stack.c
 //
 
-// XXX Code size: compress the push_alloc* and pop*_stack fn's into
-// a single function that takes the stack as an argument
-//
 // Also, up/down should be able to perform non-alloc moves between 
 // stack and ustack.
 

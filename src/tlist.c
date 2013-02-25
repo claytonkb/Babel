@@ -3,6 +3,7 @@
 
 #include "tlist.h"
 #include "alloc.h"
+#include "pearson16.h"
 
 //tag-checking (equal, etc.)
 //new tagged-list
@@ -27,6 +28,23 @@ mword *new_tlist(mword *hash, mword *list){ // new_tlist#
     return ptr+1;
 
 }
+
+
+//
+//
+mword *extract_hash(mword *tlist){ // extract_hash#
+
+    mword *ptr = new_hash();
+    int i;
+
+    for(i=0; i<HASH_SIZE; i++){
+        ptr[i] = c(tlist,i);
+    }
+
+    return ptr;
+
+}
+
 
 // Clayton Bauman 2013
 
