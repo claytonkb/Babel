@@ -178,6 +178,8 @@ mword *empty_string;
 #define pushr(x,y,z) push_udr_stack(x->rstack_ptr, new_rstack_entry(y,z)) // pushr#
 #define popr(x) pop_udr_stack(x->rstack_ptr) // popr#
 
+#define zapd(x) _del( (mword*)icar( popd(x) ) )
+
 //#define mkref(x)  mkref#
 #define mkref(x) ( new_tlist( \
                         _hash8(C2B("/babel/tag/ref")), \
@@ -196,13 +198,11 @@ mword *empty_string;
 #define new_atom (_newlfi(1,0)) // new_atom#
 
 // Stack
-//#define TOS_0(x)             car(car(x->dstack_ptr))
-//#define TOS_1(x)         car(car(cdr(x->dstack_ptr)))
-//#define TOS_2(x)     car(car(cdr(cdr(x->dstack_ptr))))
-
 #define TOS_0(x)             (mword*)icar(icar(icar(x->dstack_ptr)))
 #define TOS_1(x)         (mword*)icar(icar(icar(icdr(x->dstack_ptr))))
 #define TOS_2(x)     (mword*)icar(icar(icar(icdr(icdr(x->dstack_ptr)))))
+
+//#define TOS_0(x) (get_from_udr_stack(x->dstack_ptr, 0))
 
 #define RTOS_0(x)            icar(icar(x->rstack_ptr))
 
@@ -240,6 +240,7 @@ mword *empty_string;
 #define DIE_CODE 1
 #define QUOTEME(x) #x
 #define d(x) printf("%s %08x\n", QUOTEME(x), x);  // d#
+#define _mem(x)  int _i; printf("%08x\n", s(x)); for(_i=0; _i<size(x); _i++){ printf("%08x\n", c(x,_i)); } // _mem#
 #define _dump(x) printf("%s\n", _bs2gv(x));  // _dump#
 #define die      fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);  // die#
 #define warn(x)  fprintf(stderr, "WARNING: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__);  // warn#

@@ -81,9 +81,10 @@ int main(int argc, char **argv){
 //REFERENCES:
 //    _dump( _deref( (mword*)car(this_bvm->sym_table), mkref( consa( mktlist("argv"), consa( _newva(3), nil ) ) ) ) );
 
+    //TOS_0(this_bvm) = nil;
+
     flush_bvm_cache(this_bvm);
-    _dump( (mword*)icar(icar(icar(this_bvm->dstack_ptr))) );
-    //_dump(this_bvm->self);
+//    _dump(this_bvm->self);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.

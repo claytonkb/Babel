@@ -313,9 +313,9 @@ bvm_cache *stdinln(bvm_cache *this_bvm){
 // babel_operator
 bvm_cache *stdoutop8(bvm_cache *this_bvm){
 
-    _stdoutop8(TOS_0(this_bvm));
+    _stdoutop8((mword*)icar(TOS_0(this_bvm)));
     
-    hard_zap(this_bvm);
+    popd(this_bvm);
 
     return this_bvm;
 
@@ -325,6 +325,7 @@ void _stdoutop8(mword *string){
 
     int i;
     mword length = _arlen8(string);
+
     char *cast_string = (char*)string; //C's casting syntax sucks!
 
     for(i=0; i<length; i++){

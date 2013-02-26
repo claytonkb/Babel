@@ -14,7 +14,7 @@
 #include "bvm_stack.h"
 #include "eval.h"
 #include "hash.h"
-
+#include "ref.h"
 
 //
 //
@@ -542,6 +542,8 @@ bvm_cache *flip(bvm_cache *this_bvm){
 
 }
 
+
+//
 //
 mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
 
@@ -557,17 +559,11 @@ mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
 
 //
 //
-mword *get_from_dstack(bvm_cache *this_bvm, mword stack_index){
+mword *get_from_udr_stack(mword *stack_ptr, mword stack_index){ // get_from_dstack#
 
-    mword *stack_entry = (mword*)icar(icar(icar(this_bvm->dstack_ptr)));
-
-    _dump(stack_entry);
-    die;
-
-    return (mword*)stack_entry;
+    return (mword*)icar( icar( _ith(stack_ptr, stack_index )));
 
 }
-
 
 
 // Clayton Bauman 2011

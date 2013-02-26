@@ -385,7 +385,8 @@ bvm_cache *ith(bvm_cache *this_bvm){
 }
 
 //
-mword *_ith(mword *list, mword i){
+//
+mword *_ith(mword *list, mword i){ // _ith#
 
     while(i > 0){
         i--;

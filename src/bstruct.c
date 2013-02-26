@@ -15,7 +15,8 @@
 #include "alloc.h"
 
 // recursively cleans a bstruct after traversal
-void rclean(mword *bs){
+//
+void rclean(mword *bs){ // rclean#
 
     int i;
     mword bs_size;
@@ -40,7 +41,7 @@ void rclean(mword *bs){
 
 //
 //
-void _recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){
+void _recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){ // _recurse#
 
     _fn_recurse(bs, bfn, v);
     rclean(bs);
@@ -49,7 +50,7 @@ void _recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){
 
 //
 //
-mword _fn_recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){
+mword _fn_recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){ // _fn_recurse#
 
     int i;
 
@@ -85,7 +86,7 @@ mword _fn_recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){
 // _mu -> memory usage (mnemonic: *nix du)
 // _mu(x) = _nin(x) + _nlf(x) + _ntls(x)*(HASH_SIZE+1) + _nptr(x) + _nva(x)
 //
-mword _mu(mword *bs){
+mword _mu(mword *bs){ // _mu#
 
     mword counter=0;
     _recurse(bs, _rmu, &counter);
@@ -95,7 +96,7 @@ mword _mu(mword *bs){
 
 //
 //
-mword _rmu(mword *bs, void *v){
+mword _rmu(mword *bs, void *v){ // _rmu#
 
     if( is_tlist(bs) ){
         *v += HASH_SIZE;
@@ -109,7 +110,7 @@ mword _rmu(mword *bs, void *v){
 
 // _nlf -> number of leaf-arrays
 //
-mword _nlf(mword *bs){
+mword _nlf(mword *bs){ // _nlf#
 
     mword counter=0;
     _recurse(bs, _rnlf, &counter);
@@ -119,7 +120,7 @@ mword _nlf(mword *bs){
 
 //
 //
-mword _rnlf(mword *bs, void *v){
+mword _rnlf(mword *bs, void *v){ // _rnlf#
 
     if( is_leaf(bs) ){
         *v += 1;
@@ -131,7 +132,7 @@ mword _rnlf(mword *bs, void *v){
 
 // _nin -> number of interior-arrays
 //
-mword _nin(mword *bs){
+mword _nin(mword *bs){ // _nin#
 
     mword counter=0;
     _recurse(bs, _rnin, &counter);
@@ -141,7 +142,7 @@ mword _nin(mword *bs){
 
 //
 //
-mword _rnin(mword *bs, void *v){
+mword _rnin(mword *bs, void *v){ // _rnin#
 
     if( is_inte(bs) ){
         *v += 1;
@@ -153,7 +154,7 @@ mword _rnin(mword *bs, void *v){
 
 // _ntls -> number of tagged-lists
 //
-mword _ntls(mword *bs){
+mword _ntls(mword *bs){ // _ntls#
 
     mword counter=0;
     _recurse(bs, _rntls, &counter);
@@ -163,7 +164,7 @@ mword _ntls(mword *bs){
 
 //
 //
-mword _rntls(mword *bs, void *v){
+mword _rntls(mword *bs, void *v){ // _rntls#
 
     if( is_tlist(bs) ){
         *v += 1;
@@ -175,7 +176,7 @@ mword _rntls(mword *bs, void *v){
 
 // _nva -> number of values
 //
-mword _nva(mword *bs){
+mword _nva(mword *bs){ // _nva#
 
     mword counter=0;
     _recurse(bs, _rnva, &counter);
@@ -185,7 +186,7 @@ mword _nva(mword *bs){
 
 //
 //
-mword _rnva(mword *bs, void *v){
+mword _rnva(mword *bs, void *v){ // _rnva#
 
     if( is_leaf(bs) ){
         *v += size(bs);
@@ -197,7 +198,7 @@ mword _rnva(mword *bs, void *v){
 
 // _nptr -> number of pointers
 //
-mword _nptr(mword *bs){
+mword _nptr(mword *bs){ // _nptr#
 
     mword counter=0;
     _recurse(bs, _rnptr, &counter);
@@ -207,7 +208,7 @@ mword _nptr(mword *bs){
 
 //
 //
-mword _rnptr(mword *bs, void *v){
+mword _rnptr(mword *bs, void *v){ // _rnptr#
 
     if( is_inte(bs) ){
         *v += size(bs);
@@ -219,7 +220,7 @@ mword _rnptr(mword *bs, void *v){
 
 // _lst -> generate listing
 //
-mword _lst(mword *bs){
+mword _lst(mword *bs){ // _lst#
 
     mword counter=0;
     _recurse(bs, _rlst, &counter);
@@ -229,7 +230,7 @@ mword _lst(mword *bs){
 
 //
 //
-mword _rlst(mword *bs, void *v){
+mword _rlst(mword *bs, void *v){ // _rlst#
 
     int i;
 
@@ -255,7 +256,7 @@ mword _rlst(mword *bs, void *v){
 
 //
 //
-mword *_cp(mword *bs){
+mword *_cp(mword *bs){ // _cp#
 
     mword *temp = _unload(bs);
     
@@ -375,29 +376,31 @@ mword rbbl2str(mword *bs, char *buffer){
 
 }
 
+
 //
 //
 bvm_cache *bs2gv(bvm_cache *this_bvm){ // bs2gv#
 
-//    _dump(this_bvm->dstack_ptr)
-//        die
+    mword *result = consa( _bs2gv(TOS_0(this_bvm)), nil);
 
-    _dump(TOS_0(this_bvm));
-    die;
+    zapd(this_bvm);
 
-    mword *result = new_atom;
-    (mword*)*result = _bs2gv(TOS_0(this_bvm));
+    pushd(  this_bvm,
+            result,
+            IMMORTAL );
 
-    zap(this_bvm);
-
-    push_alloc(this_bvm,result,MORTAL);
+//    _stdoutop8(TOS_0(this_bvm));
+//    _dump(this_bvm->dstack_ptr);
+//    die;
 
     return this_bvm;
 
 }
 
+
 //Returns a string containing the Graphviz text file
-mword *_bs2gv(mword *bs){
+//
+mword *_bs2gv(mword *bs){ // _bs2gv#
 
     // Figure out buffer size
     // Safety buffer of 2kb + (32 * _mu) XXX: WHY 100?? Ran into problems on this before!!
@@ -437,8 +440,10 @@ mword *_bs2gv(mword *bs){
 
 }
 
+
 //
-mword rbs2gv(mword *bs, char *buffer){
+//
+mword rbs2gv(mword *bs, char *buffer){ // rbs2gv#
 
     int i;
     mword buf_size=0;
