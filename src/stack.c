@@ -555,5 +555,20 @@ mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
 }
 
 
+//
+//
+mword *get_from_dstack(bvm_cache *this_bvm, mword stack_index){
+
+    mword *stack_entry = (mword*)icar(icar(icar(this_bvm->dstack_ptr)));
+
+    _dump(stack_entry);
+    die;
+
+    return (mword*)stack_entry;
+
+}
+
+
+
 // Clayton Bauman 2011
 

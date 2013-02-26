@@ -46,6 +46,8 @@ int main(int argc, char **argv){
 
     bvm_interp(this_bvm);
 
+
+
 //    printf("hello!\n");
 
     //fprintf(stderr, "%d\n", _exha( (mword*)car(root_bvm.sym_table) , _hash8(C2B("foo"))));
@@ -80,7 +82,8 @@ int main(int argc, char **argv){
 //    _dump( _deref( (mword*)car(this_bvm->sym_table), mkref( consa( mktlist("argv"), consa( _newva(3), nil ) ) ) ) );
 
     flush_bvm_cache(this_bvm);
-    _dump(this_bvm->self);
+    _dump( (mword*)icar(icar(icar(this_bvm->dstack_ptr))) );
+    //_dump(this_bvm->self);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.

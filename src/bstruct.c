@@ -376,17 +376,20 @@ mword rbbl2str(mword *bs, char *buffer){
 }
 
 //
-// babel_operator
-bvm_cache *bs2gv(bvm_cache *this_bvm){
+//
+bvm_cache *bs2gv(bvm_cache *this_bvm){ // bs2gv#
 
 //    _dump(this_bvm->dstack_ptr)
 //        die
+
+    _dump(TOS_0(this_bvm));
+    die;
 
     mword *result = new_atom;
     (mword*)*result = _bs2gv(TOS_0(this_bvm));
 
     zap(this_bvm);
-    
+
     push_alloc(this_bvm,result,MORTAL);
 
     return this_bvm;
