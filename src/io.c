@@ -313,6 +313,9 @@ bvm_cache *stdinln(bvm_cache *this_bvm){
 // babel_operator
 bvm_cache *stdoutop8(bvm_cache *this_bvm){
 
+//    _dump(TOS_0(this_bvm));
+//    die;
+
     _stdoutop8((mword*)icar(TOS_0(this_bvm)));
     
     popd(this_bvm);

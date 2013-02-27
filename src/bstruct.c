@@ -383,11 +383,9 @@ bvm_cache *bs2gv(bvm_cache *this_bvm){ // bs2gv#
 
     mword *result = consa( _bs2gv(TOS_0(this_bvm)), nil);
 
-    zapd(this_bvm);
+    zapd(this_bvm); //FIXME: Breaks loops
 
-    pushd(  this_bvm,
-            result,
-            IMMORTAL );
+    pushd( this_bvm, result, IMMORTAL );
 
 //    _stdoutop8(TOS_0(this_bvm));
 //    _dump(this_bvm->dstack_ptr);

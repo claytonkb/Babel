@@ -86,8 +86,11 @@ bvm_cache *mword_sizeop(bvm_cache *this_bvm){
 
 //
 // babel_operator
-bvm_cache *fnord(bvm_cache *this_bvm){
+bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
+//    _dump(this_bvm->dstack_ptr);
+//    die;
+//
     printf("fnord fnord\n");
 
 //    mword *result = _luha(this_bvm->sym_table, (mword*)TOS_0(this_bvm));

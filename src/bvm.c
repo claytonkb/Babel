@@ -110,7 +110,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
         if( is_inte(car(car(this_bvm->code_ptr))) ){
 //            die;
 //            push_alloc(this_bvm, (mword*)car(this_bvm->code_ptr), IMMORTAL);
-            pushd( this_bvm, (mword*)car(car(this_bvm->code_ptr)), IMMORTAL );
+            pushd( this_bvm, (mword*)car(car(car(this_bvm->code_ptr))), IMMORTAL );
 //            flush_bvm_cache(this_bvm);
 //            _dump(this_bvm->self);
 //            die;

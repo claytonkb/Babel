@@ -54,7 +54,7 @@ for $asm_file (@asm_files){
 tokenize($sections);
 my $obj = encode($sections);
 
-#print Dumper($obj);
+#print Dumper($obj) and die;
 #dump_obj($obj->{root}{code});
 
 create_lst($proj_name, $obj);
@@ -313,7 +313,13 @@ sub encode_tree{
         return encode_list          ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
     }
     elsif($sub_tree->[0] eq 'hash'){ #hash
-        return encode_hash        ($sub_tree, $offset, 0);
+        return encode_hash          ($sub_tree, $offset, 0);
+    }
+    elsif($sub_tree->[0] eq 'oper'){ #operator
+        return encode_values        ($sub_tree, $offset, 0);
+    }
+    elsif($sub_tree->[0] eq 'ref'){ #operator
+        return encode_ref   ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
     }
     else{
         print "Unrecognized list type: $symbol_table->{$section_name}->[0]\n" and die;
@@ -637,6 +643,59 @@ sub encode_tagged_list{
     return $element_list;
 
 }
+
+
+#
+#
+sub encode_ref{
+
+    my ($symbol_table, 
+        $addr_lut,
+        $section_name, 
+        $offset,
+        $sub_tree) = @_;
+
+    my $encoded;
+    my ($car, $cdr);
+
+    my @elements = @{$sub_tree};
+    shift @elements;
+
+    my @list = @elements;
+    unshift(@list, "list");
+
+#    print "@list\n" and die;
+
+    my $element_list = [];
+
+    push @{$element_list}, 0;
+    push @{$element_list}, bytes_to_mwords(Hash::Pearson16::pearson16_hash("/babel/tag/ref"));
+    push @{$element_list}, -2 * $MWORD_SIZE;
+    push @{$element_list}, 0xdeadbeef;
+    push @{$element_list}, 0xdeadbeef;
+
+    $car = $$offset+5;
+    $cdr = $$offset+6;
+
+    $$offset += 7;
+    my $offset_save = $$offset;
+
+    $encoded = encode_list($symbol_table, $addr_lut, "${section_name}_ATTACHED_LIST", $offset, \@list);
+    push (@{$element_list}, $_) for (@{$encoded});
+
+    $element_list->[$car] = $offset_save * $MWORD_SIZE;#$addr_lut->{"${section_name}_ATTACHED_LIST"};
+
+    if(!exists $addr_lut->{nil}){
+        $encoded = create_nil($addr_lut, $offset);
+        push (@{$element_list}, $_) for (@{$encoded});
+    }
+
+    $element_list->[$cdr] = $addr_lut->{nil};
+
+    return $element_list;
+
+}
+
 
 #
 #

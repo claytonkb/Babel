@@ -312,6 +312,12 @@ bvm_cache* cirem(bvm_cache *this_bvm){
 
 }
 
+//    assign#
+//    icar(TOS_0(this_bvm)) = consa(nil, nil);
+//
+//    _dump(this_bvm->code_ptr);
+//    die;
+
 // babel_operator
 bvm_cache *ciadd_assign(bvm_cache *this_bvm){
 

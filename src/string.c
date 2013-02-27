@@ -11,6 +11,7 @@
 #include "utf8.h"
 #include "debug.h"
 #include "array.h"
+#include "alloc.h"
 
 ////These operate on array-8:
 ////chomp
@@ -55,7 +56,8 @@
 // babel_operator
 bvm_cache *cr(bvm_cache *this_bvm){
 
-    mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
+//    mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
+    mword *operand = (mword*)TOS_0( this_bvm );
 
     char *result;
     mword size8;
@@ -85,14 +87,18 @@ bvm_cache *cr(bvm_cache *this_bvm){
 
     c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, (mword*)temp, IMMORTAL);
+    //zap(this_bvm);
+    //push_alloc(this_bvm, consa((mword*)temp, nil), IMMORTAL);
+
+    zapd(this_bvm);
+    pushd(this_bvm, (mword*)temp, IMMORTAL);
 
     return this_bvm;
 
 }
 
 
+//
 //
 mword *_b2c(mword *string){
 
@@ -306,14 +312,16 @@ bvm_cache *ci2dec(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
-bvm_cache *cu2dec(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
+//
+//
+bvm_cache *cu2dec(bvm_cache *this_bvm){ // cu2dec#
+
+    // buffer-size could technically be as small as 
+    // MWORD_BIT_SIZE / log_2(10) =~ MWORD_BIT_SIZE / 3.35
     char buffer[MWORD_BIT_SIZE/2];
 
-    int size = sprintf(buffer, "%u", car(TOS_0(this_bvm)));
+    int size = sprintf(buffer, "%u", c(TOS_0(this_bvm),0));
 
     mword arlength = (size / 4) + 1;
 
@@ -326,10 +334,13 @@ bvm_cache *cu2dec(bvm_cache *this_bvm){
     memcpy(result, buffer, size);
     c(result,arlength-1) = alignment_word8(size);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    zapd(this_bvm); //FIXME Breaks loops
+
+    //push_alloc(this_bvm, result, MORTAL);
+    pushd( this_bvm, result , IMMORTAL );
 
 }
+
 
 //
 // babel_operator
