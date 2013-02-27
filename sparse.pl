@@ -318,10 +318,14 @@ sub encode_tree{
     elsif($sub_tree->[0] eq 'oper'){ #operator
         return encode_values        ($sub_tree, $offset, 0);
     }
-    elsif($sub_tree->[0] eq 'ref'){ #operator
+    elsif($sub_tree->[0] eq 'ref'){ #reference
         return encode_ref   ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
     }
+    elsif($sub_tree->[0] eq 'code'){ #code
+        return encode_code_list    ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
+    }
     else{
+        print "@{$symbol_table->{$section_name}}\n";
         print "Unrecognized list type: $symbol_table->{$section_name}->[0]\n" and die;
     }
 
@@ -664,8 +668,6 @@ sub encode_ref{
     my @list = @elements;
     unshift(@list, "list");
 
-#    print "@list\n" and die;
-
     my $element_list = [];
 
     push @{$element_list}, 0;
@@ -674,16 +676,103 @@ sub encode_ref{
     push @{$element_list}, 0xdeadbeef;
     push @{$element_list}, 0xdeadbeef;
 
-    $car = $$offset+5;
-    $cdr = $$offset+6;
+    $car = $#{$element_list}-1;
+    $cdr = $#{$element_list};
 
-    $$offset += 7;
-    my $offset_save = $$offset;
+    $$offset += 8;
 
-    $encoded = encode_list($symbol_table, $addr_lut, "${section_name}_ATTACHED_LIST", $offset, \@list);
+    my $offset_save = $$offset+1;
+
+    $encoded = encode_list($symbol_table, $addr_lut, $section_name, $offset, \@list);
     push (@{$element_list}, $_) for (@{$encoded});
 
-    $element_list->[$car] = $offset_save * $MWORD_SIZE;#$addr_lut->{"${section_name}_ATTACHED_LIST"};
+    $element_list->[$car] = $offset_save * $MWORD_SIZE;
+
+    if(!exists $addr_lut->{nil}){
+        $encoded = create_nil($addr_lut, $offset);
+        push (@{$element_list}, $_) for (@{$encoded});
+    }
+
+    $element_list->[$cdr] = $addr_lut->{nil};
+
+#    printf("%08x\n", $_) for @{$element_list};
+#    die;
+
+    return $element_list;
+
+}
+
+
+#
+#
+sub encode_code_list{
+
+    my ($symbol_table, 
+        $addr_lut,
+        $section_name, 
+        $offset,
+        $sub_tree) = @_;
+
+    my $encoded;
+    my ($car, $cdr);
+
+    my @elements = @{$sub_tree};
+    shift @elements;
+
+    #$$offset += ($#elements+2);
+
+    my $element_list = [];
+    #push @{$element_list}, -1*$MWORD_SIZE*($#elements+1);
+
+    foreach my $element (@elements){
+
+        $$offset += 3;
+        push @{$element_list}, -2*$MWORD_SIZE;
+        for(1..2){
+            push @{$element_list}, 0xdeadbeef;
+        }
+
+        $car = $#{$element_list}-1;
+        $cdr = $#{$element_list};
+
+        if(ref($element) eq ""){
+
+            if(is_value($element)){
+                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+                #$encoded = encode_values(["ptr", ["val", $element]], $offset, 1);
+                $encoded = encode_pointers($symbol_table, $addr_lut, $section_name, $offset, ["ptr", ["val", $element]]);
+                push (@{$element_list}, $_) for (@{$encoded});
+                #printf("A:%x ", $$offset*$MWORD_SIZE);
+            }
+            else{
+                #print Dumper($symbol_table->{$element})  and die;
+                unless(exists $addr_lut->{$element}){
+                    if($symbol_table->{$element}[0] eq "oper"){
+                        $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+                    }
+                    else{
+                        $encoded = encode_section($symbol_table, $addr_lut, ["ptr", $element], $offset);
+                    }
+                    push (@{$element_list}, $_) for (@{$encoded});
+                }
+                $element_list->[$car] = $addr_lut->{$element};
+            }
+
+        }
+        else{
+            $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+            #print "@{$element}\n" and die;
+            if($element->[0] eq "oper"){
+                $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $element);
+            }
+            else{
+                $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, ["ptr", $element]);
+            }
+            push (@{$element_list}, $_) for (@{$encoded});
+        }
+        $element_list->[$cdr] = ($$offset+1) * $MWORD_SIZE;
+
+    }
 
     if(!exists $addr_lut->{nil}){
         $encoded = create_nil($addr_lut, $offset);

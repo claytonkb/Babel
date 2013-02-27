@@ -46,8 +46,6 @@ int main(int argc, char **argv){
 
     bvm_interp(this_bvm);
 
-
-
 //    printf("hello!\n");
 
     //fprintf(stderr, "%d\n", _exha( (mword*)car(root_bvm.sym_table) , _hash8(C2B("foo"))));
@@ -95,10 +93,9 @@ int main(int argc, char **argv){
 }
 
 
-
-// Should be called only once per bvm instance
-// FIXME: Everything about this is COMPLETELY busted...
-void init_nil(void){
+//
+//
+void init_nil(void){ // init_nil#
 
     mword *ptr = malloc( MWORDS( 3 + HASH_SIZE + 1 ) ); // 3 = s-field + car + cdr
 
@@ -106,17 +103,16 @@ void init_nil(void){
 
     ptr[0] = 0; // X.s = 0 -> tagged-list
 
-    //FIXME: 32-bit specific... also, this whole thing is inelegant
-    ptr[1] = nil_hash[0];
-    ptr[2] = nil_hash[1];
-    ptr[3] = nil_hash[2];
-    ptr[4] = nil_hash[3];
+    int i;
+    for(i=0;i<HASH_SIZE;i++){
+        ptr[i+1] = nil_hash[i];
+    }
 
     nil = (ptr + 1);
 
-    ptr[5] = -2;
-    ptr[6] = (mword)nil;
-    ptr[7] = (mword)nil;
+    ptr[HASH_SIZE+1] = -2;
+    ptr[HASH_SIZE+2] = (mword)nil;
+    ptr[HASH_SIZE+3] = (mword)nil;
 
 }
 
