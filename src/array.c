@@ -127,7 +127,7 @@ inline mword* val(mword *leaf, mword index){ // val#
 // Accepts a data value and returns a leaf-array
 // of size 1 containing that data value
 //
-mword *_newva(mword value){
+mword *_newva(mword value){ // _newva#
 
     mword *ptr = malloc( MWORDS(1) );
     if(ptr == NULL){

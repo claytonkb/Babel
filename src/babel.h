@@ -198,6 +198,14 @@ mword *empty_string;
 #define new_atom (_newlfi(1,0)) // new_atom#
 
 // Stack
+#define dstack_get(x,y) get_from_udr_stack(x, x->dstack_ptr, y)
+#define ustack_get(x,y) get_from_udr_stack(x, x->ustack_ptr, y)
+#define rstack_get(x,y) get_from_udr_stack(x, x->rstack_ptr, y)
+
+#define dstack_set(x,y,z) set_in_udr_stack(x, x->dstack_ptr, y, z)
+#define ustack_set(x,y,z) set_in_udr_stack(x, x->ustack_ptr, y, z)
+#define rstack_set(x,y,z) set_in_udr_stack(x, x->rstack_ptr, y, z)
+
 #define TOS_0(x)             (mword*)icar(icar(icar(x->dstack_ptr)))
 #define TOS_1(x)         (mword*)icar(icar(icar(icdr(x->dstack_ptr))))
 #define TOS_2(x)     (mword*)icar(icar(icar(icdr(icdr(x->dstack_ptr)))))

@@ -751,7 +751,10 @@ sub encode_code_list{
                         $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
                     }
                     else{
-                        $encoded = encode_section($symbol_table, $addr_lut, ["ptr", $element], $offset);
+#                        $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+#                        push (@{$element_list}, $_) for (@{$encoded});
+                        $encoded = encode_pointers($symbol_table, $addr_lut, $section_name, $offset, ["ptr", ["ptr", $element]]);
+                        #$encoded = encode_section($symbol_table, $addr_lut, ["ptr", $element], $offset);
                     }
                     push (@{$element_list}, $_) for (@{$encoded});
                 }

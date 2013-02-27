@@ -3,7 +3,7 @@
 -- This is the code and symbmol-table for The Construct, the
 -- root virtual machine...
 
-(   (main   (code 42 cu2dec cr stdout8 ) )
+(   (main   (code 42 13 cimul cu2dec cr stdout8 ) )
 
     (symbol (list nil))
 

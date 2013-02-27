@@ -60,5 +60,19 @@ static mword *rderef(mword *bs, mword *ref_list){ // rderef#
 }
 
 
+//
+//
+mword *_chain_deref(mword *bs, mword *ref_list){ // _chain_deref#
+
+    mword *result = ref_list;
+
+    while(is_ref(result)){ 
+        result = _deref(bs, result);
+    }
+
+    return result;
+
+}
+
 // Clayton Bauman 2013
 

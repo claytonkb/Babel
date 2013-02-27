@@ -12,6 +12,7 @@
 #include "debug.h"
 #include "array.h"
 #include "alloc.h"
+#include "bstruct.h"
 
 ////These operate on array-8:
 ////chomp
@@ -321,7 +322,12 @@ bvm_cache *cu2dec(bvm_cache *this_bvm){ // cu2dec#
     // MWORD_BIT_SIZE / log_2(10) =~ MWORD_BIT_SIZE / 3.35
     char buffer[MWORD_BIT_SIZE/2];
 
-    int size = sprintf(buffer, "%u", c(TOS_0(this_bvm),0));
+//    int size = 
+//        sprintf(buffer, 
+//                "%u", 
+//                c(TOS_0(this_bvm),0) );
+
+    int size = sprintf(buffer, "%u", icar( dstack_get(this_bvm, 0) ) );
 
     mword arlength = (size / 4) + 1;
 
@@ -337,7 +343,7 @@ bvm_cache *cu2dec(bvm_cache *this_bvm){ // cu2dec#
     zapd(this_bvm); //FIXME Breaks loops
 
     //push_alloc(this_bvm, result, MORTAL);
-    pushd( this_bvm, result , IMMORTAL );
+    pushd( this_bvm, result, IMMORTAL );
 
 }
 

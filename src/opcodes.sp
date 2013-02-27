@@ -90,7 +90,7 @@
     (cut            (oper 0x12b))
     (trunc          (oper 0x12c))
 
-    (eoper           (val 0x130))
+    (eval           (oper 0x130))
     (while          (oper 0x135))
     (times          (oper 0x136))
     (isinte         (oper 0x138))

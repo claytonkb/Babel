@@ -9,124 +9,79 @@
 #include "bvm_opcodes.h"
 #include "array.h"
 #include "bvm.h"
+#include "alloc.h"
 
-// babel_operator
-bvm_cache *cuadd(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-//    *result = (mword)car(TOS_0(this_bvm)) + (mword)car(TOS_1(this_bvm));
-
-    mword opA = car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-    mword opB = car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
-
-    *result = opA + opB;
-
-    // Detect overflow
-//    if((mword)*result < (mword)car(TOS_0(this_bvm))){
-//        error("cuadd: overflow");
-//    }
-
-    // FIXME Overflow error
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
+#define babel_arithmetic_2op(x,y)               \
+                                                \
+    mword opA = c( dstack_get(x,0), 0 );        \
+    mword opB = c( dstack_get(x,1), 0 );        \
+                                                \
+    mword *result = _newva( y );                \
+                                                \
+    zapd(x);                                    \
+    zapd(x);                                    \
+                                                \
+    pushd(x, result, IMMORTAL);                 \
+                                                \
     return this_bvm;
+
+
+#define babel_signed_arithmetic_2op(x,y)        \
+                                                \
+    mword opA = c( dstack_get(x,0), 0 );        \
+    mword opB = c( dstack_get(x,1), 0 );        \
+                                                \
+    int signed_result = (int)(y);               \
+                                                \
+    mword *result = _newva( (mword)y );         \
+                                                \
+    zapd(x);                                    \
+    zapd(x);                                    \
+                                                \
+    pushd(x, result, IMMORTAL);                 \
+                                                \
+    return this_bvm;
+
+
+//
+//
+bvm_cache *cuadd(bvm_cache *this_bvm){ // cuadd#
+
+    babel_arithmetic_2op( this_bvm, opA + opB )
 
 }
 
-// babel_operator
-bvm_cache *cusub(bvm_cache *this_bvm){
 
-    // Detect underflow
-//    if((mword)car(TOS_1(this_bvm)) < (mword)car(TOS_0(this_bvm))){
-//        error("cusub: underflow");
-//    }
+//
+//
+bvm_cache *cusub(bvm_cache *this_bvm){ // cusub#
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    mword opA = car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
-    mword opB = car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-
-    *result = opA - opB;
-
-//    *result = (mword)car(TOS_1(this_bvm)) - (mword)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
+    babel_arithmetic_2op( this_bvm, opB - opA )
 
 }
 
-// babel_operator
-bvm_cache* ciadd(bvm_cache *this_bvm){
 
-    mword *temp   = new_atom;
-    mword *result = _newin(1);
-    (mword*)*result = temp;
- 
-    int opA = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-    int opB = (int)car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
+//
+//
+bvm_cache* ciadd(bvm_cache *this_bvm){ // ciadd#
 
-    (int)*temp = opA + opB;
-
-//    // Detect underflow/overflow
-//    if(        ((int)*result < 0) 
-//            && (opA          > 0) 
-//            && (opB          > 0) ){
-//        error("ciadd: overflow");
-//    }
-//    if(        ((int)*result >= 0) 
-//            && opA           <  0 
-//            && opB           <  0 ){
-//        error("ciadd: underflow");
-//    }
-
-    hard_zap(this_bvm);
-    hard_zap(this_bvm);
-
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
+    babel_signed_arithmetic_2op( this_bvm, opA + opB )
 
 }
 
-// babel_operator
-bvm_cache* cisub(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
+//
+//
+bvm_cache* cisub(bvm_cache *this_bvm){ // cisub#
 
-//    (int)*result = (int)car(TOS_1(this_bvm)) - (int)car(TOS_0(this_bvm));
-
-    int opA = (int)car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
-    int opB = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-
-    (int)*result = opA - opB;
-
-    // Detect underflow/overflow
-//    if( ((int)*result <  0) && ((int)car(TOS_0(this_bvm)) < 0) && ((int)car(TOS_1(this_bvm)) > 0) ){
-//        error("cisub: overflow");
-//    }
-//    if( ((int)*result >= 0) && ((int)car(TOS_0(this_bvm)) > 0) && ((int)car(TOS_1(this_bvm)) < 0) ){
-//        error("cisub: underflow");
-//    }
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
+    babel_signed_arithmetic_2op( this_bvm, opB - opA )
 
 }
 
-// babel_operator
+
+//
+//
 bvm_cache* ciabs(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -151,31 +106,15 @@ bvm_cache* ciabs(bvm_cache *this_bvm){
 
 }
 
-// babel_operator
-bvm_cache* cumul(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result = new_atom;
+//
+//
+bvm_cache* cumul(bvm_cache *this_bvm){ // cumul#
 
-    mword opA = car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
-    mword opB = car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-
-    *result = opA * opB;
-
-//    *result = (mword)car(TOS_0(this_bvm)) * (mword)car(TOS_1(this_bvm));
-
-    // Argh... There must be a better way!
-//    if( *result / (mword)car(TOS_0(this_bvm)) != (mword)car(TOS_1(this_bvm)) ){
-//        error("cumul: overflow");
-//    }
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
+    babel_arithmetic_2op( this_bvm, opA * opB )
 
 }
+
 
 // babel_operator
 bvm_cache* cudiv(bvm_cache *this_bvm){
@@ -227,29 +166,12 @@ bvm_cache* curem(bvm_cache *this_bvm){
 
 }
 
-// babel_operator
-bvm_cache* cimul(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result = new_atom;
+//
+//
+bvm_cache* cimul(bvm_cache *this_bvm){ // cimul#
 
-//    (int)*result = (int)car(TOS_0(this_bvm)) * (int)car(TOS_1(this_bvm));
-
-    int opA = (int)car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
-    int opB = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-
-    (int)*result = opA * opB;
-
-    // Argh... There must be a better way!
-//    if( (int)*result / (int)car(TOS_0(this_bvm)) != (int)car(TOS_1(this_bvm)) ){
-//        error("cimul: overflow");
-//    }
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
+    babel_signed_arithmetic_2op( this_bvm, opA * opB )
 
 }
 

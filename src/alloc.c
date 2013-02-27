@@ -32,8 +32,10 @@ bvm_cache *del(bvm_cache *this_bvm){
 
 }
 
+
 //
-void _del(mword *bs){
+//
+void _del(mword *bs){ // _del#
 
     int i;
 
