@@ -66,8 +66,8 @@
     (msize          (oper 0x107))
     (arlen8         (oper 0x108))
     (free           (oper 0x109))
-    (arlen          (oper 0x10a))
-    (arcat8         (oper 0x10b))
+    (arlen          (oper 0x10b))
+    (arcat8         (oper 0x10c))
     (arcat          (oper 0x10f))
 
     (mu             (oper 0x110))

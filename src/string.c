@@ -58,7 +58,7 @@
 bvm_cache *cr(bvm_cache *this_bvm){
 
 //    mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
-    mword *operand = (mword*)TOS_0( this_bvm );
+    mword *operand = dstack_get(this_bvm, 0);//(mword*)TOS_0( this_bvm );
 
     char *result;
     mword size8;
@@ -290,66 +290,6 @@ bvm_cache *dec2ci(bvm_cache *this_bvm){
 
 //
 // babel_operator
-bvm_cache *ci2dec(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    char buffer[MWORD_BIT_SIZE/2];
-
-    int size = sprintf(buffer, "%d", (int)car(TOS_0(this_bvm)));
-
-    mword arlength = (size / 4) + 1;
-
-    if(size % 4){
-        arlength++;
-    }
-
-    mword *result = _newlf(arlength);
-
-    memcpy(result, buffer, size);
-    c(result,arlength-1) = alignment_word8(size);
-
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-}
-
-
-//
-//
-bvm_cache *cu2dec(bvm_cache *this_bvm){ // cu2dec#
-
-    // buffer-size could technically be as small as 
-    // MWORD_BIT_SIZE / log_2(10) =~ MWORD_BIT_SIZE / 3.35
-    char buffer[MWORD_BIT_SIZE/2];
-
-//    int size = 
-//        sprintf(buffer, 
-//                "%u", 
-//                c(TOS_0(this_bvm),0) );
-
-    int size = sprintf(buffer, "%u", icar( dstack_get(this_bvm, 0) ) );
-
-    mword arlength = (size / 4) + 1;
-
-    if(size % 4){
-        arlength++;
-    }
-
-    mword *result = _newlf(arlength);
-
-    memcpy(result, buffer, size);
-    c(result,arlength-1) = alignment_word8(size);
-
-    zapd(this_bvm); //FIXME Breaks loops
-
-    //push_alloc(this_bvm, result, MORTAL);
-    pushd( this_bvm, result, IMMORTAL );
-
-}
-
-
-//
-// babel_operator
 bvm_cache *hex2cu(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -363,28 +303,50 @@ bvm_cache *hex2cu(bvm_cache *this_bvm){
 
 }
 
+
+#define numeric_to_string_operator(x)                   \
+    char buffer[MWORD_BIT_SIZE/2];                      \
+                                                        \
+    int size = sprintf(                                 \
+                    buffer, x,                          \
+                    icar( dstack_get(this_bvm, 0) ) );  \
+                                                        \
+    mword arlength = (size / 4) + 1;                    \
+                                                        \
+    if(size % 4){                                       \
+        arlength++;                                     \
+    }                                                   \
+                                                        \
+    mword *result = _newlf(arlength);                   \
+                                                        \
+    memcpy(result, buffer, size);                       \
+    c(result,arlength-1) = alignment_word8(size);       \
+                                                        \
+    zapd(this_bvm);                                     \
+    pushd( this_bvm, result, IMMORTAL );                \
+
+//
+//
+bvm_cache *ci2dec(bvm_cache *this_bvm){ // ci2dec#
+
+    numeric_to_string_operator( "%i" );
+
+}
+
+
+//
+//
+bvm_cache *cu2dec(bvm_cache *this_bvm){ // cu2dec#
+
+    numeric_to_string_operator( "%u" );
+
+}
+
 //
 // babel_operator
-bvm_cache *cu2hex(bvm_cache *this_bvm){
+bvm_cache *cu2hex(bvm_cache *this_bvm){ // cu2hex#
 
-    fatal("stack fix not done");
-    char buffer[(MWORD_BIT_SIZE/4) + 1];
-
-    int size = sprintf(buffer, "%x", car(TOS_0(this_bvm)));
-
-    mword arlength = (size / 4) + 1;
-
-    if(size % 4){
-        arlength++;
-    }
-
-    mword *result = _newlf(arlength);
-
-    memcpy(result, buffer, size);
-    c(result,arlength-1) = alignment_word8(size);
-
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    numeric_to_string_operator( "%x" );
 
 }
 

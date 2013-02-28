@@ -12,43 +12,31 @@
 #include "alloc.h"
 
 
-#define babel_arithmetic_2op(x,y)               \
+#define babel_arithmetic(y)                     \
                                                 \
-    mword opA = c( dstack_get(x,0), 0 );        \
-    mword opB = c( dstack_get(x,1), 0 );        \
+    mword opA = c( op0, 0 );                    \
+    mword opB = c( op1, 0 );                    \
                                                 \
-    mword *result = _newva( y );                \
-                                                \
-    zapd(x);                                    \
-    zapd(x);                                    \
-                                                \
-    pushd(x, result, IMMORTAL);                 \
-                                                \
-    return this_bvm;
+    result = _newva( y );
 
 
-#define babel_signed_arithmetic_2op(x,y)        \
+#define babel_signed_arithmetic(y)              \
                                                 \
-    mword opA = c( dstack_get(x,0), 0 );        \
-    mword opB = c( dstack_get(x,1), 0 );        \
+    mword opA = c( op0, 0 );                    \
+    mword opB = c( op1, 0 );                    \
                                                 \
     int signed_result = (int)(y);               \
                                                 \
-    mword *result = _newva( (mword)y );         \
-                                                \
-    zapd(x);                                    \
-    zapd(x);                                    \
-                                                \
-    pushd(x, result, IMMORTAL);                 \
-                                                \
-    return this_bvm;
+    result = _newva( (mword)signed_result);
 
 
 //
 //
 bvm_cache *cuadd(bvm_cache *this_bvm){ // cuadd#
 
-    babel_arithmetic_2op( this_bvm, opA + opB )
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_arithmetic( opA + opB ) );
 
 }
 
@@ -57,8 +45,9 @@ bvm_cache *cuadd(bvm_cache *this_bvm){ // cuadd#
 //
 bvm_cache *cusub(bvm_cache *this_bvm){ // cusub#
 
-    babel_arithmetic_2op( this_bvm, opB - opA )
-
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_arithmetic( opB - opA ) );
 }
 
 
@@ -66,7 +55,9 @@ bvm_cache *cusub(bvm_cache *this_bvm){ // cusub#
 //
 bvm_cache* ciadd(bvm_cache *this_bvm){ // ciadd#
 
-    babel_signed_arithmetic_2op( this_bvm, opA + opB )
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_signed_arithmetic( opA + opB ) );
 
 }
 
@@ -75,34 +66,9 @@ bvm_cache* ciadd(bvm_cache *this_bvm){ // ciadd#
 //
 bvm_cache* cisub(bvm_cache *this_bvm){ // cisub#
 
-    babel_signed_arithmetic_2op( this_bvm, opB - opA )
-
-}
-
-
-//
-//
-bvm_cache* ciabs(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    // The most negative number in 2's complement cannot be abs()'d
-    if( ((int)car(TOS_0(this_bvm)) - 1) > 0 ){
-        error("ciabs: overflow");
-    }
-
-    mword *result    = new_atom;
-
-//    (int)*result = abs((int)car(TOS_0(this_bvm)));
-
-    int opA = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-//    int opB = (int)car( get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) ) );
-
-    (int)*result = abs(opA);
-
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_signed_arithmetic( opB - opA ) );
 
 }
 
@@ -111,58 +77,9 @@ bvm_cache* ciabs(bvm_cache *this_bvm){
 //
 bvm_cache* cumul(bvm_cache *this_bvm){ // cumul#
 
-    babel_arithmetic_2op( this_bvm, opA * opB )
-
-}
-
-
-// babel_operator
-bvm_cache* cudiv(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *result = new_atom;
-
-    mword opA = car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
-    mword opB = car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-
-    if( opB == 0 ){
-        fatal("zero divisor");
-    }
-
-    *result = opA / opB;
-
-//    *result = (mword)car(TOS_1(this_bvm)) / (mword)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
-
-}
-
-// babel_operator
-bvm_cache* curem(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *result = new_atom;
-
-    mword opA = car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
-    mword opB = car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-
-    if( opB == 0 ){
-        fatal("zero modulus");
-    }
-
-    *result = opA % opB;
-
-//    *result = (mword)car(TOS_1(this_bvm)) % (mword)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_arithmetic( opA * opB ) );
 
 }
 
@@ -171,126 +88,122 @@ bvm_cache* curem(bvm_cache *this_bvm){
 //
 bvm_cache* cimul(bvm_cache *this_bvm){ // cimul#
 
-    babel_signed_arithmetic_2op( this_bvm, opA * opB )
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_signed_arithmetic( opA * opB ) );
 
 }
 
 
-// babel_operator
-bvm_cache* cidiv(bvm_cache *this_bvm){
+#define babel_division(y)                       \
+                                                \
+    mword opA = c( op0, 0 );                    \
+    mword opB = c( op1, 0 );                    \
+                                                \
+    if( opA == 0 ){                             \
+       fatal("zero divisor or modulus");        \
+    }                                           \
+                                                \
+    result = _newva( y );
 
-    fatal("stack fix not done");
-    mword *result = new_atom;
 
-//    (int)*result = (int)car(TOS_1(this_bvm)) / (int)car(TOS_0(this_bvm));
+#define babel_signed_division(y)                \
+                                                \
+    mword opA = c( op0, 0 );                    \
+    mword opB = c( op1, 0 );                    \
+                                                \
+    if( opA == 0 ){                             \
+       fatal("zero divisor or modulus");        \
+    }                                           \
+                                                \
+    int signed_result = (int)(y);               \
+                                                \
+    result = _newva( (mword)signed_result );
 
-    mword *result = new_atom;
 
-    int opA = (int)car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
-    int opB = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-
-    if( opB == 0 ){
-        fatal("zero divisor");
-    }
-
-    (int)*result = opA / opB;
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
-
-}
-
-// babel_operator
-bvm_cache* cirem(bvm_cache *this_bvm){
-
-//    if( car(TOS_0(this_bvm)) == 0 ){
-//        error("cirem: zero modulus");
-//    }
 //
-//    mword *result = new_atom;
 //
-//    (int)*result = (int)car(TOS_1(this_bvm)) % (int)car(TOS_0(this_bvm));
+bvm_cache* cudiv(bvm_cache *this_bvm){ // cudiv#
 
-    fatal("stack fix not done");
-    mword *result = new_atom;
-
-    int opA = (int)car( get_from_stack( this_bvm, TOS_1( this_bvm ) ) );
-    int opB = (int)car( get_from_stack( this_bvm, TOS_0( this_bvm ) ) );
-
-    if( opB == 0 ){
-        fatal("zero modulus");
-    }
-
-    (int)*result = opA % opB;
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_division( opB / opA ) );
 
 }
 
-//    assign#
-//    icar(TOS_0(this_bvm)) = consa(nil, nil);
+
 //
-//    _dump(this_bvm->code_ptr);
-//    die;
+//
+bvm_cache* curem(bvm_cache *this_bvm){ // curem#
 
-// babel_operator
-bvm_cache *ciadd_assign(bvm_cache *this_bvm){
-
-//    (int)car(TOS_0(this_bvm)) = (int)car(TOS_0(this_bvm)) + (int)car(TOS_1(this_bvm));
-
-//    // Detect underflow/overflow
-//    if( ((int)*result <  0) && ((int)car(TOS_0(this_bvm)) > 0) && ((int)car(TOS_1(this_bvm)) > 0) ){
-//        error("ciadd: overflow");
-//    }
-//    if( ((int)*result >= 0) && ((int)car(TOS_0(this_bvm)) < 0) && ((int)car(TOS_1(this_bvm)) < 0) ){
-//        error("ciadd: underflow");
-//    }
-
-    int *opA = (int*)get_from_stack( this_bvm, TOS_1( this_bvm ) );
-    int *opB = (int*)get_from_stack( this_bvm, TOS_0( this_bvm ) );
-
-    *opA = *opA + *opB;
-
-    // FIXME Overflow error
-
-    zap(this_bvm);
-    zap(this_bvm);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_division( opB % opA ) );
 
 }
 
-// babel_operator
-bvm_cache *cisub_assign(bvm_cache *this_bvm){
 
-//    (int)car(TOS_0(this_bvm)) = (int)car(TOS_0(this_bvm)) - (int)car(TOS_1(this_bvm));
+//
+//
+bvm_cache* cidiv(bvm_cache *this_bvm){ // cidiv#
 
-//    // Detect underflow/overflow
-//    if( ((int)*result <  0) && ((int)car(TOS_0(this_bvm)) > 0) && ((int)car(TOS_1(this_bvm)) > 0) ){
-//        error("ciadd: overflow");
-//    }
-//    if( ((int)*result >= 0) && ((int)car(TOS_0(this_bvm)) < 0) && ((int)car(TOS_1(this_bvm)) < 0) ){
-//        error("ciadd: underflow");
-//    }
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_signed_division( opB / opA ) );
 
-    int *opA = (int*)get_from_stack( this_bvm, TOS_1( this_bvm ) );
-    int *opB = (int*)get_from_stack( this_bvm, TOS_0( this_bvm ) );
+}
 
-    *opA = *opA - *opB;
 
-    // FIXME Overflow error
+//
+//
+bvm_cache* cirem(bvm_cache *this_bvm){ // cirem#
 
-    zap(this_bvm);
-    zap(this_bvm);
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_signed_division( opB % opA ) );
 
-    return this_bvm;
+}
+
+
+//
+//
+bvm_cache* ciabs(bvm_cache *this_bvm){ // ciabs#
+
+#define ciabs_operator                          \
+    mword opA = c( op0, 0 );                    \
+    result = _newva( abs( (int)opA ) );
+
+    babel_operator_typeA( this_bvm, ciabs_operator );
+
+}
+
+
+//
+//
+bvm_cache *ciadd_assign(bvm_cache *this_bvm){ // ciadd_assign#
+
+#define ciadd_assign_operator                   \
+    int result = (int)*op0 + (int)*op1;         \
+    *op1 = (mword)result;                       \
+
+    babel_operator_typeE(
+            this_bvm,
+            ciadd_assign_operator);
+
+}
+
+
+//
+//
+bvm_cache *cisub_assign(bvm_cache *this_bvm){ // cisub_assign#
+
+#define cisub_assign_operator                   \
+    int result = (int)*op0 - (int)*op1;         \
+    *op1 = (mword)result;                       \
+
+    babel_operator_typeE(
+            this_bvm,
+            cisub_assign_operator);
 
 }
 

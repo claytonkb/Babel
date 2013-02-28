@@ -238,6 +238,67 @@ mword *empty_string;
 #define alloc_type(x) car(car(cdr(x))) 
 #define return_type(x) car(cdr(car(x))) 
 
+//Operators
+#define babel_operator_typeA(x,y)               \
+    mword *op0 = dstack_get(x,0);               \
+    mword *result;                              \
+                                                \
+    y                                           \
+                                                \
+    zapd(x);                                    \
+                                                \
+    pushd(x, result, IMMORTAL);                 \
+                                                \
+    return this_bvm;
+
+
+#define babel_operator_typeB(x,y)               \
+    mword *op0 = dstack_get(x,0);               \
+    mword *op1 = dstack_get(x,1);               \
+    mword *result;                              \
+                                                \
+    y                                           \
+                                                \
+    zapd(x);                                    \
+    zapd(x);                                    \
+                                                \
+    pushd(x, result, IMMORTAL);                 \
+                                                \
+    return this_bvm;
+
+
+#define babel_operator_typeC(x,y)               \
+    mword *op0 = dstack_get(x,0);               \
+                                                \
+    y                                           \
+                                                \
+    zapd(x);                                    \
+                                                \
+    return this_bvm;
+
+
+#define babel_operator_typeD(x,y)               \
+    mword *op0 = dstack_get(x,0);               \
+                                                \
+    y                                           \
+                                                \
+    pushd(x, result, IMMORTAL);                 \
+                                                \
+    return this_bvm;
+
+
+#define babel_operator_typeE(x,y)               \
+    mword *op0 = dstack_get(x,0);               \
+    mword *op1 = dstack_get(x,1);               \
+                                                \
+    y                                           \
+                                                \
+    zapd(x);                                    \
+                                                \
+    return this_bvm;
+
+
+
 // BVM
 #define BVM_ADVANCE  0
 #define BVM_CONTINUE 1

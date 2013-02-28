@@ -746,19 +746,20 @@ sub encode_code_list{
             }
             else{
                 #print Dumper($symbol_table->{$element})  and die;
+                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
                 unless(exists $addr_lut->{$element}){
                     if($symbol_table->{$element}[0] eq "oper"){
                         $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
                     }
-                    else{
+                    else{                        
 #                        $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
 #                        push (@{$element_list}, $_) for (@{$encoded});
-                        $encoded = encode_pointers($symbol_table, $addr_lut, $section_name, $offset, ["ptr", ["ptr", $element]]);
+                        $encoded = encode_pointers($symbol_table, $addr_lut, $section_name, $offset, ["ptr", $element]);
                         #$encoded = encode_section($symbol_table, $addr_lut, ["ptr", $element], $offset);
                     }
                     push (@{$element_list}, $_) for (@{$encoded});
                 }
-                $element_list->[$car] = $addr_lut->{$element};
+                #$element_list->[$car] = $addr_lut->{$element};
             }
 
         }

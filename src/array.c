@@ -1,6 +1,7 @@
 // array.c
 //
 
+
 #include "babel.h"
 #include "array.h"
 #include "list.h"
@@ -10,38 +11,52 @@
 #include "except.h"
 #include "bvm.h"
 #include "load.h"
-
+#include "alloc.h"
 
 
 //
-// babel_operator
-bvm_cache *sfield(bvm_cache *this_bvm){
+//
+bvm_cache *sfield(bvm_cache *this_bvm){ // sfield#
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-    
-    *result = s(TOS_0(this_bvm));
+//    fatal("stack fix not done");
+//    mword *result    = new_atom;
+//    
+//    *result = s(TOS_0(this_bvm));
+//
+//    zap(this_bvm);
+//    push_alloc(this_bvm, result, MORTAL);
+//
+//    return this_bvm;
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+#define babel_sfield_operator \
+    result = _newva( s( op0 ) );
 
-    return this_bvm;
+    babel_operator_typeA( 
+            this_bvm, 
+            babel_sfield_operator );
 
 }
 
 //
 // babel_operator
-bvm_cache *arlen(bvm_cache *this_bvm){
+bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-    
-    *result = size(TOS_0(this_bvm));
+//    fatal("stack fix not done");
+//    mword *result    = new_atom;
+//    
+//    *result = size(TOS_0(this_bvm));
+//
+//    zap(this_bvm);
+//    push_alloc(this_bvm, result, MORTAL);
+//
+//    return this_bvm;
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+#define babel_arlen_operator \
+    result = _newva( size( op0 ) );
 
-    return this_bvm;
+    babel_operator_typeA( 
+            this_bvm, 
+            babel_arlen_operator );
 
 }
 
@@ -49,15 +64,22 @@ bvm_cache *arlen(bvm_cache *this_bvm){
 // babel_operator
 bvm_cache *islf(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-    
-    *result = is_leaf(TOS_0(this_bvm));
+//    fatal("stack fix not done");
+//    mword *result    = new_atom;
+//    
+//    *result = is_leaf(TOS_0(this_bvm));
+//
+//    zap(this_bvm);
+//    push_alloc(this_bvm, result, MORTAL);
+//
+//    return this_bvm;
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+#define babel_islf_operator \
+    result = _newva( is_leaf( op0 ) );
 
-    return this_bvm;
+    babel_operator_typeA( 
+            this_bvm, 
+            babel_islf_operator );
 
 }
 
@@ -65,24 +87,30 @@ bvm_cache *islf(bvm_cache *this_bvm){
 // babel_operator
 bvm_cache *isinte(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-    
-    *result = is_inte(TOS_0(this_bvm));
+//    fatal("stack fix not done");
+//    mword *result    = new_atom;
+//    
+//    *result = is_inte(TOS_0(this_bvm));
+//
+//    zap(this_bvm);
+//    push_alloc(this_bvm, result, MORTAL);
+//
+//    
+//
+//    return this_bvm;
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+#define babel_isinte_operator \
+    result = _newva( is_inte( op0 ) );
 
-    
-
-    return this_bvm;
+    babel_operator_typeA( 
+            this_bvm, 
+            babel_isinte_operator );
 
 }
 
-// _newlf
-// New Leaf-array
+// creates a new leaf-array of given size
 //
-mword *_newlf(mword size){
+mword *_newlf(mword size){ // _newlf#
 
     mword *ptr = malloc( MWORDS(size+1) );
     if(ptr == NULL){
@@ -95,10 +123,10 @@ mword *_newlf(mword size){
 
 }
 
-// _newlfi
-// New Leaf-array with Initialization
+
+// same as _newlf but with mem initialization (byte-wise)
 //
-mword *_newlfi(mword size, mword init){
+mword *_newlfi(mword size, mword init){ // _newlfi#
 
     mword *ptr = malloc( MWORDS(size+1) );
     if(ptr == NULL){
@@ -121,7 +149,7 @@ inline mword* val(mword *leaf, mword index){ // val#
     c(temp,0) = c(leaf,index);
     return temp;
 
-} //val
+}
 
 
 // Accepts a data value and returns a leaf-array
@@ -143,7 +171,8 @@ mword *_newva(mword value){ // _newva#
 
 
 //
-mword *_newin(mword size){
+//
+mword *_newin(mword size){ // _newin#
 
     mword *ptr = malloc( MWORDS(size+1) );
     if(ptr == NULL){
@@ -160,6 +189,7 @@ mword *_newin(mword size){
     return ptr+1;
 
 }
+
 
 //
 mword *_newtlist(void){ // _newtlist# DEPRECATE
@@ -305,12 +335,20 @@ bvm_cache *slice(bvm_cache *this_bvm){
 //mword _cxr8(mword *val, mword bit){
 //}
 
+
 //
-mword _cxr1(mword *val, mword bit){
+//
+mword _cxr1(mword *val, mword bit){ // _cxr1#
+
     mword mword_select = bit/(MWORD_BIT_SIZE);
     mword bit_offset = bit % MWORD_BIT_SIZE;
-    if(mword_select > size(val)-1) error("_cxr1 error");
+
+    if(mword_select > size(val)-1){
+        error("_cxr1 error") 
+    };
+
     return (c(val,mword_select) & (1<<bit_offset)) >> bit_offset;
+
 }
 
 // XXX DEPRECATED
@@ -579,19 +617,6 @@ void _trunc(mword *operand, mword new_size){
 
 }
 
-////FIXME: The array-8 alignment word is completely broken and needs to be
-////fixed. In the current form, converting from a Babel-string to C-style
-////string requires a lot of work but if the alignment word def'n is
-////changed, this conversion would be unnecessary:
-////
-////align0 : 0x00000000
-////align1 : 0x000000ff
-////align2 : 0x0000ffff
-////align3 : 0x00ffffff
-////
-////All Babel-strings would automatically be null-terminated. Changing the
-////Perl-script and the below functions results in bugs. Not sure what is
-////going wrong.
 
 //Returns an alignment word based on size8
 //
@@ -607,7 +632,8 @@ mword alignment_word8(mword size8){
 }
 
 
-//// Decodes the alignment word
+// Decodes the alignment word
+//
 mword dec_alignment_word8(mword alignment_word){
 
     if(alignment_word == 0){
