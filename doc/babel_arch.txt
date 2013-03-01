@@ -4,6 +4,30 @@ Note that this file contains a lot of deprecated/obsolete information
 which is not marked as such. I'm just using it as a running reference
 during the development process.
 
+----- memory discipline redux -----
+
+1) Interpreter service memory
+    - can be deleted at interpreter's whim
+        [udr]stack, code-list, symbol-table, etc.
+        Babel program should never get access to these pointers
+2) User "new" memory (hard manual memory)
+    - lifetime = BVM lifetime, or until user deletes
+    - equivalent to C++ new/delete discipline
+3) User 
+3) Operator-created memory
+    - lifetime = eval-context lifetime
+
+What happens when memory-types mix?
+    - e.g. cons/push/unshift
+    - Whole object gets the weakest memory type
+
+User can override lifetime of item on TOS by using
+the immortal operator. 
+
+Note that cp operator does not yield immortality, you
+must apply the immortal operator to make the copy 
+immortal.
+
 ----- Babel "functions" synopsis -----
 
 goto -> simple branch  

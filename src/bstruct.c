@@ -381,7 +381,7 @@ mword rbbl2str(mword *bs, char *buffer){
 //
 bvm_cache *bs2gv(bvm_cache *this_bvm){ // bs2gv#
 
-    mword *result = consa( _bs2gv(TOS_0(this_bvm)), nil);
+    mword *result = _bs2gv(dstack_get(this_bvm,0));
 
     zapd(this_bvm); //FIXME: Breaks loops
 

@@ -46,13 +46,13 @@ bvm_cache *sleepop(bvm_cache *this_bvm){
     DWORD seconds = (DWORD)car(TOS_0(this_bvm));
     zap(this_bvm);
 
-    //FIXME: Windows-specific!
     Sleep(seconds*1000);
 
     return this_bvm;
 
 }
 
+//#elsif STAR_NIX ...
 #endif
 
 //
@@ -68,7 +68,7 @@ bvm_cache *argvop(bvm_cache *this_bvm){
 
 }
 
-//
+// FIXME: move to bstruct.c ...
 // babel_operator
 bvm_cache *mword_sizeop(bvm_cache *this_bvm){
 
@@ -84,13 +84,14 @@ bvm_cache *mword_sizeop(bvm_cache *this_bvm){
 
 }
 
+
 //
-// babel_operator
+//
 bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
-//    _dump(this_bvm->dstack_ptr);
-//    die;
-//
+    _dump(this_bvm->dstack_ptr);
+    die;
+
     printf("fnord fnord\n");
 
 //    mword *result = _luha(this_bvm->sym_table, (mword*)TOS_0(this_bvm));

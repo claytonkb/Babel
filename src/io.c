@@ -12,10 +12,12 @@
 #include "array.h"
 #include "utf8.h"
 #include "string.h"
+#include "alloc.h"
 
-//_slurp
+
+//FIXME: Lots of bad things in here...
 //
-mword *_slurp(mword *filename){ // FIXME: Lots of bad things in here...
+mword *_slurp(mword *filename){ // _slurp#
 
     long   size;
     FILE*  file;
@@ -73,22 +75,28 @@ mword *_slurp(mword *filename){ // FIXME: Lots of bad things in here...
 
 }
 
+
 //slurp
 //
-// babel_operator
-bvm_cache *slurp(bvm_cache *this_bvm){
+bvm_cache *slurp(bvm_cache *this_bvm){ // slurp#
 
 //    mword *temp_cons = new_cons();
 //    mword *filename = _b2c((mword*)TOS_0);
 //    mword *result   = _slurp((char*)filename);
 
-    mword *result = new_atom;
-    (mword*)*result = _slurp(TOS_0(this_bvm));
+//    mword *result = new_atom;
+//    (mword*)*result = _slurp(TOS_0(this_bvm));
+//
+//    //    cons(temp_cons, result, nil);
+//
+//    hard_zap(this_bvm);
+//    push_alloc(this_bvm, result, MORTAL);
 
-    //    cons(temp_cons, result, nil);
+    mword *filename = _b2c(dstack_get(this_bvm,0));
+    mword *result   = _slurp(filename);
 
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    zapd(this_bvm);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -103,17 +111,29 @@ bvm_cache *slurp_mword(bvm_cache *this_bvm){
 //    mword *filename = _b2c((mword*)TOS_0);
 //    mword *result   = _slurp((char*)filename);
 
-    mword *result    = new_atom;
-    (mword *)*result = _slurp(TOS_0(this_bvm));
+//    mword *result    = new_atom;
+//    (mword *)*result = _slurp(TOS_0(this_bvm));
+//
+//    _trunc(result, size(result)-1);
+//
+////    cons(temp_cons, result, nil);
+//
+//    hard_zap(this_bvm);
+//    push_alloc(this_bvm, result, MORTAL);
+//
+//    return this_bvm;
+//
+
+    mword *filename = _b2c(dstack_get(this_bvm,0));
+    mword *result   = _slurp(filename);
 
     _trunc(result, size(result)-1);
 
-//    cons(temp_cons, result, nil);
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    zapd(this_bvm);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
+
 
 }
 
@@ -310,26 +330,28 @@ bvm_cache *stdinln(bvm_cache *this_bvm){
 
 // FIXME: Make UTF-8 compliant...
 //
-// babel_operator
-bvm_cache *stdoutop8(bvm_cache *this_bvm){
+bvm_cache *stdoutop8(bvm_cache *this_bvm){ // stdoutop8#
 
-//    _dump(TOS_0(this_bvm));
+//    _dump(this_bvm->dstack_ptr);
 //    die;
 
-    _stdoutop8((mword*)icar(TOS_0(this_bvm)));
-    
-    popd(this_bvm);
+    _stdoutop8(dstack_get(this_bvm,0));
+
+    zapd(this_bvm);
 
     return this_bvm;
 
 }
 
-void _stdoutop8(mword *string){
+
+//
+//
+void _stdoutop8(mword *string){ // _stdoutop8#
 
     int i;
     mword length = _arlen8(string);
 
-    char *cast_string = (char*)string; //C's casting syntax sucks!
+    char *cast_string = (char*)string;
 
     for(i=0; i<length; i++){
         putchar((int)cast_string[i]);

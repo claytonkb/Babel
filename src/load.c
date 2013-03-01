@@ -9,27 +9,35 @@
 #include "array.h"
 #include "bvm_opcodes.h"
 #include "list.h"
+#include "alloc.h"
 
 //
 // babel_operator
 bvm_cache *load(bvm_cache *this_bvm){
 
-    mword *result    = new_atom;
-    (mword *)*result = _load(TOS_0(this_bvm), size(TOS_0(this_bvm)));
+//    mword *result    = new_atom;
+//    (mword *)*result = _load(TOS_0(this_bvm), size(TOS_0(this_bvm)));
+//
+//    hard_zap(this_bvm);
+//
+//    push_alloc(this_bvm, result, MORTAL);
+//
+//    return this_bvm;
+//
+////    _load((mword*)TOS_0);
+////    TOS_0 = TOS_0 + MWORD_SIZE;
 
-    hard_zap(this_bvm);
+    mword *result   = _load(dstack_get(this_bvm,0), size(dstack_get(this_bvm,0)));
 
-    push_alloc(this_bvm, result, MORTAL);
+    zapd(this_bvm);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
-
-//    _load((mword*)TOS_0);
-//    TOS_0 = TOS_0 + MWORD_SIZE;
 
 }
 
 
-mword *_load(mword *tree, mword tree_size){//, mword offset){
+mword *_load(mword *tree, mword tree_size){ // _load#
 
     int i;
 
