@@ -58,6 +58,37 @@ mword *new_rstack_entry(mword *operand, mword alloc_type){ // new_rstack_entry#
 
 //
 //
+inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // get_from_udr_stack#
+
+    return _chain_deref( this_bvm->sym_table, (mword*)icar( _ith( (mword*)icar( stack_ptr ), stack_index )) );
+
+}
+
+
+//XXX: Not tested
+//
+inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index, mword *bs){ // set_in_udr_stack#
+
+    mword *stack_entry = _chain_deref( this_bvm->sym_table, (mword*)icar( icar( _ith( stack_ptr, stack_index ))) );
+
+    (mword*)c(stack_entry,0) = bs;
+
+    return stack_entry;
+
+}
+
+
+//
+//
+inline mword *zap_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // zap_from_udr_stack#
+
+    _del( (mword*)icar( pop_udr_stack(stack_ptr) ) );
+
+}
+
+
+//
+//
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 
     mword *new_stack_cons  = new_cons;
@@ -557,26 +588,7 @@ mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
 }
 
 
-//
-//
-inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // get_from_udr_stack#
 
-    return _chain_deref( this_bvm->sym_table, (mword*)icar( _ith( (mword*)icar( stack_ptr ), stack_index )) );
-
-}
-
-
-//XXX: Not tested
-//
-inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index, mword *bs){ // set_in_udr_stack#
-
-    mword *stack_entry = _chain_deref( this_bvm->sym_table, (mword*)icar( icar( _ith( stack_ptr, stack_index ))) );
-
-    (mword*)c(stack_entry,0) = bs;
-
-    return stack_entry;
-
-}
 
 
 // Clayton Bauman 2011

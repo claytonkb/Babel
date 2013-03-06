@@ -82,7 +82,7 @@ int main(int argc, char **argv){
     //TOS_0(this_bvm) = nil;
 
     flush_bvm_cache(this_bvm);
-//    _dump(this_bvm->self);
+    _dump(this_bvm->self);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.

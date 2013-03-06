@@ -4,6 +4,8 @@
 #ifndef LIST_H
 #define LIST_H
 
+mword *_split(mword *list, mword *indices);
+
 inline mword *_push(mword *list, mword *bs);
 inline mword *_pop(mword *list);
 inline mword *_unshift(mword *list, mword *bs);

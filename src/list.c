@@ -456,5 +456,43 @@ mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr){
 
 }
 
+
+//
+//
+mword *_split(mword *list, mword *indices){
+
+    if (is_nil(indices)) return list;
+
+    mword curr_index = car(car(indices));
+    indices = (mword*)cdr(indices);
+
+    mword *split_list = list;
+
+    int i=0;
+
+    while(!is_nil(list)){
+
+        if(curr_index == i+1){
+            if(is_nil(indices)){ // We're done
+                break;
+            }
+            else{
+                curr_index = car(car(indices));
+                indices = (mword*)cdr(indices);
+
+            }
+        }
+        else{
+            i++;
+        }
+
+        list = (mword*)cdr(list);
+
+    }
+
+    return split_list;
+
+}
+
 // Clayton Bauman 2011
 

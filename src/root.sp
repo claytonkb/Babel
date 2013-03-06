@@ -3,7 +3,7 @@
 -- This is the code and symbol-table for The Construct, the
 -- root virtual machine...
 
-(   (main   (code "test.sp.bbl" slurp load bs2gv stdout8 ) )
+(   (main   (code 2 2 cuadd ) )
 
     (symbol (list nil))
 
