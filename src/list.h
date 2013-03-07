@@ -4,9 +4,9 @@
 #ifndef LIST_H
 #define LIST_H
 
+bvm_cache *split(bvm_cache *this_bvm);
 mword *_split(mword *list, mword *indices);
 mword *_rsplit(mword *list, mword *indices, mword curr_index);
-
 
 inline mword *_push(mword *list, mword *bs);
 inline mword *_pop(mword *list);

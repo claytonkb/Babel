@@ -457,9 +457,26 @@ mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr){
 }
 
 
+bvm_cache *split(bvm_cache *this_bvm){ // split#
+
+    mword *indices  = dstack_get(this_bvm,0);
+    mword *list     = dstack_get(this_bvm,1);
+
+    mword *result = _split(list, indices);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+
 //
 //
-mword *_split(mword *list, mword *indices){
+mword *_split(mword *list, mword *indices){ // _split#
 
     return _rsplit(list,indices,0);
 
@@ -468,7 +485,7 @@ mword *_split(mword *list, mword *indices){
 
 //
 //
-mword *_rsplit(mword *list, mword *indices, mword count){
+mword *_rsplit(mword *list, mword *indices, mword count){ // _rsplit#
 
     mword *orig_list = list;
     mword *temp_list;

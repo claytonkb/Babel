@@ -90,31 +90,31 @@ bvm_cache *mword_sizeop(bvm_cache *this_bvm){
 //
 bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
-    mword *indices  = dstack_get(this_bvm,0);
-    mword *list     = dstack_get(this_bvm,1);
-
-    mword *result = _split(list, indices);
-
-//    zapd(this_bvm);
-//    zapd(this_bvm);
+//    mword *indices  = dstack_get(this_bvm,0);
+//    mword *list     = dstack_get(this_bvm,1);
 //
-    _dump(result);
-    die;
-
-    pushd(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
-
-//    _dump(this_bvm->dstack_ptr);
+//    mword *result = _split(list, indices);
+//
+////    zapd(this_bvm);
+////    zapd(this_bvm);
+////
+//    _dump(result);
 //    die;
 //
-//    printf("fnord fnord\n");
+//    pushd(this_bvm, result, IMMORTAL);
+//
+//    return this_bvm;
+
+    _dump(this_bvm->dstack_ptr);
+    die;
+//
+    printf("fnord fnord\n");
 //
 ////    mword *result = _luha(this_bvm->sym_table, (mword*)TOS_0(this_bvm));
 ////    d(result);
 ////    d(*result);
 ////
-//    return this_bvm;
+    return this_bvm;
 
 }
 
