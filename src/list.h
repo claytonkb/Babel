@@ -5,6 +5,8 @@
 #define LIST_H
 
 mword *_split(mword *list, mword *indices);
+mword *_rsplit(mword *list, mword *indices, mword curr_index);
+
 
 inline mword *_push(mword *list, mword *bs);
 inline mword *_pop(mword *list);

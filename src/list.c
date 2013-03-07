@@ -461,36 +461,57 @@ mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr){
 //
 mword *_split(mword *list, mword *indices){
 
-    if (is_nil(indices)) return list;
+    return _rsplit(list,indices,0);
+
+}
+
+
+//
+//
+mword *_rsplit(mword *list, mword *indices, mword count){
+
+    mword *orig_list = list;
+    mword *temp_list;
+
+    if (is_nil(indices)) return consa( orig_list, nil );
+
+    if (is_nil(list)) return nil;// 
 
     mword curr_index = car(car(indices));
+
+    if (curr_index < count) return consa( orig_list, nil );
+
+    if (curr_index == 0) return consa( nil, consa( orig_list, nil ) );
+
     indices = (mword*)cdr(indices);
 
-    mword *split_list = list;
-
-    int i=0;
+    //if (is_nil(list)) return list;
+    
+    mword *prev_list = list;
 
     while(!is_nil(list)){
 
-        if(curr_index == i+1){
-            if(is_nil(indices)){ // We're done
-                break;
-            }
-            else{
-                curr_index = car(car(indices));
-                indices = (mword*)cdr(indices);
+//        if(count++ > 10){
+//            _dump(list);
+//            die;
+//        }
 
-            }
-        }
-        else{
-            i++;
+        if(curr_index == count){
+            break;
         }
 
+        count++;
+
+        prev_list = list;
         list = (mword*)cdr(list);
 
     }
 
-    return split_list;
+    if(!is_nil(cdr(prev_list))){
+        (mword*)icdr(prev_list) = nil;
+    }
+
+    return consa( orig_list, _rsplit(list, indices, count) );
 
 }
 
