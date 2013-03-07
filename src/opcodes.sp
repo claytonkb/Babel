@@ -190,8 +190,9 @@
     (endian         (oper 0x20f))
 
     (nhword         (oper 0x210))
-    (deref          (oper 0x210))
-    (ifop           (oper 0x210))
-    (ordop          (oper 0x210))
-    (let            (oper 0x210)))
+    (deref          (oper 0x211))
+    (ifop           (oper 0x212))
+    (ordop          (oper 0x213))
+    (let            (oper 0x214))
+    (split          (oper 0x215)))
 
