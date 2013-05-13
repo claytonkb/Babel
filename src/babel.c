@@ -44,6 +44,9 @@ int main(int argc, char **argv){
 //    //_dump( new_tlist( _hash8(C2B("/babel/tag/ref")), nil) );
 //    die;
 
+//    _dump(this_bvm->code_ptr);
+//    die;
+
     bvm_interp(this_bvm);
 
 //    printf("hello!\n");
@@ -81,8 +84,8 @@ int main(int argc, char **argv){
 
     //TOS_0(this_bvm) = nil;
 
-    flush_bvm_cache(this_bvm);
-    _dump(this_bvm->self);
+    //flush_bvm_cache(this_bvm);
+    //_dump(this_bvm->dstack_ptr);
 
     //If this is the root instance, the stack can be sent to STDOUT. Each
     //element on the stack will be pop'd and then sent as UTF-8 text (i.e.

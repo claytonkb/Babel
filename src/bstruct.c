@@ -383,7 +383,7 @@ bvm_cache *bs2gv(bvm_cache *this_bvm){ // bs2gv#
 
     mword *result = _bs2gv(dstack_get(this_bvm,0));
 
-    zapd(this_bvm); //FIXME: Breaks loops
+    zapd(this_bvm,0); //FIXME: Breaks loops
 
     pushd( this_bvm, result, IMMORTAL );
 

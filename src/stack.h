@@ -10,7 +10,7 @@ mword *pop_udr_stack(mword *stack_ptr);
 mword *new_rstack_entry(mword *operand, mword alloc_type);
 inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
 inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index, mword *bs);
-inline mword *zap_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
+inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index);
 
 bvm_cache *hard_zap     (bvm_cache *this_bvm);
 bvm_cache *swap         (bvm_cache *this_bvm);

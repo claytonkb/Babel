@@ -7,6 +7,10 @@
 bvm_cache *split(bvm_cache *this_bvm);
 mword *_split(mword *list, mword *indices);
 mword *_rsplit(mword *list, mword *indices, mword curr_index);
+mword *_list_cut(mword *list, mword index);
+mword *_append(mword *lists);
+mword *_append_direct(mword *head_list, mword *tail_list);
+
 
 inline mword *_push(mword *list, mword *bs);
 inline mword *_pop(mword *list);

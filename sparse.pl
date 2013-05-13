@@ -3,7 +3,8 @@
 # s-expression parser (sparse) - A low-level "assembler" for Babel constructs
 
 # TODO: Empty lists, bare values, catch non-existent symbols
-# FIXME: Quotes not being properly stripped off in quotes in lists...
+
+# FIXME: 0 causes problems in lists (elsewhere?)
 
 use strict;
 use feature 'state';
@@ -744,34 +745,24 @@ sub encode_code_list{
                 push (@{$element_list}, $_) for (@{$encoded});
                 #printf("A:%x ", $$offset*$MWORD_SIZE);
             }
+#            if(is_value($element)){
+#                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+#                $encoded = encode_values(["val", $element], $offset, 1);
+#                push (@{$element_list}, $_) for (@{$encoded});
+#                #printf("A:%x ", $$offset*$MWORD_SIZE);
+#            }
             else{
-                #print Dumper($symbol_table->{$element})  and die;
-                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
                 unless(exists $addr_lut->{$element}){
-                    if($symbol_table->{$element}[0] eq "oper"){
-                        $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
-                    }
-                    else{                        
-#                        $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
-#                        push (@{$element_list}, $_) for (@{$encoded});
-                        $encoded = encode_pointers($symbol_table, $addr_lut, $section_name, $offset, ["ptr", $element]);
-                        #$encoded = encode_section($symbol_table, $addr_lut, ["ptr", $element], $offset);
-                    }
+                    $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
                     push (@{$element_list}, $_) for (@{$encoded});
                 }
-                #$element_list->[$car] = $addr_lut->{$element};
+                $element_list->[$car] = $addr_lut->{$element};
             }
 
         }
         else{
             $element_list->[$car] = $MWORD_SIZE*($$offset+1);
-            #print "@{$element}\n" and die;
-            if($element->[0] eq "oper"){
-                $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $element);
-            }
-            else{
-                $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, ["ptr", $element]);
-            }
+            $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $element);
             push (@{$element_list}, $_) for (@{$encoded});
         }
         $element_list->[$cdr] = ($$offset+1) * $MWORD_SIZE;
@@ -786,6 +777,94 @@ sub encode_code_list{
     $element_list->[$cdr] = $addr_lut->{nil};
 
     return $element_list;
+
+#    my ($symbol_table, 
+#        $addr_lut,
+#        $section_name, 
+#        $offset,
+#        $sub_tree) = @_;
+#
+#    my $encoded;
+#    my ($car, $cdr);
+#
+#    my @elements = @{$sub_tree};
+#    shift @elements;
+#
+#    #$$offset += ($#elements+2);
+#
+#    my $element_list = [];
+#    #push @{$element_list}, -1*$MWORD_SIZE*($#elements+1);
+#
+#    foreach my $element (@elements){
+#
+#        $$offset += 3;
+#        push @{$element_list}, -2*$MWORD_SIZE;
+#        for(1..2){
+#            push @{$element_list}, 0xdeadbeef;
+#        }
+#
+#        $car = $#{$element_list}-1;
+#        $cdr = $#{$element_list};
+#
+#        if(ref($element) eq ""){
+#
+#            if(is_value($element)){
+#                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+#                #$encoded = encode_values(["ptr", ["val", $element]], $offset, 1);
+#                $encoded = encode_pointers($symbol_table, $addr_lut, $section_name, $offset, ["ptr", ["val", $element]]);
+#                push (@{$element_list}, $_) for (@{$encoded});
+#                #printf("A:%x ", $$offset*$MWORD_SIZE);
+#            }
+#            else{
+#                #print Dumper($symbol_table->{$element})  and die;
+#                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+#                unless(exists $addr_lut->{$element}){
+#                    if($symbol_table->{$element}[0] eq "oper"){
+#                        $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+#                    }
+#                    else{                        
+##                        $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+##                        push (@{$element_list}, $_) for (@{$encoded});
+#                        $encoded = encode_pointers($symbol_table, $addr_lut, $section_name, $offset, ["ptr", $element]);
+#                        #$encoded = encode_section($symbol_table, $addr_lut, ["ptr", $element], $offset);
+#                    }
+#                    push (@{$element_list}, $_) for (@{$encoded});
+#                }
+##                else{
+##                    ###############################################
+##                    $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+##                    push @{$element_list}, $addr_lut->{$element};
+##                }
+#                #$element_list->[$car] = $addr_lut->{$element};
+#            }
+#
+#        }
+#        else{
+#            $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+#            #print "@{$element}\n" and die;
+#            if($element->[0] eq "oper"){
+#                $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $element);
+#            }
+#            else{
+#                $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, ["ptr", $element]);
+#            }
+#            push (@{$element_list}, $_) for (@{$encoded});
+#        }
+#        $element_list->[$cdr] = ($$offset+1) * $MWORD_SIZE;
+#
+#    }
+#
+#    if(!exists $addr_lut->{nil}){
+#        $encoded = create_nil($addr_lut, $offset);
+#        push (@{$element_list}, $_) for (@{$encoded});
+#    }
+#
+#    $element_list->[$cdr] = $addr_lut->{nil};
+#
+##    print Dumper($element_list);
+##    die;
+#
+#    return $element_list;
 
 }
 

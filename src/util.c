@@ -90,24 +90,26 @@ bvm_cache *mword_sizeop(bvm_cache *this_bvm){
 //
 bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
-//    mword *indices  = dstack_get(this_bvm,0);
+//    mword *list = zap_from_udr_stack(this_bvm->dstack_ptr, 2);
+
+//    mword index     = c(dstack_get(this_bvm,0),0);
 //    mword *list     = dstack_get(this_bvm,1);
 //
-//    mword *result = _split(list, indices);
+//    mword *result = _list_cut(list, index);
 //
 ////    zapd(this_bvm);
 ////    zapd(this_bvm);
 ////
-//    _dump(result);
+//    _dump(list);
 //    die;
 //
 //    pushd(this_bvm, result, IMMORTAL);
 //
 //    return this_bvm;
 
-    _dump(this_bvm->dstack_ptr);
-    die;
-//
+//    _dump(this_bvm->dstack_ptr);
+//    die;
+
     printf("fnord fnord\n");
 //
 ////    mword *result = _luha(this_bvm->sym_table, (mword*)TOS_0(this_bvm));

@@ -18,16 +18,6 @@
 //
 bvm_cache *sfield(bvm_cache *this_bvm){ // sfield#
 
-//    fatal("stack fix not done");
-//    mword *result    = new_atom;
-//    
-//    *result = s(TOS_0(this_bvm));
-//
-//    zap(this_bvm);
-//    push_alloc(this_bvm, result, MORTAL);
-//
-//    return this_bvm;
-
 #define babel_sfield_operator \
     result = _newva( s( op0 ) );
 
@@ -37,19 +27,10 @@ bvm_cache *sfield(bvm_cache *this_bvm){ // sfield#
 
 }
 
-//
-// babel_operator
-bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 
-//    fatal("stack fix not done");
-//    mword *result    = new_atom;
-//    
-//    *result = size(TOS_0(this_bvm));
 //
-//    zap(this_bvm);
-//    push_alloc(this_bvm, result, MORTAL);
 //
-//    return this_bvm;
+bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 
 #define babel_arlen_operator \
     result = _newva( size( op0 ) );
@@ -60,19 +41,10 @@ bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 
 }
 
-//
-// babel_operator
-bvm_cache *islf(bvm_cache *this_bvm){
 
-//    fatal("stack fix not done");
-//    mword *result    = new_atom;
-//    
-//    *result = is_leaf(TOS_0(this_bvm));
 //
-//    zap(this_bvm);
-//    push_alloc(this_bvm, result, MORTAL);
 //
-//    return this_bvm;
+bvm_cache *islf(bvm_cache *this_bvm){ // islf#
 
 #define babel_islf_operator \
     result = _newva( is_leaf( op0 ) );
@@ -84,20 +56,8 @@ bvm_cache *islf(bvm_cache *this_bvm){
 }
 
 //
-// babel_operator
-bvm_cache *isinte(bvm_cache *this_bvm){
-
-//    fatal("stack fix not done");
-//    mword *result    = new_atom;
-//    
-//    *result = is_inte(TOS_0(this_bvm));
 //
-//    zap(this_bvm);
-//    push_alloc(this_bvm, result, MORTAL);
-//
-//    
-//
-//    return this_bvm;
+bvm_cache *isinte(bvm_cache *this_bvm){ // isinte#
 
 #define babel_isinte_operator \
     result = _newva( is_inte( op0 ) );
@@ -697,7 +657,7 @@ bvm_cache *arcat(bvm_cache *this_bvm){
 
 }
 
-mword array8_size(mword size8){
+mword array8_size(mword size8){ // array8_size#
 
     mword size = size8 / MWORD_SIZE;
 
@@ -705,7 +665,7 @@ mword array8_size(mword size8){
         size++;
     }
 
-    size++; //for the alignment_word
+    return size+1; //for the alignment_word
 
 }
 

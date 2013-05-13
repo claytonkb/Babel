@@ -29,7 +29,7 @@ bvm_cache *load(bvm_cache *this_bvm){
 
     mword *result   = _load(dstack_get(this_bvm,0), size(dstack_get(this_bvm,0)));
 
-    zapd(this_bvm);
+    zapd(this_bvm,0);
     pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;

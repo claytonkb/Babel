@@ -3,7 +3,7 @@
 -- This is the code and symbol-table for The Construct, the
 -- root virtual machine...
 
-(   (main   (code (list 9 8 7 6 5) (list 2 3) split ) )
+(   (main   ( code 1 1 cuadd cu2dec cr stdout8 ) )
 
     (symbol (list nil))
 

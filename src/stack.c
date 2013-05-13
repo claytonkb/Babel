@@ -40,6 +40,10 @@ void push_udr_stack(mword *stack_ptr, mword *stack_entry){ // push_udr_stack#
 //
 mword *pop_udr_stack(mword *stack_ptr){ // pop_udr_stack#
 
+//    _dump(stack_ptr);
+//    die;
+//    if (is_nil(cdr(stack_ptr))) return nil;
+
     return _shift(stack_ptr);
 
 }
@@ -80,9 +84,42 @@ inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stac
 
 //
 //
-inline mword *zap_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // zap_from_udr_stack#
+inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index){ // zap_from_udr_stack#
 
-    _del( (mword*)icar( pop_udr_stack(stack_ptr) ) );
+    mword *temp;
+    mword *zapped;
+    mword *tail;
+    mword length;
+    mword *work_stack = (mword*)car(stack_ptr);
+
+    if(stack_index==0){
+        work_stack = pop_udr_stack(work_stack);
+        //temp = pop_udr_stack(work_stack);
+        //(mword*)c(temp,0) = nil;
+        //_del(temp);
+    }
+    else{
+        length = _len(work_stack);
+        if( length > stack_index+1 ){
+            zapped = _list_cut(work_stack,   stack_index);
+            tail   = _list_cut(zapped,      1);
+            (mword*)c(icar(zapped),0) = nil;
+            //_dump(zapped);
+            //die;
+            _del(zapped);
+            _append_direct(work_stack,tail);
+        }
+        else if( length > stack_index ){
+            zapped = _list_cut(work_stack, stack_index);
+            (mword*)c(zapped,0) = nil;
+            _del(zapped);
+        }
+        // else do nothing
+    }
+
+    (mword*)icar(stack_ptr) = work_stack;
+
+    return stack_ptr;
 
 }
 

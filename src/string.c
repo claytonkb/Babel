@@ -49,14 +49,23 @@
 //}
 
 //TODO: Move these def'ns to string.h:
-#define NEWLINE 0xa
+#ifdef WINDOWS
+#define NEWLINE0 0xd
+#define NEWLINE1 0xa
+#define NEWLINE_SIZE 2
+#endif
+
+#ifdef LINUX
+#define NEWLINE1 0xa
 #define NEWLINE_SIZE 1
+#endif
 
 // TOS_0(this_bvm) . "\n"
 // TODO: Optimize for cases when we have slack-space
 // babel_operator
 bvm_cache *cr(bvm_cache *this_bvm){
 
+//    die;
 //    mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
     mword *operand = dstack_get(this_bvm, 0);//(mword*)TOS_0( this_bvm );
 
@@ -67,7 +76,7 @@ bvm_cache *cr(bvm_cache *this_bvm){
         size8 = _arlen8(operand) + NEWLINE_SIZE;
         result = (char*)_newlf( array8_size(size8) );
     }
-    else{ //Throw an errorion
+    else{ //Throw an exception
         error("cr: cannot concatenate to a non-leaf array");
     }
 
@@ -84,15 +93,21 @@ bvm_cache *cr(bvm_cache *this_bvm){
 
     }
 
-    result[size8-1] = NEWLINE; //FIXME: Assumes *nix newline
+#ifdef WINDOWS
+    result[size8-2] = NEWLINE0;
+    result[size8-1] = NEWLINE1;
+#endif
 
     c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
+
+//    _mem(result);
+//    die;
 
     //zap(this_bvm);
     //push_alloc(this_bvm, consa((mword*)temp, nil), IMMORTAL);
 
-    zapd(this_bvm);
-    pushd(this_bvm, (mword*)temp, IMMORTAL);
+    zapd(this_bvm,0);
+    pushd(this_bvm, (mword*)result, IMMORTAL);
 
     return this_bvm;
 
@@ -322,7 +337,7 @@ bvm_cache *hex2cu(bvm_cache *this_bvm){
     memcpy(result, buffer, size);                       \
     c(result,arlength-1) = alignment_word8(size);       \
                                                         \
-    zapd(this_bvm);                                     \
+    zapd(this_bvm,0);                                   \
     pushd( this_bvm, result, IMMORTAL );                \
 
 //

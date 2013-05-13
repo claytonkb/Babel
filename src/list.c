@@ -177,9 +177,12 @@ bvm_cache *list_end(bvm_cache *this_bvm){
 
 }
 
-mword *_list_end(mword *list){
 
-    while(!is_nil(scdr(list))){ //FIXME Breaks due to car/cdr can't handle hash-refs
+//
+//
+mword *_list_end(mword *list){ // _list_end#
+
+    while(!is_nil(cdr(list))){
         list = (mword*)cdr(list);
     }
     return list;
@@ -300,6 +303,7 @@ mword _len(mword *list){
     }
 
     return length;
+
 }
 
 //
@@ -531,6 +535,52 @@ mword *_rsplit(mword *list, mword *indices, mword count){ // _rsplit#
     }
 
     return consa( orig_list, _rsplit(list, indices, count) );
+
+}
+
+
+//
+//
+mword *_list_cut(mword *list, mword index){ // _list_cut#
+
+    mword *temp;
+
+    if(is_nil(list)) return nil;
+
+    if(index == 0) return list;
+
+    if(index == 1){
+
+        temp = (mword*)icdr(list);
+        (mword*)icdr(list) = nil;
+
+        return temp;
+
+    }
+
+    return _list_cut( (mword*)icdr(list), index-1 );
+
+}
+
+
+//
+//
+mword *_append(mword *lists){ // _append#
+
+    return nil;
+
+}
+
+
+//
+//
+mword *_append_direct(mword *head_list, mword *tail_list){ // _append_direct#
+
+    mword *endls = _list_end(head_list);
+
+    (mword *)icdr(endls) = tail_list;
+
+    return head_list;
 
 }
 

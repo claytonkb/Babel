@@ -95,7 +95,7 @@ bvm_cache *slurp(bvm_cache *this_bvm){ // slurp#
     mword *filename = _b2c(dstack_get(this_bvm,0));
     mword *result   = _slurp(filename);
 
-    zapd(this_bvm);
+    zapd(this_bvm,0);
     pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
@@ -129,7 +129,7 @@ bvm_cache *slurp_mword(bvm_cache *this_bvm){
 
     _trunc(result, size(result)-1);
 
-    zapd(this_bvm);
+    zapd(this_bvm,0);
     pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
@@ -332,12 +332,9 @@ bvm_cache *stdinln(bvm_cache *this_bvm){
 //
 bvm_cache *stdoutop8(bvm_cache *this_bvm){ // stdoutop8#
 
-//    _dump(this_bvm->dstack_ptr);
-//    die;
-
     _stdoutop8(dstack_get(this_bvm,0));
 
-    zapd(this_bvm);
+    popd(this_bvm);
 
     return this_bvm;
 

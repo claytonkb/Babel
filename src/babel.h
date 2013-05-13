@@ -178,7 +178,10 @@ mword *empty_string;
 #define pushr(x,y,z) push_udr_stack(x->rstack_ptr, new_rstack_entry(y,z)) // pushr#
 #define popr(x) pop_udr_stack(x->rstack_ptr) // popr#
 
-#define zapd(x) _del( (mword*)icar( popd(x) ) )
+//#define zapd(x) _del( (mword*)icar( popd(x) ) )
+#define zapd(x,y) zap_from_udr_stack( x->dstack_ptr, y )    // zapd#
+#define zapu(x,y) zap_from_udr_stack( x->ustack_ptr, y )    // zapu#
+#define zapr(x,y) zap_from_udr_stack( x->rstack_ptr, y )    // zapr#
 
 //#define mkref(x)  mkref#
 #define mkref(x) ( new_tlist( \
@@ -245,7 +248,7 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    zapd(x);                                    \
+    zapd(x,0);                                  \
                                                 \
     pushd(x, result, IMMORTAL);                 \
                                                 \
@@ -259,8 +262,8 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    zapd(x);                                    \
-    zapd(x);                                    \
+    zapd(x,0);                                  \
+    zapd(x,0);                                  \
                                                 \
     pushd(x, result, IMMORTAL);                 \
                                                 \
@@ -272,7 +275,7 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    zapd(x);                                    \
+    zapd(x,0);                                  \
                                                 \
     return this_bvm;
 
@@ -293,7 +296,7 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    zapd(x);                                    \
+    zapd(x,0);                                  \
                                                 \
     return this_bvm;
 
