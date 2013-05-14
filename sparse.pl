@@ -745,15 +745,14 @@ sub encode_code_list{
                 push (@{$element_list}, $_) for (@{$encoded});
                 #printf("A:%x ", $$offset*$MWORD_SIZE);
             }
-#            if(is_value($element)){
-#                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
-#                $encoded = encode_values(["val", $element], $offset, 1);
-#                push (@{$element_list}, $_) for (@{$encoded});
-#                #printf("A:%x ", $$offset*$MWORD_SIZE);
-#            }
             else{
                 unless(exists $addr_lut->{$element}){
-                    $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+                    if($symbol_table->{$element}[0] eq "oper"){
+                        $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+                    }
+                    else{                        
+                        $encoded = encode_pointers($symbol_table, $addr_lut, $section_name, $offset, ["ptr", $element]);
+                    }
                     push (@{$element_list}, $_) for (@{$encoded});
                 }
                 $element_list->[$car] = $addr_lut->{$element};
