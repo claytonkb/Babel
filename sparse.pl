@@ -736,24 +736,6 @@ sub encode_code_list{
         $car = $#{$element_list}-1;
         $cdr = $#{$element_list};
 
-#        if(ref($element) eq ""){
-#
-#            if(is_value($element)){
-#                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
-#                $encoded = encode_values(["val", $element], $offset, 1);
-#                push (@{$element_list}, $_) for (@{$encoded});
-#                #printf("A:%x ", $$offset*$MWORD_SIZE);
-#            }
-#            else{
-#                unless(exists $addr_lut->{$element}){
-#                    $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
-#                    push (@{$element_list}, $_) for (@{$encoded});
-#                }
-#                $element_list->[$car] = $addr_lut->{$element};
-#            }
-#
-#        }
-
         if(ref($element) eq ""){
 
             if(is_value($element)){
