@@ -1,7 +1,8 @@
-If you are looking for an overview of Babel, see the "Babel Overview" 
-section below.
+_If you are looking for an overview of Babel, see the "Babel Overview" 
+section below._
 
------ Compiling Babel 
+Compiling Babel 
+---------------
 
 My scripts are set up using Cygwin and I'm currently compiling for a Win32 
 target using the tcc C compiler (I have the compiler in the repo because I 
@@ -12,29 +13,12 @@ Windows and *nix. To compile Babel, just run:
     perl make.pl
 
 This will build babel.exe in the bin directory. You are now ready to run 
-Babel.
+Babel. 
 
-    perl babel eg/hello_world.pb
+    bin/babel.exe
 
------ Compiling and running your own Babel code
-
-There are two basic ways to compile and run Babel code. The first 
-(preferred) way is to use the 'babel' Perl script:
-
-    perl babel my_proto_babel_program.pb
-
-This wrapper script handles the invocation of the proto_babel.pl script 
-and invokes babel.exe for you automatically. The second way is to do 
-these steps manually. You'll need to do this whenever the wrapper script 
-blows up, which can happen for a variety of reasons.
-
-    perl proto_babel.pl my_proto_babel_program.pb pb/header.pb pb/opcodes.pb
-
-Then:
-
-    bin/babel.exe my_proto_babel_program.pb.bbl
-
------ Installing Graphviz on Windows
+Installing Graphviz on Windows
+------------------------------
 
 If you want to use the dump (Babel-to-Graphviz) operator to provide 
 visualization of the Babel data-structure, you will need to install 
@@ -42,7 +26,7 @@ Graphviz dot (on Windows; it's installed by default in any Linux
 distro I'm aware of). In order to view the output, you will need to 
 redirect it to a file:
 
-    perl babel eg/bbl2gv.pb > eg/bbl2gv.dot
+    perl babel eg/bbl2gv.sp > eg/bbl2gv.dot
 
 Download the Graphviz software for your version of Windows and install it. 
 Then, run the following command:
@@ -56,7 +40,8 @@ Note that when you run the interpreter in debug mode, it automatically
 generates a "snapshot.dot" file, which is a visual snapshot of your entire 
 Babel program.
 
------ Babel Overview
+Babel Overview
+--------------
 
 Babel is an interpreted language.  It is an untyped, stack-based, postfix 
 language with support for arrays, lists and hashes (dictionaries). Babel 
@@ -75,133 +60,23 @@ Basically, don't make mistakes unless you want things to blow up.
 
 Like any other postfix language, operands come first, then operators:
 
-2 3 + 4 *
+    2 3 + 4 *
 
-Result: 20
+    Result: 20
 
-"Hello, " "world" . <<
+    "Hello, " "world" . <<
 
 I plan to add an uninfix operator as a standard library call so people can 
 use infix notation if they believe this will make their code more 
 comprehensible:
 
-((2 + 3) * 4) uninfix eval
+    ((2 + 3) * 4) uninfix eval
 
------ Proto-Babel
+sparse.pl
+---------
 
-A .pb file consists of a series of labeled sections. Each section is
-independent from the point-of-view of the script. You can define as many
-sections as you like and the script won't care. The one required section 
-is main. From there, the script just grabs each section as-needed while
-building the .bbl file. You can include multiple .pb files on the command-
-line and they will all be flattened into a single file by the script.
-
-In Bipedal, you will be able to arbitrarily nest labeled sections but in
-proto-Babel you are limited to a flat namespace structure. Each label must
-be left-edge aligned and end with a colon with no spaces:
-
-this_is_a_label: "Don't label me!"
-
-Line comments are specified by double-dash
-
-    -- This is a comment
-
-The curly-braces {} define an array of values - also called a "leaf array":
-
-    {0 1 2 3}
-
-A value is either a number or text and nothing else:
-
-    {"apples bananas oranges"} {0} {"ET phone home"}
-
-    { {0} } <-- illegal! Leaf arrays cannot nest
-
-If you want to define a leaf-array containing a single number or single 
-string, you can dispense with the curly-braces:
-
-    foo: 21     <-- legal
-    bar: "baz"  <-- legal
-
-The square-brackets define an array of pointers - also called an "interior-
-array". A pointer can be to any of:
-
-    - an interior array (even the self-same array)
-    - a leaf array
-    - a hash-reference
-
-Interior-array syntax:
-
-    [0]
-
-    [{0}]
-
-Nested interior-arrays:
-
-    [[apples][oranges][bananas]]
-
-Labels allow the definition of sections. A section contains either a leaf-
-array or an interior-array and nothing else:
-
-    my_number: 0x10
-
-    my_interior_array: [ 0x10 0x20 [30] "Hello!" ]
-
-A section-name can be used as a label:
-
-    the_number_two: 2
-
-    main: ([the_number_two] [3] +)
-
-Generally, you can think of the use of a label as a "text-substitution"
-but it's really a pointer. Hence, labels cannot be used inside leaf arrays:
-
-    {the_number_two} <--- illegal!
-
-Lists are created with parentheses. A list in Babel means a linked-list in 
-the Lisp-sense. The following are equivalent:
-
-    (1 2 3)
-    [1 [2 [3 nil]]]
-
-You can verify this by writing it both ways and looking into the .lst file 
-after compiling with proto_babel.pl.
-
-In Babel, data in the code-stream is differentiated from code by being 
-"nested". For example, to add two numbers, the following are all equivalent:
-
-    [42] [23] +             -- A
-    (42) (23) +             -- B
-    [42 nil] [23 nil] +     -- C
-    [42 nil] [23 nil] 0x38  -- D
-
-A-D all produce the same result when executed but note that A and B do not 
-generate exactly the same byte-code but B, C and D do.
-
-Often, the need arises in Babel to "wrap" an item in multiple parentheses. 
-These parentheses are visually redundant (but necessary for semantic 
-correctness). The quick-wrap syntax provides a less visually cluttered 
-alternative:
-
-    The following are all equivalent:
-
-    (((1 2 3)))
-    `((1 2 3))
-    ``(1 2 3)
-
-    For single items, you can use the back-tick directly:
-
-    ````1
-    ((((1))))
-
-    `"Hello, world"
-    ("Hello, world")
-
-For example, to add two numbers:
-
-    main: ( (2) (2) + )
-    main: ( `2 `2 + )
-
-Hashes and hash-references:
+pearson.pl
+----------
 
 To hash something using the built-in hash function, use the %% operator:
 
@@ -244,25 +119,26 @@ of the bytes in the program.
 Also, you can browse the examples in the eg/ directory of the repository to
 get a better feel for proto-Babel syntax.
 
------ Built-in functions, naming conventions and mnemonics
+Built-in functions, naming conventions and mnemonics
+----------------------------------------------------
 
 Babel v0.10 supports a subset of the final built-in functions that are
 planned for Babel 1.0. See doc/babel_ref.txt for a list of Babel operators.
 
-abbr    meaning
------------------
-ar      array
-ls      list
+    abbr    meaning
+    ------------------
+    ar      array
+    ls      list
 
-in      interior
-lf      leaf
+    in      interior
+    lf      leaf
 
-pt      pointer
-va      value
+    pt      pointer
+    va      value
 
-str     string
+    str     string
 
-stk     stack
+    stk     stack
 
 A 'c' as the first letter of the operand name usually means "C-language".
 'cu' means "C unsigned" and 'ci' means "C integer (signed)" and 'ca' means
@@ -277,33 +153,39 @@ cashl       "C arithmetic shift-left"
 As for ordering of operands, I applied the following rule as consistently
 as possible:
 
-A B op   <===>   "A op B"
+    A B op   <===>   "A op B"
 
 For example, consider subtraction:
 
-A B -    <===>   "A - B"
+    A B -    <===>   "A - B"
 
 Or division,
 
-A B /    <===>   "A / B"
+    A B /    <===>   "A / B"
 
 The flow of data is as consistently left-to-right as possible.
 
------ Documentation
+Documentation
+-------------
 
-doc/babel_phil.txt
-    Documents the "Philosophy of Babel"
+    doc/babel_phil.txt
 
-doc/babel_ref.txt
-    Documents the built-in Babel operators
+Documents the "Philosophy of Babel"
 
-doc/babel_guts.txt
-    Documents the internals of the Babel interpreter, as it is.
+    doc/babel_ref.txt
 
-doc/babel_arch.txt
-    Documents the final goal to which Babel is being developed
+Documents the built-in Babel operators
 
-eg/*
-    Contains many examples of Babel programs, somewhat disorganized at
-    present but will improve over time.
+    doc/babel_guts.txt
+
+Documents the internals of the Babel interpreter, as it is.
+
+    doc/babel_arch.txt
+
+Documents the final goal to which Babel is being developed
+
+    eg/*
+
+Contains many examples of Babel programs, somewhat disorganized at
+present but will improve over time.
 
