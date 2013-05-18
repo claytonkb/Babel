@@ -1,8 +1,10 @@
-_If you are looking for an overview of Babel, see the "Babel Overview" 
+![](sacred_scarab.jpg)
+
+_If you are looking for an overview of Babel, see the "Documentation" 
 section below._
 
 Compiling Babel 
----------------
+===============
 
 My scripts are set up using Cygwin and I'm currently compiling for a Win32 
 target using the tcc C compiler (I have the compiler in the repo because I 
@@ -10,12 +12,17 @@ eventually plan to link to it). Babel might actually compile to *nix but I
 haven't tried it yet. Eventually, Babel will be cross-compiled on both
 Windows and *nix. To compile Babel, just run:
 
-    perl make.pl
+>       perl make.pl
 
 This will build babel.exe in the bin directory. You are now ready to run 
 Babel. 
 
-    bin/babel.exe
+>       bin/babel.exe
+
+Installing Cygwin
+-----------------
+
+[Go here](http://www.cygwin.com/install.html)
 
 Installing Graphviz on Windows
 ------------------------------
@@ -26,12 +33,12 @@ Graphviz dot (on Windows; it's installed by default in any Linux
 distro I'm aware of). In order to view the output, you will need to 
 redirect it to a file:
 
-    perl babel eg/bbl2gv.sp > eg/bbl2gv.dot
+>       perl babel eg/bbl2gv.sp > eg/bbl2gv.dot
 
 Download the Graphviz software for your version of Windows and install it. 
 Then, run the following command:
 
-    dot -Tsvg eg/bbl2gv.dot > eg/bbl2gv.svg
+>       dot -Tsvg eg/bbl2gv.dot > eg/bbl2gv.svg
 
 Now, open the eg/bbl2gv.svg file in any web browser (Chrome and Firefox 
 both work well for me).
@@ -40,151 +47,30 @@ Note that when you run the interpreter in debug mode, it automatically
 generates a "snapshot.dot" file, which is a visual snapshot of your entire 
 Babel program.
 
-Babel Overview
---------------
-
-Babel is an interpreted language.  It is an untyped, stack-based, postfix 
-language with support for arrays, lists and hashes (dictionaries). Babel 
-1.0 will support built-in crypto-based verification of code in order to 
-enable safer remote code execution.
-
-For now, I am using a Perl script (proto_babel.pl) as the front-end 
-assembler/compiler for the interpreter. Babel v0.9 (planned for December 
-2012) will be able to parse itself and will no longer need the Perl 
-wrapper. The UTF-8 input language will be called Babel Program Description 
-Language (or Bipedal).
-
-Babel is still very raw. There is very little operand checking and no
-exceptions are raised though some basic error conditions will be reported.
-Basically, don't make mistakes unless you want things to blow up.
-
-Like any other postfix language, operands come first, then operators:
-
-    2 3 + 4 *
-
-    Result: 20
-
-    "Hello, " "world" . <<
-
-I plan to add an uninfix operator as a standard library call so people can 
-use infix notation if they believe this will make their code more 
-comprehensible:
-
-    ((2 + 3) * 4) uninfix eval
-
-sparse.pl
----------
-
-pearson.pl
-----------
-
-To hash something using the built-in hash function, use the %% operator:
-
-    `"nil" %% --> { 0x3023f4e7 0x8c2f644d 0x71cf647b 0xe974b23a }
-
-But a hash is still just a bunch of bytes. In order to create a 
-hash-reference, you can either use the newref operator:
-
-    `"nil" %% newref
-
-... or you can simply use the syntactic convention to tell proto_babel.pl
-to generate the hash-reference at compile-time:
-
-    nil&
-
-And, in fact, this is precisely how nil is internally defined in 
-proto_babel.pl:
-
-    nil: nil&
-
-Every time you use nil in a .pb file, you are just getting a pointer to 
-this hash-reference. You can still create your very own hash-reference
-at any time:
-
-    `[1 [2 [3 nil&]]] ## %d cr <<   ---> prints 3
-
-You can use your hashes to insert things into a hash-table or look things 
-up in a hash-table. Automatic look-up in the symbol-table by hash-reference
-is not yet implemented.
-
-Every Babel operator is just a number defined in the pb/opcodes.pb file. To
-successfully compile code with the proto_babel.pl script, you will need
-to pass in the opcodes.pb file on the command-line along with the .pb file
-you are trying to assemble. The babel Perl script does this for you 
-automatically.
-
-You can use the .pb.lst file that is generated to see the literal layout 
-of the bytes in the program.
-
-Also, you can browse the examples in the eg/ directory of the repository to
-get a better feel for proto-Babel syntax.
-
-Built-in functions, naming conventions and mnemonics
-----------------------------------------------------
-
-Babel v0.10 supports a subset of the final built-in functions that are
-planned for Babel 1.0. See doc/babel_ref.txt for a list of Babel operators.
-
-    abbr    meaning
-    ------------------
-    ar      array
-    ls      list
-
-    in      interior
-    lf      leaf
-
-    pt      pointer
-    va      value
-
-    str     string
-
-    stk     stack
-
-A 'c' as the first letter of the operand name usually means "C-language".
-'cu' means "C unsigned" and 'ci' means "C integer (signed)" and 'ca' means
-"C arithmetic"
-
-So, for example:
-
-cuadd       "C unsigned addition"
-ciadd       "C integer addition"
-cashl       "C arithmetic shift-left"
-
-As for ordering of operands, I applied the following rule as consistently
-as possible:
-
-    A B op   <===>   "A op B"
-
-For example, consider subtraction:
-
-    A B -    <===>   "A - B"
-
-Or division,
-
-    A B /    <===>   "A / B"
-
-The flow of data is as consistently left-to-right as possible.
-
 Documentation
 -------------
 
-    doc/babel_phil.txt
+>       doc/babel_gsg.txt
+
+Getting Started Guide
+
+>       doc/babel_phil.txt
 
 Documents the "Philosophy of Babel"
 
-    doc/babel_ref.txt
+>       doc/babel_ref.txt
 
 Documents the built-in Babel operators
 
-    doc/babel_guts.txt
+>       doc/babel_guts.txt
 
 Documents the internals of the Babel interpreter, as it is.
 
-    doc/babel_arch.txt
+>       doc/babel_arch.txt
 
 Documents the final goal to which Babel is being developed
 
-    eg/*
+>       eg/*
 
 Contains many examples of Babel programs, somewhat disorganized at
 present but will improve over time.

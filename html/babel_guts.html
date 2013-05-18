@@ -1,0 +1,533 @@
+<p><img src="sacred_scarab.jpg" alt="" title="" /></p>
+
+<h1>Babel Guts</h1>
+
+<p>This document describes the internals of the Babel interpreter.</p>
+
+<p>Note that this document does not detail the syntax of Bipedal (Babel Program
+Description Language).</p>
+
+<h2>mword</h2>
+
+<p>MWORD is short for machine-word and stands for an unsigned int or 
+pointer whose size is the native word size of the machine. In other words,
+an mword is either a 32-bit or 64-bit unsigned int or unsigned int pointer
+that is treated like a void pointer (to put it in C terminology).</p>
+
+<p>MWORD_SIZE is the native word size (in bits) divided by 8 bits per byte.
+On 32-bit machines, MWORD_SIZE is 4. On 64-bit machines, it is 8.</p>
+
+<h2>bstruct</h2>
+
+<p>The data structure in which all data and code (and anything else) reside
+is called a bstruct (which stands for Babel-struct... I'm very creative).
+It is important to note that the Babel interpreter does not maintain any
+state which is not stored in a bstruct. This means that a bstruct at
+all times contains a complete image of the running program. This makes
+it trivial to load, save and restore Babel programs, even while they
+are mid-stream.</p>
+
+<p>(NB: "at all times" means whenever an operator has finished executing)</p>
+
+<p>A bstruct consists of one or more of the following data structures, 
+connected together:</p>
+
+<ul>
+<li>leaf-array    : stores values</li>
+<li>interior-array: stores pointers</li>
+<li>hash-reference</li>
+</ul>
+
+<p>A bstruct may consist of:</p>
+
+<ul>
+<li>a single leaf-array OR</li>
+<li>an interior-array that may (recursively) point at one or more 
+interior-arrays, leaf-arrays and/or hash-references</li>
+</ul>
+
+<p>A bstruct is (intentionally) defined in such a way that it may contain
+any sort of data. There is nothing specific to Babel about a bstruct. For
+example, a large bitmap can be stored as a leaf-array by simply prepending
+it with the appropriate s-field in memory.</p>
+
+<h2>s-field</h2>
+
+<p>To tell apart the three types of array, each array has an S-FIELD.
+The s-field is a single mword at position 0 in the allocated array. That
+is, the array can be freed by passing a pointer to the s-field to the 
+free() function. This permits clean destruction of a bstruct at any time.</p>
+
+<ul>
+<li>X.s > 0             X is a leaf-array</li>
+<li>X.s = 0             X is a hash-reference</li>
+<li>X.s &lt; 0             X is an interior-array</li>
+</ul>
+
+<p>Aside from telling the array type, the s-field also tells the array size.
+The size is encoded in bytes so you have to divide by MWORD_SIZE to get
+the size in mwords.</p>
+
+<ul>
+<li>X.s > 0             X.size = X.s / MWORD_SIZE</li>
+<li>X.s = 0             X.size = 1 + HASH_SIZE</li>
+<li>X.s &lt; 0             X.size = -1 * (X.s / MWORD_SIZE)</li>
+</ul>
+
+<p>The size of every array in a bstruct is an even multiple of MWORD_SIZE.</p>
+
+<p>The least-significant bit of the s-field is used during traversal of a
+bstruct, see below.</p>
+
+<h2>Entries</h2>
+
+<p>All other mwords in an array other than the s-field are called entries.
+The zeroth entry is located at array index 1, immediately following the
+s-field.</p>
+
+<h2>Leaf-array</h2>
+
+<p>A leaf-array contains one or more values stored in an array of mwords. The
+contents of a leaf-array do not have to be accessed in mword-aligned 
+fashion. For example, it is possible to access a particular byte in a 
+leaf-array.</p>
+
+<p>The defining feature of a leaf-array is that it cannot contain pointers to
+any other arrays.</p>
+
+<p><em>Array-8</em></p>
+
+<p>A leaf-array may also be stored as an "array-8". Array-8 is just a 
+convention for padding the last mword of a leaf array with a special 
+mword that indicates the byte length of the array. Babel strings are 
+stored as array-8 in native form, see "Strings" section below.</p>
+
+<h2>Interior-array</h2>
+
+<p>An interior-array contains one or more pointers, each mword-sized. </p>
+
+<p>The defining feature of an interior-array is that every mword in an 
+interior-array must contain a pointer to the zeroth entry of an array.</p>
+
+<p>A pointer in an interior-array may point at any other kind of array.</p>
+
+<p>Every pointer in an interior-array must contain a valid pointer to an 
+array.</p>
+
+<h2>Hash-reference</h2>
+
+<p>A hash-reference is a single hash value stored in memory suitable for 
+fast lookup in the sym_table (symbol table).</p>
+
+<p>Hash-references have several uses:</p>
+
+<ul>
+<li>By-name lookup of data</li>
+<li>By-name eval</li>
+<li>Creating "soft-links" that can emborder data-structures</li>
+</ul>
+
+<p>By-name lookup of data is performed by using the hash value to probe the
+sym_table. The result will be pushed on the stack.</p>
+
+<p>If you want to emborder a given data-structure so that the deep operators 
+of Babel do not continue traversing into other data-structures that are 
+pointed to by the given data-structure, you can use a hash-reference. 
+The built-in operators will stop traversing once they reach a hash-
+reference.</p>
+
+<h2>Traversing a bstruct</h2>
+
+<p>A bstruct is a graph, not a tree. Hence, it may contain cycles. Traversal
+requires that each array be marked as it is visited. The least significant 
+bit of the s-field is used for this. The bstruct is actually traversed
+twice, once to set the LSB of each s-field in the bstruct and once to 
+clear it again.</p>
+
+<h2>Lists</h2>
+
+<p>As a convention, the zeroth entry of an interior-array is also termed the 
+'car' field and the first entry is also termed the 'cdr' field. This 
+permits the construction of bstructs formally identical to lists in Lisp.</p>
+
+<p>Babel borrows the 'cons' 'car' 'cdr' etc. terminology from Lisp for 
+this purpose. "A list" always means the portion of a bstruct that conforms
+to this convention.</p>
+
+<p>nil behaves slightly differently in Babel than it does in Lisp. Since 
+Babel does not have a notion of an atomic value, nil cannot be an atom and
+never acts like one. Its primary use in Babel is to mark the end of a 
+list. It also serves some special functions in control-flow behavior.</p>
+
+<h2>Hashes</h2>
+
+<p>Hashing is performed with the pearson16() function which is a modification of 
+<a href="http://cs.mwsu.edu/~griffin/courses/2133/downloads/Spring11/p677-pearson.pdf">Pearson's 8-bit permutation hash</a> 
+to generate 16-byte (128-bit) hash values.</p>
+
+<p>Babel implements extendible hashing (<em>Fagin, Nievergelt, Pippenger, 
+Strong</em> 1979) which means the hash table never needs to be re-hashed when
+items are inserted or deleted.</p>
+
+<h2>Namespaces</h2>
+
+<p>Namespaces in Babel are hierarchical. A namespace is "just a label" by
+which to refer to something, it is not a "container", "object" or 
+"package". Everything lives in one namespace, so you cannot have a
+variable with the same name as a function, etc.</p>
+
+<p>The sym_table is just a namespace but the operators for using a
+namespace can be used by the user to maintain user namespaces. The key
+is to separate the idea of namespace-as-data-structure and <em>the</em> Babel
+namespace. The former will be referred to as simply "namespace" and the
+latter will be referred to as the sym_table.</p>
+
+<p>The /babel/path namespace maintains a list of paths similar to Perl's
+@EXPORT variable. You can manipulate this variable using any of the 
+applicable Babel operators.</p>
+
+<h1>Babel Virtual Machine (bvm)</h1>
+
+<p>A bvm is a bstruct with a particular structure to it.</p>
+
+<h2>BVM Code</h2>
+
+<p>Code is a list. Each element of the list is accessed in order. </p>
+
+<p>When the item pointed at by code_ptr is: </p>
+
+<ul>
+<li><p>A leaf-array, it is treated as an opcode and a lookup is performed
+in jmp_table</p></li>
+<li><p>A hash-reference, it is looked up in the sym_table and control is
+transferred there, in a manner equivalent to eval.</p></li>
+<li><p>An interior-array and its car is:</p>
+
+<ul>
+<li><p>Not a hash-reference, it is pushed on the stack</p></li>
+<li><p>A hash-reference, it is looked up in the sym_table and the result
+is pushed on the stack</p></li>
+</ul></li>
+</ul>
+
+<h2>BVM Stack</h2>
+
+<p>The stack is where all operations are performed in Babel. The Babel 
+interpreter is a stack machine. Each operator operates on the stack and
+returns its results on the stack. There are no registers in Babel. No 
+internal state is maintained by the interpreter in C variables.</p>
+
+<p>The stack is itself a list, however, it includes some additional 
+information for memory-management. In order to convert the stack to a list, 
+use the take operator and use the give operator for vice-versa.</p>
+
+<h2>BVM Rstack</h2>
+
+<p>The rstack is the "managed stack" - it is what is used to implement the 
+iteration, control-flow and stack nesting operators.</p>
+
+<h2>BVM Interpreter</h2>
+
+<p>The interpreter is a stack machine (prefix order). This means that compilers
+that generate Babel code do not need to use parentheses to implement 
+operator precedence. The precedence is encoded in the order of operations.</p>
+
+<p>This simplifies the parsing requirements of any Babel front-end language.</p>
+
+<h2>Invoking a BVM</h2>
+
+<p>BVMs can be invoked in a nested manner, that is, a BVM may construct 
+another BVM and then invoke that BVM, transferring control to it until it
+exits. In fact, every Babel program executes inside of an invisible "root"
+BVM that is compiled into babel.exe (see src/rt.pb).</p>
+
+<p>This BVM contains code for the debugger and other basic commandline and 
+house-keeping functions.</p>
+
+<h2>Hidden section</h2>
+
+<p>The hidden section contains limits and controls that restrict what the 
+BVM can do. For example, if you are launching a BVM fetched from the web
+you should disable operators that can write to disk, limit the memory 
+that it can allocate, taint data fetched locally (to prevent privacy 
+breaches), disable system call operators, disable nested virtual machines
+(to prevent stack-overflow attacks) and disable operator extension.</p>
+
+<h2>Operators</h2>
+
+<p>The "active" component of Babel code consists of any of a number of 
+operators. There are two types of operators: built-in and extended. Each 
+operator is invoked through the jmp_table.</p>
+
+<ul>
+<li><p>Built-in operators</p>
+
+<p>Built-in operators have a fixed numerical value below 0x1000. </p></li>
+<li><p>Extended operators</p>
+
+<p>The encoding for an extended operator has a value greater than 0x1000 
+but it is not fixed - an extended operator will be installed in the 
+"next available" jmp_table entry when it is installed. Babel code 
+should never attempt to directly rely on the encoded value of an 
+operator.</p>
+
+<p>An extended operator can be given an encoding with the newop operator.</p>
+
+<p>Extended operators can also be invoked by hash-reference. If the next
+entry in the code list is a hash-reference, a lookup will be performed
+in the sym_table and the linked code will be invoked. Naturally, this
+is a lower-performance alternative.</p></li>
+</ul>
+
+<h2>Memory management</h2>
+
+<p>Babel uses a combination of automatic and manual memory management.
+Memory created by built-in operators is automatically managed, according to 
+specific rules. All other memory must be created and destroyed by the user 
+through the newlf/newin and free/del operators.</p>
+
+<h2>Stack memory management</h2>
+
+<ul>
+<li><p>Built-ins</p>
+
+<p>Built-in operators can create results on the stack. The memory for
+these results is created automatically. When the values are consumed
+by another built-in operator, they are also automatically freed.</p>
+
+<p>For example,</p>
+
+<blockquote>
+<pre><code>  2 3 +
+</code></pre>
+</blockquote>
+
+<p>... creates the result {5} which is allocated automatically and put
+on the stack. When this result is then consumed by the next 
+instruction:</p>
+
+<blockquote>
+<pre><code>  4 mul
+</code></pre>
+</blockquote>
+
+<p>... the intermediate result {5} is freed and the new result {20} is 
+automatically allocated and put on the stack.</p></li>
+<li><p>User operators</p>
+
+<p>User operators can provide a destructor function to Babel when they 
+are registered. This function will be called whenever the operator's
+results are consumed by another operator (built-in or otherwise).</p>
+
+<p>To signal consumption of a value (removal from the stack) to other 
+operators, call the zap() function.</p></li>
+</ul>
+
+<h2>Load memory management</h2>
+
+<p>The load operator accepts a leaf-array containing an "offset relative" 
+bstruct as input and generates a "live" bstruct as output. In order to
+maintain the ability to destruct any portion of a bstruct at any time, the
+load operator is required to allocate every basic structure as it is 
+loaded from the leaf-array (it can't simply load in-place).</p>
+
+<h2>Namespace memory management</h2>
+
+<p>Memory destruction within a namespace is hierarchical. This means that if 
+you create /foo/bar and then destroy /foo, /foo/bar will also be 
+destroyed. Note that simply removing a namespace does not affect memory
+allocation, it's when you use the del operator on a namespace.</p>
+
+<p>The book-keeping data in a namespace is always automatically memory-
+managed.</p>
+
+<h2>Hash memory management</h2>
+
+<p>The book-keeping data in a hash is automatically memory-managed.</p>
+
+<h2>Mortality</h2>
+
+<p>Each item on the stack is either mortal or immortal. Mortal items are freed
+when they are consumed by an operator. Immortal items are not freed.</p>
+
+<p>When you create new  memory:</p>
+
+<pre><code>`10 newin
+</code></pre>
+
+<p>... it is mortal. When this object is zap'd, it will be freed. If you want 
+the object to be freed when it is zap'd, use the immortal operator:</p>
+
+<pre><code>`10 newin immortal
+</code></pre>
+
+<h2>P-numbers</h2>
+
+<p>Babel has built-in support for arbitrary precision p-adic numbers, called 
+p-numbers for short. The p-operators (padd, psub, etc.) implement this
+functionality.</p>
+
+<p>To calculate the square-root of two to five words of precision:</p>
+
+<pre><code>[5] [2] psqrt
+</code></pre>
+
+<h2>File I/O</h2>
+
+<p>Babel provides some "quick-and-dirty" I/O operators inspired by Perl's 
+slurp functionality.</p>
+
+<p>For more robust file functionality, Babel provides memory-mapped files.</p>
+
+<h2>Operand-checking</h2>
+
+<p>Operands are checked for each operator. Babel 2.0 may include optimized
+non-checking operators for use in well-tested code.</p>
+
+<h2>Jump table</h2>
+
+<p>Each built-in opcode is an offset into a jump table. New opcodes that are
+added in with the newop operator are dynamically assigned jump table offsets.</p>
+
+<p>When constructing a bvm for launch, the parent bvm can restrict the built-in
+operators that are available through the hidden section of the header.</p>
+
+<h2>Strings</h2>
+
+<p>Babel has native support for UTF-8 encoded strings. Babel strings are not
+null-terminated. However, a Babel-string stored in array-8 form is always
+C-string safe because the alignment-word at the end of an array-8 always
+contains one or more null bytes. For example, in 32-bit Babel, the 
+alignment word is one of:</p>
+
+<pre><code>0x00000000      byte-length % 4 = 0
+0xffffff00      byte-length % 4 = 1
+0xffff0000      byte-length % 4 = 2
+0xff000000      byte-length % 4 = 3
+</code></pre>
+
+<p>Babel handles strings in several different forms:</p>
+
+<ul>
+<li><p>Native form. The string is UTF-8 encoded WITHOUT a null terminator in
+an array8 leaf-array</p></li>
+<li><p>C-style. This is just a native string with a null terminator appended.</p></li>
+<li><p>String-array. This is a leaf-array such that each entry in the array 
+contains the Unicode code-point of the encoded character. It is created
+from a native-form string via the str2ar operator.</p></li>
+<li><p>String-list. This is a string-array on which the the ar2ls operator
+has been called.    </p></li>
+</ul>
+
+<h2>pearson.pl</h2>
+
+<p>To hash something using the built-in hash function, use the %% operator:</p>
+
+<blockquote>
+<pre><code>  `"nil" %% --&gt; { 0x3023f4e7 0x8c2f644d 0x71cf647b 0xe974b23a }
+</code></pre>
+</blockquote>
+
+<p>But a hash is still just a bunch of bytes. In order to create a 
+hash-reference, you can either use the newref operator:</p>
+
+<blockquote>
+<pre><code>  `"nil" %% newref
+</code></pre>
+</blockquote>
+
+<p>... or you can simply use the syntactic convention to tell proto_babel.pl
+to generate the hash-reference at compile-time:</p>
+
+<blockquote>
+<pre><code>  nil&amp;
+</code></pre>
+</blockquote>
+
+<p>And, in fact, this is precisely how nil is internally defined in 
+proto_babel.pl:</p>
+
+<blockquote>
+<pre><code>  nil: nil&amp;
+</code></pre>
+</blockquote>
+
+<p>Every time you use nil in a .pb file, you are just getting a pointer to 
+this hash-reference. You can still create your very own hash-reference
+at any time:</p>
+
+<blockquote>
+<pre><code>  `[1 [2 [3 nil&amp;]]] ## %d cr &lt;&lt;   ---&gt; prints 3
+</code></pre>
+</blockquote>
+
+<p>You can use your hashes to insert things into a hash-table or look things 
+up in a hash-table. Automatic look-up in the symbol-table by hash-reference
+is not yet implemented.</p>
+
+<p>Every Babel operator is just a number defined in the pb/opcodes.pb file. To
+successfully compile code with the proto_babel.pl script, you will need
+to pass in the opcodes.pb file on the command-line along with the .pb file
+you are trying to assemble. The babel Perl script does this for you 
+automatically.</p>
+
+<p>You can use the .pb.lst file that is generated to see the literal layout 
+of the bytes in the program.</p>
+
+<p>Also, you can browse the examples in the eg/ directory of the repository to
+get a better feel for proto-Babel syntax.</p>
+
+<h2>Built-in functions, naming conventions and mnemonics</h2>
+
+<p>Babel v0.10 supports a subset of the final built-in functions that are
+planned for Babel 1.0. See doc/babel_ref.txt for a list of Babel operators.</p>
+
+<pre><code>abbr    meaning
+------------------
+ar      array
+ls      list
+
+in      interior
+lf      leaf
+
+pt      pointer
+va      value
+
+str     string
+
+stk     stack
+</code></pre>
+
+<p>A 'c' as the first letter of the operand name usually means "C-language".
+'cu' means "C unsigned" and 'ci' means "C integer (signed)" and 'ca' means
+"C arithmetic"</p>
+
+<p>So, for example:</p>
+
+<p><strong>cu</strong>add       "C unsigned addition" <br />
+<strong>ci</strong>add       "C integer addition" <br />
+<strong>ca</strong>shl       "C arithmetic shift-left"  </p>
+
+<p>As for ordering of operands, I applied the following rule as consistently
+as possible:</p>
+
+<blockquote>
+<pre><code>  A B op   &lt;===&gt;   "A op B"
+</code></pre>
+</blockquote>
+
+<p>For example, consider subtraction:</p>
+
+<blockquote>
+<pre><code>  A B -    &lt;===&gt;   "A - B"
+</code></pre>
+</blockquote>
+
+<p>Or division,</p>
+
+<blockquote>
+<pre><code>  A B /    &lt;===&gt;   "A / B"
+</code></pre>
+</blockquote>
+
+<p>The flow of data is as consistently left-to-right as possible.</p>

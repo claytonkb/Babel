@@ -1,0 +1,557 @@
+<p><img src="sacred_scarab.jpg" alt="" title="" /></p>
+
+<h2>Getting Started</h2>
+
+<p>Babel is an interpreted language.  It is an untyped, stack-based, postfix 
+language with support for arrays, lists and hashes (dictionaries). Babel 
+1.0 will support built-in crypto-based verification of code in order to 
+enable safer remote code execution.</p>
+
+<p>There are two kinds of Babel syntax. The first kind is being used to 
+bootstrap the Babel construct, it is called Sparse (S-expression parser).
+The second kind is the built-in Babel parser, which is called Bipedal
+(Babel Program Description Language).</p>
+
+<h2>S-expression parser (sparse.pl)</h2>
+
+<h2>Babel Program Description Language (Bipedal)</h2>
+
+<p>The primary design goal in Bipedal has been to make the syntax reflect the 
+underlying data structure that is being described as closely as possible. 
+Bipedal is UTF-8 encoded - this means you can give your sections any name 
+that can be encoded in UTF-8. You can easily alias the built-in operator 
+names, as well.</p>
+
+<p>Like any other postfix language, operands come first, then operators:</p>
+
+<blockquote>
+<pre><code>  2 3 + 4 *
+</code></pre>
+</blockquote>
+
+<p>The above expression, when evaluated, will result in 20.</p>
+
+<blockquote>
+<pre><code>  "Hello, " "world" . &lt;&lt;
+</code></pre>
+</blockquote>
+
+<p>When this expression is evaluated, it will place the two strings on the 
+stack, concatenate them and then print them to STDOUT.</p>
+
+<p>Babel differentiates between values and pointers. <strong>Values</strong> are stored in 
+leaf-arrays and <strong>pointers</strong> are stored in interior-arrays. In Bipedal, there 
+are two syntactic elements that describe values: a number or a string.</p>
+
+<p>A <strong>number</strong> can be a decimal integer, decimal floating-point, hexadecimal, 
+binary or a p-number (or pnum - support will be added in Babel 2.0). 
+Bipedal differentiates between integer and floating-point based on the 
+presence of a decimal-point and the default is integer.</p>
+
+<blockquote>
+  <p><code>-42e15</code> <br />
+<code>32.7152e-12</code> <br />
+<code>0x13</code> <br />
+<code>0b1101111</code> <br />
+<code>0p(101)1.11e-5</code>  </p>
+</blockquote>
+
+<p>The limits are dependent on MWORD_SIZE (use the msize operator to get 
+this) except for pnums which can be of arbitrary size.</p>
+
+<p>A string is a set of characters wrapped in quotes:</p>
+
+<blockquote>
+  <p><code>"Lorem ipsum dolor sit amet"</code> <br />
+<code>'Lorem ipsum dolor sit amet'</code>  </p>
+</blockquote>
+
+<p>... or in a quote-block (see below). The quote character can be escaped 
+with a backslash in the usual way. Line comments in Bipedal are specified 
+by double-dash:</p>
+
+<blockquote>
+  <p><code>-- This is a comment</code>  </p>
+</blockquote>
+
+<p>Bipedal is organized at the top-level as a set of labeled text blocks 
+which can be nested. A label is a string of characters that begins at 
+the left-edge and is followed by a colon or equal-sign:</p>
+
+<blockquote>
+  <p><code>this_is\ a\ label\!\@          :</code> <br />
+<code>this_is\ a\ label_too:</code> <br />
+<code>this_is\ a\ label           =</code> <br />
+<code>and\=so\=is\=this=</code>  </p>
+</blockquote>
+
+<p>Any character can be used in a label, including the colon and equal-sign. 
+However, any ASCII character that is not an identifier-character must be 
+escaped with the backslash. Non-ASCII Unicode characters can be used 
+freely. The first text in a Bipedal file is ignored until the first, 
+left-justified label is encountered.</p>
+
+<p>A label opens an indented text block which is terminated either by the end 
+of file or by a dedent. The indent must be at least one space. Tabs or any 
+other whitespace cannot be used as an indent character. A line that is 
+less than one space further indented than the left-edge of the current 
+block is a dedent and ends the current text block. A labeled text block 
+allows the definition of a section.</p>
+
+<blockquote>
+  <p><code>my_section : ( 10 9 8 7 6 5 4 3 2 1 "Blast off!" )</code>  </p>
+</blockquote>
+
+<p>Every section is entered into the symbol table at compile-time. Hence, 
+every section label is a symbol. However, symbols can also be created 
+dynamically so not every symbol is a section.</p>
+
+<p>A leaf-array is defined by enclosing a string or one or more numbers in 
+square-brackets:</p>
+
+<blockquote>
+  <p><code>[1 1 2 3 5 8 13 0x15]</code>
+<code>["Smart men are named Leonardo"]</code></p>
+</blockquote>
+
+<p>If the section is a leaf-array that only contains a single number or a 
+single string value, the square-brackets can be removed because they are 
+implied:</p>
+
+<blockquote>
+  <p><code>foo : 1234</code> <br />
+<code>bar : "baz"</code>    </p>
+</blockquote>
+
+<p>A leaf-array cannot nest and an interior-array cannot contain values, so 
+the following are illegal:</p>
+
+<blockquote>
+  <p><code>["speeding" ["jaywalking"]]</code> <br />
+<code>[["littering"] "loitering"]</code>  </p>
+</blockquote>
+
+<p>An interior-array is defined by enclosing one or more leaf-arrays, labels 
+or interior arrays in square-brackets:</p>
+
+<blockquote>
+  <p><code>[["the"]["cuckoo’s"]["nest"]]</code>  </p>
+</blockquote>
+
+<p>Note that values are represented in bold boxes, pointers are represented in standard boxes. 
+Because the square brackets are overloaded between leaf-arrays and interior-arrays, it is possible to have ambiguous sections:</p>
+
+<blockquote>
+  <p><code>A : [B]</code> <br />
+<code>B : [A]</code>  </p>
+</blockquote>
+
+<p>Whenever Babel cannot unambiguously resolve the meaning of square-brackets
+in two or more sections, it will treat them as interior-arrays. So, the 
+above example would resolve to section A being an interior-array with a 
+single direct-reference to section B and vice-versa.</p>
+
+<p>An empty namespace defaults to nil:</p>
+
+<blockquote>
+  <p><code>foo :</code> <br />
+<code>bar : 123</code>  </p>
+</blockquote>
+
+<p>... is equivalent to:</p>
+
+<blockquote>
+  <p><code>foo : nil</code> <br />
+<code>bar : 123</code>  </p>
+</blockquote>
+
+<p>Lists are created with parentheses. A list in Babel means a linked-list 
+in the Lisp-sense. The following are equivalent:</p>
+
+<blockquote>
+  <p><code>(1 2 3)</code>  </p>
+
+<p><code>[[1] [[2] [[3] nil]]]</code>  </p>
+</blockquote>
+
+<p>You can verify this with the following code:</p>
+
+<blockquote>
+  <p><code>{ (1 2 3) [[1] [[2] [[3] nil]]] eq }</code>  </p>
+</blockquote>
+
+<p>... which will evaluate to 1 (true).</p>
+
+<p>The nil element is distinct from Lisp’s in that Babel has no notion of an 
+atomic and nil is just implemented as an entry in the symbol table - 
+but you can take its car or cdr and you will always get nil again. In 
+keeping with the spirit of Lisp, you can also notate nil as 
+empty-parentheses or empty-brackets:</p>
+
+<blockquote>
+  <p><code>[] == () == nil</code></p>
+</blockquote>
+
+<p>One final difference between Bipedal syntax and Lisp syntax is that 
+Bipedal does not use the dot-notation. In Lisp, the following syntax</p>
+
+<blockquote>
+  <p><code>(1 2 . 3)</code>  </p>
+</blockquote>
+
+<p>... expresses the same list as the following written in Bipedal:</p>
+
+<blockquote>
+  <p><code>(1 [2 3])</code>  </p>
+</blockquote>
+
+<p>In Babel, operands in the code-stream are differentiated from operators 
+by being nested in an interior-array. For example, to add two numbers, 
+the following are all equivalent:</p>
+
+<blockquote>
+  <p><code>A: ( [42] [23] + )</code> <br />
+<code>B: ( (42) (23) + )</code> <br />
+<code>C: ( [42 nil] [23 nil] + )</code> <br />
+<code>D: ( [42 nil] [23 nil] 0x38 )</code>  </p>
+</blockquote>
+
+<p>A-D all produce the same result when executed. A and B do not generate 
+exactly the same byte-code but B, C and D do.</p>
+
+<p>A code-list is created with curly-braces. A code-list is just a list but 
+it performs the nesting of non-operators automatically, thus reducing 
+visual clutter. It also alters the meaning of labeled references. The 
+following are identically equivalent:</p>
+
+<blockquote>
+  <p><code>( [2] [3] + )</code>  </p>
+
+<p><code>{ 2 3 + }</code>  </p>
+</blockquote>
+
+<p>And:</p>
+
+<blockquote>
+  <p><code>( ["Hello, "] ["world\n"] . &lt;&lt; )</code>  </p>
+
+<p><code>{ "Hello, "  "world\n" . &lt;&lt; }</code>  </p>
+</blockquote>
+
+<p>You can check that this is the case:</p>
+
+<blockquote>
+  <p><code>{ { 1 2 3 "Hello, world" } ( [1] [2] [3] ["Hello, world"] ) eq }</code>  </p>
+</blockquote>
+
+<p>Note that the default meaning of labeled references is different 
+depending on whether you are in code-list or data-list context.</p>
+
+<p>The tagged-pointer is the third basic sub-type alongside interior-arrays 
+and leaf-arrays that together comprise the bstruct type in which all 
+Babel data is stored. A tagged-pointer is created using the 
+angle-brackets:</p>
+
+<p>&lt; tag stuff ></p>
+
+<p>The stuff that follows the tag (if any) is dependent on the tag. Certain 
+built-ins, such as nil, are implemented internally using tagged-pointers.</p>
+
+<h2>Sigils</h2>
+
+<p>Babel permits the use of a sigil (magic symbol) to specify the meaning of 
+a label or symbol. There are six sigils:</p>
+
+<table>
+  <tr>
+    <th>Sigil</th><th>Magical property</th>
+        <th>Bare symbol equivalent in</th><th>Mnemonic</th>
+  </tr>
+  <tr>
+    <td>*</td><td>Lexical substitution</td><td>Leaf-array</td><td>"Contents-of" (C)</td>
+  </tr>
+  <tr>
+    <td>&</td><td>Direct reference</td><td>Interior-array and list</td><td>Reference (C++)</td>
+  </tr>
+  <tr>
+    <td>$</td><td>Indirect reference</td><td>N/A</td><td>Reference (Perl)</td>
+  </tr>
+  <tr>
+    <td>%</td><td>Soft reference</td><td>Code-list</td><td>Hash-sigil (Perl)</td>
+  </tr>
+  <tr>
+    <td>!</td><td>Auto-eval reference</td><td>N/A</td><td>Imperative - do it!</td>
+  </tr>
+  <tr>
+    <td>@</td><td>List location</td><td>N/A</td><td>Where it's at</td>
+  </tr>
+</table>
+
+<p>Appending a sigil to a section label or to a symbol imparts that magical 
+property to it and may alter its default behavior. A sigil appended to a 
+label overrides the default sense of that label in any context. However, 
+you can double-override the symbol by appending a different sigil in a 
+particular context:</p>
+
+<blockquote>
+  <p><code>foo% : 127</code> <br />
+<code>bar : ( foo&amp; ) --&gt; Overrides foo back to a direct-reference</code>  </p>
+</blockquote>
+
+<p>The default behavior of a bare symbol varies depending on the context in 
+which it occurs. </p>
+
+<p>The asterisk (*) specifies that a symbol or section is to be used for 
+lexical substitution. Lexical substitution allows a section or string to 
+be expanded in a manner similar to a #define in C or string-interpolation 
+in Perl. Note that lexical substitutions do not take arguments and are 
+not macros.</p>
+
+<p>This:</p>
+
+<blockquote>
+  <p><code>foo : (1 2 3)
+</code>bar : (foo* 4 5)</p>
+</blockquote>
+
+<p>... is equivalent to this:</p>
+
+<blockquote>
+  <p>`bar : (1 2 3 4 5)</p>
+</blockquote>
+
+<p>The order in which you define sections is maintained by Bipedal. In the 
+above example, foo has precedence over bar.</p>
+
+<p>Note that you can only use like with like - interior arrays can be 
+substituted only into interior arrays, leaf arrays only into leaf arrays, 
+lists only into lists, code-lists only into code-lists and strings only 
+into strings (a compile-time version of string interpolation).</p>
+
+<blockquote>
+  <p><code>hi : "hello"</code> <br />
+<code>hw : "hi* world"</code>  </p>
+</blockquote>
+
+<p>hw evaluates to "hello world"</p>
+
+<p>Only double-quotes (and interpolating quote blocks) will perform lexical 
+substitution of strings. Use single-quotes if you want to use asterisks in 
+a string without having to escape each one.</p>
+
+<p>If you plan to use a section primarily for lexical substitution, you can 
+append an asterisk to the section-definition label.</p>
+
+<blockquote>
+  <p><code>foo* : [bar baz]</code> <br />
+<code>bop : [foo doo wop]</code>  </p>
+</blockquote>
+
+<p>Equivalent to:</p>
+
+<blockquote>
+  <p><code>bop : [bar baz doo wop]</code>  </p>
+</blockquote>
+
+<p>And:</p>
+
+<blockquote>
+  <p><code>add2 : { 2 + }</code> <br />
+<code>bar : { 1 add2* }</code>  </p>
+</blockquote>
+
+<p>Equivalent to:</p>
+
+<blockquote>
+  <p><code>bar : { 1 2 + }</code>  </p>
+</blockquote>
+
+<p>In a leaf-array, the default (and only) meaning of a symbol is lexical 
+substitution.</p>
+
+<blockquote>
+  <p><code>foo : [ 1 2 3 ]</code> <br />
+<code>bar : [ foo 4 5 ]</code>  </p>
+</blockquote>
+
+<p>Equivalent to:</p>
+
+<blockquote>
+  <p><code>bar : [ 1 2 3 4 5 ]</code>  </p>
+</blockquote>
+
+<p>Gratuitous use of sigils is permitted:</p>
+
+<blockquote>
+  <p><code>foo* : [1 2 3]</code> <br />
+<code>bar : [foo* 4 5]</code>  </p>
+</blockquote>
+
+<p>You cannot use any other sigil than the asterisk on a symbol that occurs 
+in a leaf-array. If the symbol cannot be lexically substituted into the 
+leaf-array, an error will occur. A reference to ‘foo’ refers directly to 
+the thing called ‘foo’ at compile-time rather than performing a lookup in 
+the symbol table at run-time. There are two types of references - direct 
+references (pointer) and indirect references (pointer-pointer). </p>
+
+<p>In list context or interior-array context, the default meaning of a bare 
+symbol is a direct reference.</p>
+
+<blockquote>
+  <p><code>foo : [1 2 3]</code> <br />
+<code>bar : [foo [4] [5]]</code>  </p>
+</blockquote>
+
+<p>Equivalent to:</p>
+
+<blockquote>
+  <p><code>bar : [[1 2 3] [4] [5]]</code>  </p>
+</blockquote>
+
+<p>The same is true of lists:</p>
+
+<blockquote>
+  <p><code>foo : (1 2 3)</code> <br />
+<code>bar : (foo 4 5)</code>  </p>
+</blockquote>
+
+<p>Equivalent to:</p>
+
+<blockquote>
+  <p><code>bar : ((1 2 3) 4 5)</code>  </p>
+</blockquote>
+
+<p>Note that, unlike lexical substitution, a direct-reference to foo is 
+actually a pointer to foo and, therefore, preserves the nesting but does 
+not make a copy. If you want to nest and make a copy:</p>
+
+<blockquote>
+  <p><code>foo : [1 2 3]</code> <br />
+<code>bar : [[foo*] [4] [5]]</code>  </p>
+</blockquote>
+
+<p>If you want an indirect reference in list, interior-array or code-list 
+context, use the dollar-sign sigil ($):</p>
+
+<blockquote>
+  <p><code>foo : [1 2 3]</code> <br />
+<code>bar : [foo$ [4] [5]]</code> <br />
+<code>?
+</code>bar : [[[1 2 3]] [4] [5]]`  </p>
+</blockquote>
+
+<p>Note the extra pair of brackets. As a general rule, you should never need 
+to use indirect references in interior-array or list context.</p>
+
+<blockquote>
+  <p><code>foo : (1 2 3)</code> <br />
+<code>bar : { foo$ len }</code> <br />
+<code>?
+</code>bar : ( [foo] len )`  </p>
+</blockquote>
+
+<p>In code-lists, if you want a direct-reference, use the ampersand sigil 
+(&amp;):</p>
+
+<blockquote>
+  <p><code>foo&amp; : 0x38</code> <br />
+<code>bar : { foo }</code> <br />
+<code>?
+</code>bar : ( 0x38 )`  </p>
+</blockquote>
+
+<p>If you want to use a symbol as a hash-reference in an interior array or a 
+list, use the percent sigil (%):</p>
+
+<blockquote>
+  <p><code>foo : [1 2 3 bar%]</code> <br />
+<code>bar : (1 2 3 bar%)</code>  </p>
+</blockquote>
+
+<p>In a code-list, the default meaning of a bare symbol is as a hash-reference. </p>
+
+<blockquote>
+  <p><code>foo : (1 2 3)</code> <br />
+<code>bar : { foo len }</code>  </p>
+</blockquote>
+
+<p>Equivalent to:</p>
+
+<blockquote>
+  <p><code>bar : ([foo%] len)</code>  </p>
+</blockquote>
+
+<p>In Babel code, a hash-reference can have one of two effects - it can either 
+auto-eval a named section or it can auto-lookup data from the symbol table 
+and place it on the stack. The default sense is to auto-lookup data. If 
+you want to auto-eval it, you can use the auto-eval sigil, bang (!):</p>
+
+<blockquote>
+  <p><code>add2 : { 2 + }</code> <br />
+<code>foo : { 3 add2! }</code>  </p>
+</blockquote>
+
+<p>Note that this has exactly the same effect as:</p>
+
+<blockquote>
+  <p><code>foo : { 3 add2 eval }</code>  </p>
+</blockquote>
+
+<p>Most of the time, you will likely want to simply define the section with 
+the auto-eval sigil:</p>
+
+<blockquote>
+  <p><code>add2! : { 2 + }</code> <br />
+<code>foo : { 3 add2 }</code>  </p>
+</blockquote>
+
+<p>The auto-eval sigil can only be used in code-list context.</p>
+
+<p>The location sigil (@) can never be used as a section definition label or 
+in array context. It allows you to create direct references within a list 
+or code-list. For example:</p>
+
+<blockquote>
+  <p><code>foo: ( 1 2 three@ 3)</code> <br />
+<code>bar: { foo/three car %d &lt;&lt; }</code>  </p>
+</blockquote>
+
+<p>Equivalent to:</p>
+
+<blockquote>
+  <p><code>{ foo cdr cdr car %d &lt;&lt; }</code>  </p>
+</blockquote>
+
+<p>You can use this facility to create a <em>compile-time hash</em> that permits 
+your code to reach the elements of a list but without the overhead of 
+run-time hashing. For example:</p>
+
+<blockquote>
+  <p><code>( first_name@        "John"</code> <br />
+<code>last_name@           "Smith"</code> <br />
+<code>ID@              "19010378" )</code>  </p>
+</blockquote>
+
+<p>An unenclosed bare symbol is treated as a simple alias.</p>
+
+<blockquote>
+  <p><code>foo : bar</code>  </p>
+</blockquote>
+
+<p>Anywhere foo is used, it will be as if bar had been used instead. You 
+cannot use sigils on either side of an alias statement and the alias 
+inherits any sigil attached to the aliased section. You cannot alias a 
+location label. Aliases have global visibility, so you can alias any 
+section by using its full name. You can use this feature to alias the 
+built-in operators to a name of your preference:</p>
+
+<blockquote>
+  <p><code>suma : +</code> <br />
+<code>foo : { 2 3 suma }</code>  </p>
+</blockquote>
+
+<p>If a symbol is not defined by a labeled section in your Bipedal file, it 
+is treated as if it defines a symbolic section. That is, use of an 
+otherwise undefined symbol implicitly creates an entry in the symbol-table 
+for that symbol. This is the case regardless of whether the symbol refers 
+to a symbolic variable or a reference variable.</p>
