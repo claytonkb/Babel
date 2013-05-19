@@ -8,8 +8,11 @@
 #include "bvm_opcodes.h"
 #include "array.h"
 
-//
-// babel_operator
+/* comparison operator
+**cne** (~=)  
+> C-style not-equal  
+> `{a} {b}| -> {a != b}|`  
+*/
 bvm_cache *cne(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -25,8 +28,11 @@ bvm_cache *cne(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* comparison operator
+**ceq** (=)  
+> C-style equal  
+> `{a} {b}| -> {a == b}|`  
+*/
 bvm_cache *ceq(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -42,8 +48,11 @@ bvm_cache *ceq(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* comparison operator
+**cult** (u<)  
+> C-style unsigned less-than  
+> `{a} {b}| -> {a < b}|`  
+*/
 bvm_cache *cult(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -59,8 +68,11 @@ bvm_cache *cult(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* comparison operator
+**cule** (u<=)  
+> C-style unsigned less-than-or-equal  
+> `{a} {b}| -> {a <= b}|`  
+*/
 bvm_cache *cule(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -76,8 +88,11 @@ bvm_cache *cule(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* comparison operator
+**cugt** (u>)  
+> C-style unsigned greater-than  
+> `{a} {b}| -> {a > b}|`  
+*/
 bvm_cache *cugt(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -93,8 +108,11 @@ bvm_cache *cugt(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* comparison operator
+**cuge** (u>=)  
+> C-style unsigned greater-than-or-equal  
+> `{a} {b}| -> {a >= b}|`  
+*/
 bvm_cache *cuge(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -110,8 +128,11 @@ bvm_cache *cuge(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* comparison operator
+**cilt** (<)  
+> C-style integer less-than  
+> `{a} {b}| -> {a < b}|`  
+*/
 bvm_cache *cilt(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -127,8 +148,11 @@ bvm_cache *cilt(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* comparison operator
+**cile** (<=)  
+> C-style integer less-than-or-equal  
+> `{a} {b}| -> {a <= b}|`  
+*/
 bvm_cache *cile(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -144,8 +168,11 @@ bvm_cache *cile(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* comparison operator
+**cigt** (>)  
+> C-style integer greater-than  
+> `{a} {b}| -> {a > b}|`  
+*/
 bvm_cache *cigt(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -161,8 +188,11 @@ bvm_cache *cigt(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* comparison operator
+**cige** (>=)  
+> C-style integer greater-than-or-equal  
+> `{a} {b}| -> {a >= b}|`  
+*/
 bvm_cache *cige(bvm_cache *this_bvm){
 
     fatal("stack fix not done");

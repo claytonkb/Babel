@@ -60,9 +60,12 @@
 #define NEWLINE_SIZE 1
 #endif
 
-// TOS_0(this_bvm) . "\n"
 // TODO: Optimize for cases when we have slack-space
-// babel_operator
+/* string operator
+**cr**
+> Appends a newline to TOS  
+> `TOS\ . "\n"`
+*/
 bvm_cache *cr(bvm_cache *this_bvm){
 
 //    die;
@@ -210,7 +213,13 @@ mword *_c2b(char *string, mword max_safe_length){
 
 // XXX ar2str & str2ar definitely have undiscovered bugs
 // ... may need to rewrite the utf-8 stuff
-// babel_operator
+/* string operator
+**ar2str**
+> "Convert array to string"  
+> Undoes str2ar, see above.  
+>  
+> `{X}| -> {"string"}|`  
+*/
 bvm_cache *ar2str(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -254,7 +263,19 @@ bvm_cache *ar2str(bvm_cache *this_bvm){
 
 }
 
-// babel_operator
+/* string operator
+**str2ar**
+> "Convert string to array"  
+> 
+> "Expands" a string so that each character is one value of a leaf-
+> array. The input string must be valid UTF-8 (UTF-8 is a superset
+> of ASCII) and each value of the resulting array will be the
+> Unicode codepoint corresponding to each UTF-8 character.  
+>
+> `{"string"}| -> {X}|`  
+>  
+> Where X is a leaf-array of Unicode code-points.  
+*/
 bvm_cache *str2ar(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -275,8 +296,10 @@ bvm_cache *str2ar(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* string operator
+**catoi** 
+> C-style atoi() (ASCII-to-integer)  
+*/
 bvm_cache *catoi(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -289,8 +312,10 @@ bvm_cache *catoi(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* string operator
+**dec2ci** ($d)  
+> Undoes ci2dec
+*/
 bvm_cache *dec2ci(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -303,8 +328,10 @@ bvm_cache *dec2ci(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* string operator
+**hex2cu** ($x)  
+> Undoes cu2hex  
+*/
 bvm_cache *hex2cu(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -340,8 +367,13 @@ bvm_cache *hex2cu(bvm_cache *this_bvm){
     zapd(this_bvm,0);                                   \
     pushd( this_bvm, result, IMMORTAL );                \
 
-//
-//
+/* string operator
+**ci2dec** (%d)  
+> Converts an C-style integer value to its ASCII decimal
+> representation  
+>  
+> `{x}| -> {"string"}|`  
+*/
 bvm_cache *ci2dec(bvm_cache *this_bvm){ // ci2dec#
 
     numeric_to_string_operator( "%i" );
@@ -349,24 +381,36 @@ bvm_cache *ci2dec(bvm_cache *this_bvm){ // ci2dec#
 }
 
 
-//
-//
+/* string operator
+**cu2dec** (%u)  
+> Converts an C-style unsigned value to its ASCII decimal
+> representation  
+>  
+> `{x}| -> {"string"}|`  
+*/
 bvm_cache *cu2dec(bvm_cache *this_bvm){ // cu2dec#
 
     numeric_to_string_operator( "%u" );
 
 }
 
-//
-// babel_operator
+/* string operator
+**cu2hex** (%x)  
+> Converts an C-style unsigned value to its ASCII hexadecimal
+> representation  
+>  
+> `{x}| -> {"string"}|`  
+*/
 bvm_cache *cu2hex(bvm_cache *this_bvm){ // cu2hex#
 
     numeric_to_string_operator( "%x" );
 
 }
 
-//
-// babel_operator
+/* string operator
+**ord**   
+> Returns the numeric value of a character  
+*/
 bvm_cache *ordop(bvm_cache *this_bvm){
 
     fatal("stack fix not done");

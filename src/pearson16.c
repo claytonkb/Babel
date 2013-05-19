@@ -31,8 +31,28 @@
 //
 //}
 
-// key hash8
-// babel_operator
+/* pearson operator
+**hash**
+> Hashes a sequence of bytes (hence the '8')  
+>  
+> Stack effect:  
+> `{"string"}| -> {w x y z}|`  
+> A hash is 4 mwords in size  
+*/
+  
+/* pearson operator
+**phash/phash8**  
+> Performs a progressive hash  
+*/
+
+/* pearson operator
+**hash8** (%%)  
+> Hashes a sequence of bytes (hence the '8')  
+>  
+> Stack effect:  
+> `{"string"}| -> {w x y z}|`  
+> A hash is 4 mwords in size  
+*/
 bvm_cache *hash8(bvm_cache *this_bvm){
 
     fatal("stack fix not done");

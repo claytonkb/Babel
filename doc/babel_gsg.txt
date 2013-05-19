@@ -1,12 +1,53 @@
 ![](sacred_scarab.jpg)
 
 Getting Started
----------------
+===============
 
 Babel is an interpreted language.  It is an untyped, stack-based, postfix 
 language with support for arrays, lists and hashes (dictionaries). Babel 
 1.0 will support built-in crypto-based verification of code in order to 
 enable safer remote code execution.
+
+Babel was designed with the TIMTOWTDI  philosophy in mind – there are many 
+right ways to solve any particular problem in Babel. However, some 
+solutions are a bad fit for Babel. In particular, trying to write Babel 
+code to resemble standard function-call code – while possible – will 
+result in sub-optimal, hard-to-read Babel code.
+
+Babel is a stack-based language - the stack is the primary means of 
+communicating data from one place to another. The ideal situation is to 
+reduce your code to a set of sections that can be thought of as 
+combinators where each combinator takes a small number or zero operands 
+from the stack and returns one or zero results on the stack. In this 
+case, you will not have “stack-noise” induced by the need to re-arrange 
+arguments on the stack.
+
+The next preferred situation is if your sections take multiple values on 
+the stack and each value is used only once or twice in the section, in 
+order or nearly so. In this case, you can simply use the up and down 
+operators to move cleanly from operand to operand.
+
+But if one or more operands are going to be used in more than a couple 
+places in a section, this will create significant stack-noise which is 
+not only a performance problem but drastically reduces the readability 
+of your Babel code.
+
+In this case, consider using symbolic-variables or lexical variables, 
+depending on your needs. Symbolic variables are entries in the symbol 
+table and are primarily intended for structural or spatial organization. 
+Lexical variables (symbolic variables can also be treated lexically) 
+permit you to make a section re-entrant and are primarily intended for
+functional or temporal organization.
+
+Many array- and list-processing tasks are most easily done by monopolizing 
+the entire stack with an each loop. To facilitate this, Babel provides the 
+`nest` operator. Within a nested context, you have a fresh stack – when you 
+return from the nested context, that temporary stack will be destroyed, 
+except for TOS which is returned. You can read doc/babel_ref.txt for more 
+information on the nest operator.
+
+Also, be sure to check out the many examples of Babel code on 
+rosettacode.org.
 
 There are two kinds of Babel syntax. The first kind is being used to 
 bootstrap the Babel construct, it is called Sparse (S-expression parser).
@@ -266,12 +307,12 @@ not macros.
 
 This:
 
-> `foo : (1 2 3)
-> `bar : (foo* 4 5)
+> `foo : (1 2 3)`  
+> `bar : (foo* 4 5)`  
 
 ... is equivalent to this:
 
-> `bar : (1 2 3 4 5)
+> `bar : (1 2 3 4 5)`  
 
 The order in which you define sections is maintained by Bipedal. In the 
 above example, foo has precedence over bar.
@@ -362,7 +403,9 @@ context, use the dollar-sign sigil ($):
 
 > `foo : [1 2 3]`  
 > `bar : [foo$ [4] [5]]`  
-> `?
+
+Equivalent to:
+
 > `bar : [[[1 2 3]] [4] [5]]`  
 
 Note the extra pair of brackets. As a general rule, you should never need 
@@ -370,7 +413,9 @@ to use indirect references in interior-array or list context.
 
 > `foo : (1 2 3)`  
 > `bar : { foo$ len }`  
-> `?
+
+Equivalent to:
+
 > `bar : ( [foo] len )`  
 
 In code-lists, if you want a direct-reference, use the ampersand sigil 
@@ -378,7 +423,9 @@ In code-lists, if you want a direct-reference, use the ampersand sigil
 
 > `foo& : 0x38`  
 > `bar : { foo }`  
-> `?
+
+Equivalent to:
+
 > `bar : ( 0x38 )`  
 
 If you want to use a symbol as a hash-reference in an interior array or a 
@@ -431,9 +478,9 @@ You can use this facility to create a _compile-time hash_ that permits
 your code to reach the elements of a list but without the overhead of 
 run-time hashing. For example:
 
-> `( first_name@ 		"John"`  
-> `last_name@ 			"Smith"`  
-> `ID@ 				"19010378" )`  
+> `( first_name@        "John"`  
+> `last_name@           "Smith"`  
+> `ID@                  "19010378" )`  
 
 An unenclosed bare symbol is treated as a simple alias.
 

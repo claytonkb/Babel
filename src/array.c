@@ -13,9 +13,51 @@
 #include "load.h"
 #include "alloc.h"
 
+/* array operator
+**th**  
+> Returns the xth element of array A:  
+>
+> `{A} {x}| -> {A[x]}|`    
+> `[A] {x}| -> [A[x]]|`    
+>
+> Note that th is a degenerate case of slice:  
+> `[x] th <==> [x] [x] slice`    
+>
+> It is also equivalent to trav:  
+>
+> `[x] th <==> ((x)) trav`    
+*/
 
-//
-//
+/* array operator
+**paste8/paste1**  
+*/
+
+/* array operator
+**move**  
+> an in-array memmove  
+> `A x y z| -> B  (A[x:y] pasted at A[z], all other words same)`    
+*/
+
+/* array operator
+**move8**  
+> See move  
+*/
+
+/* array operator
+**href?**
+> Tests if TOS is a hash-reference  
+*/
+
+/* array operator
+**slice8/slice1**
+*/
+
+/* array operator
+**sfield**
+> Reads the s-field and places it on TOS  
+> `{X}| -> {s(X)}|`    
+> `[X]| -> {s(X)}|`    
+*/
 bvm_cache *sfield(bvm_cache *this_bvm){ // sfield#
 
 #define babel_sfield_operator \
@@ -28,8 +70,12 @@ bvm_cache *sfield(bvm_cache *this_bvm){ // sfield#
 }
 
 
-//
-//
+/* array operator
+**size** (#)
+> Puts the array size on TOS  
+> `{X}| -> {size(X)}|`    
+> `[X]| -> {size(X)}|`    
+*/
 bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 
 #define babel_arlen_operator \
@@ -42,8 +88,12 @@ bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 }
 
 
-//
-//
+/* array operator
+**lf?** 
+> Tests if TOS is a leaf-array  
+> `{X}| -> {1}|`    
+> `[X]| -> {0}|`    
+*/
 bvm_cache *islf(bvm_cache *this_bvm){ // islf#
 
 #define babel_islf_operator \
@@ -55,8 +105,12 @@ bvm_cache *islf(bvm_cache *this_bvm){ // islf#
 
 }
 
-//
-//
+/* array operator
+**in?**
+> Tests if TOS is an interior-array  
+> `{X}| -> {0}|`    
+> `[X]| -> {1}|`    
+*/
 bvm_cache *isinte(bvm_cache *this_bvm){ // isinte#
 
 #define babel_isinte_operator \
@@ -210,10 +264,14 @@ mword *_mkin(mword *entries, mword size){
 //
 //}
 
-// TOS_0 to
-// TOS_1 from
-// TOS_2 operand
-// babel_operator
+/* array operator
+**slice**
+> Puts a slice of an array on TOS  
+> `{X} {a} {b}| -> {X[a..b]}|`    
+> `[X] {a} {b}| -> [X[a..b]]|`    
+>
+> Read `[a..b] as "from a to b"`   
+*/
 bvm_cache *slice(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -429,7 +487,23 @@ mword _cxr1(mword *val, mword bit){ // _cxr1#
 //}
 
 //FIXME: I think this operator is broken
-// babel_operator
+/* array operator
+**cut**  
+> Cuts an array - opposite of cat  
+>
+> The cut operator only cuts in one place. If you want more complex
+> behavior, convert the array to a list, then use append/part  
+>
+> `A 0| -> nil A|`    
+> `A x| -> A[0:(x-1)] A[x:len(A)]|     0 < x < len(A)`    
+> `A len(A)| -> A nil|`    
+>
+> Note that cut does not use entry-addressing. If you cut A at 0, then
+> you will always get 'nil A' on the stack. The cut operator uses
+> boundary-addressing instead, where the boundary before entry 0 is
+> defined as the 0th boundary and the boundary between entry 0 and
+> entry 1 is the 1st boundary, and so on.  
+*/
 bvm_cache *cut(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -487,8 +561,12 @@ bvm_cache *cut(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* array operator
+**size8** (#8)  
+> Puts the 8-bit array length on TOS  
+> `{X}| -> {size8(X)}|`    
+> `[X]| -> {size8(X)}|`    
+*/
 bvm_cache *arlen8(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -519,8 +597,11 @@ mword _arlen8(mword *string){
 
 }
 
-//
-// babel_operator
+/* array operator
+**newin**  
+> Creates a new interior-array of size x and leaves it on TOS  
+> `{x}| -> {interior-array-of-size-x}|`    
+*/
 bvm_cache *newin(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -533,8 +614,11 @@ bvm_cache *newin(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* array operator
+**newlf**  
+> Creates a new leaf-array of size x and leaves it on TOS  
+> `{x}| -> {leaf-array-of-size-x}|`    
+*/
 bvm_cache *newlf(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -547,8 +631,12 @@ bvm_cache *newlf(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* array operator
+**trunc**  
+> Truncates an array X to length y:  
+> `{X} {y}| -> {X[0..y]}|`    
+> `[X] {y}| -> [X[0..y]]|`    
+*/
 bvm_cache *trunc(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -612,9 +700,11 @@ mword dec_alignment_word8(mword alignment_word){
 
 }
 
-// TOS_1 . TOS_0
-//
-// babel_operator
+/* array operator
+**cat**
+> Concatenate two arrays of the same type. If you want more complex   
+> behavior, convert your arrays to lists, then use append/part  
+*/
 bvm_cache *arcat(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -626,7 +716,7 @@ bvm_cache *arcat(bvm_cache *this_bvm){
     else if ( is_inte(TOS_0(this_bvm))  &&  is_inte(TOS_1(this_bvm)) ){
         result = _newin( size(TOS_0(this_bvm)) + size(TOS_1(this_bvm)) );
     }
-    else{ //Throw an errorion
+    else{ //Throw an exception
         error("arcat: cannot concatenate leaf array and interior array");
     }
 
@@ -669,9 +759,11 @@ mword array8_size(mword size8){ // array8_size#
 
 }
 
-// TOS_1(this_bvm) . TOS_0(this_bvm)
-//
-// babel_operator
+/* array operator
+**cat8** (.)
+> Concatenate two arrays of the same type. If you want more complex   
+> behavior, convert your arrays to lists, then use append/part  
+*/
 bvm_cache *arcat8(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -716,10 +808,12 @@ bvm_cache *arcat8(bvm_cache *this_bvm){
 }
 
 
-// TOS_0(this_bvm) to
-// TOS_1(this_bvm) from
-// TOS_2(this_bvm) operand
-// babel_operator
+/* array operator
+**slice8**  
+> TOS_0 to  
+> TOS_1 from  
+> TOS_2 operand  
+*/
 bvm_cache *slice8(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -754,8 +848,13 @@ bvm_cache *slice8(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* array operator
+**cmp** (==)  
+> does a memcmp  
+> `A B| -> { 0,  A==B`    
+> `        {-1,  A < B`    
+> `        { 1,  A > B`    
+*/
 bvm_cache *arcmp(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -798,8 +897,17 @@ int _arcmp(mword *left, mword *right){
 
 }
 
-//
-// babel_operator
+/* array operator
+**ar2ls**  
+> Convert array to list. For interior-arrays, undoes bons.  
+>
+> Leaf-array on TOS:  
+> `{1 2 3}| -> (1 2 3)|`    
+>
+> Interior-array on TOS:  
+> `[a b c]| -> (a b c)|`    
+  
+*/
 bvm_cache *ar2ls(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -837,9 +945,16 @@ mword *_ar2ls(mword *arr){
 
 }
 
-//TOS_0 perm_matrix
-//TOS_1 src
-// babel_operator
+/* array operator
+**perm**  
+> Permutes an array  
+>
+> `['a' 'b' 'c' 'd'] [ 3 1 2 0 ] perm --> ['d' 'b' 'c' 'a']`    
+>
+> Note that the operator is actually a multi-select, not a permute:  
+>
+> `['a' 'b' 'c' 'd'] [ 3 1 1 0 ] perm --> ['d' 'b' 'b' 'a']`    
+*/
 bvm_cache *perm(bvm_cache *this_bvm){
 
     fatal("stack fix not done");

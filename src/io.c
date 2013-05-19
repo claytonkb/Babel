@@ -76,8 +76,15 @@ mword *_slurp(mword *filename){ // _slurp#
 }
 
 
-//slurp
-//
+/* i/o operator
+**slurp8** (>>>)  
+> Named after the Perl idiom  
+> 
+> Slurps an entire file to an array (or array8)  
+> `{"filename"}| -> {X}|`  
+> 
+> X is the contents of the named file.  
+*/
 bvm_cache *slurp(bvm_cache *this_bvm){ // slurp#
 
 //    mword *temp_cons = new_cons();
@@ -102,9 +109,15 @@ bvm_cache *slurp(bvm_cache *this_bvm){ // slurp#
 
 }
 
-//slurp_mword
-//
-// babel_operator
+/* i/o operator
+**slurp**  
+> Named after the Perl idiom  
+> 
+> Slurps an entire file to an array (or array8)  
+> `{"filename"}| -> {X}|`  
+> 
+> X is the contents of the named file.  
+*/
 bvm_cache *slurp_mword(bvm_cache *this_bvm){
 
 //    mword *temp_cons = new_cons();
@@ -137,9 +150,19 @@ bvm_cache *slurp_mword(bvm_cache *this_bvm){
 
 }
 
-//cprintf
-//
-// babel_operator
+/* i/o operator
+**cprintf**  
+> "C-style printf()"  
+> 
+> Permits printing of C-style (null-terminated) strings with a format  
+> specifier.  
+> 
+> `{x} {"format-specifier"}| -> |`    
+> 
+> Prints x according to a standard printf() format specifier.  
+> 
+> Prefer stdout or stdout8  
+*/
 bvm_cache *cprintf(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -152,9 +175,17 @@ bvm_cache *cprintf(bvm_cache *this_bvm){
 
 }
 
-//cprints
-//
-// babel_operator
+
+/* i/o operator
+**cprints**  
+> "C-style printf('%s')"  
+> 
+> Similar to cprintf but prints a plain-string  
+> 
+> `{"C-string"}| -> |`  
+> 
+> Prefer stdout  
+*/
 bvm_cache *cprints(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -165,8 +196,14 @@ bvm_cache *cprints(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* i/o operator
+**spit8** (<<<)  
+> Play on words - opposite of slurp. Writes an array (or array8)
+> to file. Overwrites existing file. Creates file if it does not
+> exist.  
+> 
+> `{X} {"filename"}| -> |`  
+*/
 bvm_cache *spit(bvm_cache *this_bvm){
 
 //    mword *filename = _b2c((mword*)TOS_0(this_bvm));
@@ -202,8 +239,13 @@ void _spit(char *filename, mword *fileout){
 
 }
 
-//
-// babel_operator
+/* i/o operator
+**journal8**  
+> Same as spit8 but appends to existing file. Creates file if it does
+> not exist.  
+> 
+> `{X} {"filename"}| -> |`  
+*/
 bvm_cache *journal(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -242,8 +284,14 @@ void _journal(char *filename, mword *fileout){
 
 }
 
-//
-// babel_operator
+/* i/o operator
+**spit**  
+> Play on words - opposite of slurp. Writes an array (or array8)
+> to file. Overwrites existing file. Creates file if it does not
+> exist.  
+> 
+> `{X} {"filename"}| -> |`  
+*/
 bvm_cache *spit_mword(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -274,8 +322,11 @@ bvm_cache *spit_mword(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* i/o operator
+**stdout**  
+> Prints an array to STDOUT as UCS-4 characters  
+> `{"string"}| -> |`  
+*/
 bvm_cache *stdoutop(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -293,8 +344,12 @@ bvm_cache *stdoutop(bvm_cache *this_bvm){
 }
 
 // FIXME: Make UTF-8 compliant...
-//
-// babel_operator
+/* i/o operator
+**stdinln** (>>)  
+> Reads from STDIN (standard input) until newline.
+> This operator is byte-wise so it places an array8 on TOS  
+> `| -> `{"string"}|`  
+*/
 bvm_cache *stdinln(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -329,7 +384,11 @@ bvm_cache *stdinln(bvm_cache *this_bvm){
 }
 
 // FIXME: Make UTF-8 compliant...
-//
+/* i/o operator
+**stdout** (<<)  
+> Prints an array8 to STDOUT in UTF-8 encoding    
+> `{"string"}| -> |`  
+*/
 bvm_cache *stdoutop8(bvm_cache *this_bvm){ // stdoutop8#
 
     _stdoutop8(dstack_get(this_bvm,0));
@@ -341,8 +400,11 @@ bvm_cache *stdoutop8(bvm_cache *this_bvm){ // stdoutop8#
 }
 
 
-//
-//
+/* i/o operator
+**pr/stdout8** (<<)  
+> Prints an array8 to STDOUT in UTF-8 encoding   
+> `{"string"}| -> |`  
+*/
 void _stdoutop8(mword *string){ // _stdoutop8#
 
     int i;

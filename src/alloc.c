@@ -8,8 +8,10 @@
 #include "load.h"
 #include "bstruct.h"
 
-// "shallow del"
-// babel_operator
+/* alloc operator
+**free**  
+> Frees the array on TOS - NOT recursive. See del.  
+*/
 bvm_cache *free_op(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -20,8 +22,19 @@ bvm_cache *free_op(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* alloc operator
+**del**  
+> Named after the C++ delete operator  
+>
+> Frees (de-allocates) a leaf-array or interior array created with
+> the newlf or newin operators. Care is required with this operator - 
+> everything accessible from TOS will be deleted. For example,  
+>
+> stack del --OR  
+> code del  
+>
+> ... will crash the interpreter.  
+*/
 bvm_cache *del(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -72,7 +85,10 @@ mword *_balloc(mword size){
 
 }
 
-////
+/* alloc operator
+**destroy**  
+> Safer del  
+*/
 //bvm_cache *destroy(bvm_cache *this_bvm){
 //
 //    _del((mword*)TOS_0(this_bvm));

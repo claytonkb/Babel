@@ -66,8 +66,16 @@ inline mword *_shift(mword *list){ // _shift#
 }
 
 
-//
-// babel_operator
+/* list operator
+**car**  
+> Named after the venerable Lisp operator  
+> Returns the left side of a cons  
+>  
+> `[cons(X,Y)]| -> {X}|`    
+> `[cons(X,Y)]| -> [X]|`    
+>  
+> Equivalent to: 0 cxr (see above)  
+*/
 bvm_cache *carindex(bvm_cache *this_bvm){
     
     fatal("stack fix not done");
@@ -80,8 +88,14 @@ bvm_cache *carindex(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* list operator
+**cdr**  
+> Named after the venerable Lisp operator  
+> Returns the right side of a cons  
+>  
+> `[cons(X,Y)]| -> {Y}|`    
+> `[cons(X,Y)]| -> [Y]|`    
+*/
 bvm_cache *cdrindex(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -94,8 +108,15 @@ bvm_cache *cdrindex(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* list operator
+**isnil**  
+> Tests if TOS is nil  
+> `[nil]| -> {1}|`    
+> `{X}|   -> {0}|`    
+> `[X]|   -> {0}|`    
+>  
+> For all X != nil  
+*/
 bvm_cache *isnil(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -112,9 +133,16 @@ bvm_cache *isnil(bvm_cache *this_bvm){
 
 }
 
-//consls
-//#define cons(a,b,c) car(a) = (mword)(b); cdr(a) = (mword)(c);
-// babel_operator
+/* list operator
+**cons**  
+> Named after the venerable Lisp operator  
+> Constructs one list from two  
+> `[X] [Y]| -> [cons(X, Y)]|`    
+>
+> Note:   
+> `[X] [Y] cons car`     Leaves `[X]` on TOS  
+> `[X] [Y] cons cdr`     Leaves `[Y]` on TOS  
+*/
 bvm_cache *consls(bvm_cache *this_bvm){
 
     mword *result = new_atom;
@@ -156,8 +184,11 @@ mword *consa(mword *car_field, mword *cdr_field){ // consa#
 
 
 
-//
-// babel_operator
+/* list operator
+**uncons**  
+> Undoes cons  
+> `[cons(X, Y)]| -> [X] [Y]|`    
+*/
 bvm_cache *uncons(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -198,10 +229,13 @@ mword *_list_next_to_end(mword *list){
     
 }
 
-//push
-// Like Perl's
-// ((a b c)) ((d e f)) push --> (a b c d e f)
-// babel_operator
+/* list operator
+**push**  
+> Like the Perl operator  
+> Undoes pop  
+>  
+> `((a b c)) ((d e f)) push --> leaves (a b c d e f) on TOS`    
+*/
 bvm_cache *push(bvm_cache *this_bvm){
 
     error("stack ordering fix not done");
@@ -217,9 +251,13 @@ bvm_cache *push(bvm_cache *this_bvm){
 
 }
 
-//pop
-// Like Perl's
-// babel_operator
+/* list operator
+**pop**  
+> Like the Perl operator  
+> Undoes push of length-1 list  
+>  
+> `((a b c)) pop --> leaves (a b) (c) on TOS`    
+*/
 bvm_cache *pop(bvm_cache *this_bvm){
 
     error("stack ordering fix not done");
@@ -235,11 +273,15 @@ bvm_cache *pop(bvm_cache *this_bvm){
 
 }
 
-//unshift
-// Like Perl's
-// ((a b c)) ((d e f)) push --> (d e f a b c)
-// A B unshift <--> A B swap push
-// babel_operator
+/* list operator
+**unshift**  
+> Like the Perl operator  
+> Undoes shift  
+>  
+> `((a b c)) ((d e f)) shift --> leaves (d e f a b c) on TOS`    
+>  
+> `A B unshift <--> A B swap push`    
+*/
 bvm_cache *unshift(bvm_cache *this_bvm){
 
     error("stack ordering fix not done");
@@ -257,9 +299,13 @@ bvm_cache *unshift(bvm_cache *this_bvm){
 
 }
 
-//shift
-// Like Perl's
-// babel_operator
+/* list operator
+**shift**  
+> Like the Perl operator  
+> Undoes unshift of length-1 list  
+>  
+> `((a b c)) shift --> leaves (b c) (a) on TOS`    
+*/
 bvm_cache *shift(bvm_cache *this_bvm){
 
     error("stack ordering fix not done");
@@ -276,8 +322,10 @@ bvm_cache *shift(bvm_cache *this_bvm){
 }
 
 
-//
-// babel_operator
+/* list operator
+**len** (##)  
+> List length  
+*/
 bvm_cache *len(bvm_cache *this_bvm){ 
 
     fatal("stack fix not done");
@@ -306,8 +354,13 @@ mword _len(mword *list){
 
 }
 
-//
-// babel_operator
+/* list operator
+**bons**  
+> Undoes `ar2ls` on an interior-array.  
+>  
+> Mnemonic: "Babel cons"... since it's like consing together an entire list 
+> into an "oversize" cons box.  
+*/
 bvm_cache *bons(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -338,8 +391,10 @@ mword *_bons(mword *list){
 
 }
 
-//
-// babel_operator
+/* list operator
+**ls2lf**  
+> Undoes ar2ls on a leaf-array  
+*/
 bvm_cache *ls2lf(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -372,8 +427,14 @@ mword *_ls2lf(mword *list){
 
 }
 
-//
-// babel_operator
+/* list operator
+**ith**  
+> Returns the ith element of a list.  Same as th operator, except for 
+> lists.  
+> Mnemonic: lIst -> Ith  
+>
+> `(('a' 'b' 'c' 'd')) [2] ith --> leaves 'c' on TOS`    
+*/
 bvm_cache *ith(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -401,8 +462,15 @@ mword *_ith(mword *list, mword i){ // _ith#
 
 }
 
-//
-// babel_operator
+/* list operator
+**walk**  
+> Walks a list  
+>  
+> `(X) (Y) walk`    
+>  
+> Traverses list X according to the sequence of offsets specified
+> in list Y. Performs an iterated ith.  
+*/
 bvm_cache *walk(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -428,8 +496,10 @@ mword *_walk(mword *bs, mword *walk_list){
 
 }
 
-//
-// babel_operator
+/* list operator
+**rev**  
+> `(1 2 3) rev -> leaves (3 2 1) on TOS`    
+*/
 bvm_cache *reverse(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -461,8 +531,12 @@ mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr){
 }
 
 
-//
-//
+/* list operator
+**part**  
+> Partitions a list - opposite of `append`  
+> `( 'a' 'b' 'c' 'd' 'e' 'f' 'g') (1 3 5) part`    
+> -> leaves `( ('a') ('b' 'c') ('d' 'e') ('f' 'g') ) on TOS`    
+*/
 bvm_cache *split(bvm_cache *this_bvm){ // split#
 
     mword *indices  = dstack_get(this_bvm,0);
@@ -563,8 +637,12 @@ mword *_list_cut(mword *list, mword index){ // _list_cut#
 }
 
 
-//
-//
+/* list operator
+**append**  
+> Appends a list of lists. Opposite of `part`.  
+> `( ('a') ('b' 'c') ('d' 'e') ('f' 'g') ) append`    
+> --> leaves `('a' 'b' 'c' 'd' 'e' 'f' 'g') on TOS`    
+*/
 mword *_append(mword *lists){ // _append#
 
     return nil;
@@ -583,6 +661,30 @@ mword *_append_direct(mword *head_list, mword *tail_list){ // _append_direct#
     return head_list;
 
 }
+
+
+/* list operator
+**strint**  
+**macint**  
+**interpol**  
+**cart**  
+> Example:  
+> `((1 2 3 ) ( 4 5 6 )) cart`  
+> ` TOS: (((1 4) (1 5) (1 6)) ((2 4) (2 5) (2 6)) ((3 4) (3 5) (3 6)))`  
+>
+> Works for all dimensions  
+
+**transpose**  
+> `(( 1  2  3  4 ) (  5  6  7  8  9 ) (  10 11 12 13 14 15 )) transpose`  
+> `TOS: ((1 5 10) (2 6 11) (3 7 12) (4 8 13) (nil 9 13) (nil nil 15))`  
+
+**sort**  
+**uniq**  
+**filter**
+> Equivalent to Perl's grep
+> `( 2 cugt ) ( 1 2 3 4 5 ) filter`  
+> Leaves ( 3 4 5 ) on the stack
+*/
 
 // Clayton Bauman 2011
 

@@ -13,6 +13,13 @@ system("perl tags.pl");
 #
 #chomp for @files;
 
+`op_doc_gen.pl > doc/babel_op.txt`;
+
+`perl markdown.pl doc/babel_gsg.txt > html/babel_gsg.html`;
+`perl markdown.pl doc/babel_guts.txt > html/babel_guts.html`;
+`perl markdown.pl doc/babel_op.txt > html/babel_op.html`;
+`perl markdown.pl README > html/README.html`;
+
 @files = qw {   babel pearson16 stack array load list bstruct 
                 string utf8 hash tlist alloc ref arith bvm eval
                 cmp debug except io logic mt19937ar shift 

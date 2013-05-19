@@ -11,8 +11,12 @@
 #include "bvm.h"
 #include "list.h"
 
-//
-// babel_operator
+/* flow-control operator
+**eval** (!)  
+> Named after the Perl function  
+> Evaluates TOS  
+> `[X]| -> |`  
+*/
 bvm_cache *eval(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -85,10 +89,15 @@ bvm_cache *nest(bvm_cache *this_bvm){
 
 }
 
-// [x] (a) (b) ifte  
-// !is_false(x) --> (a) eval
-// is_false(x)  --> (b) eval
-// babel_operator
+/* flow-control operator
+**if**  
+> As it sounds. This is actually a pseudo-operator, equivalent to:  
+>  
+> sel eval  
+>  
+> `{x}[Y][Z]| -> eval(Y)| --> if x == 0`  
+> `{x}[Y][Z]| -> eval(Z)| --> if x == 1`  
+*/
 bvm_cache *ifte(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -124,8 +133,10 @@ bvm_cache *ifte(bvm_cache *this_bvm){
 }
 
 
-//
-// babel_operator
+/* flow-control operator
+**let**
+> Defines a lexical-variable scope
+*/
 bvm_cache *let(bvm_cache *this_bvm){
 
     fatal("implementation broken");
@@ -198,8 +209,11 @@ bvm_cache *ifop(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* flow-control operator
+**goto**  
+> Classic goto  
+> `[X]| -> |`  
+*/
 bvm_cache *gotoop(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -213,8 +227,10 @@ bvm_cache *gotoop(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* flow-control operator
+**loop**
+> Loops indefinitely. Use `last` to break out.  
+*/
 bvm_cache *loop(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -240,8 +256,10 @@ bvm_cache *loop(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* flow-control operator
+**last**  
+> Breaks out of current loop  
+*/
 bvm_cache *last(bvm_cache *this_bvm){ 
 
     fatal("stack fix not done");
@@ -322,7 +340,11 @@ bvm_cache *last(bvm_cache *this_bvm){
 
 }
 
-////
+/* flow-control operator
+**continue**  
+> Same as next but can be used within an if or eval  
+*/
+
 //bvm_cache *continueop(bvm_cache *this_bvm){
 //
 //    next(this_bvm);
@@ -332,8 +354,10 @@ bvm_cache *last(bvm_cache *this_bvm){
 //
 //}
 
-//
-// babel_operator
+/* flow-control operator
+**next**  
+> Goes to next iteration of current loop  
+*/
 bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 
     mword *rstack_entry;
@@ -526,8 +550,17 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 
 }
 
-// (body) [x] times
-// babel_operator
+/* flow-control operator
+**times**  
+> Like eval but executes n iterations. Use 'last' or 'next' to modify
+> the loop's behavior.  
+> 
+> `[X] n| -> |`  
+> 
+> Example:  
+> 
+> `(1) 4 times 4 take   --> Leaves (1 1 1 1) on TOS`  
+*/
 bvm_cache *times(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -570,7 +603,10 @@ bvm_cache *times(bvm_cache *this_bvm){
 // "dig" through the rstack until it finds a
 // looping rstack entry in case we're buried in evals
 // or nesting.
-// babel_operator
+/* flow-control operator
+**iter**
+Places the current loop iteration (zero-based) on TOS.  
+*/
 bvm_cache *iter(bvm_cache *this_bvm){
 
 //    if(return_type(this_bvm->rstack_ptr) != TIMES){
@@ -610,8 +646,17 @@ bvm_cache *iter(bvm_cache *this_bvm){
 
 }
 
-// (body) (cond) while
-// babel_operator
+/* flow-control operator
+**cond** (??)   
+>   
+> `(([x] 0 gt)  
+>     ("positive" say)  
+> ( [x] 0 lt)  
+>     ("negative" say)  
+> ( [x] 0 eq)  
+>     ("zero" say))`  
+> cond  
+*/
 bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 
     fatal("stack fix not done");
@@ -644,8 +689,11 @@ bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 
 }
 
-// (body) (list) each
-// babel_operator
+/* flow-control operator
+**each** (...)
+> Iterates across a list  
+> `[0] (cuadd) (1 2 3 4) each --> Leaves 10 on TOS`  
+*/
 bvm_cache *each(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -677,8 +725,10 @@ bvm_cache *each(bvm_cache *this_bvm){
 
 }
 
-//
-//
+/* eval operator
+**die**
+> Exits a BVM
+*/
 bvm_cache *dieop(bvm_cache *this_bvm){ // dieop#
 
     fprintf(stderr, "Died.\n");
@@ -686,9 +736,10 @@ bvm_cache *dieop(bvm_cache *this_bvm){ // dieop#
 }
 
 
-// (body) [array] eachar
-// (body) {array} eachar
-// babel_operator
+/* flow-control operator
+**eachar**
+Iterates across an array. See `each`.  
+*/
 bvm_cache *eachar(bvm_cache *this_bvm){
 
 // FIXME: Catch the empty-list condition...
@@ -735,8 +786,10 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* flow-control operator
+**conjure**
+Attempts to call a function in the parent BVM.  
+*/
 bvm_cache *conjure(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -747,6 +800,11 @@ bvm_cache *conjure(bvm_cache *this_bvm){
     return this_bvm;
 
 }
+
+/* flow-control operator
+**zipeach**
+**carteach**
+*/
 
 //void eachar(void){
 //

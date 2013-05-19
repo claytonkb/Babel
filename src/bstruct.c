@@ -14,6 +14,34 @@
 #include "hash.h"
 #include "alloc.h"
 
+/* bstruct operator
+**unload**
+> Unloads a bstruct to an offset-relative form - undoes load
+*/
+
+/* bstruct operator
+**load**
+> Flattens a relative-offset Babel structure into its literal 
+> memory pointer footprint. This operator is applied by the 
+> interpreter to a Babel file when it is initially loaded from file 
+> into memory.
+*/
+
+/* bstruct operator
+**dump**
+> Prints TOS to STDOUT in Graphviz dot-language format
+*/
+
+/* bstruct operator
+**show** ($)
+> Prints TOS to string format
+*/
+
+/* bstruct operator
+**msize**
+> Puts MWORD_SIZE on TOS
+*/
+
 // recursively cleans a bstruct after traversal
 //
 void rclean(mword *bs){ // rclean#
@@ -83,6 +111,17 @@ mword _fn_recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){ // _fn_recurse#
 
 }
 
+/* bstruct operator
+**mu**
+> "Memory usage" - by analogy to Unix 'du'
+> Returns the total memory usage of the object on TOS measured in 
+> mwords.  
+> `{X}| -> {mu(X)}|`  
+> `[X]| -> {mu(X)}|`  
+>
+> This operator is recursive  
+*/
+
 // _mu -> memory usage (mnemonic: *nix du)
 // _mu(x) = _nin(x) + _nlf(x) + _ntls(x)*(HASH_SIZE+1) + _nptr(x) + _nva(x)
 //
@@ -108,6 +147,16 @@ mword _rmu(mword *bs, void *v){ // _rmu#
 
 }
 
+/* bstruct operator
+**nlf**
+> "Number of leaf-arrays"  
+> Returns the total number of leaf-arrays in the object on TOS  
+> `{X}| -> {1}|`  
+> `[X]| -> nlf(X)|`  
+>
+> This operator is recursive  
+*/
+
 // _nlf -> number of leaf-arrays
 //
 mword _nlf(mword *bs){ // _nlf#
@@ -129,6 +178,17 @@ mword _rnlf(mword *bs, void *v){ // _rnlf#
     return 1;
 
 }
+
+
+/* bstruct operator
+**nin**
+> "Number of interior-arrays"  
+> Returns the total number of interior-arrays in the object on TOS  
+> `{X}| -> {0}|`  
+> `[X]| -> nin(X)|`  
+>
+> This operator is recursive  
+*/
 
 // _nin -> number of interior-arrays
 //
@@ -152,6 +212,12 @@ mword _rnin(mword *bs, void *v){ // _rnin#
 
 }
 
+/* bstruct operator
+**ntag**
+> "Number of tags"  
+> Returns the total number of tags in the object on TOS  
+*/
+
 // _ntls -> number of tagged-lists
 //
 mword _ntls(mword *bs){ // _ntls#
@@ -174,6 +240,16 @@ mword _rntls(mword *bs, void *v){ // _rntls#
 
 }
 
+/* bstruct operator
+**nva**
+> "Number of values"  
+> Returns the total number of values in the object on TOS  
+> `{X}| -> {nva(X)}|`  
+> `[X]| -> {nva(X)}|`  
+>
+> This operator is recursive  
+*/
+
 // _nva -> number of values
 //
 mword _nva(mword *bs){ // _nva#
@@ -195,6 +271,18 @@ mword _rnva(mword *bs, void *v){ // _rnva#
     return 1;
 
 }
+
+
+/* bstruct operator
+**npt**
+> "Number of pointers"  
+> Returns the total number of pointers in the object on TOS  
+> `{X}| -> 0|`  
+> `[X]| -> npt(X)|`  
+>
+> This operator is recursive  
+*/
+
 
 // _nptr -> number of pointers
 //
@@ -253,6 +341,7 @@ mword _rlst(mword *bs, void *v){ // _rlst#
     return 1;
 
 }
+
 
 //
 //
@@ -559,10 +648,15 @@ mword rbs2gv(mword *bs, char *buffer){ // rbs2gv#
 
 }
 
-// TOS_0 offset
-// TOS_1 dest
-// TOS_2 src
-// babel_operator
+/* bstruct operator
+**paste**
+> Writes into a bstruct.  
+>
+> `[X] [Y] (Z) paste`  
+>
+> Writes X into bstruct Y according at the location found by traversing
+> the sequence of offsets specified in list Z.  
+*/
 bvm_cache *paste(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -576,9 +670,13 @@ bvm_cache *paste(bvm_cache *this_bvm){
 
 }
 
-// TOS_0 dest
-// TOS_1 src
-// babel_operator
+/* bstruct operator
+**set**
+> Equivalent for all X,Y:  
+>
+> `[X] [Y] (0) paste`  
+> `[X] [Y] set`  
+*/
 bvm_cache *set(bvm_cache *this_bvm){
 
     mword *src  = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
@@ -665,8 +763,15 @@ void _wrcxr8(mword *dest, mword *src, mword offset){
 
 }
 
-//
-// babel_operator
+/* bstruct operator
+**trav** (@)
+> Traverses a bstruct.  
+>
+> `[X] [(Y)] trav`  
+>
+> Traverses bstruct X according to the sequence of offsets specified 
+> in list Y. Performs an iterated `th`.  
+*/
 bvm_cache *trav(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -1088,8 +1193,20 @@ bvm_cache *npt(bvm_cache *this_bvm){
 //
 //}
 
-//
-// babel_operator
+/* bstruct operator
+**cp**
+> Named after the Unix command. Does a deep-copy of a bstruct.  
+>
+> `[X]| -> [copy-of-X]|`  
+>
+> Example:  
+> `[(0 (1))] cp`  
+>
+> There is now (0 (1)) on TOS but the original object
+> still exists as-is.  
+>
+> This operator is recursive.              
+*/
 bvm_cache *cp(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -1118,8 +1235,13 @@ bvm_cache *ducp(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* bstruct operator
+**span**  
+> Makes a "spanning array" of the bstruct on TOS  
+> `X| -> Y`  
+> ... where Y is an array containing a pointer into every array and
+> href in X  
+*/
 bvm_cache *span(bvm_cache *this_bvm){
 
     fatal("stack fix not done");

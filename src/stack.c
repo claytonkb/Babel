@@ -199,7 +199,11 @@ bvm_cache *hard_zap(bvm_cache *this_bvm){
 
 }
 
-//
+/* stack operator
+**zap**
+> Named after the Joy operator  
+> Removes the TOS  
+*/
 bvm_cache *zap(bvm_cache *this_bvm){
 
     if(is_nil(this_bvm->dstack_ptr)){
@@ -267,8 +271,17 @@ mword *pop_ustack(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* stack operator
+**sel** (?)  
+> Selects one of the top two values on the stack:  
+> `{f} {X} {Y}| -> {X}|`  
+> `{t} {X} {Y}| -> {Y}|`  
+> `{f} [X] {Y}| -> [X]|`  
+> `{t} [X] {Y}| -> {Y}|`  
+> etc.  
+>  
+> Where f = 0 and t != 0  
+*/
 bvm_cache *sel(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -296,9 +309,13 @@ bvm_cache *sel(bvm_cache *this_bvm){
 
 }
 
-//
-//
-// babel_operator
+/* stack operator
+**dup** (*2)  
+> Named after the Joy operator  
+> Duplicates the TOS. Shallow-copy.  
+> `{X}| -> {X} {X}|`  
+> `[X]| -> [X] [X]|`  
+*/
 bvm_cache *dup(bvm_cache *this_bvm){
 
 //    if(is_leaf((mword*)TOS_0(this_bvm))){
@@ -335,8 +352,14 @@ bvm_cache *dup(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* stack operator
+**swap** (<->)  
+> Named after the Joy operator  
+> Swaps the top two items on the stack.  
+> `{X} {Y}| -> {Y} {X}|`  
+> `[X] {Y}| -> {Y} [X]|`  
+> etc.  
+*/
 bvm_cache *swap(bvm_cache *this_bvm){
 
     // stack_ptr -> A -> B -> C
@@ -368,8 +391,13 @@ bvm_cache *swap(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* stack operator
+**down** (<-)  
+> Analogous to doing a cdr on the stack itself. If the code\_ptr
+> becomes nil after executing one or more downs without a balancing
+> up, as many ups as are required to undo the downs will be executed
+> automatically.  
+*/
 bvm_cache *down(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -383,8 +411,10 @@ bvm_cache *down(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* stack operator
+**up** (->)  
+> Undoes down/nest.  
+*/
 bvm_cache *up(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -422,8 +452,11 @@ bvm_cache *up(bvm_cache *this_bvm){
     
 }
 
-//
-// babel_operator
+/* stack operator
+**take**  
+> Takes TOS items from the stack and puts them into a list. Does not
+> zap the items. If TOS == -1, the entire stack is taken.  
+*/
 bvm_cache *take(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -486,8 +519,13 @@ bvm_cache *take(bvm_cache *this_bvm){
 //
 //}
 
-//
-// babel_operator
+/* stack operator
+**depth**  
+> Places the depth of the stack on TOS. To gather up the entire stack
+> into a list:  
+>  
+> depth take  
+*/
 bvm_cache *depth(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -500,8 +538,10 @@ bvm_cache *depth(bvm_cache *this_bvm){
 
 }
 
-//
-// babel_operator
+/* stack operator
+**give**  
+> Undoes take  
+*/
 bvm_cache *give(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
@@ -527,8 +567,10 @@ void rgive(bvm_cache *this_bvm, mword *list){
 
 }
 
-//
-// babel_operator
+/* stack operator
+**clear**  
+> Empties the stack  
+*/
 bvm_cache *clear(bvm_cache *this_bvm){
 
 //    while(!is_nil((mword*)TOS_0(this_bvm))){
@@ -597,8 +639,16 @@ bvm_cache *clear(bvm_cache *this_bvm){
 //    
 //}
 
-//
-// babel_operator
+/* stack operator
+**nest**  
+> Analogous to doing a car on the stack. If the code\_ptr becomes
+> nil after a nest and with no intervening up, an up will be
+> executed automatically.  
+*/
+
+/* stack operator
+**flip**  
+*/
 bvm_cache *flip(bvm_cache *this_bvm){
 
     fatal("stack fix not done");

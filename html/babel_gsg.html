@@ -7,6 +7,47 @@ language with support for arrays, lists and hashes (dictionaries). Babel
 1.0 will support built-in crypto-based verification of code in order to 
 enable safer remote code execution.</p>
 
+<p>Babel was designed with the TIMTOWTDI  philosophy in mind – there are many 
+right ways to solve any particular problem in Babel. However, some 
+solutions are a bad fit for Babel. In particular, trying to write Babel 
+code to resemble standard function-call code – while possible – will 
+result in sub-optimal, hard-to-read Babel code.</p>
+
+<p>Babel is a stack-based language - the stack is the primary means of 
+communicating data from one place to another. The ideal situation is to 
+reduce your code to a set of sections that can be thought of as 
+combinators where each combinator takes a small number or zero operands 
+from the stack and returns one or zero results on the stack. In this 
+case, you will not have “stack-noise” induced by the need to re-arrange 
+arguments on the stack.</p>
+
+<p>The next preferred situation is if your sections take multiple values on 
+the stack and each value is used only once or twice in the section, in 
+order or nearly so. In this case, you can simply use the up and down 
+operators to move cleanly from operand to operand.</p>
+
+<p>But if one or more operands are going to be used in more than a couple 
+places in a section, this will create significant stack-noise which is 
+not only a performance problem but drastically reduces the readability 
+of your Babel code.</p>
+
+<p>In this case, consider using symbolic-variables or lexical variables, 
+depending on your needs. Symbolic variables are entries in the symbol 
+table and are primarily intended for structural or spatial organization. 
+Lexical variables (symbolic variables can also be treated lexically) 
+permit you to make a section re-entrant and are primarily intended for
+functional or temporal organization.</p>
+
+<p>Many array- and list-processing tasks are most easily done by monopolizing 
+the entire stack with an each loop. To facilitate this, Babel provides the 
+<code>nest</code> operator. Within a nested context, you have a fresh stack – when you 
+return from the nested context, that temporary stack will be destroyed, 
+except for TOS which is returned. You can read doc/babel_ref.txt for more 
+information on the nest operator.</p>
+
+<p>Also, be sure to check out the many examples of Babel code on 
+rosettacode.org.</p>
+
 <p>There are two kinds of Babel syntax. The first kind is being used to 
 bootstrap the Babel construct, it is called Sparse (S-expression parser).
 The second kind is the built-in Babel parser, which is called Bipedal
@@ -310,14 +351,14 @@ not macros.</p>
 <p>This:</p>
 
 <blockquote>
-  <p><code>foo : (1 2 3)
-</code>bar : (foo* 4 5)</p>
+  <p><code>foo : (1 2 3)</code> <br />
+<code>bar : (foo* 4 5)</code>  </p>
 </blockquote>
 
 <p>... is equivalent to this:</p>
 
 <blockquote>
-  <p>`bar : (1 2 3 4 5)</p>
+  <p><code>bar : (1 2 3 4 5)</code>  </p>
 </blockquote>
 
 <p>The order in which you define sections is maintained by Bipedal. In the 
@@ -435,9 +476,13 @@ context, use the dollar-sign sigil ($):</p>
 
 <blockquote>
   <p><code>foo : [1 2 3]</code> <br />
-<code>bar : [foo$ [4] [5]]</code> <br />
-<code>?
-</code>bar : [[[1 2 3]] [4] [5]]`  </p>
+<code>bar : [foo$ [4] [5]]</code>  </p>
+</blockquote>
+
+<p>Equivalent to:</p>
+
+<blockquote>
+  <p><code>bar : [[[1 2 3]] [4] [5]]</code>  </p>
 </blockquote>
 
 <p>Note the extra pair of brackets. As a general rule, you should never need 
@@ -445,9 +490,13 @@ to use indirect references in interior-array or list context.</p>
 
 <blockquote>
   <p><code>foo : (1 2 3)</code> <br />
-<code>bar : { foo$ len }</code> <br />
-<code>?
-</code>bar : ( [foo] len )`  </p>
+<code>bar : { foo$ len }</code>  </p>
+</blockquote>
+
+<p>Equivalent to:</p>
+
+<blockquote>
+  <p><code>bar : ( [foo] len )</code>  </p>
 </blockquote>
 
 <p>In code-lists, if you want a direct-reference, use the ampersand sigil 
@@ -455,9 +504,13 @@ to use indirect references in interior-array or list context.</p>
 
 <blockquote>
   <p><code>foo&amp; : 0x38</code> <br />
-<code>bar : { foo }</code> <br />
-<code>?
-</code>bar : ( 0x38 )`  </p>
+<code>bar : { foo }</code>  </p>
+</blockquote>
+
+<p>Equivalent to:</p>
+
+<blockquote>
+  <p><code>bar : ( 0x38 )</code>  </p>
 </blockquote>
 
 <p>If you want to use a symbol as a hash-reference in an interior array or a 
@@ -529,7 +582,7 @@ run-time hashing. For example:</p>
 <blockquote>
   <p><code>( first_name@        "John"</code> <br />
 <code>last_name@           "Smith"</code> <br />
-<code>ID@              "19010378" )</code>  </p>
+<code>ID@                  "19010378" )</code>  </p>
 </blockquote>
 
 <p>An unenclosed bare symbol is treated as a simple alias.</p>

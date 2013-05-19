@@ -26,6 +26,25 @@
 #include "bstruct.h"
 #include "alloc.h"
 
+/* bvm operator
+**code**  
+**stack**  
+**rstack**  
+**bvmstep**  
+**mkbvm**  
+**bvmkill**  
+**halt**  
+**fork**  
+**system**  
+> equivalent to Perl's system()  
+
+**shell**  
+> equivalent to Perl's back-tick quotes  
+
+**exec**  
+> does a fork/exec in Linux; CreateProcess in Windows
+*/
+
 ////
 //// babel_operator
 //bvm_cache *bvm_interp(bvm_cache *this_bvm){
@@ -154,8 +173,10 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
 }
 
 
-//
-//
+/* bvm operator
+**babel**
+> This operator "execs" a loaded BVM on TOS
+*/
 bvm_cache *babelop(bvm_cache *this_bvm){ // babelop#
 
     bvm_cache new_bvm;
