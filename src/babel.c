@@ -16,7 +16,7 @@
 #include "stack.h"
 #include "tags.h"
 #include "hash.h"
-#include "tlist.h"
+#include "tptr.h"
 #include "list.h"
 #include <stdarg.h>
 #include "ref.h"
@@ -40,8 +40,9 @@ int main(int argc, char **argv){
 
     interp_init(this_bvm, argc, argv);
 
+
 //    _dump( mkref("foo", _newva(0x42)) );
-//    //_dump( new_tlist( _hash8(C2B("/babel/tag/ref")), nil) );
+//    //_dump( new_tptr( _hash8(C2B("/babel/tag/ref")), nil) );
 //    die;
 
 //    _dump(this_bvm->code_ptr);
@@ -80,7 +81,7 @@ int main(int argc, char **argv){
 //    _dump(_deref(this_bvm->code_ptr, consa(_newva(0), consa(_newva(0), nil))));
 
 //REFERENCES:
-//    _dump( _deref( (mword*)car(this_bvm->sym_table), mkref( consa( mktlist("argv"), consa( _newva(3), nil ) ) ) ) );
+//    _dump( _deref( (mword*)car(this_bvm->sym_table), mkref( consa( mktptr("argv"), consa( _newva(3), nil ) ) ) ) );
 
     //TOS_0(this_bvm) = nil;
 
@@ -100,11 +101,11 @@ int main(int argc, char **argv){
 //
 void init_nil(void){ // init_nil#
 
-    mword *ptr = malloc( MWORDS( 3 + HASH_SIZE + 1 ) ); // 3 = s-field + car + cdr
+    mword *ptr = malloc( MWORDS( 3 + HASH_SIZE ) ); // 2 = s-field + s-field + car
 
     mword *nil_hash   = _hash8(C2B("nil"));
 
-    ptr[0] = 0; // X.s = 0 -> tagged-list
+    ptr[0] = 0; // X.s = 0 -> tagged-ptr
 
     int i;
     for(i=0;i<HASH_SIZE;i++){
@@ -113,9 +114,9 @@ void init_nil(void){ // init_nil#
 
     nil = (ptr + 1);
 
-    ptr[HASH_SIZE+1] = -2;
+    ptr[HASH_SIZE+1] = -1;
     ptr[HASH_SIZE+2] = (mword)nil;
-    ptr[HASH_SIZE+3] = (mword)nil;
+    //ptr[HASH_SIZE+3] = (mword)nil;
 
 }
 
@@ -176,6 +177,8 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv){ // interp_in
 
     }
 
+    printf("bug(s) in set_sym...\n");
+die;
     set_sym(this_bvm, "steps",          _newva((mword)-1) );
     set_sym(this_bvm, "thread_id",      _newva(0) );
     set_sym(this_bvm, "advance_type",   _newva((mword)BVM_ADVANCE) );

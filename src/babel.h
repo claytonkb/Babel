@@ -105,17 +105,18 @@ mword *empty_string;
 #define is_leaf(x)    ((int)s((mword*)x) >  0) // is_leaf#
 #define is_inte(x)    ((int)s((mword*)x) <  0) // is_inte#
 #define is_tlist(x)   ((int)s((mword*)x) == 0) // is_tlist#
+#define is_tptr(x)    ((int)s((mword*)x) == 0) // is_tptr#
 
 #define is_conslike(x) (is_inte(x) && size(x) == 2) // is_conslike#
 
 #define size(x)      (abs(s(x))/MWORD_SIZE) // size#
 #define c(x,y)       (*((mword*)x + y)) // c#
 
-#define tagcmp(x,y) ( (is_tlist(x) || (size(x) >= HASH_SIZE)) ? (memcmp((mword*)x, y, HASH_SIZE*MWORD_SIZE)) : -1 ) // tagcmp#
+#define tagcmp(x,y) ( (is_tptr(x) || (size(x) >= HASH_SIZE)) ? (memcmp((mword*)x, y, HASH_SIZE*MWORD_SIZE)) : -1 ) // tagcmp#
 #define tageq(x,y)  ( tagcmp(x,y) == 0 ) // tageq#
 #define is_nil(x)   ( tageq(x,nil) ) // is_nil#
 
-// XXX UNSAFE; use this only where we know for sure we have a tlist...
+// XXX UNSAFE; use this only where we know for sure we have a tptr...
 #define is_nil_fast(x) ( (memcmp(x, nil, HASH_SIZE*MWORD_SIZE)) == 0 ) // is_nil_fast#
 
 // XXX UNSAFE; use this only where we know for sure we are 
@@ -133,9 +134,9 @@ mword *empty_string;
 //#define _tcar(x)     c((mword*)x,HASH_SIZE+1) // 
 //#define _tcdr(x)     c((mword*)x,HASH_SIZE+2) // 
 //
-////tlist-safe car/cdr:
-//#define tcar(x)     (is_tlist(x) ? _tcar(x) : car(x)) // 
-//#define tcdr(x)     (is_tlist(x) ? _tcdr(x) : cdr(x)) // 
+////tptr-safe car/cdr:
+//#define tcar(x)     (is_tptr(x) ? _tcar(x) : car(x)) // 
+//#define tcdr(x)     (is_tptr(x) ? _tcdr(x) : cdr(x)) // 
 //
 ////nil-safe car/cdr:
 #define scar(x)     (is_nil(x) ? nil : car(x)) // scar#
@@ -143,26 +144,30 @@ mword *empty_string;
 
 
 //car/cdr rework:
-//internal car/cdr (not list-safe or tlist-safe):
+//internal car/cdr (not list-safe or tptr-safe):
 #define icar(x)     c((mword*)(x),0) // icar#
 #define icdr(x)     c((mword*)(x),1) // icdr#
 
-//tlist-safe car/cdr:
+//tptr-safe car/cdr:
 #define tcar(x)     c((mword*)x,HASH_SIZE+1) // tcar#
 #define tcdr(x)     c((mword*)x,HASH_SIZE+2) // tcdr#
 
-//list-safe car/cdr (not tlist safe):
+//list-safe car/cdr (not tptr safe):
 #define lcar(x)     (is_nil(x) ? nil : icar(x)) // lcar#
 #define lcdr(x)     (is_nil(x) ? nil : icdr(x)) // lcdr#
 
 //General-purpose car/cdr:
-#define car(x)      (is_tlist(x) ? tcar(x) : icar(x)) // car#
-#define cdr(x)      (is_tlist(x) ? tcdr(x) : icdr(x)) // cdr#
+//#define car(x)      (is_tptr(x) ? tcar(x) : icar(x))
+//#define cdr(x)      (is_tptr(x) ? tcdr(x) : icdr(x))
+#define car(x)      ( icar(detag((mword*)x)) ) // car#
+#define cdr(x)      ( icdr(detag((mword*)x)) ) // cdr#
 
 //General-purpose cxr:
-#define tcxr(x,y)     c((mword*)x,HASH_SIZE+1+(y%2)) // txcr#
-#define  cxr(x,y)     (is_tlist(x) ? tcxr(x,y) : c((mword*)(x),y)) // cxr#
+//#define tcxr(x,y)     c((mword*)x,HASH_SIZE+1+(y%2)) // txcr#
+//#define  cxr(x,y)     (is_tptr(x) ? tcxr(x,y) : c((mword*)(x),y))
+#define  cxr(x,y)     ( c((mword*)(detag(x)),y) ) // cxr#
 
+// FIXME: Not tptr-safe
 #define is_false(x) (    is_leaf(x) && icar(x) == 0 ||  is_nil(car(x)) ) // is_false#
 //                     || !is_leaf(x) && is_nil(car(x)) )
 
@@ -184,17 +189,17 @@ mword *empty_string;
 #define zapr(x,y) zap_from_udr_stack( x->rstack_ptr, y )    // zapr#
 
 //#define mkref(x)  mkref#
-#define mkref(x) ( new_tlist( \
+#define mkref(x) ( new_tptr( \
                         _hash8(C2B("/babel/tag/ref")), \
                             consa( x, nil ) ) )
 
-//#define mktlist(x) mktlist#
-#define mktlist(x) ( new_tlist( \
+//#define mktptr(x) mktptr#
+#define mktptr(x) ( new_tptr( \
                         _hash8(C2B(x)), \
                             consa( nil, nil ) ) )
 
 // non-allocating cons
-// XXX: Doesn't work with tlists...
+// XXX: Doesn't work with tptr...
 #define cons(a,b,c) icar(a) = (mword)(b); icdr(a) = (mword)(c); // cons#
 
 #define new_cons (_newin(2)) // new_cons#

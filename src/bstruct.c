@@ -13,6 +13,7 @@
 #include "io.h"
 #include "hash.h"
 #include "alloc.h"
+#include "tptr.h"
 
 /* bstruct operator
 **unload**
@@ -61,7 +62,7 @@ void rclean(mword *bs){ // rclean#
             rclean((mword *)*(bs+i));
         }
     }
-    else if(is_tlist(bs)){
+    else if(is_tptr(bs)){
         rclean(bs+HASH_SIZE+1);
     }
 
@@ -100,7 +101,7 @@ mword _fn_recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){ // _fn_recurse#
         }
         return 1;
     }
-    else if( is_tlist(bs) ){
+    else if( is_tptr(bs) ){
         MARK_TRAVERSED(bs);
         _fn_recurse(bs+HASH_SIZE+1,bfn,v);
     }
@@ -137,7 +138,7 @@ mword _mu(mword *bs){ // _mu#
 //
 mword _rmu(mword *bs, void *v){ // _rmu#
 
-    if( is_tlist(bs) ){
+    if( is_tptr(bs) ){
         *v += HASH_SIZE;
     }
 
@@ -232,7 +233,7 @@ mword _ntls(mword *bs){ // _ntls#
 //
 mword _rntls(mword *bs, void *v){ // _rntls#
 
-    if( is_tlist(bs) ){
+    if( is_tptr(bs) ){
         *v += 1;
     }
 
@@ -325,7 +326,7 @@ mword _rlst(mword *bs, void *v){ // _rlst#
     printf("%04x %08x\n", (*v * MWORD_SIZE), (s(bs) & ~CTL_MASK) );
     *v += 1;
 
-    if( is_tlist_masked(bs) ){
+    if( is_tptr_masked(bs) ){
         for(i=0;HASH_SIZE;i++){
             printf("%04x %08x\n", (*v * MWORD_SIZE), c(bs,i));
             *v += 1;
@@ -555,7 +556,7 @@ mword rbs2gv(mword *bs, char *buffer){ // rbs2gv#
 //    }
 //    else if(is_inte(bs)){
 
-    if(is_tlist(bs) && !is_nil(bs)){ // is_tlist
+    if(is_tptr(bs) && !is_nil(bs)){ // is_tptr
         //die;
 
 //        //buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"{{", (mword)bs);
@@ -854,7 +855,7 @@ bvm_cache *mu(bvm_cache *this_bvm){
 //        MARK_TRAVERSED(bs);
 //
 //    }
-//    else{ //tlist
+//    else{ //tptr
 //        MARK_TRAVERSED(bs);
 //
 //        count += HASH_SIZE;

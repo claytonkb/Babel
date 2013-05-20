@@ -111,10 +111,10 @@ mword *rload(
             c(new_arr,i) = c(tree,offset+i);
         }
     }
-    else{ //FIXME: 32-bit specific and UGLY
+    else{ //is_tptr ... FIXME: 32-bit specific and UGLY
         s(tree+offset) |= 0x1; //Mark dumped
 
-        new_arr = _newtlist();
+        new_arr = _newtptr();
 
         c(LUT_rel,*LUT_offset) = offset*MWORD_SIZE;
         c(LUT_abs,*LUT_offset) = (mword)new_arr;
@@ -124,7 +124,7 @@ mword *rload(
         c(new_arr,1) = c(tree,offset+1);
         c(new_arr,2) = c(tree,offset+2);
         c(new_arr,3) = c(tree,offset+3);
-        c(new_arr,4) = (mword)(-2*MWORD_SIZE);
+        c(new_arr,4) = (mword)(-1*MWORD_SIZE);
 //        c(new_arr,5) = (mword)nil;
 //        c(new_arr,6) = (mword)nil;
         c(new_arr,5) = (mword)rload(
@@ -133,12 +133,12 @@ mword *rload(
                 LUT_abs, 
                 LUT_rel, 
                 LUT_offset);
-        c(new_arr,6) = (mword)rload(
-                tree,
-                c(tree,offset+6),
-                LUT_abs, 
-                LUT_rel, 
-                LUT_offset);
+//        c(new_arr,6) = (mword)rload(
+//                tree,
+//                c(tree,offset+6),
+//                LUT_abs, 
+//                LUT_rel, 
+//                LUT_offset);
 
 
     }
@@ -266,7 +266,7 @@ mword _runload(
             *offset = *offset+1;
         }
     }
-    else{ //tlist
+    else{ //tptr
 //        printf("C ");
         MARK_TRAVERSED(bs);
         for(i=0; i<HASH_SIZE; i++){

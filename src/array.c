@@ -12,6 +12,7 @@
 #include "bvm.h"
 #include "load.h"
 #include "alloc.h"
+#include "tptr.h"
 
 /* array operator
 **th**  
@@ -206,12 +207,12 @@ mword *_newin(mword size){ // _newin#
 
 
 //
-mword *_newtlist(void){ // _newtlist# DEPRECATE
+mword *_newtptr(void){ // _newtptr# DEPRECATE
 
-    mword *ptr = malloc( MWORDS(4 + HASH_SIZE) ); // 4 = s-field + s-field + car + cdr
+    mword *ptr = malloc( MWORDS(3 + HASH_SIZE) ); // 3 = s-field + s-field + car
 
     if(ptr == NULL){
-        error("_newtlist: malloc returned NULL");
+        error("_newtptr: malloc returned NULL");
     }
 
     //FIXME: 32-bit specific and UGLY
@@ -220,9 +221,9 @@ mword *_newtlist(void){ // _newtlist# DEPRECATE
     ptr[2] = 0xdeadbeef;
     ptr[3] = 0xdeadbeef;
     ptr[4] = 0xdeadbeef;
-    ptr[5] = (mword)(-2*MWORD_SIZE);
+    ptr[5] = (mword)(-1*MWORD_SIZE);
     ptr[6] = (mword)nil;
-    ptr[7] = (mword)nil;
+//    ptr[7] = (mword)nil;
 
     return ptr+1;
 

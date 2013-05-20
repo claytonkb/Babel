@@ -25,6 +25,7 @@
 #include "hash.h"
 #include "bstruct.h"
 #include "alloc.h"
+#include "tptr.h"
 
 /* bvm operator
 **code**  

@@ -8,6 +8,7 @@
 #include "bvm_opcodes.h"
 #include "array.h"
 #include "alloc.h"
+#include "tptr.h"
 
 #define babel_logic_operator(x)                 \
                                                 \

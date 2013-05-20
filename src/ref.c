@@ -4,7 +4,7 @@
 #include "ref.h"
 #include "array.h"
 #include "bstruct.h"
-#include "tlist.h"
+#include "tptr.h"
 #include "hash.h"
 
 // Dereferences a reference-list
@@ -30,7 +30,7 @@ static mword *rderef(mword *bs, mword *ref_list){ // rderef#
         enhance("Nested references not supported");
         die;
     }
-    else if (is_tlist(rl)){
+    else if (is_tptr(rl)){
         //_dump(extract_hash(rl));
         bs = _luha( bs, extract_hash(rl) );
         //die;
@@ -39,12 +39,12 @@ static mword *rderef(mword *bs, mword *ref_list){ // rderef#
         if(is_leaf(bs)){
             return val(bs,car(rl));
         }
-        else if(is_tlist(bs)){
+        else if(is_tptr(bs)){
             if(car(rl)){
-                bs = (mword*)tcar(bs);
+                bs = (mword*)car(bs); //XXX was using tcar
             }
             else{
-                bs = (mword*)tcdr(bs);
+                bs = (mword*)cdr(bs); //XXX was using tcdr
             }
         }
         else{

@@ -34,7 +34,7 @@ mword *_newlf(mword size);
 mword *_newin(mword size);
 //mword *_newlfz(mword size);
 mword *_newlfi(mword size, mword init);
-mword *_newtlist(void);
+mword *_newtptr(void);
 
 inline mword* val(mword *leaf, mword index);
 mword *_newva(mword value);

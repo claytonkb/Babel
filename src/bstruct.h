@@ -9,7 +9,7 @@
 
 #define is_leaf_masked(x)    ((~CTL_MASK & (int)s((mword*)x)) >  0)
 #define is_inte_masked(x)    ((~CTL_MASK & (int)s((mword*)x)) <  0)
-#define is_tlist_masked(x)   ((~CTL_MASK & (int)s((mword*)x)) == 0)
+#define is_tptr_masked(x)   ((~CTL_MASK & (int)s((mword*)x)) == 0)
 #define size_masked(x)       (abs(~CTL_MASK & s(x))/MWORD_SIZE)
 
 typedef mword (*bstruct_op_fn_ptr)(mword *bs, void *v);

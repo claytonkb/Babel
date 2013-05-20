@@ -21,7 +21,7 @@ system("perl tags.pl");
 `perl markdown.pl README > html/README.html`;
 
 @files = qw {   babel pearson16 stack array load list bstruct 
-                string utf8 hash tlist alloc ref arith bvm eval
+                string utf8 hash tptr alloc ref arith bvm eval
                 cmp debug except io logic mt19937ar shift 
                 tags util };
 

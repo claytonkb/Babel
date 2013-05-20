@@ -8,6 +8,7 @@
 #include "except.h"
 #include "array.h"
 #include "bstruct.h"
+#include "tptr.h"
 
 //
 //
@@ -48,7 +49,7 @@ inline mword *_unshift(mword *list, mword *bs){ // _unshift#
 }
 
 
-// FIXME: icar doesn't work with tlists...
+// FIXME: icar doesn't work with tptrs...
 //
 inline mword *_shift(mword *list){ // _shift#
 

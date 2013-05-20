@@ -7,7 +7,7 @@
 #include "list.h"
 #include "bvm_opcodes.h"
 #include "array.h"
-
+#include "tptr.h"
  
 /* shift operator
 **cushl/shl**  

@@ -12,6 +12,7 @@
 #include "bstruct.h"
 #include "hash.h"
 #include "alloc.h"
+#include "tptr.h"
 
 #ifdef WINDOWS
 #include <windows.h>

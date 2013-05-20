@@ -13,6 +13,7 @@
 #include "array.h"
 #include "alloc.h"
 #include "bstruct.h"
+#include "tptr.h"
 
 ////These operate on array-8:
 ////chomp

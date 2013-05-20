@@ -10,6 +10,7 @@
 #include "array.h"
 #include "bvm.h"
 #include "list.h"
+#include "tptr.h"
 
 /* flow-control operator
 **eval** (!)  

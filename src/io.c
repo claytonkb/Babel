@@ -13,7 +13,7 @@
 #include "utf8.h"
 #include "string.h"
 #include "alloc.h"
-
+#include "tptr.h"
 
 //FIXME: Lots of bad things in here...
 //

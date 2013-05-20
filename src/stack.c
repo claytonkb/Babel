@@ -15,6 +15,7 @@
 #include "eval.h"
 #include "hash.h"
 #include "ref.h"
+#include "tptr.h"
 
 //
 //
@@ -136,7 +137,7 @@ void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
     STACK_ENTRY_VAL(new_stack_entry) = operand;
     STACK_ENTRY_LIF(new_stack_entry) = type;
 
-    cons(new_stack_cons, new_stack_entry, this_bvm->dstack_ptr);
+    //cons(new_stack_cons, new_stack_entry, this_bvm->dstack_ptr);
 
     this_bvm->dstack_ptr = new_stack_cons;
 

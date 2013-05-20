@@ -5,6 +5,8 @@
 #define HASH_H
 
 #include "babel.h"
+
+
 //#include "list.h"
 
 //#define HASH_LEVEL_SIZE     (1<<BITS_PER_BYTE)

@@ -11,8 +11,8 @@
 #include "bvm.h"
 #include "bvm_opcodes.h"
 #include "bstruct.h"
-#include "tlist.h"
 #include "string.h"
+#include "tptr.h"
 
 /* hash operator
 > Unlike most Babel operators, the hash operators do not zap all their
@@ -69,10 +69,10 @@
 //
 mword *new_hash_table(void){ // new_hash_table#
 
-//    return new_tlist(  _hash8(C2B("/babel/tag/hash_table")), 
+//    return new_tptr(  _hash8(C2B("/babel/tag/hash_table")), 
 //                        _consls( _consls(nil, nil), nil ) );
 
-    return new_tlist(  _hash8(C2B("/babel/tag/hash_table")), 
+    return new_tptr(  _hash8(C2B("/babel/tag/hash_table")), 
                         consa( consa(nil, nil), nil ) );
 
 }
@@ -93,7 +93,7 @@ mword *new_hash_table_entry(mword *hash, mword *key, mword *payload){  // new_ha
         key = _cp(key);
     }
 
-    return new_tlist(
+    return new_tptr(
         _hash8(C2B("/babel/tag/hash_table_entry")), 
         consa( hash,
             consa( key,
@@ -128,7 +128,7 @@ void _insha(mword *hash_table, mword *hash, mword *key, mword *entry){ // _insha
         key = _cp(key);
     }
 
-    rinsha((mword*)tcar(hash_table), hash, key, entry, 0);
+    rinsha((mword*)car(hash_table), hash, key, entry, 0); //XXX: was using tcar
 
 }
 
@@ -161,7 +161,7 @@ static void rinsha(mword *hash_table, mword *hash, mword *key, mword *entry, mwo
     else if(is_conslike(next_level)){
         rinsha((mword*)c(hash_table,cons_side), hash, key, entry, level+1);
     }
-    else if(is_tlist(next_level)){ //XXX: We are ASSUMING it's a hash_table_entry...
+    else if(is_tptr(next_level)){ //XXX: We are ASSUMING it's a hash_table_entry...
 
         if(tageq(car(next_level),hash)){ //already exists...
 
@@ -171,7 +171,7 @@ static void rinsha(mword *hash_table, mword *hash, mword *key, mword *entry, mwo
         }
         else{
 
-            if( _cxr1( (mword*)tcar(next_level), level+1 ) ){
+            if( _cxr1( (mword*)car(next_level), level+1 ) ){ //XXX: was using tcar
                 (mword*)c(hash_table,cons_side) = consa( nil, next_level );
             }
             else{
@@ -231,7 +231,7 @@ static mword rexha(mword *hash_table, mword *hash, mword level){ // rexha#
     else if(is_conslike(next_level)){
         rexha((mword*)c(hash_table,cons_side), hash, level+1);
     }
-    else if(is_tlist(next_level)){ // XXX ASSUMES well-formed hash-entry
+    else if(is_tptr(next_level)){ // XXX ASSUMES well-formed hash-entry
         return (tageq(car(next_level),hash));
     }
 
@@ -276,7 +276,7 @@ static mword *rluha(mword *hash_table, mword *hash, mword level){ // rluha#
     else if(is_conslike(next_level)){
         return rluha((mword*)c(hash_table,cons_side), hash, level+1);
     }
-    else if(is_tlist(next_level)){ // XXX ASSUMES well-formed hash-entry
+    else if(is_tptr(next_level)){ // XXX ASSUMES well-formed hash-entry
         return (mword*)car(cdr(cdr(next_level)));
     }
 
@@ -331,7 +331,7 @@ static mword rrmha(mword *hash_table, mword *hash, mword level){ // rrmha#
         }
         return 0;
     }
-    else if(is_tlist(next_level)){ // XXX ASSUMES well-formed hash-entry
+    else if(is_tptr(next_level)){ // XXX ASSUMES well-formed hash-entry
 
         if(tageq(car(next_level),hash)){ //match
             (mword*)c(hash_table,cons_side) = nil; //FIXME: De-allocation

@@ -307,7 +307,7 @@ sub encode_tree{
     elsif($sub_tree->[0] eq 'ptr'){ #pointers
         return encode_pointers      ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
     }
-    elsif($sub_tree->[0] eq 'tlist'){ #tagged-list
+    elsif($sub_tree->[0] eq 'tag'){ #tagged-list
         return encode_tagged_list   ($symbol_table, $addr_lut, $section_name, $offset, $sub_tree);
     }
     elsif($sub_tree->[0] eq 'list'){ #list
@@ -582,7 +582,7 @@ sub encode_tagged_list{
         $sub_tree) = @_;
 
     my $encoded;
-    my ($car, $cdr);
+    my $car;
 
     my @elements = @{$sub_tree};
     shift @elements;
@@ -591,6 +591,8 @@ sub encode_tagged_list{
 
     my $plain_tag = shift @elements;
     my $tag;
+
+    die if ($#elements > 0); # Only one item can be tagged at a time
 
     push @{$element_list}, 0;
 
@@ -601,49 +603,32 @@ sub encode_tagged_list{
         print "Error: .$plain_tag.\n" and die;
     }
 
-    $$offset += 5;
+    $$offset += 7;
 
-    foreach my $element (@elements){
+    my $element = $elements[0];
 
-        $$offset += 3;
-        push @{$element_list}, -2*$MWORD_SIZE;
-        for(1..2){
-            push @{$element_list}, 0xdeadbeef;
-        }
+    push @{$element_list}, -1 * $MWORD_SIZE;
+    push @{$element_list}, 0xdeadbeef;
 
-        $car = $#{$element_list}-1;
-        $cdr = $#{$element_list};
+    $car = $#{$element_list};
 
-        if(ref($element) eq ""){
-            if(is_value($element)){
-                $element_list->[$car] = $MWORD_SIZE*($$offset+1);
-                $encoded = encode_values(["val", $element], $offset, 1);
-                push (@{$element_list}, $_) for (@{$encoded});
-                #printf("A:%x ", $$offset*$MWORD_SIZE);
-            }
-            else{
-                unless(exists $addr_lut->{$element}){
-                    $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
-                    push (@{$element_list}, $_) for (@{$encoded});
-                }
-                $element_list->[$car] = $addr_lut->{$element};
-            }
-        }
-        else{
-            $element_list->[$car] = $MWORD_SIZE*($$offset+1);
-            $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $element);
+    if(ref($element) eq ""){
+        unless(exists $addr_lut->{$element}){
+            $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
             push (@{$element_list}, $_) for (@{$encoded});
         }
-        $element_list->[$cdr] = ($$offset+1) * $MWORD_SIZE;
-
+        $element_list->[$car] = $addr_lut->{$element};
+    }
+    else{
+        $element_list->[$car] = $MWORD_SIZE*($$offset+1);
+        $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $element);
+        push (@{$element_list}, $_) for (@{$encoded});
     }
 
     if(!exists $addr_lut->{nil}){
         $encoded = create_nil($addr_lut, $offset);
         push (@{$element_list}, $_) for (@{$encoded});
     }
-
-    $element_list->[$cdr] = $addr_lut->{nil};
 
     return $element_list;
 
