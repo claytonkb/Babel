@@ -32,7 +32,7 @@ mword *new_tptr(mword *hash, mword *list){ // new_tptr#
 
 //
 //
-mword *extract_hash(mword *tptr){ // extract_hash#
+mword *tptr_extract_hash(mword *tptr){ // tptr_extract_hash#
 
     mword *ptr = new_hash();
     int i;
@@ -44,6 +44,23 @@ mword *extract_hash(mword *tptr){ // extract_hash#
     return ptr;
 
 }
+
+
+//
+//
+mword *tptr_extract_ptr(mword *tptr){ // tptr_extract_ptr#
+
+    mword *temp = get_tptr(tptr);
+
+    if(is_tptr(temp)){
+        return tptr_extract_ptr(temp);
+    }
+    else{
+        return temp;
+    }
+
+}
+
 
 
 // Safely, recursively de-references a tag

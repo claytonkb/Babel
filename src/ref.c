@@ -31,8 +31,8 @@ static mword *rderef(mword *bs, mword *ref_list){ // rderef#
         die;
     }
     else if (is_tptr(rl)){
-        //_dump(extract_hash(rl));
-        bs = _luha( bs, extract_hash(rl) );
+        //_dump(tptr_extract_hash(rl));
+        bs = _luha( bs, tptr_extract_hash(rl) );
         //die;
     }
     else if(is_leaf(rl)){

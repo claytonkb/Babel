@@ -132,10 +132,13 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv){ // interp_in
 
     //initialize nil (global constant)
     init_nil();
-    
+
     //load the root bvm
     this_bvm->self = _load((mword*)bbl,BBL_SIZE);
-    this_bvm->sym_table = (mword*)bvm_sym_table(this_bvm->self);
+    //this_bvm->sym_table = (mword*)bvm_sym_table(this_bvm->self);
+    this_bvm->sym_table = (mword*)icar(icdr(icdr(cdr(this_bvm->self))));
+    _dump(this_bvm->sym_table);
+    die;
 
     //initialize empty_string (global constant)
     empty_string = _newlfi(1,0);
@@ -177,7 +180,9 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv){ // interp_in
 
     }
 
-    printf("bug(s) in set_sym...\n");
+
+
+    _dump(this_bvm->sym_table);
 die;
     set_sym(this_bvm, "steps",          _newva((mword)-1) );
     set_sym(this_bvm, "thread_id",      _newva(0) );
