@@ -6,13 +6,12 @@
 #include "pearson16.h"
 
 //tag-checking (equal, etc.)
-//new tagged-pointer
 
 //
 //
-mword *new_tptr(mword *hash, mword *list){ // new_tptr#
+mword *new_tptr(mword *hash, mword *bs){ // new_tptr#
 
-    mword *ptr = balloc( MWORDS( 3 + HASH_SIZE ) ); // 3 = s-field + s-field + car
+    mword *ptr = balloc( MWORDS( TPTR_SIZE ) ); 
     int i;
 
     ptr[0] = 0; // X.s = 0 -> tagged-ptr
@@ -22,8 +21,7 @@ mword *new_tptr(mword *hash, mword *list){ // new_tptr#
     }
 
     ptr[HASH_SIZE+1] = -1*MWORD_SIZE;
-    ptr[HASH_SIZE+2] = c(list,0);
-    //ptr[HASH_SIZE+3] = c(list,1);
+    ptr[HASH_SIZE+2] = (mword)bs;
 
     return ptr+1;
 

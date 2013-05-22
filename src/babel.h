@@ -42,7 +42,8 @@ typedef bvm_cache *(*babel_op)(bvm_cache *); // bvm_cache#
 
 //bvm_cache *interp_init(int argc, char **argv);
 bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
-void init_interp_jump_table(bvm_cache *this_bvm);
+//void init_interp_jump_table(bvm_cache *this_bvm);
+mword *init_interp_jump_table(void);
 bvm_cache *endian(bvm_cache *this_bvm);
 void print_env(void);
 void dump_mem(mword *mem, int size);
@@ -80,6 +81,9 @@ mword *empty_string;
 #define HASH_BIT_SIZE 128 // HASH_BIT_SIZE#
 #define HASH_SIZE (HASH_BIT_SIZE/MWORD_BIT_SIZE) // HASH_SIZE#
 
+#define TPTR_SIZE HASH_SIZE+3 // TPTR_SIZE#
+                         // 3 = s-field + s-field + car
+
 // IA32 uses 4k pages and multiples...
 #define ALLOC_PAGE_SIZE 4096
 
@@ -112,6 +116,8 @@ mword *empty_string;
 #define size(x)      (abs(s(x))/MWORD_SIZE) // size#
 #define c(x,y)       (*((mword*)x + y)) // c#
 
+#define alloc_size(x) (s(x) == 0 ? TPTR_SIZE : size(x)+1) // alloc_size#
+
 #define tagcmp(x,y) ( (is_tptr(x) || (size(x) >= HASH_SIZE)) ? (memcmp((mword*)x, y, HASH_SIZE*MWORD_SIZE)) : -1 ) // tagcmp#
 #define tageq(x,y)  ( tagcmp(x,y) == 0 ) // tageq#
 #define is_nil(x)   ( tageq(x,nil) ) // is_nil#
@@ -141,7 +147,6 @@ mword *empty_string;
 ////nil-safe car/cdr:
 #define scar(x)     (is_nil(x) ? nil : car(x)) // scar#
 #define scdr(x)     (is_nil(x) ? nil : cdr(x)) // scdr#
-
 
 //car/cdr rework:
 //internal car/cdr (not list-safe or tptr-safe):
@@ -317,7 +322,7 @@ mword *empty_string;
 #define DIE_CODE 1
 #define QUOTEME(x) #x
 #define d(x) printf("%s %08x\n", QUOTEME(x), x);  // d#
-#define _mem(x)  int _i; printf("%08x\n", s(x)); for(_i=0; _i<size(x); _i++){ printf("%08x\n", c(x,_i)); } // _mem#
+#define _mem(x)  int _i; printf("%08x\n", s(x)); for(_i=0; _i<alloc_size(x)-1; _i++){ printf("%08x\n", c(x,_i)); } // _mem#
 #define _dump(x) printf("%s\n", _bs2gv(x));  // _dump#
 #define die      fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);  // die#
 #define warn(x)  fprintf(stderr, "WARNING: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__);  // warn#

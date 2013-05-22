@@ -6,7 +6,9 @@
 
 #include "babel.h"
 
-#define get_tptr(x) (mword*)c((mword*)x,HASH_SIZE+1)
+#define TPTR_PTR      HASH_SIZE+1
+#define get_tptr(x)   (mword*)c((mword*)x,TPTR_PTR)
+#define set_tptr(x,y) (mword*)c((mword*)x,TPTR_PTR)=(mword*)y;
 
 mword *new_tptr(mword *hash, mword *list);
 mword *tptr_extract_hash(mword *tptr);

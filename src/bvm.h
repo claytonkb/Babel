@@ -10,7 +10,7 @@
 #define bvm_dstack_ptr(x)   car(icar(cdr(x))) // bvm_dstack_ptr#
 #define bvm_ustack_ptr(x)   cdr(icar(cdr(x))) // bvm_ustack_ptr#
 #define bvm_jump_table(x)   car(icar(icdr(cdr(x)))) // bvm_jump_table#
-#define bvm_sym_table(x)    car(icar(icdr(icdr(cdr(x))))) // bvm_sym_table#
+#define bvm_sym_table(x)    (mword*)get_tptr((mword*)icar(icdr(icdr(cdr(x))))) // bvm_sym_table#
 
 void bbl2gv(mword *tree);
 mword tree_bbl2gv(mword *tree);

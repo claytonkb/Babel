@@ -39,7 +39,8 @@ int main(int argc, char **argv){
     bvm_cache *this_bvm = &root_bvm;
 
     interp_init(this_bvm, argc, argv);
-
+    printf("interp_init fixed... bvm_interp still broken...\n");    
+    die;
 
 //    _dump( mkref("foo", _newva(0x42)) );
 //    //_dump( new_tptr( _hash8(C2B("/babel/tag/ref")), nil) );
@@ -101,7 +102,7 @@ int main(int argc, char **argv){
 //
 void init_nil(void){ // init_nil#
 
-    mword *ptr = malloc( MWORDS( 3 + HASH_SIZE ) ); // 2 = s-field + s-field + car
+    mword *ptr = malloc( MWORDS( TPTR_SIZE ) );
 
     mword *nil_hash   = _hash8(C2B("nil"));
 
@@ -114,9 +115,8 @@ void init_nil(void){ // init_nil#
 
     nil = (ptr + 1);
 
-    ptr[HASH_SIZE+1] = -1;
+    ptr[HASH_SIZE+1] = -1 * MWORD_SIZE;
     ptr[HASH_SIZE+2] = (mword)nil;
-    //ptr[HASH_SIZE+3] = (mword)nil;
 
 }
 
@@ -132,12 +132,16 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv){ // interp_in
 
     //initialize nil (global constant)
     init_nil();
+//    _mem(nil);
+//    die;
 
     //load the root bvm
     this_bvm->self = _load((mword*)bbl,BBL_SIZE);
-    //this_bvm->sym_table = (mword*)bvm_sym_table(this_bvm->self);
+    this_bvm->sym_table = (mword*)bvm_sym_table(this_bvm->self);
     //car(icar(icdr(icdr(cdr(x)))))
-    this_bvm->sym_table = (mword*)tptr_extract_ptr((mword*)icar(icdr(icdr(cdr(this_bvm->self)))));
+
+    //this_bvm->sym_table = (mword*)get_tptr((mword*)icar(icdr(icdr(cdr(this_bvm->self)))));
+
 
     //initialize empty_string (global constant)
     empty_string = _newlfi(1,0);
@@ -179,25 +183,42 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv){ // interp_in
 
     }
 
-
+//    _insha(     this_bvm->sym_table,                         
+//                nil,                                
+//                C2B("steps"),                           
+//                new_hash_table_entry(  nil,         
+//                                        C2B("steps"),   
+//                                        _newva((mword)-1) ) );
 
     set_sym(this_bvm, "steps",          _newva((mword)-1) );
-    _dump(this_bvm->sym_table);
-die;
     set_sym(this_bvm, "thread_id",      _newva(0) );
     set_sym(this_bvm, "advance_type",   _newva((mword)BVM_ADVANCE) );
     set_sym(this_bvm, "argv",           this_bvm->argv );
     set_sym(this_bvm, "srand",          time_hash );
     set_sym(this_bvm, "soft_root",      nil );
 
+//    _dump(icar(icdr(cdr(this_bvm->self))));
+
     //hash_insert( this_bvm->sym_table, "argv",  this_bvm->argv );
     //hash_insert( this_bvm->sym_table, "srand", time_hash );
     //hash_insert( this_bvm->sym_table, "steps", this_bvm->steps );
     //hash_insert( this_bvm->sym_table, "soft_root", nil );
 
-    load_bvm_cache(this_bvm);
+//    load_bvm_cache(this_bvm);
 
-    init_interp_jump_table(this_bvm);
+    this_bvm->code_ptr      = (mword*)bvm_code_ptr(this_bvm->self);
+    this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(this_bvm->self);
+    this_bvm->dstack_ptr    = (mword*)bvm_dstack_ptr(this_bvm->self);
+    this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(this_bvm->self);
+//    this_bvm->jump_table    = (mword*)bvm_jump_table(self);
+    this_bvm->sym_table     = (mword*)bvm_sym_table(this_bvm->self);
+    this_bvm->steps         = get_sym(this_bvm, "steps");
+    this_bvm->advance_type  = get_sym(this_bvm, "advance_type");
+    this_bvm->thread_id     = get_sym(this_bvm, "thread_id");
+
+
+//    init_interp_jump_table(this_bvm);
+    this_bvm->jump_table    = init_interp_jump_table();
 
     return this_bvm;
 
@@ -220,8 +241,29 @@ die;
 
 }
 
+
+////
+//void init_interp_jump_table(bvm_cache *this_bvm){
 //
-void init_interp_jump_table(bvm_cache *this_bvm){
+//    #include "fixed_opcodes.h"
+//
+////    printf("%d\n",sizeof(interp_fixed_opcodes)/sizeof(babel_op));
+////    die
+//
+//    #define num_opcodes (sizeof(interp_fixed_opcodes)/sizeof(babel_op))
+//
+//    this_bvm->jump_table = _newlf(num_opcodes);
+//
+//    int i;
+//    for(i=0;i<num_opcodes;i++){
+//        (mword*)this_bvm->jump_table[i] = (mword*)interp_fixed_opcodes[i];
+//    }
+//
+//}
+
+
+//
+mword *init_interp_jump_table(void){
 
     #include "fixed_opcodes.h"
 
@@ -230,12 +272,21 @@ void init_interp_jump_table(bvm_cache *this_bvm){
 
     #define num_opcodes (sizeof(interp_fixed_opcodes)/sizeof(babel_op))
 
-    this_bvm->jump_table = _newlf(num_opcodes);
+    mword *temp = _newlf(num_opcodes);
 
     int i;
     for(i=0;i<num_opcodes;i++){
-        (mword*)this_bvm->jump_table[i] = (mword*)interp_fixed_opcodes[i];
+        (mword*)temp[i] = (mword*)interp_fixed_opcodes[i];
     }
+
+    return temp;
+
+//    this_bvm->jump_table = _newlf(num_opcodes);
+//
+//    int i;
+//    for(i=0;i<num_opcodes;i++){
+//        (mword*)this_bvm->jump_table[i] = (mword*)interp_fixed_opcodes[i];
+//    }
 
 }
 

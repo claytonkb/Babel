@@ -93,12 +93,17 @@ mword *new_hash_table_entry(mword *hash, mword *key, mword *payload){  // new_ha
         key = _cp(key);
     }
 
-    return new_tptr(
+    mword *temp = new_tptr(
         _hash8(C2B("/babel/tag/hash_table_entry")), 
         consa( hash,
             consa( key,
                 consa( payload, nil )))
     );
+
+//    _dump(temp);
+//    die;
+
+    return temp;
 
 }
 
@@ -106,7 +111,7 @@ mword *new_hash_table_entry(mword *hash, mword *key, mword *payload){  // new_ha
 **insha**  
 > Insert into hash:  
 >  
-> my_hash `[`{0 0 0 0}] ["foo"] hash8 [42] insha  
+> my_hash `[{0 0 0 0}] ["foo"] hash8 [42] insha`  
 >  
 > ... inserts the value 42 into my_hash with the key "foo". Does not  
 > store the key in the hash.  
@@ -128,7 +133,8 @@ void _insha(mword *hash_table, mword *hash, mword *key, mword *entry){ // _insha
         key = _cp(key);
     }
 
-    rinsha((mword*)car(hash_table), hash, key, entry, 0); //XXX: was using tcar
+
+    rinsha((mword*)get_tptr(hash_table), hash, key, entry, 0); //XXX: was using tcar
 
 }
 

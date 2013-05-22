@@ -209,7 +209,7 @@ mword *_newin(mword size){ // _newin#
 //
 mword *_newtptr(void){ // _newtptr# DEPRECATE
 
-    mword *ptr = malloc( MWORDS(3 + HASH_SIZE) ); // 3 = s-field + s-field + car
+    mword *ptr = malloc( MWORDS( TPTR_SIZE ) );
 
     if(ptr == NULL){
         error("_newtptr: malloc returned NULL");
