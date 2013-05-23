@@ -61,6 +61,7 @@ my $obj = encode($sections);
 create_lst($proj_name, $obj);
 create_bbl($proj_name, $obj);
 create_c  ($proj_name, $obj);
+#die;
 
 #########################################################################
 #
@@ -728,21 +729,36 @@ sub encode_code_list{
                 $encoded = encode_pointers($symbol_table, $addr_lut, $section_name, $offset, ["ptr", ["val", $element]]);
                 push (@{$element_list}, $_) for (@{$encoded});
             }
-            else{
+            else{ #symbol
                 unless($symbol_table->{$element}[0] eq "oper"){
                     $element_list->[$car] = ($$offset+1) * $MWORD_SIZE;
                     $$offset += 2;
                     $car = $#{$element_list};
                     push @{$element_list}, -1*$MWORD_SIZE;
-                    push @{$element_list}, ($$offset+1) * $MWORD_SIZE;
+                    #push @{$element_list}, ($$offset+1) * $MWORD_SIZE;
+
+                    unless(exists $addr_lut->{$element}){
+                        push @{$element_list}, ($$offset+1) * $MWORD_SIZE;
+                        $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+                        push (@{$element_list}, $_) for (@{$encoded});
+                    }
+                    else{
+                        push @{$element_list}, $addr_lut->{$element};
+                    }
+
+                    $element_list->[$car] = $addr_lut->{$element};
+                }
+                else{
+
+                    unless(exists $addr_lut->{$element}){
+                        $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
+                        push (@{$element_list}, $_) for (@{$encoded});
+                    }
+
+                    $element_list->[$car] = $addr_lut->{$element};
+
                 }
 
-                unless(exists $addr_lut->{$element}){
-                    $encoded = encode_section($symbol_table, $addr_lut, $element, $offset);
-                    push (@{$element_list}, $_) for (@{$encoded});
-                }
-
-                $element_list->[$car] = $addr_lut->{$element};
             }
 
         }
