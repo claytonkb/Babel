@@ -18,7 +18,7 @@ system("perl tags.pl");
 `perl markdown.pl doc/babel_gsg.txt > html/babel_gsg.html`;
 `perl markdown.pl doc/babel_guts.txt > html/babel_guts.html`;
 `perl markdown.pl doc/babel_op.txt > html/babel_op.html`;
-`perl markdown.pl README > html/README.html`;
+`perl markdown.pl README.md > html/README.html`;
 
 @files = qw {   babel pearson16 stack array load list bstruct 
                 string utf8 hash tptr alloc ref arith bvm eval
