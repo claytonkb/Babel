@@ -50,28 +50,21 @@ Babel program.
 Documentation
 -------------
 
->       doc/babel_gsg.txt
+_doc/babel\_gsg.md_  
 
 Getting Started Guide
 
->       doc/babel_phil.txt
+_doc/babel\_phil.md_
 
 Documents the "Philosophy of Babel"
 
->       doc/babel_ref.txt
+_doc/babel\_op.md_
 
-Documents the built-in Babel operators
+Documents the built-in Babel operators. This file is generated when you 
+build Babel using the make.pl script.
 
->       doc/babel_guts.txt
+_doc/babel\_guts.md_
 
 Documents the internals of the Babel interpreter, as it is.
 
->       doc/babel_arch.txt
-
-Documents the final goal to which Babel is being developed
-
->       eg/*
-
-Contains many examples of Babel programs, somewhat disorganized at
-present but will improve over time.
 

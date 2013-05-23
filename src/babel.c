@@ -195,7 +195,6 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv){ // interp_in
     set_sym(this_bvm, "srand",          time_hash );
     set_sym(this_bvm, "soft_root",      nil );
 
-
 //    _dump(icar(icdr(cdr(this_bvm->self))));
 
     //hash_insert( this_bvm->sym_table, "argv",  this_bvm->argv );
