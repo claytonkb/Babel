@@ -1,4 +1,4 @@
-![](sacred_scarab.jpg)
+![](html/sacred_scarab.jpg)
 
 _If you are looking for an overview of Babel, see the "Documentation" 
 section below._
