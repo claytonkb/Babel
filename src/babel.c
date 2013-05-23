@@ -39,8 +39,6 @@ int main(int argc, char **argv){
     bvm_cache *this_bvm = &root_bvm;
 
     interp_init(this_bvm, argc, argv);
-    printf("interp_init fixed... bvm_interp still broken...\n");    
-    die;
 
 //    _dump( mkref("foo", _newva(0x42)) );
 //    //_dump( new_tptr( _hash8(C2B("/babel/tag/ref")), nil) );
@@ -196,6 +194,7 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv){ // interp_in
     set_sym(this_bvm, "argv",           this_bvm->argv );
     set_sym(this_bvm, "srand",          time_hash );
     set_sym(this_bvm, "soft_root",      nil );
+
 
 //    _dump(icar(icdr(cdr(this_bvm->self))));
 

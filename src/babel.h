@@ -176,7 +176,8 @@ mword *empty_string;
 #define is_false(x) (    is_leaf(x) && icar(x) == 0 ||  is_nil(car(x)) ) // is_false#
 //                     || !is_leaf(x) && is_nil(car(x)) )
 
-#define get_sym(x,y)   ( _luha( (mword*)car(x->sym_table), _hash8(C2B(y))) )   // get_sym#
+//#define get_sym(x,y)   ( _luha( (mword*)car(x->sym_table), _hash8(C2B(y))) )   // get_sym#
+#define get_sym(x,y)   ( _luha( get_tptr(x->sym_table), _hash8(C2B(y))) )   // get_sym#
 #define set_sym(x,y,z) hash_insert( x->sym_table, (y), (z) ) // set_sym#
 
 #define pushd(x,y,z) push_udr_stack(x->dstack_ptr, new_dstack_entry(y,z)) // pushd#
