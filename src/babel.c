@@ -39,9 +39,9 @@ int main(int argc, char **argv){
     bvm_cache *this_bvm = &root_bvm;
 
     interp_init(this_bvm, argc, argv);
-//    _dump(this_bvm->self);
+//    _dump(this_bvm->code_ptr);
 //    die;
-
+//
 //    _dump( mkref("foo", _newva(0x42)) );
 //    //_dump( new_tptr( _hash8(C2B("/babel/tag/ref")), nil) );
 //    die;

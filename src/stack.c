@@ -52,11 +52,11 @@ mword *pop_udr_stack(mword *stack_ptr){ // pop_udr_stack#
 
 //
 //
-mword *new_rstack_entry(mword *operand, mword alloc_type){ // new_rstack_entry#
+mword *new_rstack_entry(mword *operand, mword *eval_type){ // new_rstack_entry#
 
     return
         consa( operand,
-            consa( _newva(alloc_type), nil ));
+            consa( eval_type, nil ));
 
 }
 

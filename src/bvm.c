@@ -120,10 +120,30 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
     while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
 
         if(is_nil((mword*)car(this_bvm->code_ptr))){
-//            if(!is_nil(this_bvm->rstack_ptr)){
-//                next(this_bvm);
-//                continue;
-//            }
+
+            //popr(this_bvm);
+            //_dump(this_bvm->rstack_ptr);
+            //printf("%d\n", rstack_empty(this_bvm));
+            //die;
+
+            if(!rstack_empty(this_bvm)){
+
+#define eval_return(x) _ith((mword*)icar(x),0)
+#define eval_type(x)   _ith((mword*)icar(x),1)
+
+                mword *temp = popr(this_bvm);
+
+                //printf("%d\n",tageq((mword*)eval_type(temp),BABEL_TAG_EVAL));
+                //die;
+
+                if(tageq(eval_type(temp),BABEL_TAG_EVAL)){
+                    _dump(eval_return(temp));
+                    die;
+                    this_bvm->code_ptr = eval_return(temp);
+                }
+
+            }
+
             break; // XXX An unexpected nil in code-stream can cause an exit... may be bad
         }
 
@@ -159,7 +179,8 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
             break;
         }
         else{
-            die;
+//            _dump(this_bvm->code_ptr);
+//            die;
             icar(this_bvm->advance_type) = BVM_ADVANCE;
         }
 

@@ -212,14 +212,17 @@ mword *empty_string;
 #define new_atom (_newlfi(1,0)) // new_atom#
 
 // Stack
-#define dstack_get(x,y) get_from_udr_stack(x, x->dstack_ptr, y)
-#define ustack_get(x,y) get_from_udr_stack(x, x->ustack_ptr, y)
-#define rstack_get(x,y) get_from_udr_stack(x, x->rstack_ptr, y)
+#define dstack_get(x,y) get_from_udr_stack(x, x->dstack_ptr, y) // dstack_get#
+#define ustack_get(x,y) get_from_udr_stack(x, x->ustack_ptr, y) // ustack_get#
+#define rstack_get(x,y) get_from_udr_stack(x, x->rstack_ptr, y) // rstack_get#
 
-#define dstack_set(x,y,z) set_in_udr_stack(x, x->dstack_ptr, y, z)
-#define ustack_set(x,y,z) set_in_udr_stack(x, x->ustack_ptr, y, z)
-#define rstack_set(x,y,z) set_in_udr_stack(x, x->rstack_ptr, y, z)
+#define dstack_set(x,y,z) set_in_udr_stack(x, x->dstack_ptr, y, z) // dstack_set#
+#define ustack_set(x,y,z) set_in_udr_stack(x, x->ustack_ptr, y, z) // ustack_set#
+#define rstack_set(x,y,z) set_in_udr_stack(x, x->rstack_ptr, y, z) // rstack_set#
 
+#define rstack_empty(x) is_nil(car(x->rstack_ptr)) // rstack_empty#
+
+//XXX DEPRECATE XXX
 #define TOS_0(x)             (mword*)icar(icar(icar(x->dstack_ptr)))
 #define TOS_1(x)         (mword*)icar(icar(icar(icdr(x->dstack_ptr))))
 #define TOS_2(x)     (mword*)icar(icar(icar(icdr(icdr(x->dstack_ptr)))))
@@ -253,6 +256,7 @@ mword *empty_string;
 #define return_type(x) car(cdr(car(x))) 
 
 //Operators
+// babel_operator_typeA#
 #define babel_operator_typeA(x,y)               \
     mword *op0 = dstack_get(x,0);               \
     mword *result;                              \
@@ -266,6 +270,7 @@ mword *empty_string;
     return this_bvm;
 
 
+// babel_operator_typeB#
 #define babel_operator_typeB(x,y)               \
     mword *op0 = dstack_get(x,0);               \
     mword *op1 = dstack_get(x,1);               \
@@ -281,6 +286,7 @@ mword *empty_string;
     return this_bvm;
 
 
+// babel_operator_typeC#
 #define babel_operator_typeC(x,y)               \
     mword *op0 = dstack_get(x,0);               \
                                                 \
@@ -291,6 +297,7 @@ mword *empty_string;
     return this_bvm;
 
 
+// babel_operator_typeD#
 #define babel_operator_typeD(x,y)               \
     mword *op0 = dstack_get(x,0);               \
                                                 \
@@ -301,6 +308,7 @@ mword *empty_string;
     return this_bvm;
 
 
+// babel_operator_typeE#
 #define babel_operator_typeE(x,y)               \
     mword *op0 = dstack_get(x,0);               \
     mword *op1 = dstack_get(x,1);               \

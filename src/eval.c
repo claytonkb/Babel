@@ -11,6 +11,8 @@
 #include "bvm.h"
 #include "list.h"
 #include "tptr.h"
+#include "pearson16.h"
+#include "string.h"
 
 /* flow-control operator
 **eval** (!)  
@@ -18,30 +20,48 @@
 > Evaluates TOS  
 > `[X]| -> |`  
 */
-bvm_cache *eval(bvm_cache *this_bvm){
+bvm_cache *eval(bvm_cache *this_bvm){ // eval#
 
-    fatal("stack fix not done");
-    mword *body = TOS_0(this_bvm);
-    hard_zap(this_bvm);
+    mword *op0 = dstack_get(this_bvm,0);               
 
+    zapd(this_bvm,0);                                  
+                                 
+    //_dump(this_bvm->code_ptr);
+    //die;
+    _eval(this_bvm, op0, (mword*)icdr(icar(this_bvm->code_ptr)));
+
+    return this_bvm;
+
+//    fatal("stack fix not done");
+//    mword *body = TOS_0(this_bvm);
+//    hard_zap(this_bvm);
+//
 //    push_alloc_rstack(this_bvm, (mword*)scdr(this_bvm->code_ptr), EVAL);
 //
 //    this_bvm->code_ptr = body;
 //
 //    car(this_bvm->advance_type) = BVM_CONTINUE;
 
-    _eval(this_bvm, body, (mword*)scdr(this_bvm->code_ptr));
-
-    return this_bvm;
+//    _eval(this_bvm, body, (mword*)scdr(this_bvm->code_ptr));
+//
+//    return this_bvm;
 
 }
 
 // Impersonates eval operator...
-void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){
+void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){ // _eval#
 
-    push_alloc_rstack(this_bvm, eval_return, EVAL);
 
-    this_bvm->code_ptr = eval_body;
+    //printf("%d",tageq(_hash8(C2B("/babel/tag/eval")),BABEL_TAG_EVAL));
+    //_dump(eval_return);
+    //die;
+
+    //pushr(this_bvm, eval_return, BABEL_TAG_EVAL);
+    pushr(this_bvm, eval_return, _hash8(C2B("/babel/tag/eval")));
+
+    //push_alloc_rstack(this_bvm, eval_return, EVAL);
+
+    this_bvm->code_ptr = consa(eval_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 

@@ -7,7 +7,7 @@
 mword *new_dstack_entry(mword *operand, mword alloc_type);
 void push_udr_stack(mword *stack_ptr, mword *stack_entry);
 mword *pop_udr_stack(mword *stack_ptr);
-mword *new_rstack_entry(mword *operand, mword alloc_type);
+mword *new_rstack_entry(mword *operand, mword *eval_type);
 inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
 inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index, mword *bs);
 inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index);

@@ -763,6 +763,12 @@ sub encode_code_list{
 
         }
         else{
+            $element_list->[$car] = ($$offset+1) * $MWORD_SIZE;
+            $$offset += 2;
+            $car = $#{$element_list};
+            push @{$element_list}, -1*$MWORD_SIZE;
+            push @{$element_list}, ($$offset+1) * $MWORD_SIZE;
+
             $element_list->[$car] = $MWORD_SIZE*($$offset+1);
             $encoded = encode_tree($symbol_table, $addr_lut, $section_name, $offset, $element);
             push (@{$element_list}, $_) for (@{$encoded});

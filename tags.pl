@@ -27,6 +27,7 @@ my $tags =
         "BABEL_TAG_BVM_STACK"           => "/babel/tag/bvm_stack",    
         "BABEL_TAG_BVM_JUMP_TABLE"      => "/babel/tag/bvm_jump_table",    
         "BABEL_TAG_BVM_SYM_TABLE"       => "/babel/tag/bvm_sym_table",
+        "BABEL_TAG_EVAL"                => "/babel/tag/eval",
         "BABEL_TAG_COMPAT"              => "WINDOWS;32", };
 
 

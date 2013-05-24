@@ -12,20 +12,20 @@
 #include "alloc.h"
 
 
-#define babel_arithmetic(y)                     \
+#define babel_arithmetic(expr)                  \
                                                 \
     mword opA = c( op0, 0 );                    \
     mword opB = c( op1, 0 );                    \
                                                 \
-    result = _newva( y );
+    result = _newva( expr );
 
 
-#define babel_signed_arithmetic(y)              \
+#define babel_signed_arithmetic(expr)           \
                                                 \
     mword opA = c( op0, 0 );                    \
     mword opB = c( op1, 0 );                    \
                                                 \
-    int signed_result = (int)(y);               \
+    int signed_result = (int)(expr);            \
                                                 \
     result = _newva( (mword)signed_result);
 
@@ -130,8 +130,9 @@ bvm_cache* cimul(bvm_cache *this_bvm){ // cimul#
 
 }
 
+//FIXME: Fatals wrong; should be exceptions...
 
-#define babel_division(y)                       \
+#define babel_division(expr)                    \
                                                 \
     mword opA = c( op0, 0 );                    \
     mword opB = c( op1, 0 );                    \
@@ -140,10 +141,10 @@ bvm_cache* cimul(bvm_cache *this_bvm){ // cimul#
        fatal("zero divisor or modulus");        \
     }                                           \
                                                 \
-    result = _newva( y );
+    result = _newva( expr );
 
 
-#define babel_signed_division(y)                \
+#define babel_signed_division(expr)             \
                                                 \
     mword opA = c( op0, 0 );                    \
     mword opB = c( op1, 0 );                    \
@@ -152,7 +153,7 @@ bvm_cache* cimul(bvm_cache *this_bvm){ // cimul#
        fatal("zero divisor or modulus");        \
     }                                           \
                                                 \
-    int signed_result = (int)(y);               \
+    int signed_result = (int)(expr);            \
                                                 \
     result = _newva( (mword)signed_result );
 
