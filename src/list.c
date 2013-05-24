@@ -55,14 +55,17 @@ inline mword *_shift(mword *list){ // _shift#
 
     if(is_nil(list)) return nil;
 
-    mword *temp = (mword*)icar(list);
-
-    if(is_nil(temp)) return nil;
-    
-    icar(list) = icdr(icar(list));
-    (mword*)icdr(temp) = nil;
+    mword *temp = (mword*)icdr(list);
+    (mword*)icdr(list) = nil;
 
     return temp;
+
+//    if(is_nil(temp)) return nil;
+//    
+//    icar(list) = icdr(icar(list));
+//    (mword*)icdr(temp) = nil;
+//
+//    return temp;
 
 }
 

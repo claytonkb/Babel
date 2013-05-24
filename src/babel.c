@@ -39,6 +39,8 @@ int main(int argc, char **argv){
     bvm_cache *this_bvm = &root_bvm;
 
     interp_init(this_bvm, argc, argv);
+
+//    _dump( _shift( consa( _newva(0x123), consa(_newva(0x456), nil) ) ) );
 //    _dump(this_bvm->code_ptr);
 //    die;
 //

@@ -24,10 +24,10 @@ bvm_cache *eval(bvm_cache *this_bvm){ // eval#
 
     mword *op0 = dstack_get(this_bvm,0);               
 
-    zapd(this_bvm,0);                                  
-                                 
-    //_dump(this_bvm->code_ptr);
-    //die;
+    zapd(this_bvm,0); 
+    // zap_from_udr_stack( icar(this_bvm->dstack_ptr), 0 );
+    //zap_from_udr_stack( this_bvm->dstack_ptr, 0 );
+
     _eval(this_bvm, op0, (mword*)icdr(icar(this_bvm->code_ptr)));
 
     return this_bvm;

@@ -186,8 +186,8 @@ mword *empty_string;
 #define pushu(x,y,z) push_udr_stack(x->ustack_ptr, new_dstack_entry(y,z)) // pushu#
 #define popu(x) pop_udr_stack(x->ustack_ptr) // popu#
 
-#define pushr(x,y,z) push_udr_stack(x->rstack_ptr, new_rstack_entry(y,z)) // pushr#
-#define popr(x) pop_udr_stack(x->rstack_ptr) // popr#
+#define pushr(x,y,z) push_udr_stack(x->rstack_ptr, icar(new_rstack_entry(y,z))) // pushr#
+#define popr(x) pop_udr_stack((mword*)icar(x->rstack_ptr)) // popr#
 
 //#define zapd(x) _del( (mword*)icar( popd(x) ) )
 #define zapd(x,y) zap_from_udr_stack( x->dstack_ptr, y )    // zapd#

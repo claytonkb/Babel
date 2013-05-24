@@ -12,6 +12,9 @@
 #define bvm_jump_table(x)   car(icar(icdr(cdr(x)))) // bvm_jump_table#
 #define bvm_sym_table(x)    (mword*)get_tptr((mword*)icar(icdr(icdr(cdr(x))))) // bvm_sym_table#
 
+#define eval_return(x) _ith((mword*)icar(x),0) // eval_return#
+#define eval_type(x)   _ith((mword*)icar(x),1) // eval_type#
+
 void bbl2gv(mword *tree);
 mword tree_bbl2gv(mword *tree);
 bvm_cache *babelop(bvm_cache *this_bvm);
@@ -46,7 +49,6 @@ bvm_cache *flush_bvm_cache(bvm_cache *this_bvm);
 //void bvmstep(void);
 //void _bvmstep(mword *bvm);
 
-//
 //
 //mword global_steps;
 //

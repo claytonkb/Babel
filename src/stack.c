@@ -45,7 +45,8 @@ mword *pop_udr_stack(mword *stack_ptr){ // pop_udr_stack#
 //    die;
 //    if (is_nil(cdr(stack_ptr))) return nil;
 
-    return _shift(stack_ptr);
+    mword *sink = _shift(stack_ptr);
+    return stack_ptr;
 
 }
 
@@ -95,6 +96,8 @@ inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index){ // zap_fr
 
     if(stack_index==0){
         work_stack = pop_udr_stack(work_stack);
+        work_stack = pop_udr_stack(stack_ptr);
+
         //temp = pop_udr_stack(work_stack);
         //(mword*)c(temp,0) = nil;
         //_del(temp);
@@ -107,18 +110,21 @@ inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index){ // zap_fr
             (mword*)c(icar(zapped),0) = nil;
             //_dump(zapped);
             //die;
-            _del(zapped);
+            //_del(zapped);
             _append_direct(work_stack,tail);
         }
         else if( length > stack_index ){
             zapped = _list_cut(work_stack, stack_index);
             (mword*)c(zapped,0) = nil;
-            _del(zapped);
+            //_del(zapped);
         }
         // else do nothing
     }
 
     (mword*)icar(stack_ptr) = work_stack;
+
+//    _dump(stack_ptr);
+//    die;
 
     return stack_ptr;
 
