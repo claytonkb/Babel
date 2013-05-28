@@ -129,10 +129,12 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
             if(!rstack_empty(this_bvm)){
 
                 mword *temp = popr(this_bvm);
-                //_dump(temp);
-                printf("pushr inserting an extra cons or something...\n");
-                printf("list shift operators are hosed...\n");
+                _dump(temp);
                 die;
+                //_dump(this_bvm->dstack_ptr);
+                //printf("pushr inserting an extra cons or something...\n");
+                //printf("list shift operators are hosed...\n");
+                //die;
 
                 //printf("%d\n",tageq((mword*)eval_type(temp),BABEL_TAG_EVAL));
                 //die;

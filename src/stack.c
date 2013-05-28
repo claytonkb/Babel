@@ -41,12 +41,10 @@ void push_udr_stack(mword *stack_ptr, mword *stack_entry){ // push_udr_stack#
 //
 mword *pop_udr_stack(mword *stack_ptr){ // pop_udr_stack#
 
-//    _dump(stack_ptr);
-//    die;
-//    if (is_nil(cdr(stack_ptr))) return nil;
+    mword *temp = (mword*)icar(icar(stack_ptr));
+    (mword*)*stack_ptr = _shift((mword*)icar(stack_ptr));
 
-    mword *sink = _shift(stack_ptr);
-    return stack_ptr;
+    return temp;
 
 }
 
@@ -84,7 +82,7 @@ inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stac
 }
 
 
-//
+// FIXME: Completely busted...
 //
 inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index){ // zap_from_udr_stack#
 
@@ -96,7 +94,7 @@ inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index){ // zap_fr
 
     if(stack_index==0){
         work_stack = pop_udr_stack(work_stack);
-        work_stack = pop_udr_stack(stack_ptr);
+        //work_stack = pop_udr_stack(stack_ptr);
 
         //temp = pop_udr_stack(work_stack);
         //(mword*)c(temp,0) = nil;

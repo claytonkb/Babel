@@ -182,12 +182,13 @@ mword *empty_string;
 
 #define pushd(x,y,z) push_udr_stack(x->dstack_ptr, new_dstack_entry(y,z)) // pushd#
 #define popd(x) pop_udr_stack(x->dstack_ptr) // popd#
+//#define popd(x) *x->dstack_ptr = _shift(icar(x->dstack_ptr));
 
 #define pushu(x,y,z) push_udr_stack(x->ustack_ptr, new_dstack_entry(y,z)) // pushu#
 #define popu(x) pop_udr_stack(x->ustack_ptr) // popu#
 
-#define pushr(x,y,z) push_udr_stack(x->rstack_ptr, icar(new_rstack_entry(y,z))) // pushr#
-#define popr(x) pop_udr_stack((mword*)icar(x->rstack_ptr)) // popr#
+#define pushr(x,y,z) push_udr_stack(x->rstack_ptr, new_rstack_entry(y,z)) // pushr#
+#define popr(x) pop_udr_stack(x->rstack_ptr) // popr#
 
 //#define zapd(x) _del( (mword*)icar( popd(x) ) )
 #define zapd(x,y) zap_from_udr_stack( x->dstack_ptr, y )    // zapd#
@@ -263,7 +264,7 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    zapd(x,0);                                  \
+    popd(x);                                  \
                                                 \
     pushd(x, result, IMMORTAL);                 \
                                                 \
@@ -278,8 +279,8 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    zapd(x,0);                                  \
-    zapd(x,0);                                  \
+    popd(x);                                  \
+    popd(x);                                  \
                                                 \
     pushd(x, result, IMMORTAL);                 \
                                                 \
@@ -292,7 +293,7 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    zapd(x,0);                                  \
+    popd(x);                                  \
                                                 \
     return this_bvm;
 
@@ -315,7 +316,7 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    zapd(x,0);                                  \
+    popd(x);                                  \
                                                 \
     return this_bvm;
 

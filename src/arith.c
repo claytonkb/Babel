@@ -50,6 +50,22 @@ arithmetic._
 */
 bvm_cache *cuadd(bvm_cache *this_bvm){ // cuadd#
 
+//    mword *op0 = dstack_get(this_bvm,0);                
+//    mword *op1 = dstack_get(this_bvm,1);                
+//    mword *result;                               
+//                                                 
+//    mword opA = c( op0, 0 );                     
+//    mword opB = c( op1, 0 );                     
+//                                                 
+//    result = _newva( opA + opB );
+//
+//    popd(this_bvm);                                   
+//    popd(this_bvm);                                   
+//                                                 
+//    pushd(this_bvm, result, IMMORTAL);                  
+//                                                 
+//    return this_bvm;
+
     babel_operator_typeB( 
             this_bvm, 
             babel_arithmetic( opA + opB ) );

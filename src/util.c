@@ -93,14 +93,17 @@ bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
 //    printf("fnord fnord\n");
 
-    mword *op0 = dstack_get(this_bvm,0);               
+//    mword *op0 = dstack_get(this_bvm,0);               
+//
+//    mword *temp = _shift(op0);
+//
+//    _dump(temp);
+//    die;
+//
+//    mword *temp = _shift(op0);
 
-    mword *temp = _shift(op0);
-
-    _dump(temp);
+    _dump(this_bvm->dstack_ptr);
     die;
-
-    mword *temp = _shift(op0);
 
     return this_bvm;
 
