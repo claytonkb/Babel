@@ -128,19 +128,17 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
 
             if(!rstack_empty(this_bvm)){
 
-                mword *temp = popr(this_bvm);
-                _dump(temp);
-                die;
-                //_dump(this_bvm->dstack_ptr);
-                //printf("pushr inserting an extra cons or something...\n");
-                //printf("list shift operators are hosed...\n");
-                //die;
+                mword *rtos     = popr(this_bvm);
+                mword *tag      = (mword*)icar(rtos);
 
+                
                 //printf("%d\n",tageq((mword*)eval_type(temp),BABEL_TAG_EVAL));
                 //die;
 
-                if(tageq(eval_type(temp),BABEL_TAG_EVAL)){
-                    this_bvm->code_ptr = consa(eval_return(temp),nil);
+                if(tageq(tag,BABEL_TAG_EVAL)){
+                    mword *code_ret = (mword*)icar(icdr(rtos));
+                    this_bvm->code_ptr = consa(code_ret,nil);
+                    icar(this_bvm->advance_type) = BVM_CONTINUE;
                     continue;
                 }
 

@@ -56,31 +56,24 @@ void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){ // _eval#
     //die;
 
 //    pushr(this_bvm,eval_return,IMMORTAL);
-    push_udr_stack(this_bvm->rstack_ptr, eval_return);
+    pushr(this_bvm, eval_return, _hash8(C2B("/babel/tag/eval")));
+//    push_udr_stack(this_bvm->rstack_ptr, new_rstack_entry(eval_return,_hash8(C2B("/babel/tag/eval"))));
 //    push_udr_stack(this_bvm->rstack_ptr, _newva(2));
 //    push_udr_stack(this_bvm->rstack_ptr, _newva(3));
 
-    mword *temp = popr(this_bvm);
+    //push_udr_stack(this_bvm->rstack_ptr, )
+    
+//    mword *temp = new_rstack_entry(eval_return,_hash8(C2B("/babel/tag/eval")));
+//    mword *temp = popr(this_bvm);
 
 //    mword *temp = this_bvm->rstack_ptr;
 //    (mword*)*this_bvm->rstack_ptr = _shift((mword*)icar(this_bvm->rstack_ptr));
 //
     //(mword*)c(this_bvm->rstack_ptr,0) = _unshift((mword*)c(this_bvm->rstack_ptr,0), stack_entry);
 
-    _dump(temp);
-    die;
-
-
-    //pushr(this_bvm, eval_return, BABEL_TAG_EVAL);
-    pushr(this_bvm, eval_return, _hash8(C2B("/babel/tag/eval")));
-    //mword *temp = popr(this_bvm);
-    (mword*)*this_bvm->rstack_ptr = _shift((mword*)icar(this_bvm->rstack_ptr));
-
 //    _dump(temp);
-
-//    _dump(this_bvm->rstack_ptr);
 //    die;
-    //push_alloc_rstack(this_bvm, eval_return, EVAL);
+
 
     this_bvm->code_ptr = consa(eval_body,nil);
 
