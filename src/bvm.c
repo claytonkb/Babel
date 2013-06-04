@@ -122,9 +122,10 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
         if(is_nil((mword*)car(this_bvm->code_ptr))){
 
             //popr(this_bvm);
-            //_dump(this_bvm->rstack_ptr);
             //printf("%d\n", rstack_empty(this_bvm));
-            //die;
+
+            _dump(this_bvm->dstack_ptr);
+            die;
 
             if(!rstack_empty(this_bvm)){
 
