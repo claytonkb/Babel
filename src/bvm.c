@@ -124,22 +124,18 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
             //popr(this_bvm);
             //printf("%d\n", rstack_empty(this_bvm));
 
-            _dump(this_bvm->dstack_ptr);
-            die;
-
             if(!rstack_empty(this_bvm)){
 
                 mword *rtos     = popr(this_bvm);
                 mword *tag      = (mword*)icar(rtos);
 
-                
                 //printf("%d\n",tageq((mword*)eval_type(temp),BABEL_TAG_EVAL));
                 //die;
 
                 if(tageq(tag,BABEL_TAG_EVAL)){
                     mword *code_ret = (mword*)icar(icdr(rtos));
                     this_bvm->code_ptr = consa(code_ret,nil);
-                    icar(this_bvm->advance_type) = BVM_CONTINUE;
+                    icar(this_bvm->advance_type) = BVM_ADVANCE;
                     continue;
                 }
 

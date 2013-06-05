@@ -24,7 +24,9 @@ bvm_cache *eval(bvm_cache *this_bvm){ // eval#
 
     mword *op0 = dstack_get(this_bvm,0);               
 
-    zapd(this_bvm,0); 
+    //zapd(this_bvm,0); 
+    popd(this_bvm); 
+
     // zap_from_udr_stack( icar(this_bvm->dstack_ptr), 0 );
     //zap_from_udr_stack( this_bvm->dstack_ptr, 0 );
 
