@@ -82,6 +82,52 @@ inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stac
 }
 
 
+//
+mword *remove_from_udr_stack(mword *stack_ptr, mword stack_index){ // remove_from_udr_stack#
+
+    mword *temp;
+    mword *zapped;
+    mword *tail;
+    mword length;
+    mword *work_stack = (mword*)car(stack_ptr);
+
+    if(stack_index==0){
+        pop_udr_stack(stack_ptr);
+        //work_stack = pop_udr_stack(stack_ptr);
+
+        //temp = pop_udr_stack(work_stack);
+        //(mword*)c(temp,0) = nil;
+        //_del(temp);
+    }
+    else{
+        length = _len(work_stack);
+        if( length > stack_index+1 ){
+            zapped = _list_cut(work_stack,   stack_index);
+            tail   = _list_cut(zapped,      1);
+            (mword*)c(icar(zapped),0) = nil;
+            //_dump(zapped);
+            //die;
+            //_del(zapped);
+            _append_direct(work_stack,tail);
+        }
+        else if( length > stack_index ){
+            zapped = _list_cut(work_stack, stack_index);
+            (mword*)c(zapped,0) = nil;
+            //_del(zapped);
+        }
+        // else do nothing
+    }
+
+    (mword*)icar(stack_ptr) = work_stack;
+
+//    _dump(stack_ptr);
+//    die;
+
+    return stack_ptr;
+
+}
+
+
 // FIXME: Completely busted...
 //
 inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index){ // zap_from_udr_stack#
@@ -93,7 +139,7 @@ inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index){ // zap_fr
     mword *work_stack = (mword*)car(stack_ptr);
 
     if(stack_index==0){
-        work_stack = pop_udr_stack(work_stack);
+        pop_udr_stack(stack_ptr);
         //work_stack = pop_udr_stack(stack_ptr);
 
         //temp = pop_udr_stack(work_stack);
@@ -289,26 +335,36 @@ mword *pop_ustack(bvm_cache *this_bvm){
 */
 bvm_cache *sel(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *select = TOS_2(this_bvm);
+    //zap_from_udr_stack( this_bvm->dstack_ptr, 0 );
 
-    // FIXME YUCK!!!!!!
-    down(this_bvm);
-    down(this_bvm);
-    hard_zap(this_bvm); // XXX leaky
-    up(this_bvm);
-    up(this_bvm);
+    //mword *temp = dstack_get(this_bvm,0);
+    //mword *temp = pop_udr_stack(this_bvm->dstack_ptr);
+    mword *temp = remove_from_udr_stack(this_bvm->dstack_ptr,0);
 
-    // stack_ptr -> A -> B -> C -> D
-    // B->D
-//    mword *temp = (mword*)cdr(this_bvm->dstack_ptr);
-//    cdr(temp) = cdr(cdr(temp));
+    //_dump( temp );
+    _dump( this_bvm->dstack_ptr );
+    die;
 
-    if(!is_false(select)){
-        swap(this_bvm);
-    }
-
-    zap(this_bvm);
+//    fatal("stack fix not done");
+//    mword *select = TOS_2(this_bvm);
+//
+//    // FIXME YUCK!!!!!!
+//    down(this_bvm);
+//    down(this_bvm);
+//    hard_zap(this_bvm); // XXX leaky
+//    up(this_bvm);
+//    up(this_bvm);
+//
+//    // stack_ptr -> A -> B -> C -> D
+//    // B->D
+////    mword *temp = (mword*)cdr(this_bvm->dstack_ptr);
+////    cdr(temp) = cdr(cdr(temp));
+//
+//    if(!is_false(select)){
+//        swap(this_bvm);
+//    }
+//
+//    zap(this_bvm);
 
     return this_bvm;
 
