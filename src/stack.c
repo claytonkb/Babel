@@ -116,9 +116,9 @@ mword *remove_from_udr_stack(mword *stack_ptr, mword stack_index){ // remove_fro
             //_del(zapped);
         }
         // else do nothing
+        (mword*)*stack_ptr = work_stack;
     }
 
-    (mword*)icar(stack_ptr) = work_stack;
 
 //    _dump(stack_ptr);
 //    die;
@@ -339,7 +339,7 @@ bvm_cache *sel(bvm_cache *this_bvm){
 
     //mword *temp = dstack_get(this_bvm,0);
     //mword *temp = pop_udr_stack(this_bvm->dstack_ptr);
-    mword *temp = remove_from_udr_stack(this_bvm->dstack_ptr,0);
+    mword *temp = remove_from_udr_stack(this_bvm->dstack_ptr,1);
 
     //_dump( temp );
     _dump( this_bvm->dstack_ptr );
