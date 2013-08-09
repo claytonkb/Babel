@@ -24,58 +24,20 @@ bvm_cache *eval(bvm_cache *this_bvm){ // eval#
 
     mword *op0 = dstack_get(this_bvm,0);               
 
-    //zapd(this_bvm,0); 
     popd(this_bvm); 
-
-    // zap_from_udr_stack( icar(this_bvm->dstack_ptr), 0 );
-    //zap_from_udr_stack( this_bvm->dstack_ptr, 0 );
 
     _eval(this_bvm, op0, (mword*)icdr(icar(this_bvm->code_ptr)));
 
     return this_bvm;
 
-//    fatal("stack fix not done");
-//    mword *body = TOS_0(this_bvm);
-//    hard_zap(this_bvm);
-//
-//    push_alloc_rstack(this_bvm, (mword*)scdr(this_bvm->code_ptr), EVAL);
-//
-//    this_bvm->code_ptr = body;
-//
-//    car(this_bvm->advance_type) = BVM_CONTINUE;
-
-//    _eval(this_bvm, body, (mword*)scdr(this_bvm->code_ptr));
-//
-//    return this_bvm;
-
 }
 
+
 // Impersonates eval operator...
+//
 void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){ // _eval#
 
-    //printf("%d",tageq(_hash8(C2B("/babel/tag/eval")),BABEL_TAG_EVAL));
-    //_dump(eval_return);
-    //die;
-
-//    pushr(this_bvm,eval_return,IMMORTAL);
     pushr(this_bvm, eval_return, _hash8(C2B("/babel/tag/eval")));
-//    push_udr_stack(this_bvm->rstack_ptr, new_rstack_entry(eval_return,_hash8(C2B("/babel/tag/eval"))));
-//    push_udr_stack(this_bvm->rstack_ptr, _newva(2));
-//    push_udr_stack(this_bvm->rstack_ptr, _newva(3));
-
-    //push_udr_stack(this_bvm->rstack_ptr, )
-    
-//    mword *temp = new_rstack_entry(eval_return,_hash8(C2B("/babel/tag/eval")));
-//    mword *temp = popr(this_bvm);
-
-//    mword *temp = this_bvm->rstack_ptr;
-//    (mword*)*this_bvm->rstack_ptr = _shift((mword*)icar(this_bvm->rstack_ptr));
-//
-    //(mword*)c(this_bvm->rstack_ptr,0) = _unshift((mword*)c(this_bvm->rstack_ptr,0), stack_entry);
-
-//    _dump(temp);
-//    die;
-
 
     this_bvm->code_ptr = consa(eval_body,nil);
 
@@ -127,7 +89,7 @@ bvm_cache *nest(bvm_cache *this_bvm){
 }
 
 /* flow-control operator
-**if**  
+**ifte**  
 > As it sounds. This is actually a pseudo-operator, equivalent to:  
 >  
 > sel eval  
