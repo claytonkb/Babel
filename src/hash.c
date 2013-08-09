@@ -15,16 +15,6 @@
 #include "tptr.h"
 
 /* hash operator
-> Unlike most Babel operators, the hash operators do not zap all their
-> input operands. The hash itself is left on TOS. This eliminates the
-> need for a separate "makeha" operator and is consistent with multiple
-> operations on the same hash. Don't forget to zap the hash off TOS when
-> you are done:  
->  
-> `my_hash ["foo"] [42] inskha ["bar"] [13] inskha zap  -- done`  
-*/
-
-/* hash operator
 **newha**
 */
 

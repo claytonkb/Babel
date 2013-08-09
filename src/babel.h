@@ -41,15 +41,11 @@ typedef struct {
 typedef bvm_cache *(*babel_op)(bvm_cache *); // bvm_cache#
 
 //bvm_cache *interp_init(int argc, char **argv);
-bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
+//bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
 //void init_interp_jump_table(bvm_cache *this_bvm);
-mword *init_interp_jump_table(void);
-bvm_cache *endian(bvm_cache *this_bvm);
-void print_env(void);
+//void print_env(char **envp);
 void dump_mem(mword *mem, int size);
-void init_nil(void);
 void temp_rbs2gv(mword *bs);
-void init_tags(void);
 
 #define BIG_ENDIAN    0
 #define LITTLE_ENDIAN 1
@@ -77,6 +73,7 @@ mword *empty_string;
 #define CTL_MASK (MWORD_SIZE-1) // CTL_MASK#
 #define STRLEN(s) (sizeof(s)-1) // STRLEN#
 #define C2B(x)    (_c2b(x, STRLEN(x))) // C2B#
+#define OVERRUN_LIMIT 1<<16
 
 #define HASH_BIT_SIZE 128 // HASH_BIT_SIZE#
 #define HASH_SIZE (HASH_BIT_SIZE/MWORD_BIT_SIZE) // HASH_SIZE#
@@ -316,7 +313,7 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    popd(x);                                  \
+    popd(x);                                    \
                                                 \
     return this_bvm;
 
@@ -340,6 +337,10 @@ mword *empty_string;
 #define trace    fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);   // trace#
 #define fatal(x) fprintf(stderr, "FATAL: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); die;  // fatal#
 #define enhance(x) fprintf(stderr, "ENHANCEMENT: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // enhance#
+
+#include "interp.h"
+#include "bvm.h"
+#include "bstruct.h"
 
 #endif //BABEL_H
 

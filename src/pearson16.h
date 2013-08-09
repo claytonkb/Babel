@@ -3,9 +3,10 @@
 #ifndef PEARSON16_H
 #define PEARSON16_H
 
-char *pearson16_byte_perm;
+//char *pearson16_byte_perm;
 mword *new_hash(void);
-void pearson16_init(void);
+//void pearson16_init(void);
+extern const char pearson16_byte_perm[4096];
 
 bvm_cache *hash8(bvm_cache *this_bvm);
 mword *_hash8(mword *key);

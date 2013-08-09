@@ -494,6 +494,7 @@ mword *_bs2gv(mword *bs){ // _bs2gv#
     // Safety buffer of 2kb + (32 * _mu) XXX: WHY 100?? Ran into problems on this before!!
     //mword initial_buf_size = (1<<11) + (100 * _mu(bs));
 
+
     mword initial_buf_size = 2<<16; //FIXME!!!!!!!
 
     char *buffer = malloc(initial_buf_size); //FIXME: malloc
@@ -557,7 +558,6 @@ mword rbs2gv(mword *bs, char *buffer){ // rbs2gv#
 //    else if(is_inte(bs)){
 
     if(is_tptr(bs) && !is_nil(bs)){ // is_tptr
-        //die;
 
 //        //buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"{{", (mword)bs);
 //        buf_size += sprintf(buffer+buf_size, "s%08x [shape=record,label=\"", (mword)bs);
@@ -622,6 +622,7 @@ mword rbs2gv(mword *bs, char *buffer){ // rbs2gv#
 
     }
     else{// if(is_leaf(bs)){
+
         if(num_entries > 8){
             num_entries=8;
             clipped=1;

@@ -10,6 +10,7 @@ my $HASH_SIZE = 16/$MWORD_SIZE;
 
 my $tags = 
     {   "BABEL_TAG_NIL"                 => "/babel/tag/nil", 
+        "BABEL_TAG_INTERP_NIL"          => "nil", 
         "BABEL_TAG_REF"                 => "/babel/tag/ref", 
         "BABEL_TAG_PURE_REF"            => "/babel/tag/pure_ref",
         "BABEL_TAG_HASH_TABLE"          => "/babel/tag/hash_table",

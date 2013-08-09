@@ -9,7 +9,7 @@
 
 //
 //
-mword *new_tptr(mword *hash, mword *bs){ // new_tptr#
+mword *new_tptr(const mword *hash, mword *bs){ // new_tptr#
 
     mword *ptr = balloc( MWORDS( TPTR_SIZE ) ); 
     int i;
