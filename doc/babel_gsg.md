@@ -1,5 +1,13 @@
 ![](sacred_scarab.jpg)
 
+You can browse or download Babel on <a href="https://github.com/claytonkb/Babel" target="_blank">github</a>.
+
+Be sure to check out the many examples of [Babel code on rosettacode.org](http://rosettacode.org/wiki/Category:Babel).
+
+[Babel Internals](babel_guts.html)
+
+[Babel Operator Reference](babel_op.html)
+
 Getting Started
 ===============
 
@@ -45,9 +53,6 @@ the entire stack with an each loop. To facilitate this, Babel provides the
 return from the nested context, that temporary stack will be destroyed, 
 except for TOS which is returned. You can read doc/babel_ref.txt for more 
 information on the nest operator.
-
-Also, be sure to check out the many examples of Babel code on 
-rosettacode.org.
 
 There are two kinds of Babel syntax. The first kind is being used to 
 bootstrap the Babel construct, it is called Sparse (S-expression parser).

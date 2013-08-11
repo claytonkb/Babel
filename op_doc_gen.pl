@@ -1,4 +1,4 @@
-# ref_doc_gen.pl
+# op_doc_gen.pl
 # Generates babel operator reference documentation
 
 use strict;
@@ -7,9 +7,27 @@ use Data::Dumper;
 print <<'HEADER';
 ![](sacred_scarab.jpg)
 
+[Getting Started Guide](babel_gsg.html)
+
 Babel Operator Reference
 ========================
 
+- <a href="#arithmetic">  Arithmetic Operators</a>
+- <a href="#shift">       Shift Operators</a>
+- <a href="#logic">       Logic Operators</a>
+- <a href="#comparison">  Comparison Operators</a>
+- <a href="#i/o">         I/O Operators</a>
+- <a href="#bstruct">     Bstruct Operators</a>
+- <a href="#array">       Array Operators</a>
+- <a href="#alloc">       Alloc Operators</a>
+- <a href="#string">      String Operators</a>
+- <a href="#list">        List Operators</a>
+- <a href="#hash">        Hash Operators</a>
+- <a href="#pearson">     Pearson Operators</a>
+- <a href="#stack">       Stack Operators</a>
+- <a href="#eval">        Eval Operators</a>
+- <a href="#bvm">         BVM Operators</a>
+ 
 _Notation_
 
 Stack diagrams are shown under the "Stack effect" section. The item
@@ -127,6 +145,7 @@ for my $filename (@files){
     #print Dumper($refs);
 
     for my $type (keys $refs){
+        print "<a name=\"$type\"></a>\n";
         print uc($type) . " OPERATORS  \n";
         print "-----------------\n\n";
         for my $oper (@{$refs->{$type}}){

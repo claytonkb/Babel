@@ -18,9 +18,8 @@
     result = _newva( x );
 
 /* logic operator
-_Note: Babel has 16 logic operators F0-Ff. Each one implements the Boolean
-function of two bits whose numerical value when the truth-table is 
-read vertically is the number of the operator._
+_Note: Babel has 16 logic operators F0-Ff, corresponding to each 
+two-bit LUT-based logic table._
 */
 
 /* logic operator

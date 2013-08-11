@@ -1,11 +1,25 @@
 <p><img src="sacred_scarab.jpg" alt="" title="" /></p>
 
+<p><a href="babel_gsg.html">Getting Started Guide</a></p>
+
 <h1>Babel Guts</h1>
 
 <p>This document describes the internals of the Babel interpreter.</p>
 
 <p>Note that this document does not detail the syntax of Bipedal (Babel Program
 Description Language).</p>
+
+<ul>
+<li><a href="#data_struct">   Data Structures</a></li>
+<li><a href="#bvm">           Babel Virtual Machine</a></li>
+<li><a href="#operators">     Babel Operators</a></li>
+<li><a href="#mem_management">Memory Management</a></li>
+<li><a href="#misc">          Miscellaneous Topics</a></li>
+</ul>
+
+<p><a name="data_struct"></a></p>
+
+<h1>Data Structures</h1>
 
 <h2>mword</h2>
 
@@ -114,27 +128,19 @@ interior-array must contain a pointer to the zeroth entry of an array.</p>
 <p>Every pointer in an interior-array must contain a valid pointer to an 
 array.</p>
 
-<h2>Hash-reference</h2>
+<h2>Tagged-Pointer</h2>
 
-<p>A hash-reference is a single hash value stored in memory suitable for 
-fast lookup in the sym_table (symbol table).</p>
+<p>A tagged-pointer is a pointer with an associated tag. A tag is a unique
+hash. The Babel interpreter recognizes certain tags. User-tags are not
+recognized by the interpreter but there are automatic mechanisms for
+specifying how user-tags are to be handled.</p>
 
-<p>Hash-references have several uses:</p>
+<h2>References</h2>
 
-<ul>
-<li>By-name lookup of data</li>
-<li>By-name eval</li>
-<li>Creating "soft-links" that can emborder data-structures</li>
-</ul>
-
-<p>By-name lookup of data is performed by using the hash value to probe the
-sym_table. The result will be pushed on the stack.</p>
-
-<p>If you want to emborder a given data-structure so that the deep operators 
-of Babel do not continue traversing into other data-structures that are 
-pointed to by the given data-structure, you can use a hash-reference. 
-The built-in operators will stop traversing once they reach a hash-
-reference.</p>
+<p>A reference is a specially tagged structure. References permit generalized
+indexing of a babel data-structure. A reference occurring in the code-
+stream will cause the referenced code to to be evaluated. As an operand,
+the reference will be automatically indexed through the symbol table.</p>
 
 <h2>Traversing a bstruct</h2>
 
@@ -185,6 +191,35 @@ latter will be referred to as the sym_table.</p>
 <p>The /babel/path namespace maintains a list of paths similar to Perl's
 @EXPORT variable. You can manipulate this variable using any of the 
 applicable Babel operators.</p>
+
+<h2>Strings</h2>
+
+<p>Babel has native support for UTF-8 encoded strings. Babel strings are not
+null-terminated. However, a Babel-string stored in array-8 form is always
+C-string safe because the alignment-word at the end of an array-8 always
+contains one or more null bytes. For example, in 32-bit Babel, the 
+alignment word is one of:</p>
+
+<pre><code>0x00000000      byte-length % 4 = 0
+0xffffff00      byte-length % 4 = 1
+0xffff0000      byte-length % 4 = 2
+0xff000000      byte-length % 4 = 3
+</code></pre>
+
+<p>Babel handles strings in several different forms:</p>
+
+<ul>
+<li><p>Native form. The string is UTF-8 encoded WITHOUT a null terminator in
+an array8 leaf-array</p></li>
+<li><p>C-style. This is just a native string with a null terminator appended.</p></li>
+<li><p>String-array. This is a leaf-array such that each entry in the array 
+contains the Unicode code-point of the encoded character. It is created
+from a native-form string via the str2ar operator.</p></li>
+<li><p>String-list. This is a string-array on which the the ar2ls operator
+has been called.    </p></li>
+</ul>
+
+<p><a name="bvm"></a></p>
 
 <h1>Babel Virtual Machine (bvm)</h1>
 
@@ -244,16 +279,9 @@ BVM that is compiled into babel.exe (see src/rt.pb).</p>
 <p>This BVM contains code for the debugger and other basic commandline and 
 house-keeping functions.</p>
 
-<h2>Hidden section</h2>
+<p><a name="operators"></a></p>
 
-<p>The hidden section contains limits and controls that restrict what the 
-BVM can do. For example, if you are launching a BVM fetched from the web
-you should disable operators that can write to disk, limit the memory 
-that it can allocate, taint data fetched locally (to prevent privacy 
-breaches), disable system call operators, disable nested virtual machines
-(to prevent stack-overflow attacks) and disable operator extension.</p>
-
-<h2>Operators</h2>
+<h1>Operators</h1>
 
 <p>The "active" component of Babel code consists of any of a number of 
 operators. There are two types of operators: built-in and extended. Each 
@@ -279,7 +307,9 @@ in the sym_table and the linked code will be invoked. Naturally, this
 is a lower-performance alternative.</p></li>
 </ul>
 
-<h2>Memory management</h2>
+<p><a name="mem_management"></a></p>
+
+<h1>Memory management</h1>
 
 <p>Babel uses a combination of automatic and manual memory management.
 Memory created by built-in operators is automatically managed, according to 
@@ -352,14 +382,18 @@ when they are consumed by an operator. Immortal items are not freed.</p>
 
 <p>When you create new  memory:</p>
 
-<pre><code>`10 newin
+<pre><code>`10 newin`
 </code></pre>
 
 <p>... it is mortal. When this object is zap'd, it will be freed. If you want 
 the object to be freed when it is zap'd, use the immortal operator:</p>
 
-<pre><code>`10 newin immortal
+<pre><code>`10 newin immortal`
 </code></pre>
+
+<p><a name="misc"></a></p>
+
+<h1>Miscellaneous Topics</h1>
 
 <h2>P-numbers</h2>
 
@@ -391,33 +425,6 @@ added in with the newop operator are dynamically assigned jump table offsets.</p
 
 <p>When constructing a bvm for launch, the parent bvm can restrict the built-in
 operators that are available through the hidden section of the header.</p>
-
-<h2>Strings</h2>
-
-<p>Babel has native support for UTF-8 encoded strings. Babel strings are not
-null-terminated. However, a Babel-string stored in array-8 form is always
-C-string safe because the alignment-word at the end of an array-8 always
-contains one or more null bytes. For example, in 32-bit Babel, the 
-alignment word is one of:</p>
-
-<pre><code>0x00000000      byte-length % 4 = 0
-0xffffff00      byte-length % 4 = 1
-0xffff0000      byte-length % 4 = 2
-0xff000000      byte-length % 4 = 3
-</code></pre>
-
-<p>Babel handles strings in several different forms:</p>
-
-<ul>
-<li><p>Native form. The string is UTF-8 encoded WITHOUT a null terminator in
-an array8 leaf-array</p></li>
-<li><p>C-style. This is just a native string with a null terminator appended.</p></li>
-<li><p>String-array. This is a leaf-array such that each entry in the array 
-contains the Unicode code-point of the encoded character. It is created
-from a native-form string via the str2ar operator.</p></li>
-<li><p>String-list. This is a string-array on which the the ar2ls operator
-has been called.    </p></li>
-</ul>
 
 <h2>pearson.pl</h2>
 
