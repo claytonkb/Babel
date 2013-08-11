@@ -78,6 +78,9 @@ mword *empty_string;
 #define HASH_BIT_SIZE 128 // HASH_BIT_SIZE#
 #define HASH_SIZE (HASH_BIT_SIZE/MWORD_BIT_SIZE) // HASH_SIZE#
 
+#define TAG_SIZE (HASH_SIZE*MWORD_SIZE)
+#define MIN_TAG_SIZE TAG_SIZE
+
 #define TPTR_SIZE HASH_SIZE+3 // TPTR_SIZE#
                          // 3 = s-field + s-field + car
 
@@ -115,9 +118,13 @@ mword *empty_string;
 
 #define alloc_size(x) (s(x) == 0 ? TPTR_SIZE : size(x)+1) // alloc_size#
 
-#define tagcmp(x,y) ( (is_tptr(x) || (size(x) >= HASH_SIZE)) ? (memcmp((mword*)x, y, HASH_SIZE*MWORD_SIZE)) : -1 ) // tagcmp#
-#define tageq(x,y)  ( tagcmp(x,y) == 0 ) // tageq#
-#define is_nil(x)   ( tageq(x,nil) ) // is_nil#
+#define tagcmp(x,y,z) ( (is_tptr(x) || (size(x) >= HASH_SIZE)) ? (memcmp((mword*)x, y, z)) : -1 ) // tagcmp#
+#define tageq(x,y,z)  ( tagcmp(x,y,z) == 0 ) // tageq#
+#define is_nil(x)   ( tageq(x,nil,TAG_SIZE) ) // is_nil#
+
+//#define tagcmp(x,y) ( (is_tptr(x) || (size(x) >= HASH_SIZE)) ? (memcmp((mword*)x, y, HASH_SIZE*MWORD_SIZE)) : -1 ) // tagcmp#
+//#define tageq(x,y)  ( tagcmp(x,y) == 0 ) // tageq#
+//#define is_nil(x)   ( tageq(x,nil) ) // is_nil#
 
 // XXX UNSAFE; use this only where we know for sure we have a tptr...
 #define is_nil_fast(x) ( (memcmp(x, nil, HASH_SIZE*MWORD_SIZE)) == 0 ) // is_nil_fast#
@@ -128,8 +135,11 @@ mword *empty_string;
 
 #include "tags.h"
 
-#define is_bvm(x) ( tagcmp((x),BABEL_TAG_BVM) == 0 ) // is_bvm#
-#define is_ref(x) ( tagcmp((x),BABEL_TAG_REF) == 0 ) // is_ref#
+#define is_bvm(x) ( tagcmp((x),BABEL_TAG_BVM,MIN_TAG_SIZE) ) // is_bvm#
+#define is_ref(x) ( tageq((x),BABEL_TAG_REF,MIN_TAG_SIZE) ) // is_ref#
+
+//#define is_bvm(x) ( tagcmp((x),BABEL_TAG_BVM) == 0 ) // is_bvm#
+//#define is_ref(x) ( tagcmp((x),BABEL_TAG_REF) == 0 ) // is_ref#
 
 //#define car(x)      c((mword*)(x),0) // 
 //#define cdr(x)      c((mword*)(x),1) // 
@@ -170,7 +180,9 @@ mword *empty_string;
 #define  cxr(x,y)     ( c((mword*)(detag(x)),y) ) // cxr#
 
 // FIXME: Not tptr-safe
-#define is_false(x) (    is_leaf(x) && icar(x) == 0 ||  is_nil(car(x)) ) // is_false#
+#define is_false(x) (    (is_leaf(x) && icar(x) == 0) || (is_nil(x)) ) // is_false#
+
+//#define is_false(x) (    is_leaf(x) && icar(x) == 0 ||  is_nil(car(x)) ) // is_false#
 //                     || !is_leaf(x) && is_nil(car(x)) )
 
 //#define get_sym(x,y)   ( _luha( (mword*)car(x->sym_table), _hash8(C2B(y))) )   // get_sym#
@@ -180,6 +192,7 @@ mword *empty_string;
 #define pushd(x,y,z) push_udr_stack(x->dstack_ptr, new_dstack_entry(y,z)) // pushd#
 #define popd(x) pop_udr_stack(x->dstack_ptr) // popd#
 //#define popd(x) *x->dstack_ptr = _shift(icar(x->dstack_ptr));
+#define getd(x,y) get_from_udr_stack(x, x->dstack_ptr, y); remove_from_udr_stack(this_bvm->dstack_ptr,y);   // getd#
 
 #define pushu(x,y,z) push_udr_stack(x->ustack_ptr, new_dstack_entry(y,z)) // pushu#
 #define popu(x) pop_udr_stack(x->ustack_ptr) // popu#
@@ -331,6 +344,7 @@ mword *empty_string;
 #define d(x) printf("%s %08x\n", QUOTEME(x), x);  // d#
 #define _mem(x)  int _i; printf("%08x\n", s(x)); for(_i=0; _i<alloc_size(x)-1; _i++){ printf("%08x\n", c(x,_i)); } // _mem#
 #define _dump(x) printf("%s\n", _bs2gv(x));  // _dump#
+#define _dumpd(x) printf("%s\n", _bs2gv(x->dstack_ptr));  // _dumpd#
 #define die      fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);  // die#
 #define warn(x)  fprintf(stderr, "WARNING: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__);  // warn#
 #define error(x) fprintf(stderr, "ERROR: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); // error#

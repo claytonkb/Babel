@@ -65,11 +65,18 @@ appears random._
 */
 bvm_cache *hash8(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result = _hash8(TOS_0(this_bvm));
+//    fatal("stack fix not done");
+//    mword *result = _hash8(TOS_0(this_bvm));
+//
+//    hard_zap(this_bvm);
+//    push_alloc(this_bvm, (mword*)result, MORTAL);
+//
+//    return this_bvm;
+    mword *key = getd(this_bvm,0);
 
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, (mword*)result, MORTAL);
+    mword *result = _hash8(key);
+
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 

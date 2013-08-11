@@ -132,7 +132,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
                 //printf("%d\n",tageq((mword*)eval_type(temp),BABEL_TAG_EVAL));
                 //die;
 
-                if(tageq(tag,BABEL_TAG_EVAL)){
+                if(tageq(tag,BABEL_TAG_EVAL,MIN_TAG_SIZE)){
                     mword *code_ret = (mword*)icar(icdr(rtos));
                     this_bvm->code_ptr = consa(code_ret,nil);
                     icar(this_bvm->advance_type) = BVM_ADVANCE;

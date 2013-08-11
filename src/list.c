@@ -12,7 +12,7 @@
 
 //
 //
-inline mword *_push(mword *list, mword *bs){ // _push#
+inline mword *_unshift(mword *list, mword *bs){ // _unshift#
 
     mword *endls = _list_end(list);
     (mword*)c(endls,1) = consa( bs, nil );
@@ -24,7 +24,7 @@ inline mword *_push(mword *list, mword *bs){ // _push#
 
 //
 //
-inline mword *_pop(mword *list){ // _pop#
+inline mword *_shift(mword *list){ // _shift#
 
     if(is_nil(list)) return nil;
 
@@ -42,7 +42,7 @@ inline mword *_pop(mword *list){ // _pop#
 
 //
 //
-inline mword *_unshift(mword *list, mword *bs){ // _unshift#
+inline mword *_push(mword *list, mword *bs){ // _push#
 
     return consa( bs, list );
 
@@ -51,7 +51,7 @@ inline mword *_unshift(mword *list, mword *bs){ // _unshift#
 
 // FIXME: icar doesn't work with tptrs...
 //
-inline mword *_shift(mword *list){ // _shift#
+inline mword *_pop(mword *list){ // _pop#
 
     if(is_nil(list)) return nil;
 
@@ -233,21 +233,28 @@ mword *_list_next_to_end(mword *list){
     
 }
 
+
 /* list operator
-**push**  
-> Like the Perl operator  
-> Undoes pop  
+**unshift**  
+> Like Perl's `pop` function   
+> Undoes shift  
 >  
-> `((a b c)) ((d e f)) push --> leaves (a b c d e f) on TOS`    
+> `(a b) (c) unshift --> leaves (a b c) on TOS`    
+>  
+> `A B unshift <--> A B swap push`    
 */
-bvm_cache *push(bvm_cache *this_bvm){
+bvm_cache *unshift(bvm_cache *this_bvm){ // unshift#
 
-    error("stack ordering fix not done");
-    fatal("stack fix not done");
-    mword *endls = _list_end(TOS_1(this_bvm));
-    (mword*)c(endls,1) = TOS_0(this_bvm);
+    mword *dest_list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 1);
+    mword *push_list = (mword*)icar(popd(this_bvm));
 
-    zap(this_bvm);
+//    _dump(dest_list);
+//    die;
+
+    mword *endls = _list_end(dest_list);
+    (mword*)c(endls,1) = push_list;
+
+    //zap(this_bvm);
     // XXX Might get alloc-type bugs here...
 //    push_alloc(this_bvm, temp_cons, PUSH);
 
@@ -257,47 +264,39 @@ bvm_cache *push(bvm_cache *this_bvm){
 
 /* list operator
 **pop**  
-> Like the Perl operator  
+> Like Perl's `shift` function   
 > Undoes push of length-1 list  
 >  
-> `((a b c)) pop --> leaves (a b) (c) on TOS`    
+> `(a b c) pop --> leaves (b c) (a) on TOS`    
 */
-bvm_cache *pop(bvm_cache *this_bvm){
+bvm_cache *pop(bvm_cache *this_bvm){ // pop#
 
-    error("stack ordering fix not done");
-    fatal("stack fix not done");
-    mword *endls = _list_next_to_end(TOS_0(this_bvm));
+    mword *list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 0);
 
-    mword *temp = (mword*)c(endls,1);
-    (mword*)c(endls,1) = nil;
+    set_in_udr_stack(this_bvm, this_bvm->dstack_ptr, 0, (mword*)icdr(list));
 
-    push_alloc(this_bvm, temp, IMMORTAL); //FIXME: Depends
+    (mword*)c(list,1) = nil;
+
+    pushd(this_bvm, list, IMMORTAL);
 
     return this_bvm;
 
 }
 
 /* list operator
-**unshift**  
-> Like the Perl operator  
-> Undoes shift  
+**push**  
+> Like Perl's `unshift` operator  
+> Undoes pop  
 >  
-> `((a b c)) ((d e f)) shift --> leaves (d e f a b c) on TOS`    
->  
-> `A B unshift <--> A B swap push`    
+> `(b c) (a) push --> leaves (a b c) on TOS`    
 */
-bvm_cache *unshift(bvm_cache *this_bvm){
+bvm_cache *push(bvm_cache *this_bvm){ // push#
 
-    error("stack ordering fix not done");
-    fatal("stack fix not done");
-    swap(this_bvm);
+    mword *dest_list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 0);
+    mword *push_list = getd(this_bvm, 1);
 
-    mword *endls = _list_end(TOS_1(this_bvm));
-    (mword*)c(endls,1) = TOS_0(this_bvm);
-
-    zap(this_bvm);
-    // XXX Might get alloc-type bugs here...
-//    push_alloc(this_bvm, temp_cons, PUSH);
+    mword *endls = _list_end(dest_list);
+    (mword*)c(endls,1) = push_list;
 
     return this_bvm;
 
@@ -306,20 +305,21 @@ bvm_cache *unshift(bvm_cache *this_bvm){
 /* list operator
 **shift**  
 > Like the Perl operator  
-> Undoes unshift of length-1 list  
+> Undoes unshift of length 1 list  
 >  
-> `((a b c)) shift --> leaves (b c) (a) on TOS`    
+> `(a b c) shift --> leaves (a b) (c) on TOS`    
 */
-bvm_cache *shift(bvm_cache *this_bvm){
+bvm_cache *shift(bvm_cache *this_bvm){ // shift#
 
-    error("stack ordering fix not done");
-    fatal("stack fix not done");
-    mword *temp = TOS_0(this_bvm);
-    TOS_0(this_bvm) = (mword*)cdr(TOS_0(this_bvm));
+    mword *list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 0);
+    mword *endls = _list_next_to_end(list);
 
-    (mword*)c(temp,1) = nil;
+    mword *shifted = (mword*)c(endls,1);
+    (mword*)c(endls,1) = nil;
 
-    push_alloc(this_bvm, temp, IMMORTAL); //FIXME: Depends
+//    push_alloc(this_bvm, temp, IMMORTAL); //FIXME: Depends
+
+    pushd(this_bvm, shifted, IMMORTAL);
 
     return this_bvm;
 
@@ -332,13 +332,10 @@ bvm_cache *shift(bvm_cache *this_bvm){
 */
 bvm_cache *len(bvm_cache *this_bvm){ 
 
-    fatal("stack fix not done");
-    mword *result = new_atom;
+    mword *list = getd(this_bvm,0);
+    mword *result = _newva( _len( list ) );
 
-    *result = _len(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -367,12 +364,10 @@ mword _len(mword *list){
 */
 bvm_cache *bons(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result = _bons(TOS_0(this_bvm));
+    mword *list = getd(this_bvm,0);
+    mword *result = _bons(list);
 
-    zap(this_bvm);
-
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -397,16 +392,21 @@ mword *_bons(mword *list){
 
 /* list operator
 **ls2lf**  
-> Undoes ar2ls on a leaf-array  
+> Undoes `ar2ls` on a leaf-array  
 */
 bvm_cache *ls2lf(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result = _ls2lf(TOS_0(this_bvm));
+//    fatal("stack fix not done");
+//    mword *result = _ls2lf(TOS_0(this_bvm));
+//
+//    zap(this_bvm);
+//
+//    push_alloc(this_bvm, result, MORTAL);
 
-    zap(this_bvm);
+    mword *list = getd(this_bvm,0);
+    mword *result = _ls2lf(list);
 
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -437,17 +437,16 @@ mword *_ls2lf(mword *list){
 > lists.  
 > Mnemonic: lIst -> Ith  
 >
-> `(('a' 'b' 'c' 'd')) [2] ith --> leaves 'c' on TOS`    
+> `('a' 'b' 'c' 'd') 2 ith --> leaves 'c' on TOS`    
 */
 bvm_cache *ith(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result = _ith(TOS_1(this_bvm), car(TOS_0(this_bvm)));
+    mword *list  = getd(this_bvm,1);
+    mword *index = getd(this_bvm,0);
 
-    zap(this_bvm);
-    zap(this_bvm);
+    mword *result = _ith(list, c(index,0));
 
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -466,6 +465,8 @@ mword *_ith(mword *list, mword i){ // _ith#
 
 }
 
+
+// XXX Consider deprecating as this is easily done in pure Babel code...
 /* list operator
 **walk**  
 > Walks a list  
@@ -506,14 +507,19 @@ mword *_walk(mword *bs, mword *walk_list){
 */
 bvm_cache *reverse(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *list = TOS_0(this_bvm);
+//    fatal("stack fix not done");
+//    mword *list = TOS_0(this_bvm);
+//
+//    hard_zap(this_bvm);
+//
+//    mword *result = _reverse(this_bvm,(mword*)list,nil);
+//
+//    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
 
-    hard_zap(this_bvm);
+    mword *list = getd(this_bvm,0);
+    mword *result = _reverse(list,nil);
 
-    mword *result = _reverse(this_bvm,(mword*)list,nil);
-
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -521,7 +527,7 @@ bvm_cache *reverse(bvm_cache *this_bvm){
 
 
 //
-mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr){
+mword *_reverse(mword *list, mword *new_cdr){
 
     mword *temp = (mword*)cdr(list);
 
@@ -530,7 +536,7 @@ mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr){
     if(is_nil(temp))
         return list;
 
-    return _reverse(this_bvm, temp, list);
+    return _reverse(temp, list);
 
 }
 
@@ -543,13 +549,13 @@ mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr){
 */
 bvm_cache *split(bvm_cache *this_bvm){ // split#
 
-    mword *indices  = dstack_get(this_bvm,0);
-    mword *list     = dstack_get(this_bvm,1);
+    mword *list     = getd(this_bvm,1);
+    mword *indices  = getd(this_bvm,0);
 
     mword *result = _split(list, indices);
 
-    popd(this_bvm);
-    popd(this_bvm);
+//    popd(this_bvm);
+//    popd(this_bvm);
 
     pushd(this_bvm, result, IMMORTAL);
 
