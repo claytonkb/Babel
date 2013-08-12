@@ -132,7 +132,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
                 //printf("%d\n",tageq((mword*)eval_type(temp),BABEL_TAG_EVAL));
                 //die;
 
-                if(tageq(tag,BABEL_TAG_EVAL,MIN_TAG_SIZE)){
+                if(tageq(tag,BABEL_TAG_EVAL,TAG_SIZE)){
                     mword *code_ret = (mword*)icar(icdr(rtos));
                     this_bvm->code_ptr = consa(code_ret,nil);
                     icar(this_bvm->advance_type) = BVM_ADVANCE;
@@ -147,6 +147,10 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
         if( is_inte(car(car(this_bvm->code_ptr))) ){
 //            die;
 //            push_alloc(this_bvm, (mword*)car(this_bvm->code_ptr), IMMORTAL);
+
+//            _dump(new_dstack_entry((mword*)car(car(car(this_bvm->code_ptr))),IMMORTAL));
+            //push_udr_stack(this_bvm->dstack_ptr, new_dstack_entry((mword*)car(car(car(this_bvm->code_ptr))),IMMORTAL))
+//            die;
             pushd( this_bvm, (mword*)car(car(car(this_bvm->code_ptr))), IMMORTAL );
 //            flush_bvm_cache(this_bvm);
 //            _dump(this_bvm->self);

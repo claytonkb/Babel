@@ -32,7 +32,7 @@ mword *new_dstack_entry(mword *operand, mword alloc_type){ // new_dstack_entry#
 //
 void push_udr_stack(mword *stack_ptr, mword *stack_entry){ // push_udr_stack#
 
-    (mword*)c(stack_ptr,0) = _unshift((mword*)c(stack_ptr,0), stack_entry);
+    (mword*)c(stack_ptr,0) = _push((mword*)c(stack_ptr,0), stack_entry);
 
 }
 
@@ -42,7 +42,7 @@ void push_udr_stack(mword *stack_ptr, mword *stack_entry){ // push_udr_stack#
 mword *pop_udr_stack(mword *stack_ptr){ // pop_udr_stack#
 
     mword *temp = (mword*)icar(icar(stack_ptr));
-    (mword*)*stack_ptr = _shift((mword*)icar(stack_ptr));
+    (mword*)*stack_ptr = _pop((mword*)icar(stack_ptr));
 
     return temp;
 
@@ -338,13 +338,20 @@ bvm_cache *sel(bvm_cache *this_bvm){
     //zap_from_udr_stack( this_bvm->dstack_ptr, 0 );
 
     //mword *temp = dstack_get(this_bvm,0);
-    //mword *temp = pop_udr_stack(this_bvm->dstack_ptr);
-    mword *temp = remove_from_udr_stack(this_bvm->dstack_ptr,1);
+    mword *temp = pop_udr_stack(this_bvm->dstack_ptr);
+    //mword *temp = remove_from_udr_stack(this_bvm->dstack_ptr,1);
+
+    if(!is_false(icar(temp))){
+        popd(this_bvm);
+    }
+    else{
+        remove_from_udr_stack(this_bvm->dstack_ptr,1);
+    }
 
     //_dump( temp );
-    _dump( this_bvm->dstack_ptr );
-    die;
-
+//    _dump( this_bvm->dstack_ptr );
+//    die;
+//
 //    fatal("stack fix not done");
 //    mword *select = TOS_2(this_bvm);
 //

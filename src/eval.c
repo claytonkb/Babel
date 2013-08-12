@@ -232,26 +232,42 @@ bvm_cache *gotoop(bvm_cache *this_bvm){
 */
 bvm_cache *loop(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *body = TOS_0(this_bvm);
-    hard_zap(this_bvm);
+    mword *loop_body = dstack_get(this_bvm,0);               
 
-    mword *temp = _newin(LOOP_RSTACK_ENTRIES);
+    popd(this_bvm); 
 
-    mword *iter_temp = new_atom;
-    *iter_temp = 0;
+    mword *loop_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    (mword*)c(temp,LOOP_RSTACK_BODY)   = body;
-            c(temp,LOOP_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
-    (mword*)c(temp,LOOP_RSTACK_ITER)   = iter_temp;
+    //_eval(this_bvm, op0, (mword*)icdr(icar(this_bvm->code_ptr)));
 
-    push_alloc_rstack(this_bvm, temp, LOOP);
+    pushr(this_bvm, loop_return, _hash8(C2B("/babel/tag/loop")));
+
+    this_bvm->code_ptr = consa(loop_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
-    this_bvm->code_ptr = body;
-
     return this_bvm;
+
+//    fatal("stack fix not done");
+//    mword *body = TOS_0(this_bvm);
+//    hard_zap(this_bvm);
+//
+//    mword *temp = _newin(LOOP_RSTACK_ENTRIES);
+//
+//    mword *iter_temp = new_atom;
+//    *iter_temp = 0;
+//
+//    (mword*)c(temp,LOOP_RSTACK_BODY)   = body;
+//            c(temp,LOOP_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
+//    (mword*)c(temp,LOOP_RSTACK_ITER)   = iter_temp;
+//
+//    push_alloc_rstack(this_bvm, temp, LOOP);
+//
+//    icar(this_bvm->advance_type) = BVM_CONTINUE;
+//
+//    this_bvm->code_ptr = body;
+//
+//    return this_bvm;
 
 }
 

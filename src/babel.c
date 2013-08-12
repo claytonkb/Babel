@@ -13,6 +13,7 @@ int main(int argc, char **argv, char **envp){
     interp_init(this_bvm, argc, argv, envp);
 
     bvm_interp(this_bvm);
+die;
 
     return 0;
 
