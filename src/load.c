@@ -27,9 +27,18 @@ bvm_cache *load(bvm_cache *this_bvm){
 ////    _load((mword*)TOS_0);
 ////    TOS_0 = TOS_0 + MWORD_SIZE;
 
-    mword *result   = _load(dstack_get(this_bvm,0), size(dstack_get(this_bvm,0)));
+//    mword *result   = _load(dstack_get(this_bvm,0), size(dstack_get(this_bvm,0)));
+//
+//    zapd(this_bvm,0);
+//    pushd(this_bvm, result, IMMORTAL);
+//
+//    return this_bvm;
 
-    zapd(this_bvm,0);
+    mword *op0 = dstack_get(this_bvm,0);//, size(dstack_get(this_bvm,0)));
+    popd(this_bvm);
+    mword *result   = _load(op0, size(op0));
+
+    //zapd(this_bvm,0);
     pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
@@ -179,15 +188,25 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword elem){
 // babel_operator
 bvm_cache *unload(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result = _unload(TOS_0(this_bvm));
-//    d(TOS_0)
-//    die
-//    TOS_0 = TOS_0 + MWORD_SIZE;
+//    fatal("stack fix not done");
+//    mword *result = _unload(TOS_0(this_bvm));
+////    d(TOS_0)
+////    die
+////    TOS_0 = TOS_0 + MWORD_SIZE;
+//
+//    zap(this_bvm);
+//    push_alloc(this_bvm, result, MORTAL);
+//
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    mword *op0 = dstack_get(this_bvm,0);//, size(dstack_get(this_bvm,0)));
+    popd(this_bvm);
+    mword *result   = _unload(op0);
 
+    //zapd(this_bvm,0);
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+    
 }
 
 // XXX: (perf) the LUT method is highly non-optimal with regard to

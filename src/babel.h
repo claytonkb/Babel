@@ -288,8 +288,6 @@ mword *empty_string;
     mword *result;                              \
                                                 \
     y                                           \
-                                                \
-    popd(x);                                  \
     popd(x);                                  \
                                                 \
     pushd(x, result, IMMORTAL);                 \
@@ -311,6 +309,7 @@ mword *empty_string;
 // babel_operator_typeD#
 #define babel_operator_typeD(x,y)               \
     mword *op0 = dstack_get(x,0);               \
+    mword *result;                              \
                                                 \
     y                                           \
                                                 \

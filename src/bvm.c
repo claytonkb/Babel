@@ -352,7 +352,8 @@ bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){ // flush_bvm_cache#
     (mword*)bvm_rstack_ptr(self)    = this_bvm->rstack_ptr;
     (mword*)bvm_dstack_ptr(self)    = this_bvm->dstack_ptr;
     (mword*)bvm_ustack_ptr(self)    = this_bvm->ustack_ptr;
-    (mword*)bvm_jump_table(self)    = this_bvm->jump_table;
+//FIXME: FLUSHING IS BROKEN
+//    (mword*)bvm_jump_table(self)    = this_bvm->jump_table;
     (mword*)bvm_sym_table(self)     = this_bvm->sym_table;
     set_sym(this_bvm, "steps",        this_bvm->steps);
     set_sym(this_bvm, "advance_type", this_bvm->advance_type);

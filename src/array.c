@@ -1,7 +1,6 @@
 // array.c
 //
 
-
 #include "babel.h"
 #include "array.h"
 #include "list.h"
@@ -14,7 +13,7 @@
 #include "alloc.h"
 #include "tptr.h"
 
-/* array operator
+/* 
 **th**  
 > Returns the xth element of array A:  
 >
@@ -45,12 +44,7 @@
 */
 
 /* array operator
-**href?**
-> Tests if TOS is a hash-reference  
-*/
-
-/* array operator
-**slice8/slice1**
+**cut8**
 */
 
 /* array operator
@@ -207,7 +201,7 @@ mword *_newin(mword size){ // _newin#
 
 
 //
-mword *_newtptr(void){ // _newtptr# DEPRECATE
+mword *_newtptr(void){ // _newtptr# XXX DEPRECATE
 
     mword *ptr = malloc( MWORDS( TPTR_SIZE ) );
 
@@ -244,28 +238,7 @@ mword *_mkin(mword *entries, mword size){
 
 }
 
-// XXX DEPRECATED:
-//// Does the same thing as _newin but doesn't initialize the array entries
-//// to nil.
-//inline mword *_newin_blank(mword size){
-//
-//    mword *ptr = malloc( MWORDS(size+1) );
-//    if(ptr == NULL){
-//        error("_newin: malloc returned NULL");
-//    }
-//
-//    ptr[0] = -1 * size * MWORD_SIZE;
-//
-////    int i;
-////    for(i = 1; i<=size; i++){ // All pointers must be valid - initialize to nil
-////        ptr[i] = nil;
-////    }
-//
-//    return ptr+1;
-//
-//}
-
-/* array operator
+/* > XXX: DEPRECATE (redundant to cut)
 **slice**
 > Puts a slice of an array on TOS  
 > `{X} {a} {b}| -> {X[a..b]}|`    
@@ -275,85 +248,47 @@ mword *_mkin(mword *entries, mword size){
 */
 bvm_cache *slice(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
+    //FIXME: There are lots of ways to break this code with
+    //bad inputs
+    mword start  = icar(dstack_get(this_bvm,1));
+    mword end    = icar(dstack_get(this_bvm,0));
+    mword *array = dstack_get(this_bvm,2);
     mword *result;
 
-    if(car(TOS_0(this_bvm))<=car(TOS_1(this_bvm))){
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+
+    end = (end > size(array)) ? size(array) : end;
+
+    if(end<=start){
         result = nil;
     }
     else{
-        if(is_leaf(TOS_2(this_bvm))){
-            result = _newlf(car(TOS_0(this_bvm))-car(TOS_1(this_bvm)));
+
+        if(is_leaf(array)){
+            result = _newlf(end-start);
         }
         else{
-            result = _newin(car(TOS_0(this_bvm))-car(TOS_1(this_bvm)));
+            result = _newin(end-start);
         }
+
+        mword i,j;
+        for(    i=start, j=0;
+                i<end;
+                i++,j++
+            ){
+
+            c(result,j) = c(array,i);
+
+        }    
     }
 
-    mword i,j;
-    for(    i=(mword)car(TOS_1(this_bvm)), j=0;
-            i<(mword)car(TOS_0(this_bvm));
-            i++,j++
-        ){
-
-        c(result,j) = c(TOS_2(this_bvm),i);
-
-    }    
-
-    zap(this_bvm);
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on inputs
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
 }
-
-////
-//// babel_operator
-//bvm_cache *cxr(bvm_cache *this_bvm){
-//
-////    if(is_leaf(array)){
-////        temp = new_atom;
-////        c(temp,0) = c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
-////    }
-////    else{
-////        temp = (mword*)c((mword*)TOS_1(this_bvm), car(TOS_0(this_bvm)));
-////    }
-//
-//    mword *result = new_atom;
-//    (mword*)*result = _cxr(TOS_1(this_bvm), car(TOS_0(this_bvm)));
-//
-//    hard_zap(this_bvm);
-//    hard_zap(this_bvm);
-//
-//    push_alloc(this_bvm, result, IMMORTAL); //FIXME: May depend on input
-//
-//    return this_bvm;
-//
-//}
-//
-////
-//mword *_cxr(mword *array, mword offset){
-//
-//    mword *temp;
-//
-//    if(is_leaf(array)){
-//        temp = new_atom;
-//        c(temp,0) = c(array, offset);
-//    }
-//    else{
-//        temp = (mword*)c(array, offset);
-//    }
-//
-//    return temp;
-//
-//}
-
-//
-//mword _cxr8(mword *val, mword bit){
-//}
-
 
 //
 //
@@ -370,124 +305,7 @@ mword _cxr1(mword *val, mword bit){ // _cxr1#
 
 }
 
-// XXX DEPRECATED
-////w
-////
-//void w(void){
-//
-//    // TOS_0 offset
-//    // TOS_1 dest_operand
-//    // TOS_2 src_operand
-//
-////    //FIXME: There is no checking...
-////
-////    c((mword*)TOS_1,car(TOS_0)) = (mword)car(TOS_2);
-////
-////    zap();
-////    zap();
-////    zap();
-//
-//    mword offset    = (mword)car(TOS_0);
-//    mword dest_size = size((mword*)TOS_1)-offset;
-//    mword src_size  = size((mword*)TOS_2);
-//
-//    mword iter = (src_size < dest_size) ? src_size : dest_size;
-//
-//    mword i;
-//    for(i=0;i<iter;i++){
-//        c((mword*)TOS_1,i+offset) = c((mword*)TOS_2,i);
-//    }    
-//
-//    zap();
-////    zap();
-//    swap();
-//    zap();
-//    //TODO: leave dest on the stack?
-//
-//}
-//
-//// save
-//// A kind of "staggered-w"
-//void save(void){
-//
-//    // TOS_0 offset
-//    // TOS_1 dest_operand
-//    // TOS_2 src_operand
-//
-////    //FIXME: There is no checking...
-////
-////    c((mword*)TOS_1,car(TOS_0)) = (mword)car(TOS_2);
-////
-////    zap();
-////    zap();
-////    zap();
-//
-//    mword offset    = (mword)car(TOS_0);
-//    mword dest_size = size((mword*)car(TOS_1))-offset;
-//    mword src_size  = size((mword*)TOS_2);
-//
-//    mword iter = (src_size < dest_size) ? src_size : dest_size;
-//
-//    mword i;
-//    for(i=0;i<iter;i++){
-//        c((mword*)car(TOS_1),i+offset) = c((mword*)TOS_2,i);
-//    }    
-//
-//    zap();
-////    zap();
-//    swap();
-//    zap();
-//    //TODO: leave dest on the stack?
-//
-//}
-//
-//// Combination of the old w() and save() operators
-//void paste(void){
-//
-////    mword offset    = car(TOS_0);
-////    mword dest_size = size((mword*)TOS_1)-offset;
-////    mword src_size  = size((mword*)TOS_2);
-//
-//    mword offset;//    = car(TOS_0);
-//    mword dest_size;// = size((mword*)TOS_1)-offset;
-//    mword src_size;//  = size((mword*)TOS_2);
-//    mword i;
-//    mword iter;
-//
-//    if(is_leaf((mword*)TOS_1) == is_leaf((mword*)TOS_2)){ //Both src and dest are leaves or both are inte's
-//        offset    = (mword)car(TOS_0);
-//        dest_size = size((mword*)TOS_1)-offset;
-//        src_size  = size((mword*)TOS_2);
-//
-//        iter = (src_size < dest_size) ? src_size : dest_size;
-//
-//        for(i=0;i<iter;i++){
-//            c((mword*)TOS_1,i+offset) = c((mword*)car(cdr(cdr(stack_ptr))),i);
-//        }    
-//
-//    }
-//    else{
-//        //FIXME: Detect is_leaf(src) && is_inte(dest) and throw exception!
-//        //FIXME: Detect !is_leaf(dest) and throw exception!
-//        offset    = (mword)car(TOS_0);
-//        dest_size = size((mword*)car(TOS_1))-offset;
-//        src_size  = size((mword*)TOS_2);
-//
-//        iter = (src_size < dest_size) ? src_size : dest_size;
-//
-//        for(i=0;i<iter;i++){
-//            c((mword*)car(TOS_1),i+offset) = c((mword*)TOS_2,i);
-//        }
-//    }
-//
-//    zap();
-//    //    zap();
-//    swap();
-//    zap();
-//
-//}
 
-//FIXME: I think this operator is broken
 /* array operator
 **cut**  
 > Cuts an array - opposite of cat  
@@ -505,39 +323,41 @@ mword _cxr1(mword *val, mword bit){ // _cxr1#
 > defined as the 0th boundary and the boundary between entry 0 and
 > entry 1 is the 1st boundary, and so on.  
 */
-bvm_cache *cut(bvm_cache *this_bvm){
+bvm_cache *cut(bvm_cache *this_bvm){ // cut#
 
-    fatal("stack fix not done");
     mword *result_pre;
     mword *result_post;
     mword i;
 
-    mword cut_point = (mword)car(TOS_0(this_bvm));
-    mword *src      = TOS_1(this_bvm);
+    mword cut_point = icar(dstack_get(this_bvm,0));
+    mword *src      = dstack_get(this_bvm,1);
 
-    hard_zap(this_bvm);
+    //hard_zap(this_bvm);
+    popd(this_bvm);
+
+    popd(this_bvm);
 
     if(cut_point == 0){
-//        result = new_atom;
-//        *result = nil;
-        push_alloc(this_bvm, nil, IMMORTAL); //FIXME: depends on inputs
+        pushd(this_bvm, nil, IMMORTAL);
         swap(this_bvm);
     }
     else if(cut_point >= size(src)){
-        push_alloc(this_bvm, nil, IMMORTAL); //FIXME: depends on inputs
+        pushd(this_bvm, nil, IMMORTAL);
     }
     else{
-        hard_zap(this_bvm);
+
+        popd(this_bvm);
+
+        mword num_entries = size(src);
+
         if(is_leaf(src)){
             result_pre  = _newlf(cut_point);
-            result_post = _newlf(size(src)-cut_point);
+            result_post = _newlf(num_entries-cut_point);
         }
         else{
             result_pre = _newin(cut_point);
-            result_post = _newin(size(src)-cut_point);
+            result_post = _newin(num_entries-cut_point);
         }
-
-        mword num_entries = size(src);
 
         //TODO: memcpy!
         for(    i=0;
@@ -554,13 +374,15 @@ bvm_cache *cut(bvm_cache *this_bvm){
 
         }    
 
-        push_alloc(this_bvm, result_pre,  IMMORTAL); //FIXME: depends on inputs
-        push_alloc(this_bvm, result_post, IMMORTAL); //FIXME: depends on inputs
+        pushd(this_bvm, result_pre, IMMORTAL);
+        pushd(this_bvm, result_post, IMMORTAL);
+
     }
 
     return this_bvm;
 
 }
+
 
 /* array operator
 **size8** (#8)  
@@ -568,22 +390,21 @@ bvm_cache *cut(bvm_cache *this_bvm){
 > `{X}| -> {size8(X)}|`    
 > `[X]| -> {size8(X)}|`    
 */
-bvm_cache *arlen8(bvm_cache *this_bvm){
+bvm_cache *arlen8(bvm_cache *this_bvm){ // arlen8#
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
+#define babel_arlen8_operator \
+    result = _newva( _arlen8( op0 ) );
 
-    *result = _arlen8(TOS_0(this_bvm));
+    babel_operator_typeA( 
+            this_bvm, 
+            babel_arlen8_operator );
 
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
- 
 }
 
+
 // 
-mword _arlen8(mword *string){
+//
+mword _arlen8(mword *string){ // _arlen8#
 
     mword strsize = size(string) - 1;
     mword last_mword = c(string, strsize);
@@ -597,6 +418,7 @@ mword _arlen8(mword *string){
     }
 
 }
+
 
 /* array operator
 **newin**  
@@ -615,6 +437,7 @@ bvm_cache *newin(bvm_cache *this_bvm){
 
 }
 
+
 /* array operator
 **newlf**  
 > Creates a new leaf-array of size x and leaves it on TOS  
@@ -632,7 +455,8 @@ bvm_cache *newlf(bvm_cache *this_bvm){
 
 }
 
-/* array operator
+
+/* XXX DEPRECATE (not aesthetic)
 **trunc**  
 > Truncates an array X to length y:  
 > `{X} {y}| -> {X[0..y]}|`    
@@ -653,6 +477,8 @@ bvm_cache *trunc(bvm_cache *this_bvm){
 
 }
 
+
+//
 //
 void _trunc(mword *operand, mword new_size){
 
@@ -708,41 +534,47 @@ mword dec_alignment_word8(mword alignment_word){
 */
 bvm_cache *arcat(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
     mword *result;
 
-    if      ( is_leaf(TOS_0(this_bvm))  &&  is_leaf(TOS_1(this_bvm)) ){
-        result = _newlf( size(TOS_0(this_bvm)) + size(TOS_1(this_bvm)) );
+    mword *left  = dstack_get(this_bvm,1);
+    mword *right = dstack_get(this_bvm,0);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    mword size_left  = size(left);
+    mword size_right = size(right);
+
+    if      ( is_leaf(right)  &&  is_leaf(left) ){
+        result = _newlf( size_left + size_right );
     }
-    else if ( is_inte(TOS_0(this_bvm))  &&  is_inte(TOS_1(this_bvm)) ){
-        result = _newin( size(TOS_0(this_bvm)) + size(TOS_1(this_bvm)) );
+    else if ( is_inte(right)  &&  is_inte(left) ){
+        result = _newin( size_left + size_right );
     }
-    else{ //Throw an exception
-        error("arcat: cannot concatenate leaf array and interior array");
+    else{ //FIXME: Throw an exception
+        fatal("arcat: cannot concatenate leaf array and interior array");
     }
 
     mword i,j;
     for(    i=0;
-            i<size(TOS_1(this_bvm));
+            i<size_left;
             i++
         ){
 
-        c((mword*)result,i) = c(TOS_1(this_bvm),i);
+        c((mword*)result,i) = c(left,i);
 
     }    
 
-    for(    i=0,j=size(TOS_1(this_bvm));
-            i<size(TOS_0(this_bvm));
+    for(    i=0,j=size_left;
+            i<size_right;
             i++,j++
         ){
 
-        c(result,j) = c(TOS_0(this_bvm),i);
+        c(result,j) = c(right,i);
 
     }    
 
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on inputs
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -765,51 +597,57 @@ mword array8_size(mword size8){ // array8_size#
 > Concatenate two arrays of the same type. If you want more complex   
 > behavior, convert your arrays to lists, then use append/part  
 */
-bvm_cache *arcat8(bvm_cache *this_bvm){
+bvm_cache *arcat8(bvm_cache *this_bvm){ // arcat8#
 
-    fatal("stack fix not done");
     char *result;
-    mword size8;
 
-    if      ( is_leaf(TOS_0(this_bvm))  &&  is_leaf(TOS_1(this_bvm)) ){
-        size8 = _arlen8(TOS_0(this_bvm)) + _arlen8(TOS_1(this_bvm));
-        result = (char*)_newlf( array8_size(size8) );
+    mword *left  = dstack_get(this_bvm,1);
+    mword *right = dstack_get(this_bvm,0);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    mword size_left  = _arlen8(left);
+    mword size_right = _arlen8(right);
+    mword total_size = size_left + size_right;
+
+    if      ( is_leaf(right)  &&  is_leaf(left) ){
+        result = (char*)_newlf( array8_size(total_size) );
     }
-    else{ //Throw an errorion
-        error("arcat8: cannot concatenate non-leaf arrays");
+    else{ //FIXME: Throw an exception
+        fatal("arcat: cannot concatenate leaf array and interior array");
     }
 
+    //FIXME: memcpy!
     mword i,j;
     for(    i=0;
-            i<_arlen8(TOS_1(this_bvm));
+            i<size_left;
             i++
         ){
 
-        result[i] = *((char*)TOS_1(this_bvm)+i);
+        result[i] = *((char*)left+i);
 
     }
 
-    for(    i=0,j=_arlen8(TOS_1(this_bvm));
-            i<_arlen8(TOS_0(this_bvm));
+    for(    i=0,j=size_left;
+            i<size_right;
             i++,j++
         ){
 
-        result[j] = *((char*)TOS_0(this_bvm)+i);
+        result[j] = *((char*)right+i);
 
     }
 
-    c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
+    c((mword*)result,total_size-1) = alignment_word8(total_size);
 
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, (mword*)result, IMMORTAL); //FIXME: Depends on inputs
+    pushd(this_bvm, (mword*)result, IMMORTAL);
 
     return this_bvm;
 
 }
 
 
-/* array operator
+/* XXX DEPRECATE (use cut8 instead)
 **slice8**  
 > TOS_0 to  
 > TOS_1 from  
@@ -856,13 +694,15 @@ bvm_cache *slice8(bvm_cache *this_bvm){
 > `        {-1,  A < B`    
 > `        { 1,  A > B`    
 */
-bvm_cache *arcmp(bvm_cache *this_bvm){
+bvm_cache *arcmp(bvm_cache *this_bvm){ // arcmp#
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
+    mword *result = _newva(1);//    = new_atom;
 
-    mword *left  = TOS_1(this_bvm);
-    mword *right = TOS_0(this_bvm);
+    mword *left = dstack_get(this_bvm,1);
+    mword *right = dstack_get(this_bvm,0);
+
+    popd(this_bvm);
+    popd(this_bvm);
 
     if(is_leaf(left) && is_leaf(right)){
         *result = (mword)_arcmp(left, right);
@@ -876,16 +716,16 @@ bvm_cache *arcmp(bvm_cache *this_bvm){
         error("Non-matching operands");
     }
 
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
 }
 
+
 //
-int _arcmp(mword *left, mword *right){
+//
+int _arcmp(mword *left, mword *right){ // _arcmp#
 
     if(size(left) > size(right)){
         return 1;
@@ -909,21 +749,21 @@ int _arcmp(mword *left, mword *right){
 > `[a b c]| -> (a b c)|`    
   
 */
-bvm_cache *ar2ls(bvm_cache *this_bvm){
+bvm_cache *ar2ls(bvm_cache *this_bvm){ // ar2ls#
 
-    fatal("stack fix not done");
-    mword *result = _ar2ls(TOS_0(this_bvm));
+#define babel_ar2ls_operator \
+    result = _ar2ls(dstack_get(this_bvm,0));
 
-    zap(this_bvm);
-
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on inputs
-
-    return this_bvm;
+    babel_operator_typeA( 
+            this_bvm, 
+            babel_ar2ls_operator );
 
 }
 
+
 //
-mword *_ar2ls(mword *arr){
+//
+mword *_ar2ls(mword *arr){ // _ar2ls#
 
     mword *last_cons = (mword*)nil;
     int i;
@@ -956,35 +796,39 @@ mword *_ar2ls(mword *arr){
 >
 > `['a' 'b' 'c' 'd'] [ 3 1 1 0 ] perm --> ['d' 'b' 'b' 'a']`    
 */
-bvm_cache *perm(bvm_cache *this_bvm){
+bvm_cache *perm(bvm_cache *this_bvm){ // perm#
 
-    fatal("stack fix not done");
+//    fatal("stack fix not done");
     mword *result;
 
-    if(is_inte(TOS_1(this_bvm))){
-        result = _newin(size(TOS_1(this_bvm)));
+    mword *src_array   = dstack_get(this_bvm,1);
+    mword *perm_matrix = dstack_get(this_bvm,0);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    if(is_inte(src_array)){
+        result = _newin(size(src_array));
     }
-    else if(is_leaf(TOS_1(this_bvm))){
-        result = _newlf(size(TOS_1(this_bvm)));
+    else if(is_leaf(src_array)){
+        result = _newlf(size(src_array));
     }
-    else{
-        error("perm: !is_leaf && !is_inte");
-        return;
+    else{ // FIXME: Throw exception
+        fatal("perm: !is_leaf && !is_inte");
     }
 
-    _perm(TOS_1(this_bvm), result, TOS_0(this_bvm));
+    _perm(src_array, result, perm_matrix);
 
-    zap(this_bvm);
-    zap(this_bvm);
-
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on input
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
 }
 
+
 //
-void _perm(mword *src, mword *dest, mword *perm_matrix){
+//
+void _perm(mword *src, mword *dest, mword *perm_matrix){ // _perm#
 
     mword array_size = size(src);
 

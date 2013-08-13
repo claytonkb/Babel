@@ -3,12 +3,15 @@
 -- This is the code and symbol-table for The Construct, the
 -- root virtual machine...
 
-(   (main   ( code  ( code 0xaa cu2hex cr ) 
-                    ( code 0xaa cu2dec cr ) 
-                    0x0 sel eval 
-                    stdout8 ) )
+-- (   (main   ( code  (val 1 2 3) (val 1 2 4) arcmp cu2hex cr stdout8 ) )
+-- 
+--     (symbol (list nil))
+-- 
+--     (x (val 42)))
+-- 
 
-    (symbol (list nil))
+(   (main   ( code 0xaa 0xbb 0xcc 2 take fnord ) )
 
-    (x (val 42)))
+    (symbol (list nil)))
+
 

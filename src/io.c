@@ -138,11 +138,13 @@ bvm_cache *slurp_mword(bvm_cache *this_bvm){
 //
 
     mword *filename = _b2c(dstack_get(this_bvm,0));
+    popd(this_bvm);
+
     mword *result   = _slurp(filename);
 
     _trunc(result, size(result)-1);
 
-    zapd(this_bvm,0);
+    //zapd(this_bvm,0);
     pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;

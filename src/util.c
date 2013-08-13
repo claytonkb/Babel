@@ -91,6 +91,9 @@ bvm_cache *mword_sizeop(bvm_cache *this_bvm){
 //
 bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
+    _dumpd(this_bvm);
+    die;
+
 //    printf("fnord fnord\n");
 
 //    mword *op0 = dstack_get(this_bvm,0);               

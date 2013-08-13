@@ -95,7 +95,7 @@
     (times          (oper 0x136))
     (isinte         (oper 0x138))
     (newin          (oper 0x13a))
-    (ar2ls          (oper 0x13v))
+    (ar2ls          (oper 0x13b))
     (isleaf         (oper 0x13c))
     (del            (oper 0x13d))
     (newlf          (oper 0x13e))
