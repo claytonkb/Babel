@@ -10,7 +10,7 @@
 --     (x (val 42)))
 -- 
 
-(   (main   ( code 0xaa 0xbb 0xcc 2 take fnord ) )
+(   (main   ( code -16 2 cashr ci2dec cr stdout8 ) )
 
     (symbol (list nil)))
 

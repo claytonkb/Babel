@@ -9,6 +9,24 @@
 #include "array.h"
 #include "tptr.h"
 
+#define babel_compare_operator(expr)            \
+                                                \
+    mword opA = c( op1, 0 );                    \
+    mword opB = c( op0, 0 );                    \
+                                                \
+    result = _newva( expr );
+
+
+#define babel_signed_compare_operator(expr)     \
+                                                \
+    int opA = (int)c( op1, 0 );                 \
+    int opB = (int)c( op0, 0 );                 \
+                                                \
+    int signed_result = (int)(expr);            \
+                                                \
+    result = _newva( (mword)signed_result );
+
+
 /* comparison operator
 **cne** (~=)  
 > C-style not-equal  
@@ -16,18 +34,12 @@
 */
 bvm_cache *cne(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = (mword)car(TOS_0(this_bvm)) != (mword)car(TOS_1(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_compare_operator( opA != opB ) );
 
 }
+
 
 /* comparison operator
 **ceq** (=)  
@@ -36,18 +48,12 @@ bvm_cache *cne(bvm_cache *this_bvm){
 */
 bvm_cache *ceq(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = (mword)car(TOS_0(this_bvm)) == (mword)car(TOS_1(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
-
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_compare_operator( opA == opB ) );
+    
 }
+
 
 /* comparison operator
 **cult** (u<)  
@@ -56,18 +62,12 @@ bvm_cache *ceq(bvm_cache *this_bvm){
 */
 bvm_cache *cult(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = (mword)car(TOS_1(this_bvm)) < (mword)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_compare_operator( opA < opB ) );
 
 }
+
 
 /* comparison operator
 **cule** (u<=)  
@@ -76,18 +76,12 @@ bvm_cache *cult(bvm_cache *this_bvm){
 */
 bvm_cache *cule(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = (mword)car(TOS_1(this_bvm)) <= (mword)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_compare_operator( opA <= opB ) );
 
 }
+
 
 /* comparison operator
 **cugt** (u>)  
@@ -96,18 +90,12 @@ bvm_cache *cule(bvm_cache *this_bvm){
 */
 bvm_cache *cugt(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = (mword)car(TOS_1(this_bvm)) > (mword)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_compare_operator( opA > opB ) );
 
 }
+
 
 /* comparison operator
 **cuge** (u>=)  
@@ -116,18 +104,12 @@ bvm_cache *cugt(bvm_cache *this_bvm){
 */
 bvm_cache *cuge(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = (mword)car(TOS_1(this_bvm)) >= (mword)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_compare_operator( opA >= opB ) );
 
 }
+
 
 /* comparison operator
 **cilt** (<)  
@@ -136,18 +118,12 @@ bvm_cache *cuge(bvm_cache *this_bvm){
 */
 bvm_cache *cilt(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    (int)*result = (int)car(TOS_1(this_bvm)) < (int)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_signed_compare_operator( opA < opB ) );
 
 }
+
 
 /* comparison operator
 **cile** (<=)  
@@ -156,18 +132,12 @@ bvm_cache *cilt(bvm_cache *this_bvm){
 */
 bvm_cache *cile(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    (int)*result = (int)car(TOS_1(this_bvm)) <= (int)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_signed_compare_operator( opA <= opB ) );
 
 }
+
 
 /* comparison operator
 **cigt** (>)  
@@ -176,18 +146,12 @@ bvm_cache *cile(bvm_cache *this_bvm){
 */
 bvm_cache *cigt(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    (int)*result = (int)car(TOS_1(this_bvm)) > (int)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_signed_compare_operator( opA > opB ) );
 
 }
+
 
 /* comparison operator
 **cige** (>=)  
@@ -196,16 +160,9 @@ bvm_cache *cigt(bvm_cache *this_bvm){
 */
 bvm_cache *cige(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    (int)*result = (int)car(TOS_1(this_bvm)) >= (int)car(TOS_0(this_bvm));
-
-    zap(this_bvm);
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
+    babel_operator_typeB( 
+            this_bvm, 
+            babel_signed_compare_operator( opA >= opB ) );
 
 }
 
