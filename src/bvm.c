@@ -203,28 +203,43 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
 bvm_cache *babelop(bvm_cache *this_bvm){ // babelop#
 
     bvm_cache new_bvm;
+    bvm_cache *new_bvm_ptr = &new_bvm;
 
-    new_bvm.self = TOS_0(this_bvm);
-    hard_zap(this_bvm);
+    new_bvm.self = dstack_get(this_bvm,0);
+    popd(this_bvm);
 
-    load_bvm_cache(&new_bvm);
+    new_bvm.sym_table = (mword*)bvm_sym_table(new_bvm.self);
 
-    new_bvm.jump_table     = this_bvm->jump_table;
+    //FIXME: Assumes we want to clone:
+    set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
+    set_sym(new_bvm_ptr, "epoch",  (mword*)get_sym(this_bvm, "epoch") );
+    set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
+    set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
 
-    mword *temp = new_atom;
-    *temp = car(this_bvm->thread_id) + 1;
+    set_sym(new_bvm_ptr, "steps",          _newva((mword)-1) );
+    set_sym(new_bvm_ptr, "thread_id",      _newva( icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+    set_sym(new_bvm_ptr, "advance_type",   _newva((mword)BVM_ADVANCE) );
+    set_sym(new_bvm_ptr, "soft_root",      nil );
+    set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
 
-    new_bvm.thread_id      = temp;
+//    update_bvm_cache(&new_bvm);
 
-    new_bvm.argv           = this_bvm->argv; //FIXME: shift off 0th argv
+//    new_bvm.jump_table     = this_bvm->jump_table;
+
+//    mword *temp = _newva(1);
+//    *temp = icar(this_bvm->thread_id) + 1;
+//
+//    new_bvm.thread_id      = temp;
+//
+//    new_bvm.argv           = this_bvm->argv; //FIXME: shift off 0th argv
 
     flush_bvm_cache(this_bvm);
-    flush_bvm_cache(&new_bvm);
+    update_bvm_cache(&new_bvm);
 
     bvm_interp(&new_bvm);
 
     flush_bvm_cache(&new_bvm);
-    load_bvm_cache(this_bvm); // Technically, this is not necessary
+    update_bvm_cache(this_bvm); // Technically, this is not necessary
                                 // but it doesn't hurt
 
     //FIXME - push stack of new_bvm onto this_bvm when bvm_interp returns
@@ -323,7 +338,7 @@ bvm_cache *boilerplate(bvm_cache *this_bvm){
 
 //
 //
-bvm_cache *load_bvm_cache(bvm_cache *this_bvm){ // load_bvm_cache#
+bvm_cache *update_bvm_cache(bvm_cache *this_bvm){ // update_bvm_cache#
 
     mword *self = this_bvm->self;
 
@@ -331,8 +346,8 @@ bvm_cache *load_bvm_cache(bvm_cache *this_bvm){ // load_bvm_cache#
     this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(self);
     this_bvm->dstack_ptr    = (mword*)bvm_dstack_ptr(self);
     this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(self);
-    this_bvm->jump_table    = (mword*)bvm_jump_table(self);
     this_bvm->sym_table     = (mword*)bvm_sym_table(self);
+    this_bvm->jump_table    = get_sym(this_bvm, "jump_table"); //(mword*)bvm_jump_table(self);
     this_bvm->steps         = get_sym(this_bvm, "steps");
     this_bvm->advance_type  = get_sym(this_bvm, "advance_type");
     this_bvm->thread_id     = get_sym(this_bvm, "thread_id");
@@ -352,9 +367,8 @@ bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){ // flush_bvm_cache#
     (mword*)bvm_rstack_ptr(self)    = this_bvm->rstack_ptr;
     (mword*)bvm_dstack_ptr(self)    = this_bvm->dstack_ptr;
     (mword*)bvm_ustack_ptr(self)    = this_bvm->ustack_ptr;
-//FIXME: FLUSHING IS BROKEN
-//    (mword*)bvm_jump_table(self)    = this_bvm->jump_table;
     (mword*)bvm_sym_table(self)     = this_bvm->sym_table;
+    set_sym(this_bvm, "jump_table",   this_bvm->jump_table);
     set_sym(this_bvm, "steps",        this_bvm->steps);
     set_sym(this_bvm, "advance_type", this_bvm->advance_type);
     set_sym(this_bvm, "thread_id",    this_bvm->thread_id);

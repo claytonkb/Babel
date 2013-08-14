@@ -133,7 +133,7 @@ void init_argv(bvm_cache *this_bvm, int argc, char **argv){
 
     }
 
-    this_bvm->argv = nil;
+//    this_bvm->argv = nil;
     set_sym( this_bvm, "argv", temp_argv );
 
 }
@@ -161,21 +161,25 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
 
     init_argv(this_bvm, argc, argv);
 
+    mword *jump_table    = init_interp_jump_table();
+
     set_sym(this_bvm, "steps",          _newva((mword)-1) );
     set_sym(this_bvm, "thread_id",      _newva(0) );
     set_sym(this_bvm, "advance_type",   _newva((mword)BVM_ADVANCE) );
     set_sym(this_bvm, "soft_root",      nil );
+    set_sym(this_bvm, "jump_table",     jump_table );
 
-    this_bvm->code_ptr      = (mword*)bvm_code_ptr(this_bvm->self);
-    this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(this_bvm->self);
-    this_bvm->dstack_ptr    = (mword*)bvm_dstack_ptr(this_bvm->self);
-    this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(this_bvm->self);
-    this_bvm->sym_table     = (mword*)bvm_sym_table(this_bvm->self);
-    this_bvm->steps         = get_sym(this_bvm, "steps");
-    this_bvm->advance_type  = get_sym(this_bvm, "advance_type");
-    this_bvm->thread_id     = get_sym(this_bvm, "thread_id");
+    update_bvm_cache(this_bvm);
 
-    this_bvm->jump_table    = init_interp_jump_table();
+//    this_bvm->code_ptr      = (mword*)bvm_code_ptr(this_bvm->self);
+//    this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(this_bvm->self);
+//    this_bvm->dstack_ptr    = (mword*)bvm_dstack_ptr(this_bvm->self);
+//    this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(this_bvm->self);
+//    this_bvm->sym_table     = (mword*)bvm_sym_table(this_bvm->self);
+//    this_bvm->jump_table    = get_sym(this_bvm, "jump_table");
+//    this_bvm->steps         = get_sym(this_bvm, "steps");
+//    this_bvm->advance_type  = get_sym(this_bvm, "advance_type");
+//    this_bvm->thread_id     = get_sym(this_bvm, "thread_id");
 
     return this_bvm;
 

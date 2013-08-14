@@ -1,17 +1,13 @@
 -- Babel Root Virtual Machine
 --
--- This is the code and symbol-table for The Construct, the
--- root virtual machine...
+-- This is the code and symbol-table for The Construct
 
--- (   (main   ( code  (val 1 2 3) (val 1 2 4) arcmp cu2hex cr stdout8 ) )
--- 
---     (symbol (list nil))
--- 
---     (x (val 42)))
--- 
+--(   (main   ( code "epoch" lusym fnord ) )
+--
+--    (symbol (list nil)))
 
-(   (main   ( code -16 2 cashr ci2dec cr stdout8 ) )
+(   (main   ( code "argv" lusym 0x0 th slurp load babel 
+                "\nDone.\n" stdout8 ) )
 
     (symbol (list nil)))
-
 

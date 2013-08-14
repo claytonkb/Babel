@@ -25,7 +25,7 @@ bvm_cache *rsvd(bvm_cache *this_bvm);
 bvm_cache *bvmustack(bvm_cache *this_bvm);
 bvm_cache *boilerplate(bvm_cache *this_bvm);
 bvm_cache *self(bvm_cache *this_bvm);
-bvm_cache *load_bvm_cache(bvm_cache *this_bvm);
+bvm_cache *update_bvm_cache(bvm_cache *this_bvm);
 bvm_cache *flush_bvm_cache(bvm_cache *this_bvm);
 
 //#include "list.h"

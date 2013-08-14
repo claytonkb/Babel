@@ -306,6 +306,36 @@ mword _cxr1(mword *val, mword bit){ // _cxr1#
 }
 
 
+//
+//
+bvm_cache *th(bvm_cache *this_bvm){ // th#
+
+    mword *array = dstack_get(this_bvm,1);
+    mword index  = icar(dstack_get(this_bvm,0));
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    pushd(this_bvm, _th(array,index), IMMORTAL);
+
+    return this_bvm;
+
+}
+
+//
+//
+mword *_th(mword *bs, mword entry){ // _th#
+
+    if(is_leaf(bs)){
+        return _newva(c(bs,entry%size(bs)));
+    }
+    
+    //we are assuming that we never get a tptr...
+    return (mword*)c(bs,entry%size(bs));
+
+}
+
+
 /* array operator
 **cut**  
 > Cuts an array - opposite of cat  

@@ -67,11 +67,10 @@
 > Appends a newline to TOS  
 > `TOS\ . "\n"`
 */
-bvm_cache *cr(bvm_cache *this_bvm){
+bvm_cache *cr(bvm_cache *this_bvm){ // cr#
 
-//    die;
-//    mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
     mword *operand = dstack_get(this_bvm, 0);//(mword*)TOS_0( this_bvm );
+    popd(this_bvm);
 
     char *result;
     mword size8;
@@ -104,13 +103,7 @@ bvm_cache *cr(bvm_cache *this_bvm){
 
     c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
 
-//    _mem(result);
-//    die;
-
-    //zap(this_bvm);
-    //push_alloc(this_bvm, consa((mword*)temp, nil), IMMORTAL);
-
-    zapd(this_bvm,0);
+    //zapd(this_bvm,0);
     pushd(this_bvm, (mword*)result, IMMORTAL);
 
     return this_bvm;
@@ -118,7 +111,7 @@ bvm_cache *cr(bvm_cache *this_bvm){
 }
 
 
-//
+//FIXME: Probably broken, doesn't seem to work
 //
 mword *_b2c(mword *string){
 
@@ -177,7 +170,7 @@ mword *_b2c(mword *string){
 //}
 
 //
-mword *_c2b(char *string, mword max_safe_length){
+mword *_c2b(char *string, mword max_safe_length){ // _c2b#
 
     mword length, char_length, last_mword;
 
@@ -212,8 +205,7 @@ mword *_c2b(char *string, mword max_safe_length){
 
 }
 
-// XXX ar2str & str2ar definitely have undiscovered bugs
-// ... may need to rewrite the utf-8 stuff
+// XXX ar2str & str2ar need to be cleaned up...
 /* string operator
 **ar2str**
 > "Convert array to string"  
@@ -221,13 +213,15 @@ mword *_c2b(char *string, mword max_safe_length){
 >  
 > `{X}| -> {"string"}|`  
 */
-bvm_cache *ar2str(bvm_cache *this_bvm){
+bvm_cache *ar2str(bvm_cache *this_bvm){ // ar2str#
 
-    fatal("stack fix not done");
+    mword *op0 = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
     mword *result;
     #define MAX_UTF8_CHAR_SIZE 4
 
-    if(is_nil(TOS_0(this_bvm))){
+    if(is_nil(op0)){
         result = new_atom;
         *result = 0;
         zap(this_bvm);
@@ -235,15 +229,12 @@ bvm_cache *ar2str(bvm_cache *this_bvm){
         return this_bvm;
     }
 
-    mword arsize = size(TOS_0(this_bvm));
+    mword arsize = size(op0);
     int temp_buffer_size = MAX_UTF8_CHAR_SIZE * (arsize);
     char *temp_buffer = malloc( temp_buffer_size );
     //FIXME: Check malloc
     
-    //    int u8_toutf8(char *dest, int sz, uint32_t *src, int srcsz)
-    mword utf8_length = (mword)u8_toutf8(temp_buffer, temp_buffer_size, (uint32_t *)TOS_0(this_bvm), arsize) - 1;
-//    d(utf8_length)
-//    d(arsize)
+    mword utf8_length = (mword)u8_toutf8(temp_buffer, temp_buffer_size, (uint32_t *)op0, arsize) - 1;
 
     mword arlength = (utf8_length / 4) + 1;
 
@@ -257,8 +248,7 @@ bvm_cache *ar2str(bvm_cache *this_bvm){
 
     c(result,arlength-1) = alignment_word8(utf8_length);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -277,23 +267,23 @@ bvm_cache *ar2str(bvm_cache *this_bvm){
 >  
 > Where X is a leaf-array of Unicode code-points.  
 */
-bvm_cache *str2ar(bvm_cache *this_bvm){
+bvm_cache *str2ar(bvm_cache *this_bvm){ // str2ar#
 
-    fatal("stack fix not done");
-    //int u8_strlen(char *s, int max_safe_length)
-    mword length8 = _arlen8(TOS_0(this_bvm));
-    mword u8_length = (mword)u8_strlen((char *)TOS_0(this_bvm), length8);
+    mword *op0 = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
+    mword length8 = _arlen8(op0);
+    mword u8_length = (mword)u8_strlen((char *)op0, length8);
 
     mword *result = _newlf(u8_length+1);
 
-    //int u8_toucs(u_int32_t *dest, int sz, char *src, int srcsz)
-    mword length = u8_toucs((uint32_t *)result, u8_length+1, (char *)TOS_0(this_bvm), length8);
-//    d(length)
+    mword length = u8_toucs((uint32_t *)result, u8_length+1, (char *)op0, length8);
 
     _trunc(result, length);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
 
 }
 
@@ -301,15 +291,18 @@ bvm_cache *str2ar(bvm_cache *this_bvm){
 **catoi** 
 > C-style atoi() (ASCII-to-integer)  
 */
-bvm_cache *catoi(bvm_cache *this_bvm){
+bvm_cache *catoi(bvm_cache *this_bvm){ // catoi#
 
-    fatal("stack fix not done");
-    mword *cstr = _b2c(TOS_0(this_bvm));
+    mword *op0 = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
+    mword *cstr = _b2c(op0);
     mword *result = _newlf(1);
     *result = (mword)atoi((char*)cstr);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
 
 }
 
@@ -317,15 +310,18 @@ bvm_cache *catoi(bvm_cache *this_bvm){
 **dec2ci** ($d)  
 > Undoes ci2dec
 */
-bvm_cache *dec2ci(bvm_cache *this_bvm){
+bvm_cache *dec2ci(bvm_cache *this_bvm){ // dec2ci#
 
-    fatal("stack fix not done");
-    mword *cstr = _b2c(TOS_0(this_bvm));
+    mword *op0 = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
+    mword *cstr = _b2c(op0);
     mword *result = _newlf(1);
     *result = (mword)atoi((char*)cstr);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
 
 }
 
@@ -333,16 +329,18 @@ bvm_cache *dec2ci(bvm_cache *this_bvm){
 **hex2cu** ($x)  
 > Undoes cu2hex  
 */
-bvm_cache *hex2cu(bvm_cache *this_bvm){
+bvm_cache *hex2cu(bvm_cache *this_bvm){ // hex2cu#
 
-    fatal("stack fix not done");
-    mword *cstr = _b2c(TOS_0(this_bvm));
+    mword *op0 = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
+    mword *cstr = _b2c(op0);
     unsigned long *result = (unsigned long *)_newlf( sizeof(unsigned long) / sizeof(mword) ); //XXX Hmmmmmmm
     *result = strtoul ((char*)cstr,NULL,16);
-//    *result = (mword)atoi((char*)cstr);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, (mword*)result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
 
 }
 
@@ -412,20 +410,19 @@ bvm_cache *cu2hex(bvm_cache *this_bvm){ // cu2hex#
 **ord**   
 > Returns the numeric value of a character  
 */
-bvm_cache *ordop(bvm_cache *this_bvm){
+bvm_cache *ordop(bvm_cache *this_bvm){ // ordop#
 
-    fatal("stack fix not done");
-    mword *result  = get_from_stack( this_bvm, TOS_0(this_bvm) );
-    hard_zap(this_bvm);
+    mword *result = dstack_get(this_bvm,0);
+    popd(this_bvm);
 
-    char ord_value = (char)car(result);
+    char ord_value = (char)icar(result);
 
-    result = new_atom;
+    result = _newva(0);
     *result = ord_value;
 
-    push_alloc(this_bvm, result, IMMORTAL);
+    pushd(this_bvm, result, IMMORTAL);
 
-
+    return this_bvm;
 
 }
 

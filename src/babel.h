@@ -32,7 +32,7 @@ typedef struct {
     mword *self;
 
     mword *thread_id;
-    mword *argv;
+//    mword *argv;
     mword *steps;
     mword *advance_type;
 
@@ -92,7 +92,7 @@ mword *empty_string;
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 534
+#define NUM_INTERP_OPCODES 536
 
 // Operating-system compatibility
 #define WINDOWS
@@ -288,7 +288,7 @@ mword *empty_string;
     mword *result;                              \
                                                 \
     y                                           \
-    popd(x);                                  \
+    popd(x);                                    \
                                                 \
     pushd(x, result, IMMORTAL);                 \
                                                 \
@@ -301,7 +301,7 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    popd(x);                                  \
+    popd(x);                                    \
                                                 \
     return this_bvm;
 

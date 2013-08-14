@@ -194,5 +194,7 @@
     (ifop           (oper 0x212))
     (ordop          (oper 0x213))
     (let            (oper 0x214))
-    (split          (oper 0x215)))
+    (split          (oper 0x215))
+    (lusym          (oper 0x216))
+    (th             (oper 0x217)))
 

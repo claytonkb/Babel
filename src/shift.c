@@ -76,7 +76,7 @@ bvm_cache *curol(bvm_cache *this_bvm){
     mword *op0 = dstack_get(this_bvm,0);
     mword *op1 = dstack_get(this_bvm,1);
 
-    mword *result    = _newva(1);
+    mword *result    = _newva(0);
 
     mword tempA = (mword)icar(op1) << (mword)icar(op0);
     mword tempB = (mword)icar(op1) >> (MWORD_BIT_SIZE - (mword)icar(op0));
@@ -101,7 +101,7 @@ bvm_cache *curor(bvm_cache *this_bvm){
     mword *op0 = dstack_get(this_bvm,0);
     mword *op1 = dstack_get(this_bvm,1);
 
-    mword *result    = _newva(1);
+    mword *result    = _newva(0);
 
     mword tempA = (mword)icar(op1) >> (mword)icar(op0);
     mword tempB = (mword)icar(op1) << (MWORD_BIT_SIZE - (mword)icar(op0));

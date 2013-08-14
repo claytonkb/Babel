@@ -224,7 +224,7 @@ bvm_cache *sel(bvm_cache *this_bvm){ // sel#
 > `{X}| -> {X} {X}|`  
 > `[X]| -> [X] [X]|`  
 */
-bvm_cache *dup(bvm_cache *this_bvm){
+bvm_cache *dup(bvm_cache *this_bvm){ // dup#
 
 #define babel_dup_operator \
     result = dstack_get(this_bvm,0);
