@@ -653,19 +653,21 @@ mword rbs2gv(mword *bs, char *buffer){ // rbs2gv#
 **paste**
 > Writes into a bstruct.  
 >
-> `[X] [Y] (Z) paste`  
+> `[X] [Y] Z paste`  
 >
-> Writes X into bstruct Y according at the location found by traversing
-> the sequence of offsets specified in list Z.  
+> Writes Y into X at offset Z.  
 */
-bvm_cache *paste(bvm_cache *this_bvm){
+bvm_cache *paste(bvm_cache *this_bvm){ // paste#
 
-    fatal("stack fix not done");
-    _wrcxr(TOS_1(this_bvm),TOS_2(this_bvm),car(TOS_0(this_bvm)));
+    mword index = icar(dstack_get(this_bvm,0));
+    mword *src  = dstack_get(this_bvm,1);
+    mword *dest = dstack_get(this_bvm,2);
 
-    hard_zap(this_bvm);
-    swap(this_bvm);
-    hard_zap(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+
+    _wrcxr(dest,src,index);
 
     return this_bvm;
 
@@ -678,15 +680,19 @@ bvm_cache *paste(bvm_cache *this_bvm){
 > `[X] [Y] (0) paste`  
 > `[X] [Y] set`  
 */
-bvm_cache *set(bvm_cache *this_bvm){
+bvm_cache *set(bvm_cache *this_bvm){ // set#
 
-    mword *src  = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
-    mword *dest = get_from_stack( this_bvm, TOS_1( this_bvm ) ) ;
+    mword *src  = dstack_get(this_bvm,0);
+    mword *dest = dstack_get(this_bvm,1);
 
-    _dump(dest);
-    die;
+    popd(this_bvm);
+    popd(this_bvm);
 
-    *dest = *src;
+    if(is_leaf(src) && is_inte(dest) || is_leaf(dest) && is_inte(src)){
+        fatal("Both operands must be leaf-array or interior-array");
+    }
+
+    c(dest,0) = c(src,0);
 
     return this_bvm;
 
@@ -718,6 +724,72 @@ void _wrcxr(mword *dest, mword *src, mword offset){
 
 }
 
+
+// FIXME: Completely unsafe, no checking...
+/* bstruct operator
+**move**
+>
+> `[X] A [Y] B N move`  
+>
+> Writes N entries of Y from offset B into X at offset A.
+> X and Y may be the same array.
+*/
+bvm_cache *move(bvm_cache *this_bvm){ 
+
+    mword size       = icar(dstack_get(this_bvm,0));
+    mword src_index  = icar(dstack_get(this_bvm,1));
+    mword *src       = dstack_get(this_bvm,2);
+    mword dest_index = icar(dstack_get(this_bvm,3));
+    mword *dest      = dstack_get(this_bvm,4);
+
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+
+    //void * memmove ( void * destination, const void * source, size_t num );
+    memmove(dest+dest_index, src+src_index, (size_t)size*MWORD_SIZE);
+
+    return this_bvm;
+
+}
+
+
+
+
+// FIXME: Completely unsafe, no checking...
+/* bstruct operator
+**move8**
+>
+> `[X] A [Y] B N move`  
+>
+> Writes N entries of Y from offset B into X at offset A.
+> X and Y may be the same array.
+*/
+bvm_cache *move8(bvm_cache *this_bvm){ 
+
+    mword size       = icar(dstack_get(this_bvm,0));
+    mword src_index  = icar(dstack_get(this_bvm,1));
+    char  *src       = (char*)dstack_get(this_bvm,2);
+    mword dest_index = icar(dstack_get(this_bvm,3));
+    char  *dest      = (char*)dstack_get(this_bvm,4);
+
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+
+    //void * memmove ( void * destination, const void * source, size_t num );
+    memmove(dest+dest_index, src+src_index, (size_t)size);
+
+    return this_bvm;
+
+}
+
+
+// XXX DEPRECATE
 // TOS_0 offset
 // TOS_1 dest
 // TOS_2 src

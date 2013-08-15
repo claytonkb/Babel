@@ -1,8 +1,10 @@
 -- test.sp
 -- perl sparse.pl test.sp src/opcodes.sp src/construct.sp
 
-(   (main   ( code  (val 0xaa 0xbb 0xcc 0xdd) dup 2 th fnord ) )
+(   (main   ( code x 1 "World" 1 2 move8 x stdout8 ) )
 
-    (symbol (list nil)))
+    (symbol (list nil))
+
+    (x (val "Hello")))
 
 

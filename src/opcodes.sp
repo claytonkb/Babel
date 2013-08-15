@@ -196,5 +196,7 @@
     (let            (oper 0x214))
     (split          (oper 0x215))
     (lusym          (oper 0x216))
-    (th             (oper 0x217)))
+    (th             (oper 0x217))
+    (move           (oper 0x218))
+    (move8          (oper 0x219)))
 

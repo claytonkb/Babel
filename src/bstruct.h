@@ -20,6 +20,8 @@ void _recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v);
 mword _fn_recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v);
 //mword mem_usage(mword *bs);
 //mword _mem_usage(mword *bs, void *v);
+bvm_cache *move(bvm_cache *this_bvm);
+bvm_cache *move8(bvm_cache *this_bvm);
 
 mword _mu(mword *bs);
 mword _rmu(mword *bs, void *v);

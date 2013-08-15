@@ -237,13 +237,15 @@ bvm_cache* ciabs(bvm_cache *this_bvm){ // ciabs#
 */
 bvm_cache *ciadd_assign(bvm_cache *this_bvm){ // ciadd_assign#
 
-#define ciadd_assign_operator                   \
-    int result = (int)*op0 + (int)*op1;         \
-    *op1 = (mword)result;                       \
+    mword *op0 = dstack_get(this_bvm,0);
+    mword *op1 = dstack_get(this_bvm,1);
 
-    babel_operator_typeE(
-            this_bvm,
-            ciadd_assign_operator);
+    popd(this_bvm);
+
+    int result = (int)*op0 + (int)*op1;
+    *op1 = (mword)result;
+
+    return this_bvm;
 
 }
 
@@ -255,13 +257,17 @@ bvm_cache *ciadd_assign(bvm_cache *this_bvm){ // ciadd_assign#
 */
 bvm_cache *cisub_assign(bvm_cache *this_bvm){ // cisub_assign#
 
-#define cisub_assign_operator                   \
-    int result = (int)*op0 - (int)*op1;         \
-    *op1 = (mword)result;                       \
+    mword *op0 = dstack_get(this_bvm,0);
+    mword *op1 = dstack_get(this_bvm,1);
 
-    babel_operator_typeE(
-            this_bvm,
-            cisub_assign_operator);
+    popd(this_bvm);
+
+    int result = (int)*op0 - (int)*op1;
+    *op1 = (mword)result;
+
+    //remove_from_udr_stack(this_bvm->dstack_ptr,1);
+
+    return this_bvm;
 
 }
 
