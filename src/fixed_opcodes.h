@@ -638,7 +638,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     rsvd,
     stdinln,
     rsvd,
-    nhref,
+    rsvd,
     andop,
     orop,
     notop,
@@ -694,7 +694,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
 
 
     //210
-    nhword,
+    rsvd,
     //deref,
     rsvd,
     ifop,
@@ -705,6 +705,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     th,
     move,
     move8,
+    insls,
 
 };
 

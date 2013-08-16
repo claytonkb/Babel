@@ -32,8 +32,8 @@ mword _rnlf(mword *bs, void *v);
 mword _nin(mword *bs);
 mword _rnin(mword *bs, void *v);
 
-mword _ntls(mword *bs);
-mword _rntls(mword *bs, void *v);
+mword _ntag(mword *bs);
+mword _rntag(mword *bs, void *v);
 
 mword _nva(mword *bs);
 mword _rnva(mword *bs, void *v);
@@ -62,9 +62,9 @@ bvm_cache *nlf(bvm_cache *this_bvm);
 //mword _nlf(mword *bs);
 //mword _rnlf(mword *bs);
 
-bvm_cache *nhref(bvm_cache *this_bvm);
-mword _nhref(mword *bs);
-mword _rnhref(mword *bs);
+//bvm_cache *nhref(bvm_cache *this_bvm);
+//mword _nhref(mword *bs);
+//mword _rnhref(mword *bs);
 
 bvm_cache *bs2gv(bvm_cache *this_bvm);
 mword *_bs2gv(mword *bs);

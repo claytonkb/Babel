@@ -62,15 +62,8 @@ data, even though it appears random._
 > `{"string"}| -> {w x y z}|`  
 > A hash is 4 mwords in size  
 */
-bvm_cache *hash8(bvm_cache *this_bvm){
+bvm_cache *hash8(bvm_cache *this_bvm){ // hash8#
 
-//    fatal("stack fix not done");
-//    mword *result = _hash8(TOS_0(this_bvm));
-//
-//    hard_zap(this_bvm);
-//    push_alloc(this_bvm, (mword*)result, MORTAL);
-//
-//    return this_bvm;
     mword *key = getd(this_bvm,0);
 
     mword *result = _hash8(key);

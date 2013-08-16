@@ -248,27 +248,6 @@ bvm_cache *loop(bvm_cache *this_bvm){
 
     return this_bvm;
 
-//    fatal("stack fix not done");
-//    mword *body = TOS_0(this_bvm);
-//    hard_zap(this_bvm);
-//
-//    mword *temp = _newin(LOOP_RSTACK_ENTRIES);
-//
-//    mword *iter_temp = new_atom;
-//    *iter_temp = 0;
-//
-//    (mword*)c(temp,LOOP_RSTACK_BODY)   = body;
-//            c(temp,LOOP_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
-//    (mword*)c(temp,LOOP_RSTACK_ITER)   = iter_temp;
-//
-//    push_alloc_rstack(this_bvm, temp, LOOP);
-//
-//    icar(this_bvm->advance_type) = BVM_CONTINUE;
-//
-//    this_bvm->code_ptr = body;
-//
-//    return this_bvm;
-
 }
 
 /* flow-control operator

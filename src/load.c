@@ -188,16 +188,6 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword elem){
 // babel_operator
 bvm_cache *unload(bvm_cache *this_bvm){
 
-//    fatal("stack fix not done");
-//    mword *result = _unload(TOS_0(this_bvm));
-////    d(TOS_0)
-////    die
-////    TOS_0 = TOS_0 + MWORD_SIZE;
-//
-//    zap(this_bvm);
-//    push_alloc(this_bvm, result, MORTAL);
-//
-
     mword *op0 = dstack_get(this_bvm,0);//, size(dstack_get(this_bvm,0)));
     popd(this_bvm);
     mword *result   = _unload(op0);
@@ -218,7 +208,7 @@ mword *_unload(mword *bs){//, mword offset){
     mword bs_size     = _mu   (bs);
     mword num_arrays  = _nin  (bs);
           num_arrays += _nlf  (bs);
-          num_arrays += _ntls (bs);
+          num_arrays += _ntag (bs);
 
     mword *dest      = _newlf(bs_size);
     mword *LUT_abs   = _newin(num_arrays);

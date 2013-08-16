@@ -10,6 +10,29 @@
 #include "bstruct.h"
 #include "tptr.h"
 
+
+/* list operator
+**ins**  
+> Inserts one list into another
+> `X Y ins| -> X with Y inserted after first list element`
+*/
+bvm_cache *insls(bvm_cache *this_bvm){ // insls#
+
+    mword *src_list  = dstack_get(this_bvm,0);
+    mword *dest_list = dstack_get(this_bvm,1); // XXX: User-dependent
+    popd(this_bvm);
+
+    mword *end_src_list   = _list_end(src_list);
+    mword *next_dest_list = (mword*)icdr(dest_list);
+
+    (mword*)c(dest_list,1) = src_list;
+    (mword*)c(end_src_list,1)  = next_dest_list;
+
+    return this_bvm;
+
+}
+
+
 //
 //
 inline mword *_unshift(mword *list, mword *bs){ // _unshift#
@@ -80,13 +103,13 @@ inline mword *_pop(mword *list){ // _pop#
 >  
 > Equivalent to: 0 cxr (see above)  
 */
-bvm_cache *carindex(bvm_cache *this_bvm){
+bvm_cache *carindex(bvm_cache *this_bvm){ // carindex#
     
-    fatal("stack fix not done");
-    mword *car_TOS_0 = (mword*)scar(TOS_0(this_bvm));
+    //FIXME: Exception if used on leaf-array
+    mword *result = (mword*)car(dstack_get(this_bvm,0));
+    popd(this_bvm);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, car_TOS_0, IMMORTAL); //FIXME: Depends
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -100,13 +123,13 @@ bvm_cache *carindex(bvm_cache *this_bvm){
 > `[cons(X,Y)]| -> {Y}|`    
 > `[cons(X,Y)]| -> [Y]|`    
 */
-bvm_cache *cdrindex(bvm_cache *this_bvm){
+bvm_cache *cdrindex(bvm_cache *this_bvm){ // cdrindex#
 
-    fatal("stack fix not done");
-    mword *cdr_TOS_0 = (mword*)scdr(TOS_0(this_bvm));
+    //FIXME: Exception if used on leaf-array
+    mword *result = (mword*)cdr(dstack_get(this_bvm,0));
+    popd(this_bvm);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, cdr_TOS_0, IMMORTAL); // FIXME: Depends
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -121,17 +144,12 @@ bvm_cache *cdrindex(bvm_cache *this_bvm){
 >  
 > For all X != nil  
 */
-bvm_cache *isnil(bvm_cache *this_bvm){
+bvm_cache *isnil(bvm_cache *this_bvm){ // isnil#
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-    
-    *result = is_nil(TOS_0(this_bvm));
+    mword *result = _newva(is_nil(dstack_get(this_bvm,0)));
+    popd(this_bvm);
 
-//    d(car((mword*)TOS_0(this_bvm)))
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -147,15 +165,15 @@ bvm_cache *isnil(bvm_cache *this_bvm){
 > `[X] [Y] cons car`     Leaves `[X]` on TOS  
 > `[X] [Y] cons cdr`     Leaves `[Y]` on TOS  
 */
-bvm_cache *consls(bvm_cache *this_bvm){
+bvm_cache *consls(bvm_cache *this_bvm){ // consls#
 
-    mword *result = new_atom;
-    (mword*)*result = _consls(TOS_1(this_bvm), TOS_0(this_bvm));
+    mword *result = consa(
+                        dstack_get(this_bvm,1),
+                        dstack_get(this_bvm,0));
+    popd(this_bvm);
+    popd(this_bvm);
 
-    hard_zap(this_bvm);
-    hard_zap(this_bvm);
-
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -193,21 +211,25 @@ mword *consa(mword *car_field, mword *cdr_field){ // consa#
 > Undoes cons  
 > `[cons(X, Y)]| -> [X] [Y]|`    
 */
-bvm_cache *uncons(bvm_cache *this_bvm){
+bvm_cache *uncons(bvm_cache *this_bvm){ // uncons#
 
-    fatal("stack fix not done");
-    //FIXME: No checking...
-    mword *temp_car = (mword*)car(TOS_0(this_bvm));
-    mword *temp_cdr = (mword*)cdr(TOS_0(this_bvm));
+    mword *op0 = dstack_get(this_bvm,0);
+    popd(this_bvm);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, temp_car, IMMORTAL); //FIXME: Depends
-    push_alloc(this_bvm, temp_cdr, IMMORTAL); //FIXME: Depends
+    mword *temp_car = (mword*)car(op0);
+    mword *temp_cdr = (mword*)cdr(op0);
+
+    pushd(this_bvm, temp_car, IMMORTAL);
+    pushd(this_bvm, temp_cdr, IMMORTAL);
 
     return this_bvm;
 
+
 }
 
+
+//
+//
 bvm_cache *list_end(bvm_cache *this_bvm){
 
 }
@@ -226,7 +248,7 @@ mword *_list_end(mword *list){ // _list_end#
 
 mword *_list_next_to_end(mword *list){
 
-    while(!is_nil(scdr(scdr(list)))){
+    while(!is_nil(cdr(cdr(list)))){
         list = (mword*)cdr(list);
     }
     return list;
@@ -317,8 +339,6 @@ bvm_cache *shift(bvm_cache *this_bvm){ // shift#
     mword *shifted = (mword*)c(endls,1);
     (mword*)c(endls,1) = nil;
 
-//    push_alloc(this_bvm, temp, IMMORTAL); //FIXME: Depends
-
     pushd(this_bvm, shifted, IMMORTAL);
 
     return this_bvm;
@@ -330,7 +350,7 @@ bvm_cache *shift(bvm_cache *this_bvm){ // shift#
 **len** (##)  
 > List length  
 */
-bvm_cache *len(bvm_cache *this_bvm){ 
+bvm_cache *len(bvm_cache *this_bvm){ // len#
 
     mword *list = getd(this_bvm,0);
     mword *result = _newva( _len( list ) );
@@ -341,8 +361,10 @@ bvm_cache *len(bvm_cache *this_bvm){
 
 }
 
+
 //
-mword _len(mword *list){
+//
+mword _len(mword *list){ // _len#
 
     mword length = 0;
 
@@ -355,6 +377,7 @@ mword _len(mword *list){
 
 }
 
+
 /* list operator
 **bons**  
 > Undoes `ar2ls` on an interior-array.  
@@ -362,7 +385,7 @@ mword _len(mword *list){
 > Mnemonic: "Babel cons"... since it's like consing together an entire list 
 > into an "oversize" cons box.  
 */
-bvm_cache *bons(bvm_cache *this_bvm){
+bvm_cache *bons(bvm_cache *this_bvm){ // bons#
 
     mword *list = getd(this_bvm,0);
     mword *result = _bons(list);
@@ -373,8 +396,10 @@ bvm_cache *bons(bvm_cache *this_bvm){
 
 }
 
+
 //
-mword *_bons(mword *list){
+//
+mword *_bons(mword *list){ // _bons#
 
     mword *arr = _newin(_len(list));
 
@@ -390,18 +415,12 @@ mword *_bons(mword *list){
 
 }
 
+
 /* list operator
 **ls2lf**  
 > Undoes `ar2ls` on a leaf-array  
 */
-bvm_cache *ls2lf(bvm_cache *this_bvm){
-
-//    fatal("stack fix not done");
-//    mword *result = _ls2lf(TOS_0(this_bvm));
-//
-//    zap(this_bvm);
-//
-//    push_alloc(this_bvm, result, MORTAL);
+bvm_cache *ls2lf(bvm_cache *this_bvm){ // ls2lf#
 
     mword *list = getd(this_bvm,0);
     mword *result = _ls2lf(list);
@@ -412,8 +431,10 @@ bvm_cache *ls2lf(bvm_cache *this_bvm){
 
 }
 
+
 //
-mword *_ls2lf(mword *list){
+//
+mword *_ls2lf(mword *list){ // _ls2lf#
 
     mword *arr = _newlf(_len(list));
 
@@ -432,8 +453,6 @@ mword *_ls2lf(mword *list){
 }
 
 
-
-
 /* list operator
 **ith**  
 > Returns the ith element of a list.  Same as th operator, except for 
@@ -442,7 +461,7 @@ mword *_ls2lf(mword *list){
 >
 > `('a' 'b' 'c' 'd') 2 ith --> leaves 'c' on TOS`    
 */
-bvm_cache *ith(bvm_cache *this_bvm){
+bvm_cache *ith(bvm_cache *this_bvm){ // ith#
 
     mword *list  = getd(this_bvm,1);
     mword *index = getd(this_bvm,0);
@@ -454,6 +473,7 @@ bvm_cache *ith(bvm_cache *this_bvm){
     return this_bvm;
 
 }
+
 
 //
 //
@@ -508,18 +528,11 @@ mword *_walk(mword *bs, mword *walk_list){
 **rev**  
 > `(1 2 3) rev -> leaves (3 2 1) on TOS`    
 */
-bvm_cache *reverse(bvm_cache *this_bvm){
+bvm_cache *reverse(bvm_cache *this_bvm){ // reverse#
 
-//    fatal("stack fix not done");
-//    mword *list = TOS_0(this_bvm);
-//
-//    hard_zap(this_bvm);
-//
-//    mword *result = _reverse(this_bvm,(mword*)list,nil);
-//
-//    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends
+    mword *list = dstack_get(this_bvm,0);
+    popd(this_bvm);
 
-    mword *list = getd(this_bvm,0);
     mword *result = _reverse(list,nil);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -530,7 +543,8 @@ bvm_cache *reverse(bvm_cache *this_bvm){
 
 
 //
-mword *_reverse(mword *list, mword *new_cdr){
+//
+mword *_reverse(mword *list, mword *new_cdr){ // _reverse#
 
     mword *temp = (mword*)cdr(list);
 
@@ -556,9 +570,6 @@ bvm_cache *split(bvm_cache *this_bvm){ // split#
     mword *indices  = getd(this_bvm,0);
 
     mword *result = _split(list, indices);
-
-//    popd(this_bvm);
-//    popd(this_bvm);
 
     pushd(this_bvm, result, IMMORTAL);
 

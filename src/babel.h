@@ -69,7 +69,6 @@ mword *empty_string;
 // The LSB of the s-field is currently defined for use in 
 // bstruct-traversal
 
-
 #define CTL_MASK (MWORD_SIZE-1) // CTL_MASK#
 #define STRLEN(s) (sizeof(s)-1) // STRLEN#
 #define C2B(x)    (_c2b(x, STRLEN(x))) // C2B#
@@ -92,7 +91,7 @@ mword *empty_string;
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 538
+#define NUM_INTERP_OPCODES 539
 
 // Operating-system compatibility
 #define WINDOWS

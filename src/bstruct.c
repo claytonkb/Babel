@@ -122,9 +122,22 @@ mword _fn_recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){ // _fn_recurse#
 >
 > This operator is recursive  
 */
+//NOTE: If the expected total is off by 7, don't forget to 
+//count nil...
+bvm_cache *mu(bvm_cache *this_bvm){
+
+    mword *result = _newva(_mu(dstack_get(this_bvm,0)));
+    popd(this_bvm);
+
+    pushd(this_bvm, result, MORTAL);
+
+    return this_bvm;
+
+}
+
 
 // _mu -> memory usage (mnemonic: *nix du)
-// _mu(x) = _nin(x) + _nlf(x) + _ntls(x)*(HASH_SIZE+1) + _nptr(x) + _nva(x)
+// _mu(x) = _nin(x) + _nlf(x) + _ntag(x)*(HASH_SIZE+1) + _nptr(x) + _nva(x)
 //
 mword _mu(mword *bs){ // _mu#
 
@@ -157,6 +170,21 @@ mword _rmu(mword *bs, void *v){ // _rmu#
 >
 > This operator is recursive  
 */
+//
+// babel_operator
+bvm_cache *nlf(bvm_cache *this_bvm){
+
+    fatal("stack fix not done");
+    mword *result    = new_atom;
+
+    *result = _nlf(TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, MORTAL);
+
+    return this_bvm;
+
+}
 
 // _nlf -> number of leaf-arrays
 //
@@ -190,6 +218,21 @@ mword _rnlf(mword *bs, void *v){ // _rnlf#
 >
 > This operator is recursive  
 */
+//
+// babel_operator
+bvm_cache *nin(bvm_cache *this_bvm){
+
+    fatal("stack fix not done");
+    mword *result    = new_atom;
+
+    *result = _nin(TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, MORTAL);
+
+    return this_bvm;
+
+}
 
 // _nin -> number of interior-arrays
 //
@@ -219,19 +262,19 @@ mword _rnin(mword *bs, void *v){ // _rnin#
 > Returns the total number of tags in the object on TOS  
 */
 
-// _ntls -> number of tagged-lists
+// _ntag -> number of tagged-lists
 //
-mword _ntls(mword *bs){ // _ntls#
+mword _ntag(mword *bs){ // _ntag#
 
     mword counter=0;
-    _recurse(bs, _rntls, &counter);
+    _recurse(bs, _rntag, &counter);
     return counter;
 
 }
 
 //
 //
-mword _rntls(mword *bs, void *v){ // _rntls#
+mword _rntag(mword *bs, void *v){ // _rntag#
 
     if( is_tptr(bs) ){
         *v += 1;
@@ -250,6 +293,22 @@ mword _rntls(mword *bs, void *v){ // _rntls#
 >
 > This operator is recursive  
 */
+//
+// babel_operator
+bvm_cache *nva(bvm_cache *this_bvm){
+
+    fatal("stack fix not done");
+    mword *result    = new_atom;
+
+    *result = _nva(TOS_0(this_bvm));
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, MORTAL);
+
+    return this_bvm;
+
+}
+
 
 // _nva -> number of values
 //
@@ -260,6 +319,7 @@ mword _nva(mword *bs){ // _nva#
     return counter;
 
 }
+
 
 //
 //
@@ -283,6 +343,17 @@ mword _rnva(mword *bs, void *v){ // _rnva#
 >
 > This operator is recursive  
 */
+bvm_cache *npt(bvm_cache *this_bvm){
+
+    fatal("stack fix not done");
+    mword *result    = new_atom;
+
+    hard_zap(this_bvm);
+    push_alloc(this_bvm, result, MORTAL);
+
+    return this_bvm;
+
+}
 
 
 // _nptr -> number of pointers
@@ -471,15 +542,12 @@ mword rbbl2str(mword *bs, char *buffer){
 //
 bvm_cache *bs2gv(bvm_cache *this_bvm){ // bs2gv#
 
-    mword *result = _bs2gv(dstack_get(this_bvm,0));
+    mword *result = dstack_get(this_bvm,0);
+    popd(this_bvm);
 
-    zapd(this_bvm,0); //FIXME: Breaks loops
+    result = _bs2gv(result);
 
     pushd( this_bvm, result, IMMORTAL );
-
-//    _stdoutop8(TOS_0(this_bvm));
-//    _dump(this_bvm->dstack_ptr);
-//    die;
 
     return this_bvm;
 
@@ -796,7 +864,7 @@ bvm_cache *move8(bvm_cache *this_bvm){
 // babel_operator
 bvm_cache *paste8(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
+    fatal("DEPRECATED");
     _wrcxr8(TOS_1(this_bvm),TOS_2(this_bvm),car(TOS_0(this_bvm)));
 
     hard_zap(this_bvm);
@@ -807,7 +875,7 @@ bvm_cache *paste8(bvm_cache *this_bvm){
 
 }
 
-//
+// XXX DEPRECATED
 void _wrcxr8(mword *dest, mword *src, mword offset){
 
     mword dest_size = _arlen8(dest);
@@ -840,20 +908,19 @@ void _wrcxr8(mword *dest, mword *src, mword offset){
 **trav** (@)
 > Traverses a bstruct.  
 >
-> `[X] [(Y)] trav`  
+> `X (Y) trav`  
 >
 > Traverses bstruct X according to the sequence of offsets specified 
 > in list Y. Performs an iterated `th`.  
 */
 bvm_cache *trav(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result = _trav(TOS_1(this_bvm),TOS_0(this_bvm));
+    // XXX BROKEN
+    mword *result = _trav(dstack_get(this_bvm,1),dstack_get(this_bvm,0));
+    popd(this_bvm);
+    popd(this_bvm);
 
-    hard_zap(this_bvm);
-    hard_zap(this_bvm);
-
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Depends on inputs
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -873,398 +940,6 @@ mword *_trav(mword *bs, mword *trav_list){
 
 }
 
-//
-// babel_operator
-bvm_cache *mu(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = _mu(TOS_0(this_bvm));
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
-
-//    printf("size %d\n", size_tree(global_VM));
-
-}
-
-//// Returns the size of a bstruct in mwords
-//// mu -> mem usage (mnemonic: *nix du)
-//mword _mu(mword *bs){
-//
-//    mword size = _rmu(bs);
-//    rclean(bs);
-//
-//    return size;
-//
-//}
-//
-////
-////
-//mword _rmu(mword *bs){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( TRAVERSED(bs) ){
-//        return 0;
-//    }
-//
-//    int num_elem = size(bs);
-//    count = num_elem + 1;
-//
-//    if(is_inte(bs)){
-//        MARK_TRAVERSED(bs);
-//        for(i=0; i<num_elem; i++){
-//            count += _rmu((mword *)*(bs+i));
-//        }
-//    }
-//    else if(is_leaf(bs)){
-//
-//        MARK_TRAVERSED(bs);
-//
-//    }
-//    else{ //tptr
-//        MARK_TRAVERSED(bs);
-//
-//        count += HASH_SIZE;
-//        count += _rmu(bs+HASH_SIZE+1);
-//
-//    }
-//
-//    return count;
-//
-//}
-
-
-//
-// babel_operator
-bvm_cache *nlf(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = _nlf(TOS_0(this_bvm));
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
-
-}
-
-////
-//mword _nlf(mword *bs){
-//
-//    mword size = _rnlf(bs);
-//    rclean(bs);
-//
-//    return size;
-//
-//}
-//
-////
-//mword _rnlf(mword *bs){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( TRAVERSED(bs) ){
-//        return 0;
-//    }
-//
-//    if(is_inte(bs)){
-//        int num_elem = size(bs);
-//        MARK_TRAVERSED(bs);
-//        for(i=0; i<num_elem; i++){
-//            count += _rnlf((mword *)*(bs+i));
-//        }
-//    }
-////    else if(is_href(bs)){
-////        MARK_TRAVERSED(bs);
-////        count = 0;
-////    }
-//    else if(is_leaf(bs)){ // is_leaf
-//        MARK_TRAVERSED(bs);
-//        count = 1;
-//    }
-//
-//    return count;
-//
-//}
-
-//
-// babel_operator
-bvm_cache *nhref(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = _nhref(TOS_0(this_bvm));
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
-
-}
-
-//
-mword _nhref(mword *bs){
-
-    mword size = _rnhref(bs);
-    rclean(bs);
-
-    return size;
-
-}
-
-//
-mword _rnhref(mword *bs){
-
-    int i;
-    mword count = 0;
-
-    if( TRAVERSED(bs) ){
-        return 0;
-    }
-
-    if(is_inte(bs)){
-        int num_elem = size(bs);
-        MARK_TRAVERSED(bs);
-        for(i=0; i<num_elem; i++){
-            count += _rnhref((mword *)*(bs+i));
-        }
-    }
-//    else if(is_href(bs)){
-//        MARK_TRAVERSED(bs);
-//        count = 1;
-//    }
-    else if(is_leaf(bs)){
-        MARK_TRAVERSED(bs);
-        count = 0;
-    }
-
-
-    return count;
-
-}
-
-//
-// babel_operator
-bvm_cache *nin(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = _nin(TOS_0(this_bvm));
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
-
-}
-
-////
-//mword _nin(mword *bs){
-//
-//    mword size = _rnin(bs);
-//    rclean(bs);
-//
-//    return size;
-//
-//}
-//
-////
-//mword _rnin(mword *bs){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( TRAVERSED(bs) ){
-//        return 0;
-//    }
-//
-////    if(is_leaf(bs) || is_href(bs)){
-//    if(is_leaf(bs)){
-//        MARK_TRAVERSED(bs);
-//        count = 0;
-//    }
-//    else{
-//        int num_elem = size(bs);
-//        MARK_TRAVERSED(bs);
-//        for(i=0; i<num_elem; i++){
-//            count += _rnin((mword *)*(bs+i));
-//        }
-//        count++;
-//    }
-//
-//    return count;
-//
-//}
-
-//
-// babel_operator
-bvm_cache *nva(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = _nva(TOS_0(this_bvm));
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
-
-}
-
-////
-//mword _nva(mword *bs) {
-//
-//    mword size = _rnva(bs);
-//    rclean(bs);
-//
-//    return size;
-//
-//}
-//
-//// 
-//mword _rnva(mword *bs){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( TRAVERSED(bs) ){
-//        return 0;
-//    }
-//
-//    int num_elem = size(bs);
-//
-//    if(is_inte(bs)){
-//        MARK_TRAVERSED(bs);
-//        for(i=0; i<num_elem; i++){
-//            count += _rnva((mword *)*(bs+i));
-//        }
-//    }
-//    else if(is_leaf(bs)){
-//        count = num_elem;
-//    }
-//
-//    return count;
-//
-//}
-
-
-//
-// babel_operator
-bvm_cache *nhword(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-    *result = _nhword(TOS_0(this_bvm));
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
-
-}
-
-//
-mword _nhword(mword *bs) {
-
-    mword size = _rnhword(bs);
-    rclean(bs);
-
-    return size;
-
-}
-
-// 
-mword _rnhword(mword *bs){
-
-    int i;
-    mword count = 0;
-
-    if( TRAVERSED(bs) ){
-        return 0;
-    }
-
-    if(is_inte(bs)){
-        int num_elem = size(bs);
-        MARK_TRAVERSED(bs);
-        for(i=0; i<num_elem; i++){
-            count += _rnhword((mword *)*(bs+i));
-        }
-    }
-//    else if(is_href(bs)){
-//        count = size(bs);
-//        MARK_TRAVERSED(bs);
-//    }
-    else if(is_leaf(bs)){
-        MARK_TRAVERSED(bs);
-        count = 0;
-    }
-
-    return count;
-
-}
-
-
-//
-// babel_operator
-bvm_cache *npt(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *result    = new_atom;
-
-//    *result = _npt(TOS_0(this_bvm));
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
-
-}
-
-////
-//mword _npt(mword *bs) {
-//
-//    mword size = _rnpt(bs);
-//    rclean(bs);
-//
-//    return size;
-//
-//}
-//
-//// 
-//mword _rnpt(mword *bs){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( TRAVERSED(bs) ){
-//        return 0;
-//    }
-//
-//    if(is_inte(bs)){
-//        int num_elem = size(bs);
-//        MARK_TRAVERSED(bs);
-//        for(i=0; i<num_elem; i++){
-//            count += _rnpt((mword *)*(bs+i));
-//        }
-//        count += num_elem;
-//    }
-//
-//    return count;
-//
-//}
 
 /* bstruct operator
 **cp**
@@ -1282,14 +957,6 @@ bvm_cache *npt(bvm_cache *this_bvm){
 */
 bvm_cache *cp(bvm_cache *this_bvm){
 
-//    fatal("stack fix not done");
-//    mword *result = _unload(TOS_0(this_bvm));
-//    hard_zap(this_bvm);
-//
-//    push_alloc(this_bvm, result, IMMORTAL);
-//
-//    load(this_bvm);
-
     mword *bs  = get_from_udr_stack(this_bvm,this_bvm->dstack_ptr,0);
 
     mword *result = _unload(bs);
@@ -1306,7 +973,7 @@ bvm_cache *cp(bvm_cache *this_bvm){
 //
 bvm_cache *ducp(bvm_cache *this_bvm){
 
-    fatal("deprecated");
+    fatal("XXX DEPRECATED");
     mword *temp = TOS_0(this_bvm);
 
     zap(this_bvm);
@@ -1341,12 +1008,11 @@ bvm_cache *span(bvm_cache *this_bvm){
 
 //Creates an interior array with one pointer to each array
 //in a bstruct
-//TODO: Look into re-writing load/unload to utilize bs2ar...
 mword *_bs2ar(mword *bs){
 
     mword num_arrays  = _nin  (bs);
           num_arrays += _nlf  (bs);
-          num_arrays += _nhref(bs);
+//          num_arrays += _nhref(bs);
 
     mword *arr_list = _newin(num_arrays);
     mword offset = 0;

@@ -11,6 +11,7 @@ mword *_list_cut(mword *list, mword index);
 mword *_append(mword *lists);
 mword *_append_direct(mword *head_list, mword *tail_list);
 
+bvm_cache *insls(bvm_cache *this_bvm);
 
 inline mword *_push(mword *list, mword *bs);
 inline mword *_pop(mword *list);

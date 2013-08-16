@@ -354,7 +354,7 @@ sub encode_values{
 
     foreach my $value (@values){
 
-        if($value =~ /^(\s*-?[1-9][0-9]*)$/ or $value =~ /^(\s*0+)[^x]$/ ){
+        if($value =~ /^(0)$/ or $value =~ /^(\s*-?[1-9][0-9]*)$/ or $value =~ /^(\s*0+)[^x]$/ ){
             push @{$value_list}, 1+$1-1; #FORCE Perl to treat it as numeric
             $$offset += 1;
         }
@@ -379,6 +379,7 @@ sub encode_values{
             $$offset += ($#str_vec+1);
         }
         elsif($value =~ /^($section_name)$/){
+            print ".$value.\n";
             die;
         }
         else{
@@ -473,7 +474,7 @@ sub encode_pointers{
 
         if(ref($pointer) eq ""){
         
-            if(is_value($pointer)){
+            if(is_value($pointer) or (is_value($pointer) == 0)){
                 $pointer_list->[$i] = $MWORD_SIZE*($$offset+1);
                 $encoded = encode_values(["val", $pointer], $offset, 1);
                 push (@{$pointer_list}, $_) for (@{$encoded});
@@ -538,6 +539,7 @@ sub encode_list{
         if(ref($element) eq ""){
 
             if(is_value($element)){
+                #print "value: " . is_value($element);
                 $element_list->[$car] = $MWORD_SIZE*($$offset+1);
                 $encoded = encode_values(["val", $element], $offset, 1);
                 push (@{$element_list}, $_) for (@{$encoded});
@@ -725,6 +727,7 @@ sub encode_code_list{
         if(ref($element) eq ""){
 
             if(is_value($element)){
+                #print "value: " . is_value($element);
                 $element_list->[$car] = $MWORD_SIZE*($$offset+1);
                 $encoded = encode_pointers($symbol_table, $addr_lut, $section_name, $offset, ["ptr", ["val", $element]]);
                 push (@{$element_list}, $_) for (@{$encoded});

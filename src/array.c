@@ -828,7 +828,6 @@ mword *_ar2ls(mword *arr){ // _ar2ls#
 */
 bvm_cache *perm(bvm_cache *this_bvm){ // perm#
 
-//    fatal("stack fix not done");
     mword *result;
 
     mword *src_array   = dstack_get(this_bvm,1);

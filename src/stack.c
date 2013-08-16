@@ -393,7 +393,6 @@ bvm_cache *depth(bvm_cache *this_bvm){ // depth#
 */
 bvm_cache *give(bvm_cache *this_bvm){ // give#
 
-//    fatal("stack fix not done");
     mword *list = dstack_get(this_bvm,0);
     popd(this_bvm);
 
@@ -438,7 +437,6 @@ bvm_cache *clear(bvm_cache *this_bvm){ // clear#
 */
 bvm_cache *flip(bvm_cache *this_bvm){ // flip#
 
-//    fatal("stack fix not done");
     mword *temp          = this_bvm->dstack_ptr;
     this_bvm->dstack_ptr  = this_bvm->ustack_ptr;
     this_bvm->ustack_ptr = temp;

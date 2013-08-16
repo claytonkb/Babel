@@ -363,7 +363,7 @@ bvm_cache *hex2cu(bvm_cache *this_bvm){ // hex2cu#
     memcpy(result, buffer, size);                       \
     c(result,arlength-1) = alignment_word8(size);       \
                                                         \
-    zapd(this_bvm,0);                                   \
+    popd(this_bvm);                                     \
     pushd( this_bvm, result, IMMORTAL );                \
 
 /* string operator

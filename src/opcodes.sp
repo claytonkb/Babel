@@ -130,7 +130,7 @@
     (swap           (oper 0x19e))
     (sel            (oper 0x19f))
 
-    (consls         (oper 0x1a8))
+    (cons           (oper 0x1a8))
     (car            (oper 0x1a9))
     (push           (oper 0x1aa))
     (dup            (oper 0x1ab))
@@ -180,7 +180,7 @@
     (bvmcode        (oper 0x203))
     (ifte           (oper 0x204))
     (bvmustack      (oper 0x205))
-    (reverse        (oper 0x206))
+    (rev            (oper 0x206))
     (boilerplate    (oper 0x207))
     (paste8         (oper 0x208))
     (iter           (oper 0x209))
@@ -198,5 +198,6 @@
     (lusym          (oper 0x216))
     (th             (oper 0x217))
     (move           (oper 0x218))
-    (move8          (oper 0x219)))
+    (move8          (oper 0x219))
+    (ins            (oper 0x21a)))
 
