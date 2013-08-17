@@ -14,6 +14,7 @@
 #include "hash.h"
 #include "alloc.h"
 #include "tptr.h"
+#include "string.h"
 
 /* bstruct operator
 **unload**
@@ -124,7 +125,7 @@ mword _fn_recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){ // _fn_recurse#
 */
 //NOTE: If the expected total is off by 7, don't forget to 
 //count nil...
-bvm_cache *mu(bvm_cache *this_bvm){
+bvm_cache *mu(bvm_cache *this_bvm){ // mu#
 
     mword *result = _newva(_mu(dstack_get(this_bvm,0)));
     popd(this_bvm);
@@ -170,17 +171,12 @@ mword _rmu(mword *bs, void *v){ // _rmu#
 >
 > This operator is recursive  
 */
-//
-// babel_operator
-bvm_cache *nlf(bvm_cache *this_bvm){
+bvm_cache *nlf(bvm_cache *this_bvm){ // nlf#
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
+    mword *result = _newva(_nlf(dstack_get(this_bvm,0)));
+    popd(this_bvm);
 
-    *result = _nlf(TOS_0(this_bvm));
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -218,17 +214,12 @@ mword _rnlf(mword *bs, void *v){ // _rnlf#
 >
 > This operator is recursive  
 */
-//
-// babel_operator
-bvm_cache *nin(bvm_cache *this_bvm){
+bvm_cache *nin(bvm_cache *this_bvm){ // nin#
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
+    mword *result = _newva(_nin(dstack_get(this_bvm,0)));
+    popd(this_bvm);
 
-    *result = _nin(TOS_0(this_bvm));
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -261,6 +252,16 @@ mword _rnin(mword *bs, void *v){ // _rnin#
 > "Number of tags"  
 > Returns the total number of tags in the object on TOS  
 */
+bvm_cache *ntag(bvm_cache *this_bvm){ // ntag#
+
+    mword *result = _newva(_ntag(dstack_get(this_bvm,0)));
+    popd(this_bvm);
+
+    pushd(this_bvm, result, MORTAL);
+
+    return this_bvm;
+
+}
 
 // _ntag -> number of tagged-lists
 //
@@ -293,17 +294,12 @@ mword _rntag(mword *bs, void *v){ // _rntag#
 >
 > This operator is recursive  
 */
-//
-// babel_operator
-bvm_cache *nva(bvm_cache *this_bvm){
+bvm_cache *nva(bvm_cache *this_bvm){ // nva#
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
+    mword *result = _newva(_nva(dstack_get(this_bvm,0)));
+    popd(this_bvm);
 
-    *result = _nva(TOS_0(this_bvm));
-
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -343,13 +339,12 @@ mword _rnva(mword *bs, void *v){ // _rnva#
 >
 > This operator is recursive  
 */
-bvm_cache *npt(bvm_cache *this_bvm){
+bvm_cache *npt(bvm_cache *this_bvm){ // npt#
 
-    fatal("stack fix not done");
-    mword *result    = new_atom;
+    mword *result = _newva(_nptr(dstack_get(this_bvm,0)));
+    popd(this_bvm);
 
-    hard_zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -430,7 +425,7 @@ mword *_cp(mword *bs){ // _cp#
 
 //
 // babel_operator
-bvm_cache *bbl2str(bvm_cache *this_bvm){
+bvm_cache *bbl2str(bvm_cache *this_bvm){ // bbl2str#
 
     mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
 
@@ -470,7 +465,7 @@ bvm_cache *bbl2str(bvm_cache *this_bvm){
 
 //
 //
-mword rbbl2str(mword *bs, char *buffer){
+mword rbbl2str(mword *bs, char *buffer){ // rbbl2str#
 
     int i;
     mword buf_size=0;
@@ -545,7 +540,7 @@ bvm_cache *bs2gv(bvm_cache *this_bvm){ // bs2gv#
     mword *result = dstack_get(this_bvm,0);
     popd(this_bvm);
 
-    result = _bs2gv(result);
+    result = _c2b((char*)_bs2gv(result),1<<20);
 
     pushd( this_bvm, result, IMMORTAL );
 
@@ -835,7 +830,7 @@ bvm_cache *move(bvm_cache *this_bvm){
 > Writes N entries of Y from offset B into X at offset A.
 > X and Y may be the same array.
 */
-bvm_cache *move8(bvm_cache *this_bvm){ 
+bvm_cache *move8(bvm_cache *this_bvm){  // move8#
 
     mword size       = icar(dstack_get(this_bvm,0));
     mword src_index  = icar(dstack_get(this_bvm,1));
@@ -862,7 +857,7 @@ bvm_cache *move8(bvm_cache *this_bvm){
 // TOS_1 dest
 // TOS_2 src
 // babel_operator
-bvm_cache *paste8(bvm_cache *this_bvm){
+bvm_cache *paste8(bvm_cache *this_bvm){ 
 
     fatal("DEPRECATED");
     _wrcxr8(TOS_1(this_bvm),TOS_2(this_bvm),car(TOS_0(this_bvm)));
@@ -955,7 +950,7 @@ mword *_trav(mword *bs, mword *trav_list){
 >
 > This operator is recursive.              
 */
-bvm_cache *cp(bvm_cache *this_bvm){
+bvm_cache *cp(bvm_cache *this_bvm){ // cp#
 
     mword *bs  = get_from_udr_stack(this_bvm,this_bvm->dstack_ptr,0);
 
@@ -1008,7 +1003,7 @@ bvm_cache *span(bvm_cache *this_bvm){
 
 //Creates an interior array with one pointer to each array
 //in a bstruct
-mword *_bs2ar(mword *bs){
+mword *_bs2ar(mword *bs){ 
 
     mword num_arrays  = _nin  (bs);
           num_arrays += _nlf  (bs);

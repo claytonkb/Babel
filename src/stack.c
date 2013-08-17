@@ -274,7 +274,7 @@ bvm_cache *swap(bvm_cache *this_bvm){ // swap#
 > up, as many ups as are required to undo the downs will be executed
 > automatically.  
 */
-bvm_cache *down(bvm_cache *this_bvm){
+bvm_cache *down(bvm_cache *this_bvm){ // down#
 
     if(is_nil(this_bvm->dstack_ptr))
         return this_bvm;

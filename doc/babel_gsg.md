@@ -2,7 +2,7 @@
 
 You can browse or download Babel on <a href="https://github.com/claytonkb/Babel" target="_blank">github</a>.
 
-Be sure to check out the many examples of [Babel code on rosettacode.org](http://rosettacode.org/wiki/Category:Babel).
+Be sure to check out the many examples of <a href="http://rosettacode.org/wiki/Category:Babel" target="_blank">Babel code on rosettacode.org.</a>
 
 [Babel Internals](babel_guts.html)
 
@@ -527,4 +527,9 @@ Generated: Wed, Aug 14, 2013  4:19:54 PM
 Git ID: 791a40ed0cbfbe1d48e69d9c216f4af843f77088
 
 Generated: Wed, Aug 14, 2013  5:43:09 PM
+
+
+Git ID: e5f7d0e78d86ce29d5e034b3442f465d5c9a9445
+
+Generated: Fri, Aug 16, 2013  7:30:59 PM
 

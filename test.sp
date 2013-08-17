@@ -1,7 +1,9 @@
 -- test.sp
 -- perl sparse.pl test.sp src/opcodes.sp src/construct.sp
 
-(   (main   (code 0xaa 0xbb down fnord))
+-- (code "Hello world\n" stdout8) loop)
+
+(   (main   (code t2 eval))
 
     (symbol (list nil))
 

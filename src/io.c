@@ -87,22 +87,11 @@ mword *_slurp(mword *filename){ // _slurp#
 */
 bvm_cache *slurp(bvm_cache *this_bvm){ // slurp#
 
-//    mword *temp_cons = new_cons();
-//    mword *filename = _b2c((mword*)TOS_0);
-//    mword *result   = _slurp((char*)filename);
-
-//    mword *result = new_atom;
-//    (mword*)*result = _slurp(TOS_0(this_bvm));
-//
-//    //    cons(temp_cons, result, nil);
-//
-//    hard_zap(this_bvm);
-//    push_alloc(this_bvm, result, MORTAL);
-
     mword *filename = _b2c(dstack_get(this_bvm,0));
     mword *result   = _slurp(filename);
 
-    zapd(this_bvm,0);
+    popd(this_bvm);
+
     pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
@@ -118,24 +107,7 @@ bvm_cache *slurp(bvm_cache *this_bvm){ // slurp#
 > 
 > X is the contents of the named file.  
 */
-bvm_cache *slurp_mword(bvm_cache *this_bvm){
-
-//    mword *temp_cons = new_cons();
-//    mword *filename = _b2c((mword*)TOS_0);
-//    mword *result   = _slurp((char*)filename);
-
-//    mword *result    = new_atom;
-//    (mword *)*result = _slurp(TOS_0(this_bvm));
-//
-//    _trunc(result, size(result)-1);
-//
-////    cons(temp_cons, result, nil);
-//
-//    hard_zap(this_bvm);
-//    push_alloc(this_bvm, result, MORTAL);
-//
-//    return this_bvm;
-//
+bvm_cache *slurp_mword(bvm_cache *this_bvm){ // slurp_mword
 
     mword *filename = _b2c(dstack_get(this_bvm,0));
     popd(this_bvm);
@@ -144,7 +116,6 @@ bvm_cache *slurp_mword(bvm_cache *this_bvm){
 
     _trunc(result, size(result)-1);
 
-    //zapd(this_bvm,0);
     pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
@@ -165,13 +136,12 @@ bvm_cache *slurp_mword(bvm_cache *this_bvm){
 > 
 > Prefer stdout or stdout8  
 */
-bvm_cache *cprintf(bvm_cache *this_bvm){
+bvm_cache *cprintf(bvm_cache *this_bvm){ // cprintf#
 
-    fatal("stack fix not done");
-    printf((char*)(TOS_0(this_bvm)), (mword)car(TOS_1(this_bvm)));
+    printf((char*)(dstack_get(this_bvm,0)), (mword)car(dstack_get(this_bvm,1)));
 
-    zap(this_bvm);
-    zap(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
 
     return this_bvm;
 
@@ -188,11 +158,10 @@ bvm_cache *cprintf(bvm_cache *this_bvm){
 > 
 > Prefer stdout  
 */
-bvm_cache *cprints(bvm_cache *this_bvm){
+bvm_cache *cprints(bvm_cache *this_bvm){ // cprints#
 
-    fatal("stack fix not done");
-    printf("%s", ((char*)TOS_0(this_bvm)));
-    zap(this_bvm);
+    printf("%s", ((char*)dstack_get(this_bvm,0)));
+    popd(this_bvm);
 
     return this_bvm;
 
@@ -206,21 +175,20 @@ bvm_cache *cprints(bvm_cache *this_bvm){
 > 
 > `{X} {"filename"}| -> |`  
 */
-bvm_cache *spit(bvm_cache *this_bvm){
+bvm_cache *spit(bvm_cache *this_bvm){ // spit#
 
-//    mword *filename = _b2c((mword*)TOS_0(this_bvm));
-//    _spit((char*)filename, (mword*)TOS_1(this_bvm));
-    fatal("stack fix not done");
-    _spit((char*)TOS_0(this_bvm), TOS_1(this_bvm));
-    zap(this_bvm);
-    zap(this_bvm);
+    _spit((char*)dstack_get(this_bvm,0), dstack_get(this_bvm,1));
+    popd(this_bvm);
+    popd(this_bvm);
 
     return this_bvm;
 
 }
 
+
 //
-void _spit(char *filename, mword *fileout){
+//
+void _spit(char *filename, mword *fileout){ // _spit#
 
     FILE * pFile;
 
@@ -248,20 +216,21 @@ void _spit(char *filename, mword *fileout){
 > 
 > `{X} {"filename"}| -> |`  
 */
-bvm_cache *journal(bvm_cache *this_bvm){
+bvm_cache *journal(bvm_cache *this_bvm){ // journal8#
 
-    fatal("stack fix not done");
-    mword *filename = _b2c(TOS_0(this_bvm));
-    _journal((char*)filename, TOS_1(this_bvm));
-    zap(this_bvm);
-    zap(this_bvm);
+    mword *filename = _b2c(dstack_get(this_bvm,0));
+    _journal((char*)filename, dstack_get(this_bvm,1));
+    popd(this_bvm);
+    popd(this_bvm);
 
     return this_bvm;
 
 }
 
+
 //
-void _journal(char *filename, mword *fileout){
+//
+void _journal(char *filename, mword *fileout){ // _journal
 
     FILE * pFile;
 
@@ -286,6 +255,7 @@ void _journal(char *filename, mword *fileout){
 
 }
 
+
 /* i/o operator
 **spit**  
 > Play on words - opposite of slurp. Writes an array (or array8)
@@ -294,14 +264,16 @@ void _journal(char *filename, mword *fileout){
 > 
 > `{X} {"filename"}| -> |`  
 */
-bvm_cache *spit_mword(bvm_cache *this_bvm){
+bvm_cache *spit_mword(bvm_cache *this_bvm){ // spit_mword
 
-    fatal("stack fix not done");
-    char *filename = (char*)_b2c(TOS_0(this_bvm));
+    char *filename = (char*)_b2c(dstack_get(this_bvm,0));
 
     FILE * pFile;
 
-    mword filesize   = size(TOS_1(this_bvm)) * MWORD_SIZE;
+    mword filesize   = size(dstack_get(this_bvm,1)) * MWORD_SIZE;
+
+    popd(this_bvm);
+    popd(this_bvm);
 
     pFile = fopen(filename , "wb");
 
@@ -317,33 +289,32 @@ bvm_cache *spit_mword(bvm_cache *this_bvm){
 
     fclose (pFile);
 
-    zap(this_bvm);
-    zap(this_bvm);
-
     return this_bvm;
 
 }
+
 
 /* i/o operator
 **stdout**  
 > Prints an array to STDOUT as UCS-4 characters  
 > `{"string"}| -> |`  
 */
-bvm_cache *stdoutop(bvm_cache *this_bvm){
+bvm_cache *stdoutop(bvm_cache *this_bvm){ // stdoutop#
 
-    fatal("stack fix not done");
-    mword length = size(TOS_0(this_bvm));
+    mword *op0 = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
+    mword length = size(op0);
     int i;
 
     for(i = 0; i<length; i++){
-        putchar((int)(*(TOS_0(this_bvm)+i)));
+        putchar((int)(*(op0+i)));
     }
-
-    zap(this_bvm);
 
     return this_bvm;
 
 }
+
 
 // FIXME: Make UTF-8 compliant...
 /* i/o operator
@@ -352,9 +323,8 @@ bvm_cache *stdoutop(bvm_cache *this_bvm){
 > This operator is byte-wise so it places an array8 on TOS  
 > `| -> `{"string"}|`  
 */
-bvm_cache *stdinln(bvm_cache *this_bvm){
+bvm_cache *stdinln(bvm_cache *this_bvm){ // stdinln#
 
-    fatal("stack fix not done");
     int c, i=0;
     char buffer[(1<<16)]; //64K buffer (for now)
 
@@ -379,11 +349,12 @@ bvm_cache *stdinln(bvm_cache *this_bvm){
 
     c(result,arlength-1) = alignment_word8(i);
 
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
 }
+
 
 // FIXME: Make UTF-8 compliant...
 /* i/o operator

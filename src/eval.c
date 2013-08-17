@@ -99,15 +99,24 @@ bvm_cache *nest(bvm_cache *this_bvm){
 */
 bvm_cache *ifte(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *else_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
-    hard_zap(this_bvm);
+    fatal("rstack fix not done");
 
-    mword *then_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
-    hard_zap(this_bvm);
+    mword *else_clause = dstack_get(this_bvm, 0);
+    mword *then_clause = dstack_get(this_bvm, 1);
+    mword *cond_clause = dstack_get(this_bvm, 2);
 
-    mword *cond_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
-    hard_zap(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+
+//    mword *else_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
+//    hard_zap(this_bvm);
+//
+//    mword *then_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
+//    hard_zap(this_bvm);
+//
+//    mword *cond_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
+//    hard_zap(this_bvm);
 
     dup(this_bvm); //Almost always we need to dup the TOS...
 
@@ -240,7 +249,7 @@ bvm_cache *loop(bvm_cache *this_bvm){
 
     //_eval(this_bvm, op0, (mword*)icdr(icar(this_bvm->code_ptr)));
 
-    pushr(this_bvm, loop_return, _hash8(C2B("/babel/tag/loop")));
+    pushr(this_bvm, loop_body, _hash8(C2B("/babel/tag/loop")));
 
     this_bvm->code_ptr = consa(loop_body,nil);
 

@@ -53,6 +53,12 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
     bvm_cache *discard;
     babel_op op_ptr;
 
+//    mword *test_val = consa(_newva(0xdeadbeef),nil);
+//
+//    pushr(this_bvm,test_val,BABEL_TAG_LOOP);
+//    _dump(this_bvm->rstack_ptr);
+//    die;
+
     while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
 
         if(is_nil((mword*)car(this_bvm->code_ptr))){
@@ -69,6 +75,12 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
                 //die;
 
                 if(tageq(tag,BABEL_TAG_EVAL,TAG_SIZE)){
+                    mword *code_ret = (mword*)icar(icdr(rtos));
+                    this_bvm->code_ptr = consa(code_ret,nil);
+                    icar(this_bvm->advance_type) = BVM_ADVANCE;
+                    continue;
+                }
+                else if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
                     mword *code_ret = (mword*)icar(icdr(rtos));
                     this_bvm->code_ptr = consa(code_ret,nil);
                     icar(this_bvm->advance_type) = BVM_ADVANCE;
