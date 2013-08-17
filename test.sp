@@ -1,7 +1,7 @@
 -- test.sp
 -- perl sparse.pl test.sp src/opcodes.sp src/construct.sp
 
-(   (main   (code (list 1 2 3) mu cu2dec cr stdout8 ))
+(   (main   (code 0xaa 0xbb down fnord))
 
     (symbol (list nil))
 
@@ -12,7 +12,7 @@
     (t1 (code 
             (ptr (ptr 0 1) (ptr 2 3)) 
             (list 1) 
-            trav
+            --trav
             d eval))
 
     (t0 

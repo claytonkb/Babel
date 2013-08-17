@@ -8,7 +8,7 @@
 #define bvm_code_ptr(x)     car(car(x)) // bvm_code_ptr#
 #define bvm_rstack_ptr(x)   cdr(car(x)) // bvm_rstack_ptr#
 #define bvm_dstack_ptr(x)   car(icar(cdr(x))) // bvm_dstack_ptr#
-#define bvm_ustack_ptr(x)   cdr(icar(cdr(x))) // bvm_ustack_ptr#
+#define bvm_ustack_ptr(x)   car(cdr(icar(cdr(x)))) // bvm_ustack_ptr#
 #define bvm_jump_table(x)   car(icar(icdr(cdr(x)))) // bvm_jump_table#
 #define bvm_sym_table(x)    (mword*)get_tptr((mword*)icar(icdr(icdr(cdr(x))))) // bvm_sym_table#
 

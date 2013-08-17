@@ -46,70 +46,6 @@
 > does a fork/exec in Linux; CreateProcess in Windows
 */
 
-////
-//// babel_operator
-//bvm_cache *bvm_interp(bvm_cache *this_bvm){
-//
-//    bvm_cache *discard;
-//    babel_op op_ptr;
-//
-////    printf("%08x", car(this_bvm->steps));
-////
-////    die;
-//
-//    while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
-//
-//        if(is_nil((mword*)car(this_bvm->code_ptr))){
-//            if(!is_nil(this_bvm->rstack_ptr)){
-//                next(this_bvm);
-//                continue;
-//            }
-//            break; // XXX An unexpected nil in code-stream can cause an exit... may be bad
-//        }
-//
-//        if( is_inte(car(this_bvm->code_ptr)) ){
-//            die;
-////            push_alloc(this_bvm, (mword*)car(car(this_bvm->code_ptr)), IMMORTAL);
-//            push_alloc(this_bvm, (mword*)car(this_bvm->code_ptr), IMMORTAL);
-//        }
-//        else if( is_leaf(car(this_bvm->code_ptr)) ){
-//            mword opcode = car(car(this_bvm->code_ptr));
-//
-////            d(car(car(this_bvm->code_ptr)))
-//
-//            op_ptr = (babel_op)this_bvm->jump_table[ opcode % NUM_INTERP_OPCODES ];
-//            discard = op_ptr(this_bvm);
-//        }
-////        else if( is_href(car(this_bvm->code_ptr)) ){ //TODO: Implement href operator calls!
-////            error("bvm_interp: hash-reference detected in code");
-////            die;
-////        }
-//        else{
-//            fatal("error detected during execution");
-//        }
-//
-//        if(car(this_bvm->advance_type) == BVM_ADVANCE){
-//            this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
-//        }
-//        else if(car(this_bvm->advance_type) == BVM_RETURN){
-//            break;
-//        }
-//        else{
-//            icar(this_bvm->advance_type) = BVM_ADVANCE;
-//        }
-//
-//        icar(this_bvm->steps)--;
-//
-//    }
-//
-//    flush_bvm_cache(this_bvm);
-//
-//    return this_bvm;
-//
-//}
-//
-
-
 //
 //
 bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
@@ -221,17 +157,6 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop#
     set_sym(new_bvm_ptr, "advance_type",   _newva((mword)BVM_ADVANCE) );
     set_sym(new_bvm_ptr, "soft_root",      nil );
     set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
-
-//    update_bvm_cache(&new_bvm);
-
-//    new_bvm.jump_table     = this_bvm->jump_table;
-
-//    mword *temp = _newva(1);
-//    *temp = icar(this_bvm->thread_id) + 1;
-//
-//    new_bvm.thread_id      = temp;
-//
-//    new_bvm.argv           = this_bvm->argv; //FIXME: shift off 0th argv
 
     flush_bvm_cache(this_bvm);
     update_bvm_cache(&new_bvm);

@@ -17,11 +17,10 @@
         -- (rstack (list nil))
 
     (bvm_stack  (tag '/babel/tag/bvm_stack' 
-                    (list dstack
-                    nil)))
+                    (list dstack ustack)))
 
         (dstack (list nil))
-        -- (ustack (list nil))
+        (ustack (list nil))
 
     (jump_table (tag '/babel/tag/jump_table' nil ))
 

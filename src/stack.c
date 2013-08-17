@@ -276,12 +276,11 @@ bvm_cache *swap(bvm_cache *this_bvm){ // swap#
 */
 bvm_cache *down(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
     if(is_nil(this_bvm->dstack_ptr))
         return this_bvm;
 
-    push_alloc_ustack(this_bvm, TOS_0(this_bvm), DOWN);
-    hard_zap(this_bvm);
+    pushu(this_bvm, dstack_get(this_bvm,0), IMMORTAL);
+    popd(this_bvm);
 
     return this_bvm;
 
@@ -300,9 +299,9 @@ bvm_cache *up(bvm_cache *this_bvm){
     if(is_nil(this_bvm->ustack_ptr))
         return this_bvm;
 
-    if(return_type(this_bvm->ustack_ptr) == DOWN){
-        push_alloc(this_bvm,(mword*)car(pop_ustack(this_bvm)),IMMORTAL); //FIXME: Revisit
-    }
+//    if(return_type(this_bvm->ustack_ptr) == DOWN){
+//        push_alloc(this_bvm,(mword*)car(pop_ustack(this_bvm)),IMMORTAL); //FIXME: Revisit
+//    }
 //    else if(return_type(this_bvm->rstack_ptr) == NEST){
 ////        this_bvm->dstack_ptr = (mword*)car(pop_rstack(this_bvm));
 //
@@ -320,11 +319,11 @@ bvm_cache *up(bvm_cache *this_bvm){
 //        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
 //
 //    }
-    else{
-        error("up: There was an error\n");
-        die;
-    }
-
+//    else{
+//        error("up: There was an error\n");
+//        die;
+//    }
+//
     return this_bvm;
     
 }

@@ -474,7 +474,7 @@ sub encode_pointers{
 
         if(ref($pointer) eq ""){
         
-            if(is_value($pointer) or (is_value($pointer) == 0)){
+            if(is_value($pointer)){
                 $pointer_list->[$i] = $MWORD_SIZE*($$offset+1);
                 $encoded = encode_values(["val", $pointer], $offset, 1);
                 push (@{$pointer_list}, $_) for (@{$encoded});
@@ -798,13 +798,23 @@ sub is_value{
 
     my $value = shift;
 
-    if( $value =~ /^(\s*-?[1-9][0-9]*)$/ or 
-        $value =~ /^(\s*0+)[^x]$/ or
-        $value =~ /^(\s*0x[A-Fa-f0-9]+)$/ or
+    if( $value =~ /^\s*0$/ or
+        $value =~ /^\s*-?[1-9][0-9]*$/ or 
+        #$value =~ /^\s*0+[^x]$/ or
+        $value =~ /^\s*0x[A-Fa-f0-9]+$/ or
         $value =~ /^\s*"[^"]*"$/ or
-        $value =~ /^\s*'([^']*)'$/){
+        $value =~ /^\s*'[^']*'$/){
         return 1;
     }
+
+#    if( $value =~ /^\s*0$/ or
+#        $value =~ /^(\s*-?[1-9][0-9]*)$/ or 
+#        $value =~ /^(\s*0+)[^x]$/ or
+#        $value =~ /^(\s*0x[A-Fa-f0-9]+)$/ or
+#        $value =~ /^\s*"[^"]*"$/ or
+#        $value =~ /^\s*'([^']*)'$/){
+#        return 1;
+#    }
 
     return 0;
 

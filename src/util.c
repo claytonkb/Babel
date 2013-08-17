@@ -109,11 +109,11 @@ bvm_cache *lusym(bvm_cache *this_bvm){ // lusym#
 //
 bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
-//    _dump(this_bvm->dstack_ptr);
-//    die;
-
-    _dump(dstack_get(this_bvm,0));
+    _dump(this_bvm->ustack_ptr);
     die;
+
+//    _dump(dstack_get(this_bvm,0));
+//    die;
 
 //    printf("fnord fnord\n");
 
