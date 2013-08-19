@@ -12,6 +12,8 @@ inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword st
 inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index, mword *bs);
 inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index);
 mword *remove_from_udr_stack(mword *stack_ptr, mword stack_index);
+mword *get_tag_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
+//inline mword *get_from_rstack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
 
 bvm_cache *hard_zap     (bvm_cache *this_bvm);
 bvm_cache *swap         (bvm_cache *this_bvm);

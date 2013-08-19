@@ -245,6 +245,7 @@ bvm_cache *loop(bvm_cache *this_bvm){
 
     popd(this_bvm); 
 
+    // ADD this for `last` operator
     mword *loop_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
     //_eval(this_bvm, op0, (mword*)icdr(icar(this_bvm->code_ptr)));

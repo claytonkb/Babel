@@ -196,7 +196,7 @@ mword *empty_string;
 #define pushu(x,y,z) push_udr_stack(x->ustack_ptr, new_dstack_entry(y,z)) // pushu#
 #define popu(x) pop_udr_stack(x->ustack_ptr) // popu#
 
-#define pushr(x,y,z) push_udr_stack(x->rstack_ptr, new_rstack_entry(z,y)) // pushr#
+#define pushr(x,y,z) push_udr_stack(x->rstack_ptr, new_rstack_entry(y,z)) // pushr#
 #define popr(x) pop_udr_stack(x->rstack_ptr) // popr#
 
 //#define zapd(x) _del( (mword*)icar( popd(x) ) )
@@ -225,6 +225,8 @@ mword *empty_string;
 #define dstack_get(x,y) get_from_udr_stack(x, x->dstack_ptr, y) // dstack_get#
 #define ustack_get(x,y) get_from_udr_stack(x, x->ustack_ptr, y) // ustack_get#
 #define rstack_get(x,y) get_from_udr_stack(x, x->rstack_ptr, y) // rstack_get#
+
+#define rstack_get_tag(x,y) get_tag_from_udr_stack(x, x->rstack_ptr, y)
 
 #define dstack_set(x,y,z) set_in_udr_stack(x, x->dstack_ptr, y, z) // dstack_set#
 #define ustack_set(x,y,z) set_in_udr_stack(x, x->ustack_ptr, y, z) // ustack_set#

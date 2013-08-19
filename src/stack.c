@@ -70,6 +70,24 @@ inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword st
 }
 
 
+////
+////
+//inline mword *get_from_rstack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // get_from_rstack#
+//
+//    return _chain_deref( this_bvm->sym_table, _ith( (mword*)icar( stack_ptr ), stack_index ));
+//
+//}
+
+
+//
+//
+mword *get_tag_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // get_tag_from_udr_stack#
+
+    return _chain_deref( this_bvm->sym_table, (mword*)icdr( _ith( (mword*)icar( stack_ptr ), stack_index )) );
+
+}
+
+
 //
 //
 inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index, mword *bs){ // set_in_udr_stack#

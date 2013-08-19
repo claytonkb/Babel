@@ -3,7 +3,7 @@
 
 -- (code "Hello world\n" stdout8) loop)
 
-(   (main   (code t2 eval))
+(   (main   (code (code "Hello" cr stdout8) eval))
 
     (symbol (list nil))
 
@@ -20,7 +20,7 @@
     (t0 
         (code 
             "Babel" str2ar ar2ls 
-            reverse 
+            rev 
             ls2lf ar2str 
             cr stdout8)))
 

@@ -53,11 +53,8 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
     bvm_cache *discard;
     babel_op op_ptr;
 
-//    mword *test_val = consa(_newva(0xdeadbeef),nil);
-//
-//    pushr(this_bvm,test_val,BABEL_TAG_LOOP);
-//    _dump(this_bvm->rstack_ptr);
-//    die;
+//    //mword *temp = get_tag_from_udr_stack(this_bvm, this_bvm->rstack_ptr, 0);
+//    mword *temp = rstack_get_tag(this_bvm, 0);
 
     while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
 
@@ -66,23 +63,28 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
             //popr(this_bvm);
             //printf("%d\n", rstack_empty(this_bvm));
 
+//    pushr(this_bvm, _newva(0xdeadbeef), _hash8(C2B("/babel/tag/eval")));
+//
+//    _dump(rstack_get(this_bvm, 0));
+//    die;
+
             if(!rstack_empty(this_bvm)){
 
-                mword *rtos     = popr(this_bvm);
-                mword *tag      = (mword*)icar(rtos);
+                mword *rtos     = rstack_get(this_bvm,0);
+                mword *tag      = (mword*)icar(rstack_get_tag(this_bvm, 0));
 
                 //printf("%d\n",tageq((mword*)eval_type(temp),BABEL_TAG_EVAL));
                 //die;
+                //printf("rstack_empty\n");
 
                 if(tageq(tag,BABEL_TAG_EVAL,TAG_SIZE)){
-                    mword *code_ret = (mword*)icar(icdr(rtos));
-                    this_bvm->code_ptr = consa(code_ret,nil);
+                    mword *sink = popr(this_bvm);
+                    this_bvm->code_ptr = consa(rtos,nil);
                     icar(this_bvm->advance_type) = BVM_ADVANCE;
                     continue;
                 }
                 else if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
-                    mword *code_ret = (mword*)icar(icdr(rtos));
-                    this_bvm->code_ptr = consa(code_ret,nil);
+                    this_bvm->code_ptr = consa(rtos,nil);
                     icar(this_bvm->advance_type) = BVM_ADVANCE;
                     continue;
                 }
