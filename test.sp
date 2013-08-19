@@ -3,11 +3,13 @@
 
 -- (code "Hello world\n" stdout8) loop)
 
-(   (main   (code (code "Hello" cr stdout8) eval))
+(   (main   (code t3 times))
 
     (symbol (list nil))
 
     (d (code bs2gv stdout8))
+
+    (t3 (code "Hello" cr stdout8))
 
     (t2 (code (list 1 2 3) (list 4 5 6) ins d eval ))
 

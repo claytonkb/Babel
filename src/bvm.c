@@ -77,8 +77,10 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
                 //die;
                 //printf("rstack_empty\n");
 
+                mword *sink;
+
                 if(tageq(tag,BABEL_TAG_EVAL,TAG_SIZE)){
-                    mword *sink = popr(this_bvm);
+                    sink = popr(this_bvm);
                     this_bvm->code_ptr = consa(rtos,nil);
                     icar(this_bvm->advance_type) = BVM_ADVANCE;
                     continue;
@@ -88,10 +90,17 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
                     icar(this_bvm->advance_type) = BVM_ADVANCE;
                     continue;
                 }
+                else if(tageq(tag,BABEL_TAG_EVAL,TAG_SIZE)){
+                    sink = popr(this_bvm);
+                    this_bvm->code_ptr = consa(rtos,nil);
+                    icar(this_bvm->advance_type) = BVM_ADVANCE;
+                    continue;
+                }
 
             }
 
             break; // XXX An unexpected nil in code-stream can cause an exit... may be bad
+
         }
 
         if( is_inte(car(car(this_bvm->code_ptr))) ){
