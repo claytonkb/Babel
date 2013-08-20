@@ -3,7 +3,7 @@
 
 -- (code "Hello world\n" stdout8) loop)
 
-(   (main   (code (code "Hello" cr stdout8) eval))
+(   (main   (code "sparse bug: cannot parse parens in strings\n" stdout8))
 
     (symbol (list nil))
 

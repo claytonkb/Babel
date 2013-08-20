@@ -26,6 +26,7 @@
 #include "bstruct.h"
 #include "alloc.h"
 #include "tptr.h"
+#include <windows.h>
 
 /* bvm operator
 **code**  
@@ -36,15 +37,75 @@
 **bvmkill**  
 **halt**  
 **fork**  
-**system**  
-> equivalent to Perl's system()  
+*/
 
+
+/*
 **shell**  
 > equivalent to Perl's back-tick quotes  
-
-**exec**  
-> does a fork/exec in Linux; CreateProcess in Windows
 */
+//bvm_cache *shell(bvm_cache *this_bvm){ // shell#
+//
+//    char *process_string = (char*)_b2c(dstack_get(this_bvm,0));
+//    popd(this_bvm);
+//
+//    mword *result;
+//
+//    if( !ShellExecuteEx(NULL, "open", process_string, NULL, NULL, 0) ){
+//        result = _newva(0);
+//    }
+//
+//    result = _newva(1);
+//   
+//    pushd(this_bvm, result, IMMORTAL); 
+//
+//    return this_bvm;
+//
+//}
+
+
+/* bvm operator
+ **exec**  
+> does a fork/exec in Linux; CreateProcess in Windows
+> equivalent to Perl's system()
+*/
+bvm_cache *exec(bvm_cache *this_bvm){ // exec#
+
+    char *process_string = (char*)_b2c(dstack_get(this_bvm,0));
+    popd(this_bvm);
+
+    mword *result;
+
+    STARTUPINFO si;
+    PROCESS_INFORMATION pi;
+
+    ZeroMemory( &si, sizeof(si) );
+    si.cb = sizeof(si);
+    ZeroMemory( &pi, sizeof(pi) );
+
+    if( !CreateProcess(NULL,//process_string,    // No module name (use command line)
+        process_string, //argv[1],        // Command line
+        NULL,           // Process handle not inheritable
+        NULL,           // Thread handle not inheritable
+        FALSE,          // Set handle inheritance to FALSE
+        0,              // No creation flags
+        NULL,           // Use parent's environment block
+        NULL,           // Use parent's starting directory 
+        &si,            // Pointer to STARTUPINFO structure
+        &pi )           // Pointer to PROCESS_INFORMATION structure
+        )
+    {
+        result = _newva(0);
+    }
+
+    result = _newva(1);
+   
+    pushd(this_bvm, result, IMMORTAL); 
+
+    return this_bvm;
+
+}
+
 
 //
 //
