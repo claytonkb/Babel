@@ -35,12 +35,11 @@ bstruct
 -------
 
 The data structure in which all data and code (and anything else) reside
-is called a bstruct (which stands for Babel-struct... I'm very creative).
-It is important to note that the Babel interpreter does not maintain any
-state which is not stored in a bstruct. This means that a bstruct at
-all times contains a complete image of the running program. This makes
-it trivial to load, save and restore Babel programs, even while they
-are mid-stream.
+is called a bstruct (which stands for Babel-struct). It is important to 
+note that the Babel interpreter does not maintain any state which is not 
+stored in a bstruct. This means that a bstruct at all times contains a 
+complete image of the running program. This makes it trivial to load, save 
+and restore Babel programs, even while they are mid-stream.
 
 (NB: "at all times" means whenever an operator has finished executing)
 
@@ -49,13 +48,13 @@ connected together:
 
 - leaf-array    : stores values
 - interior-array: stores pointers
-- hash-reference
+- tagged-pointer
 
 A bstruct may consist of:
 
 - a single leaf-array OR
-- an interior-array that may (recursively) point at one or more 
-  interior-arrays, leaf-arrays and/or hash-references
+- an interior-array or tagged-pointer that may (recursively) point at 
+  one or more interior-arrays, tagged-pointers and/or leaf-arrays 
 
 A bstruct is (intentionally) defined in such a way that it may contain
 any sort of data. There is nothing specific to Babel about a bstruct. For
@@ -71,7 +70,7 @@ is, the array can be freed by passing a pointer to the s-field to the
 free() function. This permits clean destruction of a bstruct at any time.
 
 - X.s > 0             X is a leaf-array
-- X.s = 0             X is a hash-reference
+- X.s = 0             X is a tagged-pointer
 - X.s < 0             X is an interior-array
 
 Aside from telling the array type, the s-field also tells the array size.
@@ -137,9 +136,9 @@ References
 ----------
 
 A reference is a specially tagged structure. References permit generalized
-indexing of a babel data-structure. A reference occurring in the code-
-stream will cause the referenced code to to be evaluated. As an operand,
-the reference will be automatically indexed through the symbol table.
+indexing of a bstruct. A reference occurring in the code-stream will cause 
+the referenced code to to be evaluated. As an operand, the reference will 
+be automatically indexed through the symbol table.
 
 Traversing a bstruct
 --------------------
@@ -240,14 +239,14 @@ When the item pointed at by code\_ptr is:
 - A leaf-array, it is treated as an opcode and a lookup is performed
   in jmp\_table
 
-- A hash-reference, it is looked up in the sym\_table and control is
+- A reference, it is looked up in the sym\_table and control is
   transferred there, in a manner equivalent to eval.
 
 - An interior-array and its car is:
 
-    - Not a hash-reference, it is pushed on the stack
+    - Not a reference, it is pushed on the stack
 
-    - A hash-reference, it is looked up in the sym\_table and the result
+    - A reference, it is looked up in the sym\_table and the result
       is pushed on the stack
 
 BVM Stack
@@ -265,8 +264,8 @@ use the take operator and use the give operator for vice-versa.
 BVM Rstack
 ----------
 
-The rstack is the "managed stack" - it is what is used to implement the 
-iteration, control-flow and stack nesting operators.
+The rstack is the "managed stack" (h/t Forth) - it is what is used to 
+implement the iteration, control-flow and stack nesting operators.
 
 BVM Interpreter
 ---------------
@@ -310,8 +309,8 @@ operator is invoked through the jmp\_table.
 
     An extended operator can be given an encoding with the newop operator.
 
-    Extended operators can also be invoked by hash-reference. If the next
-    entry in the code list is a hash-reference, a lookup will be performed
+    Extended operators can also be invoked by reference. If the next
+    entry in the code list is a reference, a lookup will be performed
     in the sym\_table and the linked code will be invoked. Naturally, this
     is a lower-performance alternative.
 
@@ -442,41 +441,9 @@ To hash something using the built-in hash function, use the %% operator:
 >       `"nil" %% --> { 0x3023f4e7 0x8c2f644d 0x71cf647b 0xe974b23a }
 
 But a hash is still just a bunch of bytes. In order to create a 
-hash-reference, you can either use the newref operator:
+tagged-pointer, you can use the newtag operator:
 
->       `"nil" %% newref
-
-... or you can simply use the syntactic convention to tell proto\_babel.pl
-to generate the hash-reference at compile-time:
-
->       nil&
-
-And, in fact, this is precisely how nil is internally defined in 
-proto\_babel.pl:
-
->       nil: nil&
-
-Every time you use nil in a .pb file, you are just getting a pointer to 
-this hash-reference. You can still create your very own hash-reference
-at any time:
-
->       `[1 [2 [3 nil&]]] ## %d cr <<   ---> prints 3
-
-You can use your hashes to insert things into a hash-table or look things 
-up in a hash-table. Automatic look-up in the symbol-table by hash-reference
-is not yet implemented.
-
-Every Babel operator is just a number defined in the pb/opcodes.pb file. To
-successfully compile code with the proto\_babel.pl script, you will need
-to pass in the opcodes.pb file on the command-line along with the .pb file
-you are trying to assemble. The babel Perl script does this for you 
-automatically.
-
-You can use the .pb.lst file that is generated to see the literal layout 
-of the bytes in the program.
-
-Also, you can browse the examples in the eg/ directory of the repository to
-get a better feel for proto-Babel syntax.
+>       `"nil" %% newtag
 
 Built-in functions, naming conventions and mnemonics
 ----------------------------------------------------
@@ -523,27 +490,6 @@ Or division,
 >       A B /    <===>   "A / B"
 
 The flow of data is as consistently left-to-right as possible.
-
-
-Git ID: 17a2c14a367047db9a27da458859b4cc78675e56
-
-Generated: Wed, Aug 14, 2013 12:30:39 PM
-
-
-Git ID: 17a2c14a367047db9a27da458859b4cc78675e56
-
-Generated: Wed, Aug 14, 2013 12:33:14 PM
-
-
-Git ID: 17a2c14a367047db9a27da458859b4cc78675e56
-
-Generated: Wed, Aug 14, 2013  4:19:54 PM
-
-
-Git ID: 791a40ed0cbfbe1d48e69d9c216f4af843f77088
-
-Generated: Wed, Aug 14, 2013  5:43:09 PM
-
 
 Git ID: e5f7d0e78d86ce29d5e034b3442f465d5c9a9445
 

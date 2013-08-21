@@ -199,5 +199,6 @@
     (th             (oper 0x217))
     (move           (oper 0x218))
     (move8          (oper 0x219))
-    (ins            (oper 0x21a)))
+    (ins            (oper 0x21a))
+    (exec           (oper 0x21b)))
 
