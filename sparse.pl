@@ -28,6 +28,7 @@ my $section_name    = qr/[_A-Za-z][_A-Za-z0-9]*/;
 my $sigil_re        = qr/[\*\$&%!#@]/;
 my $array_begin     = qr/[\[\({<]/;
 my $array_end       = qr/[\]\)}>]/;
+my $quote_char      = qr/['"]/;
 my $non_array       = qr/[^\[\({<\]\)}>]/;
 
 my $sections = [];
@@ -47,6 +48,7 @@ for $asm_file (@asm_files){
     $asm_file = clean( $asm_file );
     #$sections = balanced_parse( \$asm_file );
     my $parsed = balanced_parse( \$asm_file );
+#print Dumper($parsed);
     splice( @{$sections}, 0, 0, @{$parsed} );
 }
 
@@ -115,6 +117,89 @@ sub remove_ws{
 #
 #########################################################################
 
+## ( a [ b c { d e f } g ] h i ( j ) k )
+#sub balanced_parse{
+#
+#    my $string      = shift;
+#    my $expression  = [];
+#
+#    clean_string($string);
+#
+#    my ($non_array_context) = ${$string} =~ /^($non_array*)/;
+#
+#    if(defined $non_array_context 
+#            and length($non_array_context) > 0){
+##            print "non_array_context .${$string}.\n";
+#        ${$string} = substr(${$string}, length($non_array_context));
+#        clean_string(\$non_array_context);
+#        push @{$expression}, $non_array_context;
+#        return $expression;
+#    }
+#
+#    if( not ${$string} =~ /^($array_begin)/ ){
+#        print ".${$string}.\n";
+#        die;
+#    }
+#
+#    my ($paren) = ${$string} =~ /^($array_begin)/;
+#    #push @{$expression}, get_paren_type($paren);
+#
+#    ${$string} = substr(${$string}, 1);
+#
+#    my $paren_type = $1;
+#    my $eval_string;
+#    my $temp_string;
+#
+#    begin_balanced:
+#        clean_string($string);
+#        
+##        ($non_array_context) = ${$string} =~ /^($non_array*)/;
+##
+##        if(defined $non_array_context 
+##                and length($non_array_context) > 0){
+###            print "non_array_context .${$string}.\n";
+##            ${$string} = substr(${$string}, length($non_array_context));
+##            clean_string(\$non_array_context);
+##
+##            push @{$expression}, tokenize($non_array_context);
+##        }
+#
+#        if(${$string} =~ /^$array_begin/){
+#            push @{$expression}, balanced_parse($string, $expression);
+#            goto begin_balanced;
+#        }
+#        elsif(${$string} =~ /^($array_end)/){
+#            ${$string} = substr(${$string}, 1);
+#            die if not is_matching_paren($paren_type, $1);
+#            return $expression;
+#        }
+#        elsif(${$string} =~ /^"/){
+#            ${$string} =~ s/^\s*("[^"]*")\s*//;
+#            $eval_string = "\$temp_string = $1;";
+#            die unless eval($eval_string);
+#            push @{$expression}, "\"$temp_string\"";
+#            goto begin_balanced;
+#        }
+#        elsif(${$string} =~ /^'/){
+#            ${$string} =~ s/^\s*('[^']*')\s*//;
+#            push @{$expression}, "$1";
+#            goto begin_balanced;
+#        }
+#        elsif(${$string} =~ /^\s*[\S]+\s*/){
+#            ${$string} =~ s/^\s*([\S]+)\s*//;
+#            push @{$expression}, "$1";
+#            goto begin_balanced;
+#        }
+#        elsif(${$string} eq ''){
+#            goto begin_balanced;
+#        }
+#        else{
+#            print "Error: .${$string}.\n" and die;
+#            #reached the end-of-string, syntax error
+#        }
+#
+#}
+
 # ( a [ b c { d e f } g ] h i ( j ) k )
 sub balanced_parse{
 
@@ -145,9 +230,11 @@ sub balanced_parse{
     ${$string} = substr(${$string}, 1);
 
     my $paren_type = $1;
+    my $eval_string;
 
     begin_balanced:
         clean_string($string);
+        
         ($non_array_context) = ${$string} =~ /^($non_array*)/;
 
         if(defined $non_array_context 
@@ -177,6 +264,7 @@ sub balanced_parse{
         }
 
 }
+
 
 sub clean_string{
     my $string = shift;
