@@ -10,18 +10,21 @@ bvm_cache *gotoop(bvm_cache *this_bvm);
 bvm_cache *loop(bvm_cache *this_bvm);
 bvm_cache *times(bvm_cache *this_bvm);
 bvm_cache *whileop(bvm_cache *this_bvm);
-bvm_cache *next(bvm_cache *this_bvm);
-//bvm_cache *continueop(bvm_cache *this_bvm);
 bvm_cache *each(bvm_cache *this_bvm);
 bvm_cache *ifte(bvm_cache *this_bvm);
-bvm_cache *eachar(bvm_cache *this_bvm);
 bvm_cache *iter(bvm_cache *this_bvm);
+
+bvm_cache *next(bvm_cache *this_bvm);
 bvm_cache *last(bvm_cache *this_bvm);
+
+bvm_cache *let(bvm_cache *this_bvm);
+
+//bvm_cache *continueop(bvm_cache *this_bvm);
+bvm_cache *eachar(bvm_cache *this_bvm);
 bvm_cache *conjure(bvm_cache *this_bvm);
-bvm_cache *nest(bvm_cache *this_bvm);
 void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return);
 bvm_cache *ifop(bvm_cache *this_bvm);
-bvm_cache *let(bvm_cache *this_bvm);
+
 
 #define EVAL_RSTACK_ENTRIES  1
 #define EVAL_RSTACK_RETURN   0

@@ -6,6 +6,10 @@
 
 # FIXME: 0 causes problems in lists (elsewhere?)
 
+# FIXME: Escaped quotes need to be fixed in both balanced_parse AND encode_values...
+#${$string} =~ s/^("(?:[^"\\]|\\")*")\s*//;
+#${$string} =~ s/^('(?:[^'\\]|\\')*')\s*//;
+
 use strict;
 use feature 'state';
 no warnings 'recursion'; # Get "deep recursion" on large .pb files otherwise
@@ -42,28 +46,23 @@ while($#ARGV>-1){
     close ASM_FILE;
 }
 
-#$sections = balanced_parse( clean( $asm_files[0] ) );
-
 for $asm_file (@asm_files){
     $asm_file = clean( $asm_file );
-    #$sections = balanced_parse( \$asm_file );
     my $parsed = balanced_parse( \$asm_file );
+    $parsed = $parsed->[0];
 #print Dumper($parsed);
     splice( @{$sections}, 0, 0, @{$parsed} );
 }
 
 #print Dumper($sections) and die;
 
-tokenize($sections);
 my $obj = encode($sections);
 
 #print Dumper($obj) and die;
-#dump_obj($obj->{root}{code});
 
 create_lst($proj_name, $obj);
 create_bbl($proj_name, $obj);
 create_c  ($proj_name, $obj);
-#die;
 
 #########################################################################
 #
@@ -117,150 +116,50 @@ sub remove_ws{
 #
 #########################################################################
 
-## ( a [ b c { d e f } g ] h i ( j ) k )
-#sub balanced_parse{
-#
-#    my $string      = shift;
-#    my $expression  = [];
-#
-#    clean_string($string);
-#
-#    my ($non_array_context) = ${$string} =~ /^($non_array*)/;
-#
-#    if(defined $non_array_context 
-#            and length($non_array_context) > 0){
-##            print "non_array_context .${$string}.\n";
-#        ${$string} = substr(${$string}, length($non_array_context));
-#        clean_string(\$non_array_context);
-#        push @{$expression}, $non_array_context;
-#        return $expression;
-#    }
-#
-#    if( not ${$string} =~ /^($array_begin)/ ){
-#        print ".${$string}.\n";
-#        die;
-#    }
-#
-#    my ($paren) = ${$string} =~ /^($array_begin)/;
-#    #push @{$expression}, get_paren_type($paren);
-#
-#    ${$string} = substr(${$string}, 1);
-#
-#    my $paren_type = $1;
-#    my $eval_string;
-#    my $temp_string;
-#
-#    begin_balanced:
-#        clean_string($string);
-#        
-##        ($non_array_context) = ${$string} =~ /^($non_array*)/;
-##
-##        if(defined $non_array_context 
-##                and length($non_array_context) > 0){
-###            print "non_array_context .${$string}.\n";
-##            ${$string} = substr(${$string}, length($non_array_context));
-##            clean_string(\$non_array_context);
-##
-##            push @{$expression}, tokenize($non_array_context);
-##        }
-#
-#        if(${$string} =~ /^$array_begin/){
-#            push @{$expression}, balanced_parse($string, $expression);
-#            goto begin_balanced;
-#        }
-#        elsif(${$string} =~ /^($array_end)/){
-#            ${$string} = substr(${$string}, 1);
-#            die if not is_matching_paren($paren_type, $1);
-#            return $expression;
-#        }
-#        elsif(${$string} =~ /^"/){
-#            ${$string} =~ s/^\s*("[^"]*")\s*//;
-#            $eval_string = "\$temp_string = $1;";
-#            die unless eval($eval_string);
-#            push @{$expression}, "\"$temp_string\"";
-#            goto begin_balanced;
-#        }
-#        elsif(${$string} =~ /^'/){
-#            ${$string} =~ s/^\s*('[^']*')\s*//;
-#            push @{$expression}, "$1";
-#            goto begin_balanced;
-#        }
-#        elsif(${$string} =~ /^\s*[\S]+\s*/){
-#            ${$string} =~ s/^\s*([\S]+)\s*//;
-#            push @{$expression}, "$1";
-#            goto begin_balanced;
-#        }
-#        elsif(${$string} eq ''){
-#            goto begin_balanced;
-#        }
-#        else{
-#            print "Error: .${$string}.\n" and die;
-#            #reached the end-of-string, syntax error
-#        }
-#
-#}
-
 # ( a [ b c { d e f } g ] h i ( j ) k )
 sub balanced_parse{
 
     my $string      = shift;
     my $expression  = [];
-
-    clean_string($string);
-
-    my ($non_array_context) = ${$string} =~ /^($non_array*)/;
-
-    if(defined $non_array_context 
-            and length($non_array_context) > 0){
-#            print "non_array_context .${$string}.\n";
-        ${$string} = substr(${$string}, length($non_array_context));
-        clean_string(\$non_array_context);
-        push @{$expression}, $non_array_context;
-        return $expression;
-    }
-
-    if( not ${$string} =~ /^($array_begin)/ ){
-        print ".${$string}.\n";
-        die;
-    }
-
-    my ($paren) = ${$string} =~ /^($array_begin)/;
-    #push @{$expression}, get_paren_type($paren);
-
-    ${$string} = substr(${$string}, 1);
-
-    my $paren_type = $1;
+    my $temp_string;
     my $eval_string;
 
     begin_balanced:
+
         clean_string($string);
-        
-        ($non_array_context) = ${$string} =~ /^($non_array*)/;
-
-        if(defined $non_array_context 
-                and length($non_array_context) > 0){
-#            print "non_array_context .${$string}.\n";
-            ${$string} = substr(${$string}, length($non_array_context));
-            clean_string(\$non_array_context);
-
-            push @{$expression}, tokenize($non_array_context);
-        }
 
         if(${$string} =~ /^$array_begin/){
-#            print "array_begin .${$string}.\n";
-            #${$string} = substr(${$string}, 1);
+            ${$string} = substr(${$string}, 1);
             push @{$expression}, balanced_parse($string, $expression);
             goto begin_balanced;
         }
         elsif(${$string} =~ /^($array_end)/){
-#            print "array_end .${$string}.\n";
             ${$string} = substr(${$string}, 1);
-            die if not is_matching_paren($paren_type, $1);
+            #die if not is_matching_paren($paren_type, $1);
+            return $expression;
+        }
+        elsif(${$string} =~ /^"/){
+            ${$string} =~ s/^\s*("[^"]*")\s*//;
+            $eval_string = "\$temp_string = $1;";
+            die unless eval($eval_string);
+            push @{$expression}, "\"$temp_string\"";
+            goto begin_balanced;
+        }
+        elsif(${$string} =~ /^'/){
+            ${$string} =~ s/^\s*('[^']*')\s*//;
+            push @{$expression}, "$1";
+            goto begin_balanced;
+        }
+        elsif(${$string} =~ /^\s*[^\s\(\)]+\s*/){
+            ${$string} =~ s/^\s*([^\s\(\)]+)\s*//;
+            push @{$expression}, "$1";
+            goto begin_balanced;
+        }
+        elsif(${$string} eq ''){
             return $expression;
         }
         else{
-            die;
-            #reached the end-of-string, syntax error
+            print "Error: .${$string}.\n" and die;
         }
 
 }
@@ -342,11 +241,16 @@ sub encode{
 
     my $parse_tree = shift;
 
+    #$parse_tree = $parse_tree->[0];
+
+    #print Dumper($parse_tree) and die;
+
     my $symbol_table = {};
 #    $obj->{code} = [];
 
     # build symbol-table
     foreach my $named_section (@{$parse_tree}){
+        #print Dumper($named_section) and die;
         $symbol_table->{$named_section->[0]} = $named_section->[1];
     }
 
@@ -389,6 +293,8 @@ sub encode_tree{
         $section_name, 
         $offset,
         $sub_tree) = @_;
+
+    return unless defined $sub_tree;
 
     if   ($sub_tree->[0] eq 'val'){ #values
         return encode_values        ($sub_tree, $offset, 0);

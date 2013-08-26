@@ -45,42 +45,175 @@ void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){ // _eval#
 
 }
 
-//FIXME: Busted, need to handle empty stack
-// babel_operator
-bvm_cache *nest(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *body = TOS_0(this_bvm);
-    hard_zap(this_bvm);
+/* flow-control operator
+**loop**
+> Loops indefinitely. Use `last` to break out.  
+*/
+bvm_cache *loop(bvm_cache *this_bvm){ // loop#
 
-    mword *new_stack = TOS_0(this_bvm);
-    hard_zap(this_bvm);
-//    push_alloc_rstack(this_bvm, (mword*)this_bvm->dstack_ptr, NEST);
+    mword *loop_body = dstack_get(this_bvm,0);
+    mword *iteration = _newva(0);
 
-//    clear(this_bvm);
+    popd(this_bvm); 
 
-    mword *save_stack  = this_bvm->dstack_ptr;
-    mword *save_ustack = this_bvm->ustack_ptr;
+    // ADD this for `last` operator
+    mword *loop_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-//    this_bvm->dstack_ptr = nil; // clear the stack
+    mword *loop_rstack_entry = consa(iteration,
+                                    consa(loop_body,
+                                        consa(loop_return, nil)));
 
-    clear(this_bvm); // clear the stack
+    pushr(this_bvm, loop_rstack_entry, _hash8(C2B("/babel/tag/loop")));
 
-//    rgive(this_bvm, new_stack);
+    this_bvm->code_ptr = consa(loop_body,nil);
 
-    push_alloc(this_bvm, new_stack, IMMORTAL);
-//    push_alloc(this_bvm, body, IMMORTAL);
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
 
-    mword *temp = _newin(NEST_RSTACK_ENTRIES);
+    return this_bvm;
 
-    (mword*)c(temp,NEST_RSTACK_BODY)   = body;
-            c(temp,NEST_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
-    (mword*)c(temp,NEST_RSTACK_STACK)  = save_stack;
-    (mword*)c(temp,NEST_RSTACK_USTACK) = save_ustack;
+}
 
-    push_alloc_rstack(this_bvm, temp, NEST);
 
-    this_bvm->code_ptr = body;
+/* flow-control operator
+**goto**  
+> Classic goto  
+> `[X]| -> |`  
+*/
+bvm_cache *gotoop(bvm_cache *this_bvm){ // gotoop# goto#
+
+    mword *goto_point = dstack_get(this_bvm,0);               
+    popd(this_bvm); 
+
+    this_bvm->code_ptr = consa(goto_point,nil);
+
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
+
+    return this_bvm;
+
+}
+
+
+/* flow-control operator
+**times**  
+> Like eval but executes n iterations. Use 'last' or 'next' to modify
+> the loop's behavior.  
+> 
+> `[X] n| -> |`  
+> 
+> Example:  
+> 
+> `(1) 4 times 4 take   --> Leaves (1 1 1 1) on TOS`  
+*/
+bvm_cache *times(bvm_cache *this_bvm){ // times#
+
+    mword *iterations  = _newva(icar(dstack_get(this_bvm,0)));
+    mword *times_body  = dstack_get(this_bvm,1);
+
+    popd(this_bvm); 
+    popd(this_bvm);
+
+    if(c(iterations,0) == 0)
+        return this_bvm;
+
+    mword *times_return = (mword*)icdr(icar(this_bvm->code_ptr));
+
+    mword *times_rstack_entry = consa(iterations,
+                                    consa(times_body,
+                                        consa(times_return, nil)));
+
+    pushr(this_bvm, times_rstack_entry, _hash8(C2B("/babel/tag/times")));
+
+    this_bvm->code_ptr = consa(times_body,nil);
+
+    //_dump(this_bvm->code_ptr);
+
+    icar(this_bvm->advance_type) = BVM_CONTINUE;    
+
+    return this_bvm;
+
+}
+
+
+/* eval operator
+**die**
+> Exits a BVM
+*/
+bvm_cache *dieop(bvm_cache *this_bvm){ // dieop# die#
+
+    fprintf(stderr, "Died.\n");
+    exit(0);
+}
+
+
+/* flow-control operator
+**each** (...)
+> Iterates across a list  
+> `0 (code cuadd) (list 1 2 3 4) each --> Leaves 10 on TOS`  
+*/
+bvm_cache *each(bvm_cache *this_bvm){
+
+    mword *each_list  = dstack_get(this_bvm,0);
+    mword *each_body  = dstack_get(this_bvm,1);
+
+    popd(this_bvm); 
+    popd(this_bvm);
+
+    if(is_nil(each_list))
+        return this_bvm;
+
+    mword *iteration = _newva(0);
+
+    mword *each_return = (mword*)icdr(icar(this_bvm->code_ptr));
+
+    mword *each_rstack_entry = consa(iteration,
+                                    consa(each_body,
+                                        consa(each_return, 
+                                            consa(each_list, nil))));
+
+    pushr(this_bvm, each_rstack_entry, _hash8(C2B("/babel/tag/each")));
+
+    pushd(this_bvm, (mword*)icar(each_list), IMMORTAL);
+
+    this_bvm->code_ptr = consa(each_body,nil);
+
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
+
+    return this_bvm;
+
+}
+
+
+/* flow-control operator
+**ifte**  
+> If-Then-Else. Like the Joy operator.  
+>  
+> `{x}[Y][Z]| -> eval(Y)| --> if x == 0`  
+> `{x}[Y][Z]| -> eval(Z)| --> if x == 1`  
+*/
+bvm_cache *ifte(bvm_cache *this_bvm){
+
+    mword *else_clause = dstack_get(this_bvm, 0);
+    mword *then_clause = dstack_get(this_bvm, 1);
+    mword *cond_clause = dstack_get(this_bvm, 2);
+
+
+    mword *ifte_return = (mword*)icdr(icar(this_bvm->code_ptr));
+
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+
+    mword *ifte_select = _newva(IFTE_COND);
+
+    mword *ifte_rstack_entry = consa(ifte_select,
+                                consa(then_clause,
+                                    consa(ifte_return,
+                                        consa(else_clause, nil ))));
+
+    pushr(this_bvm, ifte_rstack_entry, _hash8(C2B("/babel/tag/ifte")));
+
+    this_bvm->code_ptr = consa(cond_clause,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -88,53 +221,68 @@ bvm_cache *nest(bvm_cache *this_bvm){
 
 }
 
+
 /* flow-control operator
-**ifte**  
-> As it sounds. This is actually a pseudo-operator, equivalent to:  
+**while**  
+> Like the C keyword.
 >  
-> sel eval  
->  
-> `{x}[Y][Z]| -> eval(Y)| --> if x == 0`  
-> `{x}[Y][Z]| -> eval(Z)| --> if x == 1`  
 */
-bvm_cache *ifte(bvm_cache *this_bvm){
+bvm_cache *whileop(bvm_cache *this_bvm){
 
-    fatal("rstack fix not done");
+    mword *while_body  = dstack_get(this_bvm, 0);
+    mword *cond_clause = dstack_get(this_bvm, 1);
 
-    mword *else_clause = dstack_get(this_bvm, 0);
-    mword *then_clause = dstack_get(this_bvm, 1);
-    mword *cond_clause = dstack_get(this_bvm, 2);
+    mword *while_return = (mword*)icdr(icar(this_bvm->code_ptr));
+
+    mword *iteration = _newva(0);
 
     popd(this_bvm);
     popd(this_bvm);
-    popd(this_bvm);
 
-//    mword *else_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
-//    hard_zap(this_bvm);
-//
-//    mword *then_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
-//    hard_zap(this_bvm);
-//
-//    mword *cond_clause = get_from_stack( this_bvm, TOS_0( this_bvm ) );
-//    hard_zap(this_bvm);
+    mword *while_select = _newva(WHILE_COND);
 
-    dup(this_bvm); //Almost always we need to dup the TOS...
+    mword *while_rstack_entry = consa(iteration,
+                                consa(while_body,
+                                    consa(while_return,
+                                        consa(cond_clause,
+                                            consa(while_select, nil )))));
 
-    mword *temp = _newin(IFTE_RSTACK_ENTRIES);
+    pushr(this_bvm, while_rstack_entry, _hash8(C2B("/babel/tag/while")));
 
-    mword *ifte_select = new_atom;
-    *ifte_select = IFTE_COND;
-
-    (mword*)c(temp,IFTE_RSTACK_RETURN) = (mword*)cdr(this_bvm->code_ptr);
-    (mword*)c(temp,IFTE_RSTACK_THEN)   = then_clause;
-    (mword*)c(temp,IFTE_RSTACK_ELSE)   = else_clause;
-    (mword*)c(temp,IFTE_RSTACK_SELECT) = ifte_select;
-
-    push_alloc_rstack(this_bvm, temp, IFTE);
+    this_bvm->code_ptr = consa(cond_clause,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
-    this_bvm->code_ptr = cond_clause;
+    return this_bvm;    
+
+}
+
+
+// FIXME: Needs to dig down rstack...
+/* flow-control operator
+**iter**
+Places the current loop iteration (zero-based) on TOS.  
+*/
+bvm_cache *iter(bvm_cache *this_bvm){ // iter#
+
+    mword *result;
+    mword *rtos     = rstack_get(this_bvm,0);
+    result = _newva(*(mword*)icar(rtos));
+
+    //mword *tag      = (mword*)icar(rstack_get_tag(this_bvm, 0));
+
+    //while(rstack-not-empty and tag-not-recognized){...}
+
+//    if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
+//    }
+//    else if(tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)){
+//    }
+//    else if(tageq(tag,BABEL_TAG_EACH,TAG_SIZE)){
+//    }
+//    else if(tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
+//    }
+
+    pushd(this_bvm, result, MORTAL);
 
     return this_bvm;
 
@@ -217,48 +365,7 @@ bvm_cache *ifop(bvm_cache *this_bvm){
 
 }
 
-/* flow-control operator
-**goto**  
-> Classic goto  
-> `[X]| -> |`  
-*/
-bvm_cache *gotoop(bvm_cache *this_bvm){
 
-    mword *goto_point = dstack_get(this_bvm,0);               
-    popd(this_bvm); 
-
-    this_bvm->code_ptr = consa(goto_point,nil);
-
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
-
-    return this_bvm;
-
-}
-
-/* flow-control operator
-**loop**
-> Loops indefinitely. Use `last` to break out.  
-*/
-bvm_cache *loop(bvm_cache *this_bvm){
-
-    mword *loop_body = dstack_get(this_bvm,0);               
-
-    popd(this_bvm); 
-
-    // ADD this for `last` operator
-    mword *loop_return = (mword*)icdr(icar(this_bvm->code_ptr));
-
-    //_eval(this_bvm, op0, (mword*)icdr(icar(this_bvm->code_ptr)));
-
-    pushr(this_bvm, loop_body, _hash8(C2B("/babel/tag/loop")));
-
-    this_bvm->code_ptr = consa(loop_body,nil);
-
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
-
-    return this_bvm;
-
-}
 
 /* flow-control operator
 **last**  
@@ -343,6 +450,7 @@ bvm_cache *last(bvm_cache *this_bvm){
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
 }
+
 
 /* flow-control operator
 **continue**  
@@ -554,115 +662,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
 
 }
 
-/* flow-control operator
-**times**  
-> Like eval but executes n iterations. Use 'last' or 'next' to modify
-> the loop's behavior.  
-> 
-> `[X] n| -> |`  
-> 
-> Example:  
-> 
-> `(1) 4 times 4 take   --> Leaves (1 1 1 1) on TOS`  
-*/
-bvm_cache *times(bvm_cache *this_bvm){
 
-//    fatal("stack fix not done");
-//    mword *temp;
-//    mword *times;
-//
-//    if(car(TOS_0(this_bvm)) > 0){
-//
-//        times = new_atom;
-//        *times = car(TOS_0(this_bvm));
-//        hard_zap(this_bvm);
-//
-//        mword *body = TOS_0(this_bvm);
-//        hard_zap(this_bvm);
-//
-//        mword *temp = _newin(TIMES_RSTACK_ENTRIES);
-//
-//        (mword*)c(temp,TIMES_RSTACK_COUNT)  = times;
-//        (mword*)c(temp,TIMES_RSTACK_BODY)   = body;
-//                c(temp,TIMES_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
-//
-//        mword *iter_temp = new_atom;
-//        *iter_temp = 0;
-//        (mword*)c(temp,TIMES_RSTACK_ITER)   = iter_temp;
-//
-//        push_alloc_rstack(this_bvm, temp, TIMES);
-//
-//        icar(this_bvm->advance_type) = BVM_CONTINUE;
-//
-//        this_bvm->code_ptr = body;
-//    
-//    }
-
-
-    mword *times_body = dstack_get(this_bvm,0);
-    popd(this_bvm); 
-
-    mword *times_return = (mword*)icdr(icar(this_bvm->code_ptr));
-
-    //_eval(this_bvm, op0, (mword*)icdr(icar(this_bvm->code_ptr)));
-
-    pushr(this_bvm, times_return, _hash8(C2B("/babel/tag/times")));
-
-    this_bvm->code_ptr = consa(times_body,nil);
-
-    icar(this_bvm->advance_type) = BVM_CONTINUE;    
-
-    return this_bvm;
-
-}
-
-// FIXME: Broken - need to add an "iter" field to 
-// all looping rstack entries - also, iter should 
-// "dig" through the rstack until it finds a
-// looping rstack entry in case we're buried in evals
-// or nesting.
-/* flow-control operator
-**iter**
-Places the current loop iteration (zero-based) on TOS.  
-*/
-bvm_cache *iter(bvm_cache *this_bvm){
-
-//    if(return_type(this_bvm->rstack_ptr) != TIMES){
-//        return this_bvm;
-//    }
-
-    fatal("stack fix not done");
-    mword *rstack_entry = (mword*)RTOS_0(this_bvm);
-
-    mword *result = new_atom;
-
-
-
-    if(return_type(this_bvm->rstack_ptr) == LOOP){
-        *result = car(rstack_entry[LOOP_RSTACK_ITER]);
-    }
-    else if(return_type(this_bvm->rstack_ptr) == TIMES){
-        *result = car(rstack_entry[TIMES_RSTACK_ITER]);
-    }
-    else if(return_type(this_bvm->rstack_ptr) == WHILEOP){ //XXX buggy...
-        *result = car(rstack_entry[WHILE_RSTACK_ITER]);
-    }
-    else if(return_type(this_bvm->rstack_ptr) == EACH){
-        *result = car(rstack_entry[EACH_RSTACK_ITER]);
-    }
-    else if(return_type(this_bvm->rstack_ptr) == EACHAR){
-        *result = car(rstack_entry[EACHAR_RSTACK_ITER]);
-    }
-    else{
-        error("iter: unsupported return_type");
-        die;
-    }
-
-    push_alloc(this_bvm, result, MORTAL);
-
-    return this_bvm;
-
-}
 
 /* flow-control operator
 **cond** (??)   
@@ -675,83 +675,41 @@ bvm_cache *iter(bvm_cache *this_bvm){
 >     ("zero" say))`  
 > cond  
 */
-bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
 
-    fatal("stack fix not done");
-    mword *cond_block = TOS_0(this_bvm);
-    hard_zap(this_bvm);
 
-    mword *body = TOS_0(this_bvm);
-    hard_zap(this_bvm);
 
-    mword *block_sel = new_atom;
-    *block_sel = WHILE_COND;
+//bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
+//
+//    fatal("stack fix not done");
+//    mword *cond_block = TOS_0(this_bvm);
+//    hard_zap(this_bvm);
+//
+//    mword *body = TOS_0(this_bvm);
+//    hard_zap(this_bvm);
+//
+//    mword *block_sel = new_atom;
+//    *block_sel = WHILE_COND;
+//
+//    mword *temp = _newin(WHILE_RSTACK_ENTRIES);
+//    (mword*)c(temp,WHILE_RSTACK_COND)   = cond_block;
+//    (mword*)c(temp,WHILE_RSTACK_BODY)   = body;
+//            c(temp,WHILE_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
+//    (mword*)c(temp,WHILE_RSTACK_SELECT) = block_sel;
+//
+//    mword *iter_temp = new_atom;
+//    *iter_temp = 0;
+//    (mword*)c(temp,WHILE_RSTACK_ITER)   = iter_temp;
+//
+//    push_alloc_rstack(this_bvm, temp, WHILEOP);
+//
+//    icar(this_bvm->advance_type) = BVM_CONTINUE;
+//
+//    this_bvm->code_ptr = cond_block;
+//    
+//    return this_bvm;
+//
+//}
 
-    mword *temp = _newin(WHILE_RSTACK_ENTRIES);
-    (mword*)c(temp,WHILE_RSTACK_COND)   = cond_block;
-    (mword*)c(temp,WHILE_RSTACK_BODY)   = body;
-            c(temp,WHILE_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
-    (mword*)c(temp,WHILE_RSTACK_SELECT) = block_sel;
-
-    mword *iter_temp = new_atom;
-    *iter_temp = 0;
-    (mword*)c(temp,WHILE_RSTACK_ITER)   = iter_temp;
-
-    push_alloc_rstack(this_bvm, temp, WHILEOP);
-
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
-
-    this_bvm->code_ptr = cond_block;
-    
-    return this_bvm;
-
-}
-
-/* flow-control operator
-**each** (...)
-> Iterates across a list  
-> `[0] (cuadd) (1 2 3 4) each --> Leaves 10 on TOS`  
-*/
-bvm_cache *each(bvm_cache *this_bvm){
-
-    fatal("stack fix not done");
-    mword *body = TOS_0(this_bvm);
-    hard_zap(this_bvm);
-
-// FIXME: Catch the empty-list condition...
-    mword *list = TOS_0(this_bvm);
-    hard_zap(this_bvm);
-
-    mword *temp = _newin(EACH_RSTACK_ENTRIES);
-    (mword*)c(temp,EACH_RSTACK_LIST)   = list;
-    (mword*)c(temp,EACH_RSTACK_BODY)   = body;
-            c(temp,EACH_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
-
-     mword *iter_temp = new_atom;
-    *iter_temp = 0;
-    (mword*)c(temp,EACH_RSTACK_ITER)   = iter_temp;
-         
-    push_alloc_rstack(this_bvm, temp, EACH);
-
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
-
-    this_bvm->code_ptr = body;
-
-    push_alloc(this_bvm, (mword*)car(list), IMMORTAL); //FIXME: Revisit
-    
-    return this_bvm;
-
-}
-
-/* eval operator
-**die**
-> Exits a BVM
-*/
-bvm_cache *dieop(bvm_cache *this_bvm){ // dieop#
-
-    fprintf(stderr, "Died.\n");
-    exit(0);
-}
 
 
 /* flow-control operator

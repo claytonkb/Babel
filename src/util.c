@@ -23,8 +23,7 @@
 // babel_operator
 bvm_cache *randop(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword num_mwords = car(TOS_0(this_bvm));
+    mword num_mwords = icar(dstack_get(this_bvm,0));
     mword *result    = _newlf(num_mwords);
 
     int i;
@@ -32,8 +31,8 @@ bvm_cache *randop(bvm_cache *this_bvm){
         c(result,i) = genrand_int32();
     }
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    popd(this_bvm);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -109,7 +108,14 @@ bvm_cache *lusym(bvm_cache *this_bvm){ // lusym#
 //
 bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
-    _dump(this_bvm->ustack_ptr);
+    return this_bvm;
+
+}
+
+
+bvm_cache *dev(bvm_cache *this_bvm){ // dev#
+
+    _dump(this_bvm->dstack_ptr);
     die;
 
 //    _dump(dstack_get(this_bvm,0));
@@ -129,6 +135,7 @@ bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
     return this_bvm;
 
 }
+
 
 // Clayton Bauman 2011
 

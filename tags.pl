@@ -30,7 +30,11 @@ my $tags =
         "BABEL_TAG_BVM_SYM_TABLE"       => "/babel/tag/bvm_sym_table",
         "BABEL_TAG_EVAL"                => "/babel/tag/eval",
         "BABEL_TAG_LOOP"                => "/babel/tag/loop",
-        "BABEL_TAG_TIMES"                => "/babel/tag/times",
+        "BABEL_TAG_TIMES"               => "/babel/tag/times",
+        "BABEL_TAG_IFTE"                => "/babel/tag/ifte",
+        "BABEL_TAG_EACH"                => "/babel/tag/each",
+        "BABEL_TAG_WHILE"               => "/babel/tag/while",
+        "BABEL_TAG_NEST"                => "/babel/tag/nest",
         "BABEL_TAG_COMPAT"              => "WINDOWS;32", };
 
 

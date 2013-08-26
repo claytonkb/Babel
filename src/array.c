@@ -640,12 +640,17 @@ bvm_cache *arcat8(bvm_cache *this_bvm){ // arcat8#
     mword size_left  = _arlen8(left);
     mword size_right = _arlen8(right);
     mword total_size = size_left + size_right;
+    mword array8_total_size = array8_size(total_size);
+
+//    d(size_left);
+//    d(size_right);
+//    d(array8_size(total_size));
 
     if      ( is_leaf(right)  &&  is_leaf(left) ){
-        result = (char*)_newlf( array8_size(total_size) );
+        result = (char*)_newlf( array8_total_size );
     }
     else{ //FIXME: Throw an exception
-        fatal("arcat: cannot concatenate leaf array and interior array");
+        fatal("arcat8: cannot concatenate interior array");
     }
 
     //FIXME: memcpy!
@@ -668,7 +673,7 @@ bvm_cache *arcat8(bvm_cache *this_bvm){ // arcat8#
 
     }
 
-    c((mword*)result,total_size-1) = alignment_word8(total_size);
+    c((mword*)result,array8_total_size-1) = alignment_word8(total_size);
 
     pushd(this_bvm, (mword*)result, IMMORTAL);
 

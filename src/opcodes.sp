@@ -67,8 +67,8 @@
     (arlen8         (oper 0x108))
     (free           (oper 0x109))
     (arlen          (oper 0x10b))
-    (arcat8         (oper 0x10c))
-    (arcat          (oper 0x10f))
+    (cat8           (oper 0x10c))
+    (cat            (oper 0x10f))
 
     (mu             (oper 0x110))
     (nva            (oper 0x111))
@@ -200,5 +200,6 @@
     (move           (oper 0x218))
     (move8          (oper 0x219))
     (ins            (oper 0x21a))
-    (exec           (oper 0x21b)))
+    (exec           (oper 0x21b))
+    (dev            (oper 0x21c)))
 

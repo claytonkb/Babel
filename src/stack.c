@@ -16,7 +16,8 @@
 #include "hash.h"
 #include "ref.h"
 #include "tptr.h"
-
+#include "pearson16.h"
+#include "string.h"
 
 //
 //
@@ -286,7 +287,7 @@ bvm_cache *swap(bvm_cache *this_bvm){ // swap#
 
 
 /* stack operator
-**down** (<-)  
+**down** (<-)   
 > Analogous to doing a cdr on the stack itself. If the code\_ptr
 > becomes nil after executing one or more downs without a balancing
 > up, as many ups as are required to undo the downs will be executed
@@ -307,41 +308,16 @@ bvm_cache *down(bvm_cache *this_bvm){ // down#
 
 /* stack operator
 **up** (->)  
-> Undoes down/nest.  
+> Undoes down  
 */
-bvm_cache *up(bvm_cache *this_bvm){
+bvm_cache *up(bvm_cache *this_bvm){ // up#
 
-    fatal("stack fix not done");
-    mword *temp;
-
-    if(is_nil(this_bvm->ustack_ptr))
+    if(is_nil(this_bvm->ustack_ptr)) // FIXME: Wrong
         return this_bvm;
 
-//    if(return_type(this_bvm->ustack_ptr) == DOWN){
-//        push_alloc(this_bvm,(mword*)car(pop_ustack(this_bvm)),IMMORTAL); //FIXME: Revisit
-//    }
-//    else if(return_type(this_bvm->rstack_ptr) == NEST){
-////        this_bvm->dstack_ptr = (mword*)car(pop_rstack(this_bvm));
-//
-//        // XXX fairly yucky code:
-//        temp = new_atom;
-//        *temp = (mword)-1;
-//
-//        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
-//
-//        take(this_bvm);
-//
-//        temp = (mword*)TOS_0(this_bvm);
-//
-//        this_bvm->dstack_ptr = (mword*)car(pop_rstack(this_bvm));
-//        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
-//
-//    }
-//    else{
-//        error("up: There was an error\n");
-//        die;
-//    }
-//
+    pushd(this_bvm, ustack_get(this_bvm,0), IMMORTAL);
+    popu(this_bvm);
+
     return this_bvm;
     
 }
@@ -427,7 +403,6 @@ void rgive(bvm_cache *this_bvm, mword *list){ // rgive#
     if(is_nil(list))
         return;
 
-    //push_alloc(this_bvm, (mword*)car(list), IMMORTAL); //FIXME: Depends
     pushd(this_bvm, (mword*)car(list), IMMORTAL); //FIXME: Depends
 
     rgive(this_bvm,(mword*)cdr(list));
@@ -441,8 +416,8 @@ void rgive(bvm_cache *this_bvm, mword *list){ // rgive#
 */
 bvm_cache *clear(bvm_cache *this_bvm){ // clear#
 
-    this_bvm->dstack_ptr  = nil;
-    this_bvm->ustack_ptr = nil;
+    (mword*)icar(this_bvm->dstack_ptr) = nil;
+    (mword*)icar(this_bvm->ustack_ptr) = nil;
 
     return this_bvm;
 
@@ -459,6 +434,41 @@ bvm_cache *flip(bvm_cache *this_bvm){ // flip#
     this_bvm->ustack_ptr = temp;
 
     return this_bvm;
+
+}
+
+
+//FIXME: Busted, need to handle empty stack
+// babel_operator
+bvm_cache *nest(bvm_cache *this_bvm){ // nest#
+
+    mword *nest_body = dstack_get(this_bvm,0);
+    mword *new_stack = dstack_get(this_bvm,1);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    mword *save_dstack = (mword*)icar(this_bvm->dstack_ptr);
+    mword *save_ustack = (mword*)icar(this_bvm->ustack_ptr);
+
+    clear(this_bvm); // clear the stack
+
+    rgive(this_bvm, new_stack);
+    //pushd(this_bvm, new_stack, IMMORTAL);
+
+    mword *nest_return = (mword*)icdr(icar(this_bvm->code_ptr));
+
+    mword *nest_rstack_entry = consa(save_dstack,
+                                    consa(save_ustack,
+                                        consa(nest_return, nil)));
+
+    pushr(this_bvm, nest_rstack_entry, _hash8(C2B("/babel/tag/nest")));
+
+    this_bvm->code_ptr = consa(nest_body,nil);
+
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
+
+    return this_bvm;    
 
 }
 
