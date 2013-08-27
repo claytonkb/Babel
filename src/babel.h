@@ -240,7 +240,7 @@ mword *empty_string;
 #define ustack_empty(x) is_nil(icar(x->ustack_ptr)) // ustack_empty#
 #define dstack_empty(x) is_nil(icar(x->dstack_ptr)) // dstack_empty#
 #define rstack_empty(x) is_nil(icar(x->rstack_ptr)) // rstack_empty#
-#define code_empty(x) is_nil(icar(x->code_ptr)) // rstack_empty#
+#define code_empty(x) is_nil(icar(x->code_ptr)) // code_empty#
 
 //XXX DEPRECATE XXX
 #define TOS_0(x)             (mword*)icar(icar(icar(x->dstack_ptr)))
