@@ -115,6 +115,9 @@ bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
 bvm_cache *dev(bvm_cache *this_bvm){ // dev#
 
+//    _dump(this_bvm->rstack_ptr);
+//    die;
+
     _dump(this_bvm->dstack_ptr);
     die;
 

@@ -290,43 +290,255 @@ bvm_cache *iter(bvm_cache *this_bvm){ // iter#
 
 
 /* flow-control operator
+**next**  
+> Goes to next iteration of current loop  
+*/
+bvm_cache *next(bvm_cache *this_bvm){ // next#
+
+    _next(this_bvm);
+
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
+
+    return this_bvm;
+
+}
+
+bvm_cache *_next(bvm_cache *this_bvm){ // _next#
+
+    mword *rtos     = rstack_get(this_bvm,0);
+    mword *tag      = (mword*)icar(rstack_get_tag(this_bvm, 0));
+
+    mword *sink;
+    mword *iter;
+
+    if(tageq(tag,BABEL_TAG_EVAL,TAG_SIZE)){
+        sink = popr(this_bvm);
+        this_bvm->code_ptr = consa(rtos,nil);
+       
+
+    }
+    else if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
+//                    this_bvm->code_ptr = consa(rtos,nil);
+//                    
+//                    continue;
+        iter = (mword*)icar(rtos);
+        *iter = *iter + 1;
+        this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
+        
+    
+    }
+    else if(tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)){
+        //_dump(rtos);
+        iter = (mword*)icar(rtos);
+        *iter = *iter - 1;
+        if(*iter == 0){
+            sink = popr(this_bvm);
+            //this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
+            //this_bvm->code_ptr = consa(_ith(rtos,2),nil);
+            //(mword*)c(this_bvm->code_ptr,0) = _ith(rtos,2);
+            set_code_ptr(this_bvm, _ith(rtos,2));
+            
+    
+        }
+        else{
+            //this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
+            //this_bvm->code_ptr = consa(_ith(rtos,1),nil);
+            //(mword*)c(this_bvm->code_ptr,0) = _ith(rtos,1);
+            set_code_ptr(this_bvm, _ith(rtos,1));
+            
+    
+        }
+    }
+    else if(tageq(tag,BABEL_TAG_EACH,TAG_SIZE)){
+
+        iter = (mword*)icar(rtos);
+        *iter = *iter + 1;
+
+        mword *list = (mword*)icdr(icdr(icdr(rtos)));
+
+        if(is_nil(icdr(icar(list)))){
+            sink = popr(this_bvm);
+            this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
+            
+    
+        }
+        else{
+            *list = icdr(icar(list));
+            pushd(this_bvm, (mword*)icar(icar(list)), IMMORTAL);
+            this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
+            
+    
+        }
+    }
+    else if(tageq(tag,BABEL_TAG_IFTE,TAG_SIZE)){
+
+        mword *ifte_select = (mword*)icar(rtos);
+
+        if(*ifte_select == IFTE_BODY){
+
+            sink = popr(this_bvm);
+            this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
+            
+    
+
+        }
+        else{
+
+            *ifte_select = IFTE_BODY;
+
+            mword *cond = dstack_get(this_bvm, 0);
+            popd(this_bvm);
+
+            if(!is_false(cond)){
+                this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
+                
+    
+            }
+            else{
+                this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(icdr(rtos)))),nil);
+                
+    
+            }
+
+        }
+    }
+    else if(tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
+
+        iter = (mword*)icar(rtos);
+        *iter = *iter + 1;
+
+        mword *while_select = _ith(rtos,4);
+
+//                    _dump(while_select);
+//                    die;
+
+        if(*while_select == WHILE_BODY){
+
+            *while_select = WHILE_COND;
+
+            mword *cond_clause = _ith(rtos,3);
+            this_bvm->code_ptr = consa(cond_clause,nil);
+            
+    
+
+        }
+        else{
+
+            *while_select = WHILE_BODY;
+
+            mword *cond = dstack_get(this_bvm, 0);
+            popd(this_bvm);
+
+            if(!is_false(cond)){
+                mword *while_body = _ith(rtos,1);
+                this_bvm->code_ptr = consa(while_body,nil);
+                
+    
+            }
+            else{
+                mword *while_return = _ith(rtos,2);
+                this_bvm->code_ptr = consa(while_return,nil);
+                sink = popr(this_bvm);
+            }
+
+        }
+    }
+    else if(tageq(tag,BABEL_TAG_NEST,TAG_SIZE)){
+        (mword*)icar(this_bvm->dstack_ptr) = _ith(rtos,0);
+        (mword*)icar(this_bvm->ustack_ptr) = _ith(rtos,1);
+        this_bvm->code_ptr         = consa(_ith(rtos,2),nil);
+        sink = popr(this_bvm);   
+    }
+    else if(tageq(tag,BABEL_TAG_LET,TAG_SIZE)){
+
+        mword *walker = _ith(rtos,0);
+        while(!is_nil(walker)){
+            (mword*)icar(icar(icar(walker))) = (mword*)icdr(icar(walker));
+            walker = (mword*)icdr(walker);
+        }
+
+//        _dump(_ith(rtos,0));
+//        die;
+
+        set_code_ptr(this_bvm, _ith(rtos,2));
+
+        sink = popr(this_bvm);
+
+    }
+    else{
+        _mem(tag);
+        fatal("unrecognized tag");
+    }
+
+    icar(this_bvm->advance_type) = BVM_ADVANCE;
+
+    return this_bvm;
+
+}
+
+
+/* flow-control operator
+**last**  
+> Breaks out of current loop  
+*/
+bvm_cache *last(bvm_cache *this_bvm){ 
+
+    mword *rtos        = rstack_get(this_bvm,0);
+    mword *last_return = _ith(rtos,2);
+    popr(this_bvm);
+
+    //mword *tag      = (mword*)icar(rstack_get_tag(this_bvm, 0));
+
+    //while(rstack-not-empty and tag-not-recognized){...}
+
+//    if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
+//    }
+//    else if(tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)){
+//    }
+//    else if(tageq(tag,BABEL_TAG_EACH,TAG_SIZE)){
+//    }
+//    else if(tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
+//    }
+
+//    pushd(this_bvm, result, MORTAL);
+
+    this_bvm->code_ptr = consa(last_return,nil);
+
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
+
+    return this_bvm;
+
+}
+
+
+/* flow-control operator
 **let**
 > Defines a lexical-variable scope
 */
 bvm_cache *let(bvm_cache *this_bvm){
 
-    fatal("implementation broken");
-    mword *body = get_from_stack( this_bvm, TOS_0( this_bvm ) );
-    hard_zap(this_bvm);
+    mword *let_body = dstack_get(this_bvm,0);
+    mword *let_list = dstack_get(this_bvm,1);
 
-    mword *lex_list = get_from_stack( this_bvm, TOS_0( this_bvm ) );
-    hard_zap(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
 
-    // get length of lex var list
-    mword length = _len(lex_list);
-          length += LET_RSTACK_ENTRIES;
-
-    // allocate rstack block big enough to fit
-    mword *temp = _newin(length);
-    mword *list = lex_list;
-
-    (mword*)c(temp,LET_RSTACK_RETURN) = (mword*)cdr(this_bvm->code_ptr);
-    (mword*)c(temp,LET_RSTACK_LIST)   = list;
-
-    // copy current contents of the lex variables 
-    //   to the rstack block
-    mword i = LET_RSTACK_ENTRIES;
-    while(!is_nil(list)){ //FIXME Breaks due to car/cdr can't handle hash-refs
-        c(temp,i) = car(car(car(list)));
-//        c(temp,i) = car(list);
-        list = (mword*)cdr(list);
-        i++;
+    mword *walker = let_list;
+    while(!is_nil(walker)){
+        mword *let_list_entry = consa( (mword*)icar(walker), (mword*)car(icar(walker)) );
+        (mword*)icar(walker) = let_list_entry;
+        walker = (mword*)icdr(walker);
     }
 
-    // eval the body
-    push_alloc_rstack(this_bvm, temp, LET);
+    mword *let_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    this_bvm->code_ptr = body;
+    mword *let_rstack_entry = consa(let_list,
+                                    consa(let_body,
+                                        consa(let_return, nil)));
+
+    pushr(this_bvm, let_rstack_entry, _hash8(C2B("/babel/tag/let")));
+
+    this_bvm->code_ptr = consa(let_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -366,92 +578,6 @@ bvm_cache *ifop(bvm_cache *this_bvm){
 }
 
 
-
-/* flow-control operator
-**last**  
-> Breaks out of current loop  
-*/
-bvm_cache *last(bvm_cache *this_bvm){ 
-
-    fatal("stack fix not done");
-    mword *rstack_entry;
-    mword *result;
-    int done=0;
-
-    //FIXME: Handle empty rstack
-    while( !done ){     
-        
-//        if(     return_type(this_bvm->rstack_ptr) == DOWN 
-//            ||  return_type(this_bvm->rstack_ptr) == NEST){
-//
-//            up(this_bvm);
-//
-//        }
-        if(return_type(this_bvm->rstack_ptr) == EVAL){
-
-            //rstack_entry = (mword*)RTOS_0(this_bvm);
-            //this_bvm->code_ptr = (mword*)rstack_entry[EVAL_RSTACK_RETURN];
-            pop_rstack(this_bvm);
-
-        }
-        else{
-            done = 1;
-        }
-
-    }
-
-    if(return_type(this_bvm->rstack_ptr) == LOOP){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-        this_bvm->code_ptr = (mword*)rstack_entry[LOOP_RSTACK_RETURN];
-        pop_rstack(this_bvm);
-
-//        rstack_entry = (mword*)RTOS_0(this_bvm);
-//        this_bvm->code_ptr = (mword*)scar((mword*)RTOS_0(this_bvm));
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == TIMES){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-
-        this_bvm->code_ptr = (mword*)rstack_entry[TIMES_RSTACK_RETURN];
-        pop_rstack(this_bvm);
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == WHILEOP){ //XXX buggy...
-
-            this_bvm->code_ptr = (mword*)rstack_entry[WHILE_RSTACK_RETURN];
-            pop_rstack(this_bvm);
-            hard_zap(this_bvm); //FIXME: Yipes!
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == EACH){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-
-        this_bvm->code_ptr = (mword*)rstack_entry[EACH_RSTACK_RETURN];
-        pop_rstack(this_bvm);
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == EACHAR){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-
-        this_bvm->code_ptr = (mword*)rstack_entry[EACHAR_RSTACK_RETURN];
-        pop_rstack(this_bvm);
-
-
-    }
-    else{
-        error("last: unknown return_type");
-        die;
-    }
-
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
-
-}
-
-
 /* flow-control operator
 **continue**  
 > Same as next but can be used within an if or eval  
@@ -465,203 +591,6 @@ bvm_cache *last(bvm_cache *this_bvm){
 //    return this_bvm;
 //
 //}
-
-/* flow-control operator
-**next**  
-> Goes to next iteration of current loop  
-*/
-bvm_cache *next(bvm_cache *this_bvm){ // XXX: Lots of perf issues in here
-
-    mword *rstack_entry;
-    mword *result;
-    mword *temp;
-
-    //FIXME: Handle empty rstack
-    warn("implementation unstable");
-
-    if(return_type(this_bvm->rstack_ptr) == EVAL){
-
-        this_bvm->code_ptr = (mword*)car(pop_rstack(this_bvm));
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == LET){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-
-        // last/next
-        //   restore prior contents of the lex variables from the rstack
-        //   pop rstack
-        mword* list = (mword*)rstack_entry[LET_RSTACK_LIST];
-
-        // copy current contents of the lex variables 
-        //   to the rstack block
-        mword i = LET_RSTACK_ENTRIES;
-        while(!is_nil(list)){ //FIXME Breaks due to car/cdr can't handle hash-refs
-            c((mword*)c((mword*)c(list,0),0),0) = c(rstack_entry,i);
-//            *(mword*)car(list) = *(mword*)c(rstack_entry,i);
-            list = (mword*)cdr(list);
-            i++;
-        }
-
-        this_bvm->code_ptr = (mword*)rstack_entry[TIMES_RSTACK_RETURN];
-        pop_rstack(this_bvm);
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == LOOP){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-        this_bvm->code_ptr = (mword*)rstack_entry[LOOP_RSTACK_BODY];
-
-        *(mword*)rstack_entry[LOOP_RSTACK_ITER] = car(rstack_entry[LOOP_RSTACK_ITER]) + 1;
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == TIMES){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-        if( car(rstack_entry[TIMES_RSTACK_COUNT]) > 1 ){
-            *(mword*)rstack_entry[TIMES_RSTACK_COUNT] = car(rstack_entry[TIMES_RSTACK_COUNT]) - 1;
-            this_bvm->code_ptr = (mword*)rstack_entry[TIMES_RSTACK_BODY];
-            *(mword*)rstack_entry[TIMES_RSTACK_ITER] = car(rstack_entry[TIMES_RSTACK_ITER]) + 1;
-        }
-        else{
-//            this_bvm->code_ptr = (mword*)car(rstack_entry[TIMES_RSTACK_RETURN]);
-            this_bvm->code_ptr = (mword*)rstack_entry[TIMES_RSTACK_RETURN];
-            pop_rstack(this_bvm);
-        }
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == IFTE){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-        mword *clause;
-
-        if( car(rstack_entry[IFTE_RSTACK_SELECT]) == IFTE_BODY ){
-            this_bvm->code_ptr = (mword*)rstack_entry[IFTE_RSTACK_RETURN];
-            pop_rstack(this_bvm);
-        }
-        else{ // car(rstack_entry[IFTE_RSTACK_SELECT]) == IFTE_COND
-            if( is_false( get_from_stack( this_bvm, TOS_0( this_bvm ) ) ) ){
-                clause = (mword*)rstack_entry[IFTE_RSTACK_ELSE];
-            }
-            else{
-                clause = (mword*)rstack_entry[IFTE_RSTACK_THEN];
-            }
-            hard_zap(this_bvm);
-            this_bvm->code_ptr = clause;
-            *(mword*)rstack_entry[IFTE_RSTACK_SELECT] = IFTE_BODY;
-        }
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == IFOP){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-        mword *clause;
-
-        if( is_false( get_from_stack( this_bvm, TOS_0( this_bvm ) ) ) ){
-            this_bvm->code_ptr = (mword*)rstack_entry[IFOP_RSTACK_RETURN];
-            pop_rstack(this_bvm);
-
-        }
-        else{
-            clause = (mword*)rstack_entry[IFOP_RSTACK_THEN];
-            pop_rstack(this_bvm);
-            _eval(this_bvm, clause, (mword*)rstack_entry[IFOP_RSTACK_RETURN]);
-        }
-        hard_zap(this_bvm);
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == WHILEOP){ //XXX buggy...
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-        if( car(rstack_entry[WHILE_RSTACK_SELECT]) == WHILE_BODY ){
-            this_bvm->code_ptr = (mword*)rstack_entry[WHILE_RSTACK_COND];
-            *(mword*)rstack_entry[WHILE_RSTACK_SELECT] = WHILE_COND;
-            *(mword*)rstack_entry[WHILE_RSTACK_ITER] = car(rstack_entry[WHILE_RSTACK_ITER]) + 1;
-        }
-        else{ // car(rstack_entry[WHILE_RSTACK_SELECT]) == WHILE_COND
-            if( is_false(TOS_0(this_bvm)) ){
-                this_bvm->code_ptr = (mword*)rstack_entry[WHILE_RSTACK_RETURN];
-                pop_rstack(this_bvm);
-            }
-            else{
-                this_bvm->code_ptr = (mword*)rstack_entry[WHILE_RSTACK_BODY];
-                *(mword*)rstack_entry[WHILE_RSTACK_SELECT] = WHILE_BODY;
-            }
-            hard_zap(this_bvm);
-        }
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == EACH){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-
-        if( is_nil((mword*)cdr(rstack_entry[EACH_RSTACK_LIST])) ){
-            this_bvm->code_ptr = (mword*)rstack_entry[EACH_RSTACK_RETURN];
-            pop_rstack(this_bvm);
-        }
-        else{
-            this_bvm->code_ptr = (mword*)rstack_entry[EACH_RSTACK_BODY];
-            rstack_entry[EACH_RSTACK_LIST] = cdr((mword*)rstack_entry[EACH_RSTACK_LIST]);
-            push_alloc(this_bvm, (mword*)car((mword*)rstack_entry[EACH_RSTACK_LIST]), IMMORTAL); //FIXME: Revisit
-            *(mword*)rstack_entry[EACH_RSTACK_ITER] = car(rstack_entry[EACH_RSTACK_ITER]) + 1;
-        }
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == EACHAR){
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-
-        if( car(rstack_entry[EACHAR_RSTACK_COUNT]) >= (size(rstack_entry[EACHAR_RSTACK_ARRAY])-1) ){
-
-            this_bvm->code_ptr = (mword*)rstack_entry[EACHAR_RSTACK_RETURN];
-            pop_rstack(this_bvm);
-
-        }
-        else{
-
-            *(mword*)rstack_entry[EACHAR_RSTACK_COUNT] = car(rstack_entry[EACHAR_RSTACK_COUNT]) + 1;
-
-            if(is_leaf(rstack_entry[EACHAR_RSTACK_ARRAY])){
-                result  = new_atom;
-                *result = c((mword*)rstack_entry[EACHAR_RSTACK_ARRAY],car(rstack_entry[EACHAR_RSTACK_COUNT]));
-            }
-            else{
-                result = (mword*)c((mword*)rstack_entry[EACHAR_RSTACK_ARRAY],car(rstack_entry[EACHAR_RSTACK_COUNT]));
-            }
-
-            this_bvm->code_ptr = (mword*)rstack_entry[EACHAR_RSTACK_BODY];
-
-            *(mword*)rstack_entry[EACHAR_RSTACK_ITER] = car(rstack_entry[EACHAR_RSTACK_ITER]) + 1;
-
-            push_alloc(this_bvm, result, IMMORTAL); //FIXME: Revisit
-
-        }
-
-    }
-    else if(return_type(this_bvm->rstack_ptr) == NEST){ //FIXME: Busted - need to handle empty stack
-
-        rstack_entry = (mword*)RTOS_0(this_bvm);
-
-        this_bvm->code_ptr = (mword*)rstack_entry[NEST_RSTACK_RETURN];
-        pop_rstack(this_bvm);
-
-        temp = TOS_0(this_bvm);
-
-        this_bvm->dstack_ptr  = (mword*)rstack_entry[NEST_RSTACK_STACK];
-        this_bvm->ustack_ptr = (mword*)rstack_entry[NEST_RSTACK_USTACK];
-        push_alloc(this_bvm,temp,IMMORTAL); //FIXME: Revisit
-
-//        error("next: found NEST while trying to execute NEXT");
-//        die;
-
-    }
-    else{
-        error("next: unknown return_type");
-        die;
-    }
-
-}
-
 
 
 /* flow-control operator

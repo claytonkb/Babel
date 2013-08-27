@@ -103,10 +103,11 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
 //    //mword *temp = get_tag_from_udr_stack(this_bvm, this_bvm->rstack_ptr, 0);
 //    mword *temp = rstack_get_tag(this_bvm, 0);
 
-    while( car(this_bvm->steps) ){//FIXME: This is not correct long-term   
+    while( icar(this_bvm->steps) ){//FIXME: This is not correct long-term   
 
-        if(is_nil((mword*)car(this_bvm->code_ptr))){
+//        if(is_nil((mword*)car(this_bvm->code_ptr))){
 
+        if(code_empty(this_bvm)){
             //popr(this_bvm);
             //printf("%d\n", rstack_empty(this_bvm));
 
@@ -117,155 +118,160 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
 
             if(!rstack_empty(this_bvm)){
 
-                mword *rtos     = rstack_get(this_bvm,0);
-                mword *tag      = (mword*)icar(rstack_get_tag(this_bvm, 0));
+                _next(this_bvm);
+                continue;
 
-                //printf("%d\n",tageq((mword*)eval_type(temp),BABEL_TAG_EVAL));
-                //die;
-                //printf("rstack_empty\n");
-
-                mword *sink;
-                mword *iter;
-
-                if(tageq(tag,BABEL_TAG_EVAL,TAG_SIZE)){
-                    sink = popr(this_bvm);
-                    this_bvm->code_ptr = consa(rtos,nil);
-                    icar(this_bvm->advance_type) = BVM_ADVANCE;
-                    continue;
-                }
-                else if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
+//                mword *rtos     = rstack_get(this_bvm,0);
+//                mword *tag      = (mword*)icar(rstack_get_tag(this_bvm, 0));
+//
+//                mword *sink;
+//                mword *iter;
+//
+//                if(tageq(tag,BABEL_TAG_EVAL,TAG_SIZE)){
+//                    sink = popr(this_bvm);
 //                    this_bvm->code_ptr = consa(rtos,nil);
 //                    icar(this_bvm->advance_type) = BVM_ADVANCE;
 //                    continue;
-                    iter = (mword*)icar(rtos);
-                    *iter = *iter + 1;
-                    this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
-                    icar(this_bvm->advance_type) = BVM_ADVANCE;
-                    continue;
-                }
-                else if(tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)){
-                    iter = (mword*)icar(rtos);
-                    *iter = *iter - 1;
-                    if(*iter == 0){
-                        sink = popr(this_bvm);
-                        this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
-                        icar(this_bvm->advance_type) = BVM_ADVANCE;
-                        continue;
-                    }
-                    else{
-                        this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
-                        icar(this_bvm->advance_type) = BVM_ADVANCE;
-                        continue;
-                    }
-                }
-                else if(tageq(tag,BABEL_TAG_EACH,TAG_SIZE)){
-
-                    iter = (mword*)icar(rtos);
-                    *iter = *iter + 1;
-
-                    mword *list = (mword*)icdr(icdr(icdr(rtos)));
-
-                    if(is_nil(icdr(icar(list)))){
-                        sink = popr(this_bvm);
-                        this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
-                        icar(this_bvm->advance_type) = BVM_ADVANCE;
-                        continue;
-                    }
-                    else{
-                        *list = icdr(icar(list));
-                        pushd(this_bvm, (mword*)icar(icar(list)), IMMORTAL);
-                        this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
-                        icar(this_bvm->advance_type) = BVM_ADVANCE;
-                        continue;
-                    }
-                }
-                else if(tageq(tag,BABEL_TAG_IFTE,TAG_SIZE)){
-
-                    mword *ifte_select = (mword*)icar(rtos);
-
-                    if(*ifte_select == IFTE_BODY){
-
-                        sink = popr(this_bvm);
-                        this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
-                        icar(this_bvm->advance_type) = BVM_ADVANCE;
-                        continue;
-
-                    }
-                    else{
-
-                        *ifte_select = IFTE_BODY;
-
-                        mword *cond = dstack_get(this_bvm, 0);
-                        popd(this_bvm);
-
-                        if(!is_false(cond)){
-                            this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
-                            icar(this_bvm->advance_type) = BVM_ADVANCE;
-                            continue;
-                        }
-                        else{
-                            this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(icdr(rtos)))),nil);
-                            icar(this_bvm->advance_type) = BVM_ADVANCE;
-                            continue;
-                        }
-
-                    }
-                }
-                else if(tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
-
-                    iter = (mword*)icar(rtos);
-                    *iter = *iter + 1;
-
-                    mword *while_select = _ith(rtos,4);
-
-//                    _dump(while_select);
-//                    die;
-
-                    if(*while_select == WHILE_BODY){
-
-                        *while_select = WHILE_COND;
-
-                        mword *cond_clause = _ith(rtos,3);
-                        this_bvm->code_ptr = consa(cond_clause,nil);
-                        icar(this_bvm->advance_type) = BVM_ADVANCE;
-                        continue;
-
-                    }
-                    else{
-
-                        *while_select = WHILE_BODY;
-
-                        mword *cond = dstack_get(this_bvm, 0);
-                        popd(this_bvm);
-
-                        if(!is_false(cond)){
-                            mword *while_body = _ith(rtos,1);
-                            this_bvm->code_ptr = consa(while_body,nil);
-                            icar(this_bvm->advance_type) = BVM_ADVANCE;
-                            continue;
-                        }
-                        else{
-                            mword *while_return = _ith(rtos,2);
-                            this_bvm->code_ptr = consa(while_return,nil);
-                            icar(this_bvm->advance_type) = BVM_ADVANCE;
-                            sink = popr(this_bvm);
-                            continue;
-                        }
-
-                    }
-                }
-                if(tageq(tag,BABEL_TAG_NEST,TAG_SIZE)){
-                    (mword*)icar(this_bvm->dstack_ptr) = _ith(rtos,0);
-                    (mword*)icar(this_bvm->ustack_ptr) = _ith(rtos,1);
-                    this_bvm->code_ptr         = consa(_ith(rtos,2),nil);
-                    icar(this_bvm->advance_type) = BVM_ADVANCE;
-                    sink = popr(this_bvm);
-                    continue;
-                }
-                else{
-                    _mem(tag);
-                    fatal("unrecognized tag");
-                }
+//                }
+//                else if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
+////                    this_bvm->code_ptr = consa(rtos,nil);
+////                    icar(this_bvm->advance_type) = BVM_ADVANCE;
+////                    continue;
+//                    iter = (mword*)icar(rtos);
+//                    *iter = *iter + 1;
+//                    this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
+//                    icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                    continue;
+//                }
+//                else if(tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)){
+//                    iter = (mword*)icar(rtos);
+//                    *iter = *iter - 1;
+//                    if(*iter == 0){
+//                        sink = popr(this_bvm);
+//                        //this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
+//                        //this_bvm->code_ptr = consa(_ith(rtos,2),nil);
+//                        //(mword*)c(this_bvm->code_ptr,0) = _ith(rtos,2);
+//                        set_code_ptr(this_bvm, _ith(rtos,2));
+//                        icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                        continue;
+//                    }
+//                    else{
+//                        //this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
+//                        //this_bvm->code_ptr = consa(_ith(rtos,1),nil);
+//                        //(mword*)c(this_bvm->code_ptr,0) = _ith(rtos,1);
+//                        set_code_ptr(this_bvm, _ith(rtos,1));
+//                        icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                        continue;
+//                    }
+//                }
+//                else if(tageq(tag,BABEL_TAG_EACH,TAG_SIZE)){
+//
+//                    iter = (mword*)icar(rtos);
+//                    *iter = *iter + 1;
+//
+//                    mword *list = (mword*)icdr(icdr(icdr(rtos)));
+//
+//                    if(is_nil(icdr(icar(list)))){
+//                        sink = popr(this_bvm);
+//                        this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
+//                        icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                        continue;
+//                    }
+//                    else{
+//                        *list = icdr(icar(list));
+//                        pushd(this_bvm, (mword*)icar(icar(list)), IMMORTAL);
+//                        this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
+//                        icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                        continue;
+//                    }
+//                }
+//                else if(tageq(tag,BABEL_TAG_IFTE,TAG_SIZE)){
+//
+//                    mword *ifte_select = (mword*)icar(rtos);
+//
+//                    if(*ifte_select == IFTE_BODY){
+//
+//                        sink = popr(this_bvm);
+//                        this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
+//                        icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                        continue;
+//
+//                    }
+//                    else{
+//
+//                        *ifte_select = IFTE_BODY;
+//
+//                        mword *cond = dstack_get(this_bvm, 0);
+//                        popd(this_bvm);
+//
+//                        if(!is_false(cond)){
+//                            this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
+//                            icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                            continue;
+//                        }
+//                        else{
+//                            this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(icdr(rtos)))),nil);
+//                            icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                            continue;
+//                        }
+//
+//                    }
+//                }
+//                else if(tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
+//
+//                    iter = (mword*)icar(rtos);
+//                    *iter = *iter + 1;
+//
+//                    mword *while_select = _ith(rtos,4);
+//
+////                    _dump(while_select);
+////                    die;
+//
+//                    if(*while_select == WHILE_BODY){
+//
+//                        *while_select = WHILE_COND;
+//
+//                        mword *cond_clause = _ith(rtos,3);
+//                        this_bvm->code_ptr = consa(cond_clause,nil);
+//                        icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                        continue;
+//
+//                    }
+//                    else{
+//
+//                        *while_select = WHILE_BODY;
+//
+//                        mword *cond = dstack_get(this_bvm, 0);
+//                        popd(this_bvm);
+//
+//                        if(!is_false(cond)){
+//                            mword *while_body = _ith(rtos,1);
+//                            this_bvm->code_ptr = consa(while_body,nil);
+//                            icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                            continue;
+//                        }
+//                        else{
+//                            mword *while_return = _ith(rtos,2);
+//                            this_bvm->code_ptr = consa(while_return,nil);
+//                            icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                            sink = popr(this_bvm);
+//                            continue;
+//                        }
+//
+//                    }
+//                }
+//                if(tageq(tag,BABEL_TAG_NEST,TAG_SIZE)){
+//                    (mword*)icar(this_bvm->dstack_ptr) = _ith(rtos,0);
+//                    (mword*)icar(this_bvm->ustack_ptr) = _ith(rtos,1);
+//                    this_bvm->code_ptr         = consa(_ith(rtos,2),nil);
+//                    icar(this_bvm->advance_type) = BVM_ADVANCE;
+//                    sink = popr(this_bvm);
+//                    continue;
+//                }
+//                else{
+//                    _mem(tag);
+//                    fatal("unrecognized tag");
+//                }
 
             }
 
@@ -274,26 +280,15 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
         }
 
         if( is_inte(car(car(this_bvm->code_ptr))) ){
-//            die;
-//            push_alloc(this_bvm, (mword*)car(this_bvm->code_ptr), IMMORTAL);
-
-//            _dump(new_dstack_entry((mword*)car(car(car(this_bvm->code_ptr))),IMMORTAL));
-            //push_udr_stack(this_bvm->dstack_ptr, new_dstack_entry((mword*)car(car(car(this_bvm->code_ptr))),IMMORTAL))
-//            die;
             pushd( this_bvm, (mword*)car(car(car(this_bvm->code_ptr))), IMMORTAL );
-//            flush_bvm_cache(this_bvm);
-//            _dump(this_bvm->self);
-//            die;
         }
         else if( is_leaf(car(car(this_bvm->code_ptr))) ){
             mword opcode = c(car(car(this_bvm->code_ptr)),0);
 
-//            d(car(car(this_bvm->code_ptr)))
-
             op_ptr = (babel_op)this_bvm->jump_table[ opcode % NUM_INTERP_OPCODES ];
             discard = op_ptr(this_bvm);
         }
-//        else if( is_href(car(this_bvm->code_ptr)) ){ //TODO: Implement href operator calls!
+//        else if( is_tptr(car(this_bvm->code_ptr)) ){ //TODO: Implement href operator calls!
 //            error("bvm_interp: hash-reference detected in code");
 //            die;
 //        }

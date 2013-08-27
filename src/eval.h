@@ -13,8 +13,9 @@ bvm_cache *whileop(bvm_cache *this_bvm);
 bvm_cache *each(bvm_cache *this_bvm);
 bvm_cache *ifte(bvm_cache *this_bvm);
 bvm_cache *iter(bvm_cache *this_bvm);
-
 bvm_cache *next(bvm_cache *this_bvm);
+bvm_cache *_next(bvm_cache *this_bvm);
+
 bvm_cache *last(bvm_cache *this_bvm);
 
 bvm_cache *let(bvm_cache *this_bvm);

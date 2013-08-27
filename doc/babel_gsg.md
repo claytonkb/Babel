@@ -16,10 +16,10 @@ language with support for arrays, lists and hashes (dictionaries). Babel
 1.0 will support built-in crypto-based verification of code in order to 
 enable safer remote code execution.
 
-Babel was designed with the TIMTOWTDI  philosophy in mind – there are many 
+Babel was designed with the TIMTOWTDI  philosophy in mind - there are many 
 right ways to solve any particular problem in Babel. However, some 
 solutions are a bad fit for Babel. In particular, trying to write Babel 
-code to resemble standard function-call code – while possible – will 
+code to resemble standard function-call code - while possible - will 
 result in sub-optimal, hard-to-read Babel code.
 
 Babel is a stack-based language - the stack is the primary means of 

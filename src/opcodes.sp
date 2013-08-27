@@ -87,6 +87,7 @@
     (goto           (oper 0x122))
     (loop           (oper 0x125))
     (last           (oper 0x126))
+    (next           (oper 0x127))
     (cut            (oper 0x12b))
     (trunc          (oper 0x12c))
 

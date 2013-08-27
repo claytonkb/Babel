@@ -204,6 +204,11 @@ mword *empty_string;
 #define zapu(x,y) zap_from_udr_stack( x->ustack_ptr, y )    // zapu#
 #define zapr(x,y) zap_from_udr_stack( x->rstack_ptr, y )    // zapr#
 
+#define set_code_ptr(x,y) ((mword*)c(x->code_ptr,0) = y)
+#define set_ustack_ptr(x,y) ((mword*)c(x->ustack_ptr,0) = y)
+#define set_dstack_ptr(x,y) ((mword*)c(x->dstack_ptr,0) = y)
+#define set_rstack_ptr(x,y) ((mword*)c(x->rstack_ptr,0) = y)
+
 //#define mkref(x)  mkref#
 #define mkref(x) ( new_tptr( \
                         _hash8(C2B("/babel/tag/ref")), \
@@ -228,11 +233,14 @@ mword *empty_string;
 
 #define rstack_get_tag(x,y) get_tag_from_udr_stack(x, x->rstack_ptr, y)
 
-#define dstack_set(x,y,z) set_in_udr_stack(x, x->dstack_ptr, y, z) // dstack_set#
 #define ustack_set(x,y,z) set_in_udr_stack(x, x->ustack_ptr, y, z) // ustack_set#
+#define dstack_set(x,y,z) set_in_udr_stack(x, x->dstack_ptr, y, z) // dstack_set#
 #define rstack_set(x,y,z) set_in_udr_stack(x, x->rstack_ptr, y, z) // rstack_set#
 
-#define rstack_empty(x) is_nil(car(x->rstack_ptr)) // rstack_empty#
+#define ustack_empty(x) is_nil(icar(x->ustack_ptr)) // ustack_empty#
+#define dstack_empty(x) is_nil(icar(x->dstack_ptr)) // dstack_empty#
+#define rstack_empty(x) is_nil(icar(x->rstack_ptr)) // rstack_empty#
+#define code_empty(x) is_nil(icar(x->code_ptr)) // rstack_empty#
 
 //XXX DEPRECATE XXX
 #define TOS_0(x)             (mword*)icar(icar(icar(x->dstack_ptr)))
