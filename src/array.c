@@ -457,11 +457,11 @@ mword _arlen8(mword *string){ // _arlen8#
 */
 bvm_cache *newin(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result = _newin((mword)car(TOS_0(this_bvm))); //FIXME: There is no checking...
+    mword *result = _newin(icar(dstack_get(this_bvm,0))); //FIXME: There is no checking...
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, NEWIN);
+    popd(this_bvm);
+
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 

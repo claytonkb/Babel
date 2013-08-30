@@ -91,7 +91,7 @@ mword *empty_string;
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 541
+#define NUM_INTERP_OPCODES 542
 
 // Operating-system compatibility
 #define WINDOWS
@@ -297,6 +297,7 @@ mword *empty_string;
     mword *result;                              \
                                                 \
     y                                           \
+    popd(x);                                    \
     popd(x);                                    \
                                                 \
     pushd(x, result, IMMORTAL);                 \

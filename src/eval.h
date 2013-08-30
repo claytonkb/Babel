@@ -15,12 +15,10 @@ bvm_cache *ifte(bvm_cache *this_bvm);
 bvm_cache *iter(bvm_cache *this_bvm);
 bvm_cache *next(bvm_cache *this_bvm);
 bvm_cache *_next(bvm_cache *this_bvm);
-
 bvm_cache *last(bvm_cache *this_bvm);
-
 bvm_cache *let(bvm_cache *this_bvm);
+bvm_cache *cond(bvm_cache *this_bvm);
 
-//bvm_cache *continueop(bvm_cache *this_bvm);
 bvm_cache *eachar(bvm_cache *this_bvm);
 bvm_cache *conjure(bvm_cache *this_bvm);
 void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return);
@@ -38,6 +36,10 @@ bvm_cache *ifop(bvm_cache *this_bvm);
 
 #define IFTE_BODY 0
 #define IFTE_COND 1
+
+#define COND_BODY 0
+#define COND_COND 1
+#define COND_RETURN 2
 
 #define LET_RSTACK_ENTRIES  2
 #define LET_RSTACK_RETURN   0

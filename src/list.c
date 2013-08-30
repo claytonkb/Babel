@@ -422,7 +422,7 @@ mword *_bons(mword *list){ // _bons#
 */
 bvm_cache *ls2lf(bvm_cache *this_bvm){ // ls2lf#
 
-    mword *list = getd(this_bvm,0);
+    mword *list = dstack_get(this_bvm,0);
     mword *result = _ls2lf(list);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -440,8 +440,8 @@ mword *_ls2lf(mword *list){ // _ls2lf#
 
     int i=0;
     while(!is_nil(list)){
-        if(!is_leaf((mword*)scar(list))){
-            die //FIXME: Exception
+        if(!is_leaf((mword*)icar(list))){
+            die; //FIXME: Exception
         }
         c(arr,i) = car(car(list));
         i++;

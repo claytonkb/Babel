@@ -193,7 +193,7 @@
     (nhword         (oper 0x210))
     (deref          (oper 0x211))
     (ifop           (oper 0x212))
-    (ordop          (oper 0x213))
+    (ord            (oper 0x213))
     (let            (oper 0x214))
     (split          (oper 0x215))
     (lusym          (oper 0x216))
@@ -202,5 +202,6 @@
     (move8          (oper 0x219))
     (ins            (oper 0x21a))
     (exec           (oper 0x21b))
-    (dev            (oper 0x21c)))
+    (dev            (oper 0x21c))
+    (cond           (oper 0x21d)))
 

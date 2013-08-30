@@ -695,8 +695,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
 
     //210
     rsvd,
-    //deref,
-    rsvd,
+    deref,
     ifop,
     ordop,
     let,
@@ -708,6 +707,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     insls,
     exec,
     dev,
+    cond,
 
 };
 

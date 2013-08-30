@@ -66,25 +66,19 @@ mword *new_rstack_entry(mword *operand, mword *eval_type){ // new_rstack_entry#
 //
 inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // get_from_udr_stack#
 
-    return _chain_deref( this_bvm->sym_table, (mword*)icar( _ith( (mword*)icar( stack_ptr ), stack_index )) );
+//    return _chain_deref( this_bvm->sym_table, (mword*)icar( _ith( (mword*)icar( stack_ptr ), stack_index )) );
+//    return (mword*)icar( _ith( (mword*)icar( stack_ptr ), stack_index ));
+    return _chain_deref( this_bvm, (mword*)icar( _ith( (mword*)icar( stack_ptr ), stack_index )) );
 
 }
-
-
-////
-////
-//inline mword *get_from_rstack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // get_from_rstack#
-//
-//    return _chain_deref( this_bvm->sym_table, _ith( (mword*)icar( stack_ptr ), stack_index ));
-//
-//}
 
 
 //
 //
 mword *get_tag_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // get_tag_from_udr_stack#
 
-    return _chain_deref( this_bvm->sym_table, (mword*)icdr( _ith( (mword*)icar( stack_ptr ), stack_index )) );
+//    return _chain_deref( this_bvm->sym_table, (mword*)icdr( _ith( (mword*)icar( stack_ptr ), stack_index )) );
+    return (mword*)icdr( _ith( (mword*)icar( stack_ptr ), stack_index ));
 
 }
 
@@ -93,7 +87,8 @@ mword *get_tag_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack
 //
 inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index, mword *bs){ // set_in_udr_stack#
 
-    mword *stack_entry = _chain_deref( this_bvm->sym_table, (mword*)icar( icar( _ith( stack_ptr, stack_index ))) );
+//    mword *stack_entry = _chain_deref( this_bvm->sym_table, (mword*)icar( icar( _ith( stack_ptr, stack_index ))) );
+    mword *stack_entry = (mword*)icar( icar( _ith( stack_ptr, stack_index )));
 
     (mword*)c(stack_entry,0) = bs;
 
@@ -245,6 +240,9 @@ bvm_cache *sel(bvm_cache *this_bvm){ // sel#
 */
 bvm_cache *dup(bvm_cache *this_bvm){ // dup#
 
+    if(dstack_empty(this_bvm))
+        return this_bvm;
+
 #define babel_dup_operator \
     result = dstack_get(this_bvm,0);
 
@@ -319,7 +317,7 @@ bvm_cache *up(bvm_cache *this_bvm){ // up#
     popu(this_bvm);
 
     return this_bvm;
-    
+
 }
 
 
@@ -339,7 +337,8 @@ bvm_cache *take(bvm_cache *this_bvm){ // take#
     int i;
 
     if(count == -1){
-        while(!is_nil(this_bvm->dstack_ptr)){
+//        while(!is_nil(this_bvm->dstack_ptr)){
+        while(!dstack_empty(this_bvm)){
             list_entry = dstack_get(this_bvm,0);
             result = consa(list_entry, result);
             popd(this_bvm);
@@ -403,7 +402,7 @@ void rgive(bvm_cache *this_bvm, mword *list){ // rgive#
     if(is_nil(list))
         return;
 
-    pushd(this_bvm, (mword*)car(list), IMMORTAL); //FIXME: Depends
+    pushd(this_bvm, (mword*)car(list), IMMORTAL);
 
     rgive(this_bvm,(mword*)cdr(list));
 
@@ -439,11 +438,16 @@ bvm_cache *flip(bvm_cache *this_bvm){ // flip#
 
 
 //FIXME: Busted, need to handle empty stack
-// babel_operator
+/* stack operator
+**nest**  
+> Creates a fresh stack with current TOS on it. Saves current dstack onto
+> rstack.
+*/
 bvm_cache *nest(bvm_cache *this_bvm){ // nest#
 
     mword *nest_body = dstack_get(this_bvm,0);
-    mword *new_stack = dstack_get(this_bvm,1);
+//    mword *new_stack = dstack_get(this_bvm,1);
+    mword *save_TOS = dstack_get(this_bvm,1);
 
     popd(this_bvm);
     popd(this_bvm);
@@ -453,8 +457,8 @@ bvm_cache *nest(bvm_cache *this_bvm){ // nest#
 
     clear(this_bvm); // clear the stack
 
-    rgive(this_bvm, new_stack);
-    //pushd(this_bvm, new_stack, IMMORTAL);
+    //rgive(this_bvm, new_stack);
+    pushd(this_bvm, save_TOS, IMMORTAL);
 
     mword *nest_return = (mword*)icdr(icar(this_bvm->code_ptr));
 

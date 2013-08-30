@@ -410,15 +410,14 @@ bvm_cache *cu2hex(bvm_cache *this_bvm){ // cu2hex#
 **ord**   
 > Returns the numeric value of a character  
 */
-bvm_cache *ordop(bvm_cache *this_bvm){ // ordop#
+bvm_cache *ordop(bvm_cache *this_bvm){ // ordop# ord#
 
     mword *result = dstack_get(this_bvm,0);
     popd(this_bvm);
 
     char ord_value = (char)icar(result);
 
-    result = _newva(0);
-    *result = ord_value;
+    result = _newva(ord_value);
 
     pushd(this_bvm, result, IMMORTAL);
 

@@ -48,7 +48,7 @@ mword *tptr_extract_hash(mword *tptr){ // tptr_extract_hash#
 //
 mword *tptr_extract_ptr(mword *tptr){ // tptr_extract_ptr#
 
-    mword *temp = get_tptr(tptr);
+    mword* temp = (mword*)(tptr+TPTR_PTR);
 
     if(is_tptr(temp)){
         return tptr_extract_ptr(temp);

@@ -8,8 +8,43 @@ Be sure to check out the many examples of <a href="http://rosettacode.org/wiki/C
 
 [Babel Operator Reference](babel_op.html)
 
+Contents
+========
+
+- <a href="#getting_started">Getting Started</a>
+- <a href="#overview">Overview</a>
+- <a href="#sparse">Sparse</a>
+- <a href="#bipedal">Bipedal</a>
+
+<a name="getting_started"></a>
 Getting Started
 ===============
+
+To get started using Babel, you will need the following prerequisites:
+
+- Windows machine
+- Cygwin
+- ActivePerl
+- Babel repo cloned from <a href="https://github.com/claytonkb/Babel" target="_blank">github</a>
+
+To make Babel, run the following command from the Cygwin prompt:
+
+> `perl make.pl`
+
+To run Babel code in a file named foo.sp, run the following command from the 
+Cygwin prompt:
+
+> `perl babel foo.sp`
+
+Babel is written in C specifically to facilitate cross-platform support - it
+is in the works. If you want to compile Babel for GCC, simply #undef WINDOWS
+and then put together a suitable makefile.
+
+To begin writing your own Babel program, see the section below on <a href="#sparse">Sparse</a>.
+
+<a name="overview"></a>
+Overview
+========
 
 Babel is an interpreted language.  It is an untyped, stack-based, postfix 
 language with support for arrays, lists and hashes (dictionaries). Babel 
@@ -59,16 +94,96 @@ bootstrap the Babel construct, it is called Sparse (S-expression parser).
 The second kind is the built-in Babel parser, which is called Bipedal
 (Babel Program Description Language).
 
+<a name="sparse"></a>
 S-expression parser (sparse.pl)
 -------------------------------
 
+The s-expression parser (sparse.pl) is designed as an ultra-lightweight 
+front-end for generating native Babel code. It uses S-expressions to encode
+the various Babel data structures. To compile a set of .sp files into a
+single .bbl file, pass the filenames as arguments to sparse.pl. Evaluation
+of the compiled code begins at root:
 
+(root *your Babel code here*)  
 
+A .sp file is a list-of-lists (each list defining a "section"), so you must
+place the root list inside another in order for it to be parseable:
+
+((root *code*))  
+
+Perhaps the simplest program you might compile:
+
+((root (val 10)))  
+
+To see a listing of the binary file that was created, open filename.sp.lst.
+For example, the above code would result in the following lines in the
+.lst file:
+
+`0000 00000004  
+0004 0000000a`  
+
+The first line is at offset 0 and has a value of 4, meaning a leaf-array of
+4 bytes in length. The second line is at offset 4 and has the value of 0xa,
+which is the hexadecimal equivalent of the value 10 in the example .sp 
+program.
+
+The kinds of lists which sparse recognizes are:
+
+> `(val  ...)`  Creates a leaf-array (values)  
+> `(ptr  ...)`  Creates an interior-array (pointers)  
+> `(tag  ...)`  Creates a tagged-pointer  
+> `(list ...)`  Creates a Lisp-style list  
+> `(hash ...)`  Returns the Pearson16 hash of a string  
+> `(oper ...)`  Inserts a constant value into a code-list as an operator  
+> `(ref  ...)`  Creates a reference  
+> `(code ...)`  Creates a code-list  
+   
+Examples. Paste these into some filename.sp file and use sparse.pl to compile
+and see the results in the .lst file. Note that none of these examples are
+runnable as a Babel Virtual Machine, that is, you cannot pass the generated
+.bbl file to Babel.
+
+> `((root (val  1 2 3)))`  
+> `((root (ptr  1 2 3)))`  
+> `((root (ptr root)))`  
+> `((root (list 1 2 3)))`  
+> `((root (tag 'foo' nil)))`  
+> `((root (hash 'foo')))`  
+> `((root (oper 0x134)))`  
+> `((root (ref 'foo')))`  
+   
+In order to generate meaningful code-lists, you will need to pass 
+src/opcodes.sp to sparse.pl in addition to your .sp filename.
+
+> `((root (code fnord fnord)))`  
+
+In order to create a loadable BVM, you will need to pass both src/opcodes.sp
+and src/construct.sp to sparse.pl in addition to your .sp filename. You must
+*not* define 'root' in your .sp file (since it is already defined in 
+construct.sp) and you must define a 'main' section and a 'symbol' section.
+
+For example, if foo.sp is the following:
+
+> `(   (main (code "Hello, world\n" stdout8))  
+>    (symbol (list nil)))`  
+  
+... then you can compile a loadable BVM out from it with the following command:
+
+> `perl sparse.pl foo.sp src/construct.sp src/opcodes.sp`   
+
+Now, foo.sp.bbl can be executed by the Babel interpreter directly:
+
+> `bin/babel.exe foo.sp.bbl`  
+
+<a name="bipedal"></a>
 Babel Program Description Language (Bipedal)
 --------------------------------------------
 
-The primary design goal in Bipedal has been to make the syntax reflect the 
-underlying data structure that is being described as closely as possible. 
+Support for Bipedal does not yet exist in Babel, but will be available in 
+Babel 1.0. The primary design goal of Bipedal has been to make the syntax 
+reflect the underlying data structure that is being described as closely as 
+possible. 
+
 Bipedal is UTF-8 encoded - this means you can give your sections any name 
 that can be encoded in UTF-8. You can easily alias the built-in operator 
 names, as well.
@@ -508,5 +623,7 @@ for that symbol. This is the case regardless of whether the symbol refers
 to a symbolic variable or a reference variable.
 
 
+Git ID: 70f6ef8015bec0b6c9f7069e617c7f4662284ef3
 
+Generated: Tue, Aug 27, 2013  9:39:45 PM
 

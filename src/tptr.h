@@ -8,6 +8,7 @@
 
 #define TPTR_PTR      HASH_SIZE+1
 #define get_tptr(x)   (mword*)c((mword*)x,TPTR_PTR)
+//#define get_tptr2(x)   (mword*)(x+TPTR_PTR)
 #define set_tptr(x,y) (mword*)c((mword*)x,TPTR_PTR)=(mword*)y;
 
 //mword *new_tptr(mword *hash, mword *list);
@@ -17,7 +18,7 @@ mword *tptr_extract_hash(mword *tptr);
 mword *tptr_extract_ptr(mword *tptr); 
     //Different from get_tptr because get_tptr returns the ptr for 
     //THIS tptr whereas tptr_extract_ptr is recursive
-mword *detag(mword *tptr);
+mword *detag(mword *tptr); 
 mword *hard_detag(mword *tptr);
 
 #endif //TPTR_H

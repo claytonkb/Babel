@@ -124,6 +124,9 @@ bvm_cache *dev(bvm_cache *this_bvm){ // dev#
 //    _dump(dstack_get(this_bvm,0));
 //    die;
 
+//    _dump(this_bvm->self);
+//    die;
+
 //    printf("fnord fnord\n");
 
 //    mword *op0 = dstack_get(this_bvm,0);               

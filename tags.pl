@@ -36,6 +36,11 @@ my $tags =
         "BABEL_TAG_WHILE"               => "/babel/tag/while",
         "BABEL_TAG_NEST"                => "/babel/tag/nest",
         "BABEL_TAG_LET"                 => "/babel/tag/let",
+        "BABEL_TAG_REF_HASH"            => "/babel/tag/ref_hash",
+        "BABEL_TAG_REF_STRING"          => "/babel/tag/ref_string",
+        "BABEL_TAG_REF_ARRAY"           => "/babel/tag/ref_array",
+        "BABEL_TAG_REF_LIST"            => "/babel/tag/ref_list",
+        "BABEL_TAG_COND"                => "/babel/tag/cond",
         "BABEL_TAG_COMPAT"              => "WINDOWS;32", };
 
 

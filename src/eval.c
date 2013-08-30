@@ -151,10 +151,10 @@ bvm_cache *dieop(bvm_cache *this_bvm){ // dieop# die#
 > Iterates across a list  
 > `0 (code cuadd) (list 1 2 3 4) each --> Leaves 10 on TOS`  
 */
-bvm_cache *each(bvm_cache *this_bvm){
+bvm_cache *each(bvm_cache *this_bvm){ // each#
 
-    mword *each_list  = dstack_get(this_bvm,0);
-    mword *each_body  = dstack_get(this_bvm,1);
+    mword *each_body  = dstack_get(this_bvm,0);
+    mword *each_list  = dstack_get(this_bvm,1);
 
     popd(this_bvm); 
     popd(this_bvm);
@@ -191,12 +191,11 @@ bvm_cache *each(bvm_cache *this_bvm){
 > `{x}[Y][Z]| -> eval(Y)| --> if x == 0`  
 > `{x}[Y][Z]| -> eval(Z)| --> if x == 1`  
 */
-bvm_cache *ifte(bvm_cache *this_bvm){
+bvm_cache *ifte(bvm_cache *this_bvm){ // ifte#
 
     mword *else_clause = dstack_get(this_bvm, 0);
     mword *then_clause = dstack_get(this_bvm, 1);
     mword *cond_clause = dstack_get(this_bvm, 2);
-
 
     mword *ifte_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
@@ -227,7 +226,7 @@ bvm_cache *ifte(bvm_cache *this_bvm){
 > Like the C keyword.
 >  
 */
-bvm_cache *whileop(bvm_cache *this_bvm){
+bvm_cache *whileop(bvm_cache *this_bvm){ // whileop# while#
 
     mword *while_body  = dstack_get(this_bvm, 0);
     mword *cond_clause = dstack_get(this_bvm, 1);
@@ -266,7 +265,33 @@ Places the current loop iteration (zero-based) on TOS.
 bvm_cache *iter(bvm_cache *this_bvm){ // iter#
 
     mword *result;
-    mword *rtos     = rstack_get(this_bvm,0);
+
+    int rstack_depth = _len((mword*)icar(this_bvm->rstack_ptr));
+    int i = 0;
+
+    mword *tag;
+
+    while(i<=rstack_depth){
+
+        if(i == rstack_depth) //no looping consructs: iter == fnord
+            return this_bvm;
+
+        tag = (mword*)icar(rstack_get_tag(this_bvm, i));
+
+        if( tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)
+            || tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)
+            || tageq(tag,BABEL_TAG_EACH,TAG_SIZE)
+            || tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
+            break;
+        }
+        else{
+            i++;
+        }
+
+    }
+
+    mword *rtos = rstack_get(this_bvm,i);
+
     result = _newva(*(mword*)icar(rtos));
 
     //mword *tag      = (mword*)icar(rstack_get_tag(this_bvm, 0));
@@ -303,6 +328,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // next#
 
 }
 
+// FIXME: Needs to dig down rstack...
 bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
     mword *rtos     = rstack_get(this_bvm,0);
@@ -465,6 +491,70 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
         sink = popr(this_bvm);
 
     }
+    else if(tageq(tag,BABEL_TAG_COND,TAG_SIZE)){ // FIXME: use _pop() instead of manual list-mods
+
+        mword *cond_select = _ith(rtos,0);
+
+        if(*cond_select == COND_BODY){
+
+            set_code_ptr(this_bvm, _ith(rtos,2));
+            popr(this_bvm);
+
+        }
+        else{// if(*cond_select == COND_COND){
+
+            mword *cond = dstack_get(this_bvm, 0);
+            popd(this_bvm);
+
+            if(!is_false(cond)){
+
+                *cond_select = COND_BODY;
+
+                mword *cond_list = _ith(rtos,1);
+
+                if(is_nil(cond_list)){ // _len of cond_list is odd
+
+                    set_code_ptr(this_bvm, _ith(rtos,2));
+                    popr(this_bvm);
+
+                }
+                else{
+                    
+                    set_code_ptr(this_bvm,_ith(cond_list,0));
+
+                }
+
+            }
+            else{ // if(is_false(cond))
+
+                //*cond_select = COND_COND;
+                mword *cond_list = _ith(rtos,1);
+
+                if( is_nil(cond_list) ){ // _len of cond_list is odd
+
+                    set_code_ptr(this_bvm, _ith(rtos,2));
+                    popr(this_bvm);
+
+                }
+                else{
+
+                    //set_code_ptr(this_bvm,(mword*)icar(icdr(cond_list)));
+                    set_code_ptr(this_bvm,(mword*)_ith(cond_list,1));
+
+                    // Not sure which is uglier...                    
+                    cond_list = icdr(rtos);
+                    (mword*)*cond_list = _pop((mword*)icar(cond_list));
+                    (mword*)*cond_list = _pop((mword*)icar(cond_list));
+
+                    //*(mword*)icdr(rtos) = icdr(icdr(icar(icdr(rtos)));
+
+                }
+
+            }
+
+        }
+
+    }
     else{
         _mem(tag);
         fatal("unrecognized tag");
@@ -477,11 +567,12 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 }
 
 
+// FIXME: Needs to dig down rstack...
 /* flow-control operator
 **last**  
 > Breaks out of current loop  
 */
-bvm_cache *last(bvm_cache *this_bvm){ 
+bvm_cache *last(bvm_cache *this_bvm){ // last#
 
     mword *rtos        = rstack_get(this_bvm,0);
     mword *last_return = _ith(rtos,2);
@@ -515,7 +606,7 @@ bvm_cache *last(bvm_cache *this_bvm){
 **let**
 > Defines a lexical-variable scope
 */
-bvm_cache *let(bvm_cache *this_bvm){
+bvm_cache *let(bvm_cache *this_bvm){ // let#
 
     mword *let_body = dstack_get(this_bvm,0);
     mword *let_list = dstack_get(this_bvm,1);
@@ -547,52 +638,6 @@ bvm_cache *let(bvm_cache *this_bvm){
 }
 
 
-//FIXME: Busted. See ifte to get it right.
-// babel_operator
-bvm_cache *ifop(bvm_cache *this_bvm){
-
-    fatal("unimplemented");
-//   { > 0 } { "greater than zero\n" << } if
-
-//    mword *then_clause = get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) );
-//    hard_zap(this_bvm);
-//
-//    mword *cond_clause = get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) );
-//    hard_zap(this_bvm);
-//
-//    dup(this_bvm); //Almost always we need to dup the TOS...
-//
-//    mword *temp = _newin(IFOP_RSTACK_ENTRIES);
-//
-//    (mword*)c(temp,IFOP_RSTACK_RETURN) = (mword*)cdr(this_bvm->code_ptr);
-//    (mword*)c(temp,IFOP_RSTACK_THEN)   = then_clause;
-//
-//    push_alloc_rstack(this_bvm, temp, IFOP);
-//
-//    car(this_bvm->advance_type) = BVM_CONTINUE;
-//
-//    this_bvm->code_ptr = cond_clause;
-
-    return this_bvm;
-
-}
-
-
-/* flow-control operator
-**continue**  
-> Same as next but can be used within an if or eval  
-*/
-
-//bvm_cache *continueop(bvm_cache *this_bvm){
-//
-//    next(this_bvm);
-//    next(this_bvm);
-//
-//    return this_bvm;
-//
-//}
-
-
 /* flow-control operator
 **cond** (??)   
 >   
@@ -601,44 +646,37 @@ bvm_cache *ifop(bvm_cache *this_bvm){
 > ( [x] 0 lt)  
 >     ("negative" say)  
 > ( [x] 0 eq)  
->     ("zero" say))`  
-> cond  
+>     ("zero" say))  
+> cond`  
 */
+bvm_cache *cond(bvm_cache *this_bvm){ // cond#
 
+    mword *cond_list = dstack_get(this_bvm, 0);
+    popd(this_bvm);
 
+    if(_len(cond_list) < 2)
+        return this_bvm;
 
-//bvm_cache *whileop(bvm_cache *this_bvm){ //XXX buggy...
-//
-//    fatal("stack fix not done");
-//    mword *cond_block = TOS_0(this_bvm);
-//    hard_zap(this_bvm);
-//
-//    mword *body = TOS_0(this_bvm);
-//    hard_zap(this_bvm);
-//
-//    mword *block_sel = new_atom;
-//    *block_sel = WHILE_COND;
-//
-//    mword *temp = _newin(WHILE_RSTACK_ENTRIES);
-//    (mword*)c(temp,WHILE_RSTACK_COND)   = cond_block;
-//    (mword*)c(temp,WHILE_RSTACK_BODY)   = body;
-//            c(temp,WHILE_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
-//    (mword*)c(temp,WHILE_RSTACK_SELECT) = block_sel;
-//
-//    mword *iter_temp = new_atom;
-//    *iter_temp = 0;
-//    (mword*)c(temp,WHILE_RSTACK_ITER)   = iter_temp;
-//
-//    push_alloc_rstack(this_bvm, temp, WHILEOP);
-//
-//    icar(this_bvm->advance_type) = BVM_CONTINUE;
-//
-//    this_bvm->code_ptr = cond_block;
-//    
-//    return this_bvm;
-//
-//}
+    mword *cond_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
+    mword *cond_select = _newva(COND_COND);
+
+    mword *cond_rstack_entry = consa(cond_select,
+                                consa((mword*)icdr(cond_list),
+                                    consa(cond_return, nil )));
+
+    pushr(this_bvm, cond_rstack_entry, _hash8(C2B("/babel/tag/cond")));
+
+    //dup(this_bvm); // Perform this step before eval'ing each cond
+
+    //this_bvm->code_ptr = consa((mword*)icar(cond_list),nil);
+    set_code_ptr(this_bvm,(mword*)icar(cond_list));
+
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
+
+    return this_bvm;        
+
+}
 
 
 /* flow-control operator
@@ -691,6 +729,38 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
 }
 
+
+//FIXME: Busted. See ifte to get it right.
+// babel_operator
+bvm_cache *ifop(bvm_cache *this_bvm){
+
+    fatal("unimplemented");
+//   { > 0 } { "greater than zero\n" << } if
+
+//    mword *then_clause = get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) );
+//    hard_zap(this_bvm);
+//
+//    mword *cond_clause = get_from_stack( this_bvm, (mword*)TOS_0( this_bvm ) );
+//    hard_zap(this_bvm);
+//
+//    dup(this_bvm); //Almost always we need to dup the TOS...
+//
+//    mword *temp = _newin(IFOP_RSTACK_ENTRIES);
+//
+//    (mword*)c(temp,IFOP_RSTACK_RETURN) = (mword*)cdr(this_bvm->code_ptr);
+//    (mword*)c(temp,IFOP_RSTACK_THEN)   = then_clause;
+//
+//    push_alloc_rstack(this_bvm, temp, IFOP);
+//
+//    car(this_bvm->advance_type) = BVM_CONTINUE;
+//
+//    this_bvm->code_ptr = cond_clause;
+
+    return this_bvm;
+
+}
+
+
 /* flow-control operator
 **conjure**
 Attempts to call a function in the parent BVM.  
@@ -706,74 +776,11 @@ bvm_cache *conjure(bvm_cache *this_bvm){
 
 }
 
+
 /* flow-control operator
 **zipeach**
 **carteach**
 */
-
-//void eachar(void){
-//
-//    //body   RTOS-0
-//    //return RTOS-1
-//    //array  RTOS-2
-//    //count  RTOS-3
-//
-////    if(TOS_0 != nil){
-////        mword *count = _newlf(1);
-////        *count = 0;
-////        push_alloc_rstack((mword*)count,EACHAR);
-////        push_alloc_rstack((mword*)TOS_0, EACHAR);
-////        mword *temp_array = (mword*)TOS_0;
-////        push_alloc_rstack((mword*)cdr(code_ptr), EACHAR);
-////
-////        zap();
-////        mword temp_code_ptr = TOS_0;
-////        zap();
-////        code_ptr = temp_code_ptr;
-////        push_alloc_rstack((mword*)code_ptr, EACHAR);
-////        push_alloc((mword*)c(temp_array,*count),EACHAR);
-////    }
-////    else{
-////        code_ptr = cdr(code_ptr);
-////    }
-//
-//    //return RTOS-3
-//    //body   RTOS-2
-//    //array  RTOS-1
-//    //count  RTOS-0
-//
-//    mword *temp;
-//    if(TOS_0 != nil){
-//
-//        mword *count = _newlf(1);
-//        *count = 0;
-//
-//        mword *temp_list = (mword*)TOS_0;
-//        mword *temp_code_ptr = (mword*)cdr(code_ptr);
-//
-//        zap();
-//
-//        code_ptr = TOS_0;
-//
-//        zap();
-//
-//        temp = cons_alloc(temp_code_ptr, (mword*)nil);
-//        temp = cons_alloc((mword*)code_ptr, temp);
-//        temp = cons_alloc(temp_list, temp);
-//        temp = cons_alloc(count, temp);
-//        
-//        push_alloc_rstack(temp, EACHAR);       
-//        push_alloc((mword*)c(temp_list,*count),EACHAR);
-//
-//    }
-//    else{
-//
-//        code_ptr = cdr(code_ptr);
-//
-//    }
-//
-//
-//}
 
 // Clayton Bauman 2011
 

@@ -6,68 +6,94 @@
 #include "bstruct.h"
 #include "tptr.h"
 #include "hash.h"
+#include "stack.h"
+#include "pearson16.h"
+#include "list.h"
+
+
+bvm_cache *deref(bvm_cache *this_bvm){ // deref#
+
+//    mword *ref = (mword*)icar(tptr_extract_ptr(dstack_get(this_bvm,0)));
+//    mword *result = rderef(get_tptr(this_bvm->sym_table),ref);
+//
+//    pushd(this_bvm, result, IMMORTAL);
+//    return this_bvm;
+
+    mword *result = _deref(this_bvm, dstack_get(this_bvm,0));
+
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
+
 
 // Dereferences a reference-list
 //
-mword *_deref(mword *bs, mword *ref_list){ // _deref#
+mword *_deref(bvm_cache *this_bvm, mword *ref_list){ // _deref#
 
-    //return rderef(bs,(mword*)car(ref_list));
-    return rderef(bs,(mword*)car(ref_list));
+    mword *ref = (mword*)icar(tptr_extract_ptr(ref_list));
+    mword *result;
+
+    //Determine if sym_table-relative
+    if(is_nil((mword*)icar(ref))){
+        result = rderef(this_bvm, get_tptr(this_bvm->sym_table),(mword*)icdr(ref));
+    }
+    else{
+        result = rderef(this_bvm, (mword*)icar(ref),(mword*)icdr(ref));
+    }
+
+    return result;
 
 }
 
 
 //
 //
-static mword *rderef(mword *bs, mword *ref_list){ // rderef#
+static mword *rderef(bvm_cache *this_bvm, mword *bs, mword *ref_list){ // rderef#
 
-    mword *rl = (mword*)car(ref_list);
-
-    if (is_nil(rl)){
+    if(is_nil(ref_list))
         return bs;
-    }
-    else if (is_ref(rl)){
-        enhance("Nested references not supported");
-        die;
-    }
-    else if (is_tptr(rl)){
-        //_dump(tptr_extract_hash(rl));
-        bs = _luha( bs, tptr_extract_hash(rl) );
-        //die;
-    }
-    else if(is_leaf(rl)){
-        if(is_leaf(bs)){
-            return val(bs,car(rl));
-        }
-        else if(is_tptr(bs)){
-            if(car(rl)){
-                bs = (mword*)car(bs); //XXX was using tcar
-            }
-            else{
-                bs = (mword*)cdr(bs); //XXX was using tcdr
-            }
-        }
-        else{
-            bs = (mword*)c(bs,car(rl) % size(bs));
-        }
-    }
-    else{ // is_inte(rl)
-        fatal("Bad reference");
-    }
 
-    return rderef(bs,(mword*)cdr(ref_list));
+    mword *tag = (mword*)icar(ref_list);
+
+deref_restart:
+    if(tageq(tag,BABEL_TAG_REF_HASH,TAG_SIZE)){
+        mword *hash = get_tptr(tag);
+        return rderef(this_bvm, _luha( bs, hash ), (mword*)icdr(ref_list));
+    }
+    else if(tageq(tag,BABEL_TAG_REF_LIST,TAG_SIZE)){
+        mword index = icar(get_tptr(tag));
+        return rderef(this_bvm, (mword*)_ith(bs,index), (mword*)icdr(ref_list));
+    }
+    else if(tageq(tag,BABEL_TAG_REF_ARRAY,TAG_SIZE)){
+        mword index = icar(get_tptr(tag));
+        return rderef(this_bvm, (mword*)c(bs,index), (mword*)icdr(ref_list));
+    }
+    else if(tageq(tag,BABEL_TAG_REF_STRING,TAG_SIZE)){
+        mword *hash = _hash8(get_tptr(tag));
+        return rderef(this_bvm, _luha( bs, hash ), (mword*)icdr(ref_list));
+    }
+    else if(tageq(tag,BABEL_TAG_REF,TAG_SIZE)){
+        tag = _deref(this_bvm, tag);
+        goto deref_restart;
+    }
+    else{
+        _mem(tag);
+        fatal("unrecognized tag");
+    }
 
 }
 
 
 //
 //
-mword *_chain_deref(mword *bs, mword *ref_list){ // _chain_deref#
+mword *_chain_deref(bvm_cache *this_bvm, mword *ref_list){ // _chain_deref#
 
     mword *result = ref_list;
 
-    while(is_ref(result)){ 
-        result = _deref(bs, result);
+    while(tageq(result,BABEL_TAG_REF,TAG_SIZE)){ 
+        result = _deref(this_bvm, ref_list);
     }
 
     return result;
