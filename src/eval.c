@@ -542,7 +542,7 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
                     set_code_ptr(this_bvm,(mword*)_ith(cond_list,1));
 
                     // Not sure which is uglier...                    
-                    cond_list = icdr(rtos);
+                    cond_list = (mword*)icdr(rtos);
                     (mword*)*cond_list = _pop((mword*)icar(cond_list));
                     (mword*)*cond_list = _pop((mword*)icar(cond_list));
 

@@ -37,8 +37,8 @@ bvm_cache *ifop(bvm_cache *this_bvm);
 #define IFTE_BODY 0
 #define IFTE_COND 1
 
-#define COND_BODY 0
-#define COND_COND 1
+#define COND_BODY   0
+#define COND_COND   1
 #define COND_RETURN 2
 
 #define LET_RSTACK_ENTRIES  2
