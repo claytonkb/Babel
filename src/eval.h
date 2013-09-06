@@ -18,6 +18,7 @@ bvm_cache *_next(bvm_cache *this_bvm);
 bvm_cache *last(bvm_cache *this_bvm);
 bvm_cache *let(bvm_cache *this_bvm);
 bvm_cache *cond(bvm_cache *this_bvm);
+bvm_cache *alt(bvm_cache *this_bvm);
 
 bvm_cache *eachar(bvm_cache *this_bvm);
 bvm_cache *conjure(bvm_cache *this_bvm);

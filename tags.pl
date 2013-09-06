@@ -35,6 +35,7 @@ my $tags =
         "BABEL_TAG_EACH"                => "/babel/tag/each",
         "BABEL_TAG_WHILE"               => "/babel/tag/while",
         "BABEL_TAG_NEST"                => "/babel/tag/nest",
+        "BABEL_TAG_ALT"                 => "/babel/tag/alt",
         "BABEL_TAG_LET"                 => "/babel/tag/let",
         "BABEL_TAG_REF_HASH"            => "/babel/tag/ref_hash",
         "BABEL_TAG_REF_STRING"          => "/babel/tag/ref_string",

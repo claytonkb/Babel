@@ -10,6 +10,7 @@ mword *_rsplit(mword *list, mword *indices, mword curr_index);
 mword *_list_cut(mword *list, mword index);
 mword *_append(mword *lists);
 mword *_append_direct(mword *head_list, mword *tail_list);
+bvm_cache *append(bvm_cache *this_bvm);
 
 bvm_cache *insls(bvm_cache *this_bvm);
 

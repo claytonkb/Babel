@@ -35,6 +35,16 @@ my $array_end       = qr/[\]\)}>]/;
 my $quote_char      = qr/['"]/;
 my $non_array       = qr/[^\[\({<\]\)}>]/;
 
+my $double_quote    = qr/"(?:[^"\\]|\\.)*"/;
+my $single_quote    = qr/'[^']*'/;
+my $double_quote_cap = qr/"((?:[^"\\]|\\.)*)"/;
+my $single_quote_cap = qr/'([^']*)'/;
+#NOTE: This solution requires double-escaping in the .sp source file,
+#which is good enough for dev purposes. For example, to pring "Hello"
+#(quotes-inclusive), you will need the following in your .sp file:
+#   "\\\"Hello\\\"\n" stdout8
+#Also, single-quoted text cannot contain escaped-single-quotes
+
 my $sections = [];
 my @asm_files;
 
@@ -139,14 +149,16 @@ sub balanced_parse{
             return $expression;
         }
         elsif(${$string} =~ /^"/){
-            ${$string} =~ s/^\s*("[^"]*")\s*//;
+            #${$string} =~ s/^\s*("[^"]*")\s*//;
+            ${$string} =~ s/^\s*($double_quote)\s*//;
             $eval_string = "\$temp_string = $1;";
             die unless eval($eval_string);
             push @{$expression}, "\"$temp_string\"";
             goto begin_balanced;
         }
         elsif(${$string} =~ /^'/){
-            ${$string} =~ s/^\s*('[^']*')\s*//;
+#print "." . substr(${$string}, 0, 20) . ".\n";
+            ${$string} =~ s/^\s*($single_quote)\s*//;
             push @{$expression}, "$1";
             goto begin_balanced;
         }
@@ -205,14 +217,14 @@ sub tokenize{
     $string =~ s/^\s*//;
 
     while(length($string) > 0){
-        if($string =~ /^\s*"[^"]*"\s*/){
-            $string =~ s/^\s*("[^"]*")\s*//;
+        if($string =~ /^\s*$double_quote\s*/){
+            $string =~ s/^\s*($double_quote)\s*//;
             $eval_string = "\$temp_string = $1;";
             die unless eval($eval_string);
             push @token_list, "\"$temp_string\"";
         }
-        elsif($string =~ /^\s*'[^']*'\s*/){
-            $string =~ s/^\s*('[^']*')\s*//;
+        elsif($string =~ /^\s*$single_quote\s*/){
+            $string =~ s/^\s*($single_quote)\s*//;
             push @token_list, "$1";
         }
         elsif($string =~ /^\s*[\S]+\s*/){
@@ -356,7 +368,8 @@ sub encode_values{
             push @{$value_list}, hex($1);
             $$offset += 1;
         }
-        elsif($value =~ /^\s*"[^"]*"$/){
+        #elsif($value =~ /^\s*"[^"]*"$/){
+        elsif($value =~ /^\s*$double_quote$/){
 
             $eval_string = "\$value = $value;";
             die unless eval($eval_string);
@@ -367,7 +380,8 @@ sub encode_values{
             $$offset += ($#str_vec+1);
             
         }
-        elsif($value =~ /^\s*'([^']*)'$/){
+#        elsif($value =~ /^\s*'([^']*)'$/){
+        elsif($value =~ /^\s*$single_quote_cap$/){
             @str_vec = str2vec($1);
             push @{$value_list}, @str_vec;
             $$offset += ($#str_vec+1);
@@ -411,7 +425,8 @@ sub encode_hash{
     my $value = $values[0];
     my @hash = ();
 
-    if($value =~ /^\s*"[^"]*"$/){
+#    if($value =~ /^\s*"[^"]*"$/){
+    if($value =~ /^\s*$double_quote$/){
 
         $eval_string = "\$value = $value;";
         die unless eval($eval_string);
@@ -421,7 +436,7 @@ sub encode_hash{
         $$offset += ($#hash+1);
         
     }
-    elsif($value =~ /^\s*'([^']*)'$/){
+    elsif($value =~ /^\s*$single_quote$/){
 
         @hash = bytes_to_mwords(Hash::Pearson16::pearson16_hash($1));
         push @{$value_list}, @hash;
@@ -593,7 +608,9 @@ sub encode_tagged_list{
 
     push @{$element_list}, 0;
 
-    if($plain_tag =~ /^\s*"([^"]*)"$/ or $plain_tag =~ /^\s*'([^']*)'$/){
+#    if(    $plain_tag =~ /^\s*"((?:[^"\\]|\\.)*)"$/ 
+#        or $plain_tag =~ /^\s*'([^']*)'$/){
+    if($plain_tag =~ /^\s*$double_quote_cap$/ or $plain_tag =~ /^\s*$single_quote_cap$/){
         push @{$element_list}, bytes_to_mwords(Hash::Pearson16::pearson16_hash($1));
     }
     else{
@@ -796,8 +813,8 @@ sub is_value{
         $value =~ /^\s*-?[1-9][0-9]*$/ or 
         #$value =~ /^\s*0+[^x]$/ or
         $value =~ /^\s*0x[A-Fa-f0-9]+$/ or
-        $value =~ /^\s*"[^"]*"$/ or
-        $value =~ /^\s*'[^']*'$/){
+        $value =~ /^\s*$double_quote$/ or
+        $value =~ /^\s*$single_quote$/){
         return 1;
     }
 

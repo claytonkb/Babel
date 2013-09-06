@@ -203,5 +203,6 @@
     (ins            (oper 0x21a))
     (exec           (oper 0x21b))
     (dev            (oper 0x21c))
-    (cond           (oper 0x21d)))
+    (cond           (oper 0x21d))
+    (append         (oper 0x21e)))
 

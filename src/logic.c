@@ -288,8 +288,12 @@ bvm_cache *orop(bvm_cache *this_bvm){ // orop#
 */
 bvm_cache *notop(bvm_cache *this_bvm){ // notop#
 
+//#define babel_notop_operator(x)                 \
+//    mword opA = c( op0, 0 );                    \
+//    result = _newva( x );
+
 #define babel_notop_operator(x)                 \
-    mword opA = c( op0, 0 );                    \
+    mword *opA = op0;                    \
     result = _newva( x );
 
     babel_operator_typeA( 

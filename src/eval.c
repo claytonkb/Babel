@@ -143,6 +143,7 @@ bvm_cache *dieop(bvm_cache *this_bvm){ // dieop# die#
 
     fprintf(stderr, "Died.\n");
     exit(0);
+
 }
 
 
@@ -273,7 +274,7 @@ bvm_cache *iter(bvm_cache *this_bvm){ // iter#
 
     while(i<=rstack_depth){
 
-        if(i == rstack_depth) //no looping consructs: iter == fnord
+        if(i == rstack_depth) //no looping constructs: iter == fnord
             return this_bvm;
 
         tag = (mword*)icar(rstack_get_tag(this_bvm, i));
@@ -294,20 +295,7 @@ bvm_cache *iter(bvm_cache *this_bvm){ // iter#
 
     result = _newva(*(mword*)icar(rtos));
 
-    //mword *tag      = (mword*)icar(rstack_get_tag(this_bvm, 0));
-
-    //while(rstack-not-empty and tag-not-recognized){...}
-
-//    if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
-//    }
-//    else if(tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)){
-//    }
-//    else if(tageq(tag,BABEL_TAG_EACH,TAG_SIZE)){
-//    }
-//    else if(tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
-//    }
-
-    pushd(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 
@@ -319,6 +307,37 @@ bvm_cache *iter(bvm_cache *this_bvm){ // iter#
 > Goes to next iteration of current loop  
 */
 bvm_cache *next(bvm_cache *this_bvm){ // next#
+
+    int rstack_depth = _len((mword*)icar(this_bvm->rstack_ptr));
+    int i = 0;
+
+    mword *tag;
+
+    while(i<=rstack_depth){
+
+        if(i == rstack_depth) //no looping constructs: iter == fnord
+            return this_bvm;
+
+        tag = (mword*)icar(rstack_get_tag(this_bvm, i));
+
+        //_mem(tag);
+
+        if(    tageq(tag, BABEL_TAG_LOOP  ,TAG_SIZE)
+            || tageq(tag, BABEL_TAG_TIMES ,TAG_SIZE)
+            || tageq(tag, BABEL_TAG_EACH  ,TAG_SIZE)
+            || tageq(tag, BABEL_TAG_WHILE ,TAG_SIZE)){
+            break;
+        }
+        else{
+            i++;
+        }
+
+    }
+
+    for(;i>0;i--){
+        last(this_bvm);
+        //_next(this_bvm);
+    }
 
     _next(this_bvm);
 
@@ -338,41 +357,40 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
     mword *iter;
 
     if(tageq(tag,BABEL_TAG_EVAL,TAG_SIZE)){
+
         sink = popr(this_bvm);
         this_bvm->code_ptr = consa(rtos,nil);
-       
 
     }
     else if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
-//                    this_bvm->code_ptr = consa(rtos,nil);
-//                    
-//                    continue;
+
         iter = (mword*)icar(rtos);
         *iter = *iter + 1;
         this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
-        
-    
+
     }
     else if(tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)){
+
         //_dump(rtos);
         iter = (mword*)icar(rtos);
         *iter = *iter - 1;
+
         if(*iter == 0){
+
             sink = popr(this_bvm);
             //this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
             //this_bvm->code_ptr = consa(_ith(rtos,2),nil);
             //(mword*)c(this_bvm->code_ptr,0) = _ith(rtos,2);
             set_code_ptr(this_bvm, _ith(rtos,2));
-            
-    
+
         }
         else{
+
             //this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
             //this_bvm->code_ptr = consa(_ith(rtos,1),nil);
             //(mword*)c(this_bvm->code_ptr,0) = _ith(rtos,1);
             set_code_ptr(this_bvm, _ith(rtos,1));
-            
-    
+
         }
     }
     else if(tageq(tag,BABEL_TAG_EACH,TAG_SIZE)){
@@ -383,17 +401,17 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
         mword *list = (mword*)icdr(icdr(icdr(rtos)));
 
         if(is_nil(icdr(icar(list)))){
+
             sink = popr(this_bvm);
             this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
-            
-    
+
         }
         else{
+
             *list = icdr(icar(list));
             pushd(this_bvm, (mword*)icar(icar(list)), IMMORTAL);
             this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
-            
-    
+
         }
     }
     else if(tageq(tag,BABEL_TAG_IFTE,TAG_SIZE)){
@@ -404,8 +422,6 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
             sink = popr(this_bvm);
             this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(rtos))),nil);
-            
-    
 
         }
         else{
@@ -416,13 +432,13 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
             popd(this_bvm);
 
             if(!is_false(cond)){
+
                 this_bvm->code_ptr = consa((mword*)icar(icdr(rtos)),nil);
-                
     
             }
             else{
+
                 this_bvm->code_ptr = consa((mword*)icar(icdr(icdr(icdr(rtos)))),nil);
-                
     
             }
 
@@ -434,9 +450,6 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
         *iter = *iter + 1;
 
         mword *while_select = _ith(rtos,4);
-
-//                    _dump(while_select);
-//                    die;
 
         if(*while_select == WHILE_BODY){
 
@@ -456,35 +469,36 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
             popd(this_bvm);
 
             if(!is_false(cond)){
+
                 mword *while_body = _ith(rtos,1);
                 this_bvm->code_ptr = consa(while_body,nil);
-                
     
             }
             else{
+
                 mword *while_return = _ith(rtos,2);
                 this_bvm->code_ptr = consa(while_return,nil);
                 sink = popr(this_bvm);
-            }
 
+            }
         }
     }
     else if(tageq(tag,BABEL_TAG_NEST,TAG_SIZE)){
+
         (mword*)icar(this_bvm->dstack_ptr) = _ith(rtos,0);
         (mword*)icar(this_bvm->ustack_ptr) = _ith(rtos,1);
         this_bvm->code_ptr         = consa(_ith(rtos,2),nil);
         sink = popr(this_bvm);   
+
     }
     else if(tageq(tag,BABEL_TAG_LET,TAG_SIZE)){
 
         mword *walker = _ith(rtos,0);
+
         while(!is_nil(walker)){
             (mword*)icar(icar(icar(walker))) = (mword*)icdr(icar(walker));
             walker = (mword*)icdr(walker);
         }
-
-//        _dump(_ith(rtos,0));
-//        die;
 
         set_code_ptr(this_bvm, _ith(rtos,2));
 
@@ -523,7 +537,6 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
                     set_code_ptr(this_bvm,_ith(cond_list,0));
 
                 }
-
             }
             else{ // if(is_false(cond))
 
@@ -531,6 +544,12 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
                 mword *cond_list = _ith(rtos,1);
 
                 if( is_nil(cond_list) ){ // _len of cond_list is odd
+
+                    set_code_ptr(this_bvm, _ith(rtos,2));
+                    popr(this_bvm);
+
+                }
+                else if( is_nil(icdr(cond_list)) ){ // we've reached the end...
 
                     set_code_ptr(this_bvm, _ith(rtos,2));
                     popr(this_bvm);
@@ -549,10 +568,23 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
                     //*(mword*)icdr(rtos) = icdr(icdr(icar(icdr(rtos)));
 
                 }
-
             }
-
         }
+    }
+    else if(tageq(tag,BABEL_TAG_ALT,TAG_SIZE)){
+
+// If we reach this point, then we've 'failed'
+
+//        mword *walker = _ith(rtos,0);
+//
+//        while(!is_nil(walker)){
+//            (mword*)icar(icar(icar(walker))) = (mword*)icdr(icar(walker));
+//            walker = (mword*)icdr(walker);
+//        }
+//
+//        set_code_ptr(this_bvm, _ith(rtos,2));
+//
+//        sink = popr(this_bvm);
 
     }
     else{
@@ -574,26 +606,39 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 */
 bvm_cache *last(bvm_cache *this_bvm){ // last#
 
-    mword *rtos        = rstack_get(this_bvm,0);
+    int rstack_depth = _len((mword*)icar(this_bvm->rstack_ptr));
+    int i = 0;
+
+    mword *tag;
+
+    while(i<=rstack_depth){
+
+        if(i == rstack_depth) //no looping constructs: iter == fnord
+            return this_bvm;
+
+        tag = (mword*)icar(rstack_get_tag(this_bvm, i));
+
+        if( tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)
+            || tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)
+            || tageq(tag,BABEL_TAG_EACH,TAG_SIZE)
+            || tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
+            break;
+        }
+        else{
+            i++;
+        }
+
+    }
+
+    mword *rtos = rstack_get(this_bvm,i);
+
     mword *last_return = _ith(rtos,2);
-    popr(this_bvm);
-
-    //mword *tag      = (mword*)icar(rstack_get_tag(this_bvm, 0));
-
-    //while(rstack-not-empty and tag-not-recognized){...}
-
-//    if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
-//    }
-//    else if(tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)){
-//    }
-//    else if(tageq(tag,BABEL_TAG_EACH,TAG_SIZE)){
-//    }
-//    else if(tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
-//    }
-
-//    pushd(this_bvm, result, MORTAL);
 
     this_bvm->code_ptr = consa(last_return,nil);
+
+    for(;i>=0;i--){
+        popr(this_bvm);
+    }
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -604,7 +649,9 @@ bvm_cache *last(bvm_cache *this_bvm){ // last#
 
 /* flow-control operator
 **let**
-> Defines a lexical-variable scope
+> Defines a lexical-variable scope. Inspired by Lisp's let but
+> only saves the old variables - does not initialize the new
+> variables.
 */
 bvm_cache *let(bvm_cache *this_bvm){ // let#
 
@@ -639,6 +686,43 @@ bvm_cache *let(bvm_cache *this_bvm){ // let#
 
 
 /* flow-control operator
+**alt**
+> Defines an alternation. Use in combination with the 
+> pass operator.
+*/
+bvm_cache *alt(bvm_cache *this_bvm){ // alt#
+
+    mword *alt_body = dstack_get(this_bvm,0);
+    mword *alt_list = dstack_get(this_bvm,1);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    mword *walker = alt_list;
+    while(!is_nil(walker)){
+        mword *alt_list_entry = consa( (mword*)icar(walker), (mword*)car(icar(walker)) );
+        (mword*)icar(walker) = alt_list_entry;
+        walker = (mword*)icdr(walker);
+    }
+
+    mword *alt_return = (mword*)icdr(icar(this_bvm->code_ptr));
+
+    mword *alt_rstack_entry = consa(alt_list,
+                                    consa(alt_body,
+                                        consa(alt_return, nil)));
+
+    pushr(this_bvm, alt_rstack_entry, _hash8(C2B("/babel/tag/alt")));
+
+    this_bvm->code_ptr = consa(alt_body,nil);
+
+    icar(this_bvm->advance_type) = BVM_CONTINUE;
+
+    return this_bvm;
+
+}
+
+
+/* flow-control operator
 **cond** (??)   
 >   
 > `(([x] 0 gt)  
@@ -662,7 +746,7 @@ bvm_cache *cond(bvm_cache *this_bvm){ // cond#
     mword *cond_select = _newva(COND_COND);
 
     mword *cond_rstack_entry = consa(cond_select,
-                                consa((mword*)icdr(cond_list),
+                                consa((mword*)icdr(cond_list), //XXX Loop bug?
                                     consa(cond_return, nil )));
 
     pushr(this_bvm, cond_rstack_entry, _hash8(C2B("/babel/tag/cond")));

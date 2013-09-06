@@ -4,6 +4,9 @@
 #ifndef BABEL_H
 #define BABEL_H
 
+//Uncomment to turn on tracing in bvm_interp():
+//#define BVM_TRACE
+
 #define BABEL_VERSION ("0.4")
 
 #include <stdio.h>
@@ -91,7 +94,7 @@ mword *empty_string;
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 542
+#define NUM_INTERP_OPCODES 543
 
 // Operating-system compatibility
 #define WINDOWS
@@ -256,7 +259,7 @@ mword *empty_string;
 #define STACK_ENTRY_VAL(x) ((mword*)c(x,0))
 #define STACK_ENTRY_LIF(x) ((mword*)c(x,1))
 
-#define IMMORTAL 0
+#define IMMORTAL 0  // IMMORTAL#  XXX: TO BE DEPRECATED
 #define MORTAL   1
 #define is_mortal(x) ( STACK_ENTRY_LIF(x) != IMMORTAL )
 
@@ -283,7 +286,7 @@ mword *empty_string;
                                                 \
     y                                           \
                                                 \
-    popd(x);                                  \
+    popd(x);                                    \
                                                 \
     pushd(x, result, IMMORTAL);                 \
                                                 \
@@ -357,7 +360,8 @@ mword *empty_string;
 #define die      fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);  // die#
 #define warn(x)  fprintf(stderr, "WARNING: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__);  // warn#
 #define error(x) fprintf(stderr, "ERROR: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); // error#
-#define trace    fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);   // trace#
+#define trace    printf("%s in %s line %d\n", __func__, __FILE__, __LINE__);   // trace#
+#define err_trace fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);   // err_trace#
 #define fatal(x) fprintf(stderr, "FATAL: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); die;  // fatal#
 #define enhance(x) fprintf(stderr, "ENHANCEMENT: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // enhance#
 

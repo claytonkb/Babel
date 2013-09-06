@@ -667,9 +667,27 @@ mword *_list_cut(mword *list, mword index){ // _list_cut#
 > `( ('a') ('b' 'c') ('d' 'e') ('f' 'g') ) append`    
 > --> leaves `('a' 'b' 'c' 'd' 'e' 'f' 'g') on TOS`    
 */
+bvm_cache *append(bvm_cache *this_bvm){ // append#
+
+    mword *list = dstack_get(this_bvm,0);
+
+    //mword *result = _append_direct(_ith(list,0), _ith(list,1));
+    mword *result = _append(list);
+
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+
 mword *_append(mword *lists){ // _append#
 
-    return nil;
+    if(is_nil(icdr(lists)))
+        return (mword*)icar(lists);
+        //return lists;
+
+    return _append_direct(_ith(lists,0),_append((mword*)icdr(lists)));
 
 }
 

@@ -101,13 +101,30 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
     bvm_cache *discard;
     babel_op op_ptr;
 
+#ifdef BVM_TRACE
+    trace;
+#endif
+
     while( icar(this_bvm->steps) ){//FIXME: This is not correct long-term   
+
+#ifdef BVM_TRACE
+    trace;
+#endif
 
         if(code_empty(this_bvm)){
             if(!rstack_empty(this_bvm)){
+
+#ifdef BVM_TRACE
+    trace;
+#endif        
+
                 _next(this_bvm);
                 continue;
             }
+
+#ifdef BVM_TRACE
+    trace;
+#endif
 
             break;
         }
@@ -115,10 +132,22 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
         mword *next_entry = (mword*)icar(icar(this_bvm->code_ptr));
 
         if( is_inte(next_entry) ){
+
+#ifdef BVM_TRACE
+    trace;
+    _mem((mword*)icar(next_entry));
+#endif
+
             pushd( this_bvm, (mword*)icar(next_entry), IMMORTAL );
         }
         else if( is_leaf(next_entry) ){
+
             mword opcode = c(next_entry,0);
+
+#ifdef BVM_TRACE
+    trace;
+    d(opcode);
+#endif
 
             op_ptr = (babel_op)this_bvm->jump_table[ opcode % NUM_INTERP_OPCODES ];
             discard = op_ptr(this_bvm);
@@ -128,6 +157,11 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
         }
 
         if(icar(this_bvm->advance_type) == BVM_ADVANCE){
+
+#ifdef BVM_TRACE
+    trace;
+#endif
+
             icar(this_bvm->code_ptr) = cdr(car(this_bvm->code_ptr));
         }
         else if(icar(this_bvm->advance_type) == BVM_RETURN){
@@ -135,13 +169,21 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
             break;
         }
         else{
+
+#ifdef BVM_TRACE
+    trace;
+#endif
+
             icar(this_bvm->advance_type) = BVM_ADVANCE;
         }
 
         icar(this_bvm->steps)--;
-
+        
     }
 
+#ifdef BVM_TRACE
+    trace;
+#endif
 
     flush_bvm_cache(this_bvm);
 
