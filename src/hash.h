@@ -48,6 +48,15 @@ static mword *rluha(mword *hash_table, mword *hash, mword level);
 mword _rmha(mword *hash_table, mword *hash);
 static mword rrmha(mword *hash_table, mword *hash, mword level);
 
+bvm_cache *newha(bvm_cache *this_bvm);
+bvm_cache *insha(bvm_cache *this_bvm);
+bvm_cache *luha(bvm_cache *this_bvm);
+bvm_cache *exha(bvm_cache *this_bvm);
+bvm_cache *rmha(bvm_cache *this_bvm);
+
+static mword rkeysha(mword *hash_table, mword *hash, mword level);
+mword _keysha(mword *hash_table, mword *hash);
+
 //bvm_cache *inskha(bvm_cache *this_bvm);
 //mword *_inskha(mword *hash_table, mword *key, mword *val);
 //void _rinskha(mword *hash_table, mword *hash, mword *key, mword *val, mword level);

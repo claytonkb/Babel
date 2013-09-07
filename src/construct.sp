@@ -26,6 +26,8 @@
 
     (sym_table (tag '/babel/tag/sym_table' sym_table_hash_table ))
 
-    (sym_table_hash_table (tag '/babel/tag/hash_table' symbol )))
+    (sym_table_hash_table (tag '/babel/tag/hash_table' symbol ))
+
+    (symbol (list nil)))
 
 

@@ -362,7 +362,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     mword_sizeop,
     arlen8,
     free_op,
-    rsvd, //    rmha,
+    rmha,
     arlen,
     arcat8,
     rsvd,
@@ -454,10 +454,10 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
 
     //150
     rsvd, //    hash,
-    rsvd,//luha, //    luha,
-    rsvd, //    insha,
+    luha,
+    insha,
     rsvd,
-    rsvd,//exha, //    exha,
+    exha,
     rsvd,
     rsvd, //    keysha,
     rsvd,
@@ -709,6 +709,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     dev,
     cond,
     append,
+    newha,
 
 };
 

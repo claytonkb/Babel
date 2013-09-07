@@ -9,7 +9,7 @@ my $bbl_file_name = shift;
 my $bbl_args = "";
 $bbl_args = join ' ', @ARGV if ($#ARGV > -1);
 
-system("perl sparse_hex.pl $bbl_file_name src/opcodes.sp src/construct.sp");
+system("perl sparse.pl $bbl_file_name src/opcodes.sp src/construct.sp src/libdev.sp");
 
 system("bin/babel.exe $bbl_file_name.bbl $bbl_args");
 

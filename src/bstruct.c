@@ -427,7 +427,9 @@ mword *_cp(mword *bs){ // _cp#
 // babel_operator
 bvm_cache *bbl2str(bvm_cache *this_bvm){ // bbl2str#
 
-    mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
+//    mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
+    mword *operand = dstack_get(this_bvm, 0);
+    popd(this_bvm);
 
     // Figure out buffer size
     mword initial_buf_size = (16 * _mu(operand));
@@ -440,7 +442,7 @@ bvm_cache *bbl2str(bvm_cache *this_bvm){ // bbl2str#
 
     rclean(operand);
 //    hard_zap(this_bvm);
-    zap(this_bvm);
+    //zap(this_bvm);
 
     mword last_mword = alignment_word8(buf_size);
     mword length = (buf_size / MWORD_SIZE) + 1;

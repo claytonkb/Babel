@@ -36,6 +36,45 @@ bvm_cache *newha(bvm_cache *this_bvm){ // newha#
 > keys can be recovered with the lukha operator.  
 */
 
+
+//
+//
+mword _keysha(mword *hash_table, mword *hash){ // _keysha#
+
+    if(is_nil(hash_table)){
+        return 0;
+    }
+    else{
+        return rkeysha(hash_table, hash, 0);
+    }
+
+}
+
+
+//
+//
+static mword rkeysha(mword *hash_table, mword *hash, mword level){ // rkeysha#
+
+    mword *temp;
+    mword cons_side   = _cxr1(hash,level);
+    mword *next_level = (mword*)cxr(hash_table,cons_side);
+
+    //FIXME: Check level == HASH_BIT_SIZE
+
+    if(is_nil(next_level)){ //dead-end
+        return 0;
+    }
+    else if(is_conslike(next_level)){
+        rkeysha((mword*)c(hash_table,cons_side), hash, level+1);
+    }
+    else if(is_tptr(next_level)){ // XXX ASSUMES well-formed hash-entry
+        //append it to the keys_list
+        //return (tageq(car(next_level),hash,TAG_SIZE));
+    }
+
+}
+
+
 /* hash operator
 **enref/unref**  
 **deref**  
@@ -119,9 +158,13 @@ mword *new_hash_table_entry(mword *hash, mword *key, mword *payload){  // new_ha
 */
 bvm_cache *insha(bvm_cache *this_bvm){ // insha#
 
-    mword *hash_table = getd(this_bvm,2);
-    mword *hash       = getd(this_bvm,1);
-    mword *payload    = getd(this_bvm,0);
+    mword *hash_table = dstack_get(this_bvm,2);
+    mword *hash       = dstack_get(this_bvm,1);
+    mword *payload    = dstack_get(this_bvm,0);
+
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
 
     _insha(hash_table, hash, nil, new_hash_table_entry( hash, nil, payload ));
 
@@ -220,6 +263,21 @@ static void rinsha(mword *hash_table, mword *hash, mword *key, mword *entry, mwo
 > Leaves 1 on TOS if the associated entry is found in the hash,   
 > otherwise, leaves 0 on TOS.  
 */
+bvm_cache *exha(bvm_cache *this_bvm){ // exha#
+
+    mword *hash_table = dstack_get(this_bvm,1);
+    mword *hash       = dstack_get(this_bvm,0);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    mword *result = _newva(_exha(get_tptr(hash_table), hash));
+
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
 
 //
 //
@@ -261,6 +319,25 @@ static mword rexha(mword *hash_table, mword *hash, mword level){ // rexha#
 **luha**  
 > Look up a hash-entry  
 */
+bvm_cache *luha(bvm_cache *this_bvm){ // luha#
+
+//    mword *hash_table = getd(this_bvm,2);
+//    mword *hash       = getd(this_bvm,1);
+//    mword *payload    = getd(this_bvm,0);
+
+    mword *hash_table = dstack_get(this_bvm,1);
+    mword *hash       = dstack_get(this_bvm,0);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    mword *result = _luha(get_tptr(hash_table), hash);
+
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
 
 //
 //
@@ -289,6 +366,8 @@ static mword *rluha(mword *hash_table, mword *hash, mword level){ // rluha#
     mword *next_level = (mword*)c(hash_table,cons_side);
 
     //FIXME: Check level == HASH_BIT_SIZE
+    //FIXME: do full tag check on the entry before returning it
+    //FIXME: don't crash when failing to find a hash entry
 
     if(is_nil(next_level)){ //dead-end
         return nil;
@@ -306,11 +385,29 @@ static mword *rluha(mword *hash_table, mword *hash, mword level){ // rluha#
 **rmha**  
 > Remove from hash:  
 >  
-> my_hash `[`{0 0 0 0}] ["foo"] hash8 rmsha  
+> my_hash `[`{0 0 0 0}] ["foo"] hash8 rmha  
 >  
 > ... removes the the entry from my_hash with the key "foo" if it   
 > exists.  
+> 
+> returns: 1 if an entry was removed, 0 otherwise  
 */
+bvm_cache *rmha(bvm_cache *this_bvm){ // rmha#
+
+    mword *hash_table = dstack_get(this_bvm,1);
+    mword *hash       = dstack_get(this_bvm,0);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    mword *result = _newva(_rmha(get_tptr(hash_table), hash));
+
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
+
 
 // returns: 1 if an entry was removed, 0 otherwise
 //

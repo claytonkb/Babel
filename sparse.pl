@@ -28,12 +28,14 @@ my $HASH_SIZE = 16/$MWORD_SIZE;
 
 my $proj_name = $ARGV[0];
 
-my $section_name    = qr/[_A-Za-z][_A-Za-z0-9]*/;
+#my $section_name_re = qr/[_A-Za-z][_A-Za-z0-9]*/;
+my $section_name_re = qr/[^0-9\[\({\]\)}'"][^\[\({\]\)}'"]*/;
 my $sigil_re        = qr/[\*\$&%!#@]/;
-my $array_begin     = qr/[\[\({<]/;
-my $array_end       = qr/[\]\)}>]/;
+my $array_begin     = qr/[\[\({]/;
+my $array_end       = qr/[\]\)}]/;
 my $quote_char      = qr/['"]/;
 my $non_array       = qr/[^\[\({<\]\)}>]/;
+my $hex_val         = qr/\s*(0x[A-Fa-f0-9]+)/;
 
 my $double_quote    = qr/"(?:[^"\\]|\\.)*"/;
 my $single_quote    = qr/'[^']*'/;
@@ -152,7 +154,7 @@ sub balanced_parse{
             #${$string} =~ s/^\s*("[^"]*")\s*//;
             ${$string} =~ s/^\s*($double_quote)\s*//;
             $eval_string = "\$temp_string = $1;";
-            die unless eval($eval_string);
+            die unless eval($eval_string); #FIXME: fails with string "0" (perl false)
             push @{$expression}, "\"$temp_string\"";
             goto begin_balanced;
         }
@@ -193,8 +195,8 @@ sub get_paren_type {
         /\]/ and return "ARRAY_PAREN";
         /{/  and return "CODE_LIST_PAREN";
         /}/  and return "CODE_LIST_PAREN";
-        /</  and return "BRACKET_PAREN";
-        />/  and return "BRACKET_PAREN";
+        #/</  and return "BRACKET_PAREN";
+        #/>/  and return "BRACKET_PAREN";
     }
 }
 
@@ -364,7 +366,7 @@ sub encode_values{
             push @{$value_list}, 1+$1-1; #FORCE Perl to treat it as numeric
             $$offset += 1;
         }
-        elsif($value =~ /^(\s*0x[A-Fa-f0-9]+)$/){
+        elsif($value =~ /^\s*$hex_val$/){
             push @{$value_list}, hex($1);
             $$offset += 1;
         }
@@ -386,7 +388,7 @@ sub encode_values{
             push @{$value_list}, @str_vec;
             $$offset += ($#str_vec+1);
         }
-        elsif($value =~ /^($section_name)$/){
+        elsif($value =~ /^($section_name_re)$/){
             print ".$value.\n";
             die;
         }
@@ -812,7 +814,8 @@ sub is_value{
     if( $value =~ /^\s*0$/ or
         $value =~ /^\s*-?[1-9][0-9]*$/ or 
         #$value =~ /^\s*0+[^x]$/ or
-        $value =~ /^\s*0x[A-Fa-f0-9]+$/ or
+        #$value =~ /^\s*0x[A-Fa-f0-9]+$/ or
+        $value =~ /^\s*$hex_val$/ or
         $value =~ /^\s*$double_quote$/ or
         $value =~ /^\s*$single_quote$/){
         return 1;
