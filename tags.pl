@@ -33,6 +33,7 @@ my $tags =
         "BABEL_TAG_TIMES"               => "/babel/tag/times",
         "BABEL_TAG_IFTE"                => "/babel/tag/ifte",
         "BABEL_TAG_EACH"                => "/babel/tag/each",
+        "BABEL_TAG_EACHAR"              => "/babel/tag/eachar",
         "BABEL_TAG_WHILE"               => "/babel/tag/while",
         "BABEL_TAG_NEST"                => "/babel/tag/nest",
         "BABEL_TAG_ALT"                 => "/babel/tag/alt",

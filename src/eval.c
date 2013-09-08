@@ -414,6 +414,36 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
         }
     }
+    else if(tageq(tag,BABEL_TAG_EACHAR,TAG_SIZE)){
+
+        iter = (mword*)icar(rtos);
+        *iter = *iter + 1;
+
+        mword *array = _ith(rtos,3);
+
+        if(*iter >= size(array)){
+
+            sink = popr(this_bvm);
+            set_code_ptr(this_bvm, _ith(rtos,2));
+
+        }
+        else{
+
+            mword *entry;
+            if(is_leaf(array)){
+                entry = _newva(c(array,*iter));
+            }
+            else{
+                entry = (mword*)c(array,*iter);
+            }
+
+            pushd(this_bvm, entry, IMMORTAL);
+            //pushd(this_bvm, (mword*)c(array,), IMMORTAL);
+
+            set_code_ptr(this_bvm, _ith(rtos,1));
+
+        }
+    }
     else if(tageq(tag,BABEL_TAG_IFTE,TAG_SIZE)){
 
         mword *ifte_select = (mword*)icar(rtos);
@@ -485,8 +515,20 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
     }
     else if(tageq(tag,BABEL_TAG_NEST,TAG_SIZE)){
 
-        (mword*)icar(this_bvm->dstack_ptr) = _ith(rtos,0);
-        (mword*)icar(this_bvm->ustack_ptr) = _ith(rtos,1);
+        mword *save_TOS = dstack_get(this_bvm,0);
+        popd(this_bvm);
+
+//        (mword*)icar(this_bvm->dstack_ptr) = _ith(rtos,0);
+//        (mword*)icar(this_bvm->ustack_ptr) = _ith(rtos,1);
+
+        set_dstack_ptr(this_bvm, _ith(rtos,0));
+        set_ustack_ptr(this_bvm, _ith(rtos,1));
+
+        pushd(this_bvm, save_TOS, IMMORTAL);
+
+//        this_bvm->dstack_ptr = consa(_ith(rtos,0),nil);
+//        this_bvm->ustack_ptr = consa(_ith(rtos,1),nil);
+
         this_bvm->code_ptr         = consa(_ith(rtos,2),nil);
         sink = popr(this_bvm);   
 
@@ -771,45 +813,84 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
 // FIXME: Catch the empty-list condition...
 
-    fatal("stack fix not done");
-    mword *result;
+//    fatal("stack fix not done");
+//    mword *result;
+//
+//    mword *body = TOS_0(this_bvm);
+//    hard_zap(this_bvm);
+//
+//    mword *array = TOS_0(this_bvm);
+//    hard_zap(this_bvm);
+//
+//    mword *count = new_atom;
+//    *count = EACHAR_INIT_INDEX;
+//
+//    mword *temp = _newin(EACHAR_RSTACK_ENTRIES);
+//    (mword*)c(temp,EACHAR_RSTACK_ARRAY)  = array;
+//    (mword*)c(temp,EACHAR_RSTACK_BODY)   = body;
+//            c(temp,EACHAR_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
+//    (mword*)c(temp,EACHAR_RSTACK_COUNT)  = count;
+//
+//     mword *iter_temp = new_atom;
+//    *iter_temp = 0;
+//    (mword*)c(temp,EACHAR_RSTACK_ITER)   = iter_temp;
+//
+//    push_alloc_rstack(this_bvm, temp, EACHAR);
+//
+//    icar(this_bvm->advance_type) = BVM_CONTINUE;
+//
+//    this_bvm->code_ptr = body;
+//
+//    if(is_leaf(array)){
+//        result = new_atom;
+//        *result = c(array,EACHAR_INIT_INDEX);
+//    }
+//    else{
+//        result = (mword*)c(array,EACHAR_INIT_INDEX);
+//    }
+//
+//    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Revisit
+//
+//    return this_bvm;
 
-    mword *body = TOS_0(this_bvm);
-    hard_zap(this_bvm);
+/////////////////////////////////////////
 
-    mword *array = TOS_0(this_bvm);
-    hard_zap(this_bvm);
+    mword *each_body  = dstack_get(this_bvm,0);
+    mword *each_array = dstack_get(this_bvm,1);
 
-    mword *count = new_atom;
-    *count = EACHAR_INIT_INDEX;
+    popd(this_bvm); 
+    popd(this_bvm);
 
-    mword *temp = _newin(EACHAR_RSTACK_ENTRIES);
-    (mword*)c(temp,EACHAR_RSTACK_ARRAY)  = array;
-    (mword*)c(temp,EACHAR_RSTACK_BODY)   = body;
-            c(temp,EACHAR_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
-    (mword*)c(temp,EACHAR_RSTACK_COUNT)  = count;
+    if(is_nil(each_array))
+        return this_bvm;
 
-     mword *iter_temp = new_atom;
-    *iter_temp = 0;
-    (mword*)c(temp,EACHAR_RSTACK_ITER)   = iter_temp;
+    mword *iteration = _newva(0);
 
-    push_alloc_rstack(this_bvm, temp, EACHAR);
+    mword *each_return = (mword*)icdr(icar(this_bvm->code_ptr));
+
+    mword *each_rstack_entry = consa(iteration,
+                                    consa(each_body,
+                                        consa(each_return, 
+                                            consa(each_array, nil))));
+
+    pushr(this_bvm, each_rstack_entry, _hash8(C2B("/babel/tag/eachar")));
+
+    mword *entry;
+    if(is_leaf(each_array)){
+        entry = _newva(c(each_array,0));
+    }
+    else{
+        entry = (mword*)c(each_array,0);
+    }
+
+    pushd(this_bvm, entry, IMMORTAL);
+
+    this_bvm->code_ptr = consa(each_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
-    this_bvm->code_ptr = body;
-
-    if(is_leaf(array)){
-        result = new_atom;
-        *result = c(array,EACHAR_INIT_INDEX);
-    }
-    else{
-        result = (mword*)c(array,EACHAR_INIT_INDEX);
-    }
-
-    push_alloc(this_bvm, result, IMMORTAL); //FIXME: Revisit
-    
     return this_bvm;
+
 
 }
 
