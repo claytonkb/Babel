@@ -239,8 +239,7 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop#
 // babel_operator
 bvm_cache *bvmcode(bvm_cache *this_bvm){
 
-   fatal("stack fix not done");
-   push_alloc(this_bvm, this_bvm->code_ptr, IMMORTAL); 
+   pushd(this_bvm, this_bvm->code_ptr, IMMORTAL); 
     // XXX: These operators are inherently dangerous in 
     // combination with the mortal operator
 
@@ -252,8 +251,7 @@ bvm_cache *bvmcode(bvm_cache *this_bvm){
 // babel_operator
 bvm_cache *bvmstack(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    push_alloc(this_bvm, this_bvm->dstack_ptr, IMMORTAL);
+    pushd(this_bvm, this_bvm->dstack_ptr, IMMORTAL);
 
     return this_bvm;
 
@@ -263,8 +261,7 @@ bvm_cache *bvmstack(bvm_cache *this_bvm){
 // babel_operator
 bvm_cache *bvmustack(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    push_alloc(this_bvm, this_bvm->ustack_ptr, IMMORTAL);
+    pushd(this_bvm, this_bvm->ustack_ptr, IMMORTAL);
 
     return this_bvm;
 
@@ -272,15 +269,34 @@ bvm_cache *bvmustack(bvm_cache *this_bvm){
 
 //
 // babel_operator
+bvm_cache *bvmrstack(bvm_cache *this_bvm){
+
+    pushd(this_bvm, this_bvm->rstack_ptr, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+// babel_operator
+bvm_cache *bvmsym(bvm_cache *this_bvm){
+
+    pushd(this_bvm, this_bvm->sym_table, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+
+//
+// babel_operator
 bvm_cache *self(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
     flush_bvm_cache(this_bvm);
 
 //    mword *result = _bs2gv(this_bvm->self);
 //    push_alloc(this_bvm, result, IMMORTAL);
 
-    push_alloc(this_bvm, this_bvm->self, IMMORTAL);
+    pushd(this_bvm, this_bvm->self, IMMORTAL);
 
     return this_bvm;
 

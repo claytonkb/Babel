@@ -20,6 +20,7 @@ void _journal(char *filename, mword *fileout);
 bvm_cache *spit_mword(bvm_cache *this_bvm);
 bvm_cache *stdoutop(bvm_cache *this_bvm);
 bvm_cache *stdinln(bvm_cache *this_bvm);
+void _spit_mword(char *filename, mword *fileout);
 
 //#include "list.h"
 //

@@ -266,33 +266,69 @@ void _journal(char *filename, mword *fileout){ // _journal
 */
 bvm_cache *spit_mword(bvm_cache *this_bvm){ // spit_mword
 
-    char *filename = (char*)_b2c(dstack_get(this_bvm,0));
+    _spit_mword((char*)dstack_get(this_bvm,0), dstack_get(this_bvm,1));
+    popd(this_bvm);
+    popd(this_bvm);
+
+    return this_bvm;
+
+}
+
+
+//
+//
+void _spit_mword(char *filename, mword *fileout){ // _spit_mword#
 
     FILE * pFile;
 
-    mword filesize   = size(dstack_get(this_bvm,1)) * MWORD_SIZE;
-
-    popd(this_bvm);
-    popd(this_bvm);
+    mword filesize   = size(fileout) * MWORD_SIZE;
 
     pFile = fopen(filename , "wb");
 
     if (pFile==NULL) {//fputs ("File error",stderr); exit (1);}
-        error("spit: file error");
+        error("slurp: file error");
     }
 
-    fwrite((char*)TOS_1(this_bvm), 1, filesize, pFile);
-
+    fwrite(fileout, 1, filesize, pFile);
     //Return Value
     //The total number of elements successfully written is returned as a size_t object, which is an integral data type.
     //If this number differs from the count parameter, it indicates an error.
 
     fclose (pFile);
 
-    return this_bvm;
-
 }
 
+
+
+//bvm_cache *spit_mword(bvm_cache *this_bvm){ // spit_mword
+//
+//    char *filename = (char*)_b2c(dstack_get(this_bvm,0));
+//
+//    FILE * pFile;
+//
+//    mword filesize   = size(dstack_get(this_bvm,1)) * MWORD_SIZE;
+//
+//    popd(this_bvm);
+//    popd(this_bvm);
+//
+//    pFile = fopen(filename , "wb");
+//
+//    if (pFile==NULL) {//fputs ("File error",stderr); exit (1);}
+//        error("spit: file error");
+//    }
+//
+//    fwrite((char*)TOS_1(this_bvm), 1, filesize, pFile);
+//
+//    //Return Value
+//    //The total number of elements successfully written is returned as a size_t object, which is an integral data type.
+//    //If this number differs from the count parameter, it indicates an error.
+//
+//    fclose (pFile);
+//
+//    return this_bvm;
+//
+//}
+//
 
 /* i/o operator
 **stdout**  

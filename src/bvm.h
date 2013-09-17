@@ -28,6 +28,8 @@ bvm_cache *self(bvm_cache *this_bvm);
 bvm_cache *update_bvm_cache(bvm_cache *this_bvm);
 bvm_cache *flush_bvm_cache(bvm_cache *this_bvm);
 bvm_cache *exec(bvm_cache *this_bvm);
+bvm_cache *bvmrstack(bvm_cache *this_bvm);
+bvm_cache *bvmsym(bvm_cache *this_bvm);
 
 //#include "list.h"
 //

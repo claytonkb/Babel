@@ -184,9 +184,9 @@
     (isnil          (oper 0x1bd))
 
     (slurp8         (oper 0x1c0))
-    (<<<            (oper 0x1c0))
+    (>>>            (oper 0x1c0))
     (spit8          (oper 0x1c1))
-    (>>>            (oper 0x1c1))
+    (<<<            (oper 0x1c1))
     (journal8       (oper 0x1c2))
 
 
@@ -222,6 +222,7 @@
     (@              (oper 0x1f9))
     (ith            (oper 0x1fa))
     (cr             (oper 0x1fb))
+    (nl             (oper 0x1fb))
     (walk           (oper 0x1fe))
     (@@             (oper 0x1fe))
     (set            (oper 0x1ff))
@@ -258,5 +259,8 @@
     (cond           (oper 0x21d))
     (??             (oper 0x21d))
     (append         (oper 0x21e))
-    (newha          (oper 0x21f)))
+    (newha          (oper 0x21f))
+
+    (bvmrstack      (oper 0x220))
+    (bvmsym         (oper 0x221)))
 

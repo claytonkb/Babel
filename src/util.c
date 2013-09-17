@@ -44,9 +44,9 @@ bvm_cache *randop(bvm_cache *this_bvm){
 // babel_operator
 bvm_cache *sleepop(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    DWORD seconds = (DWORD)car(TOS_0(this_bvm));
-    zap(this_bvm);
+//    fatal("stack fix not done");
+    DWORD seconds = (DWORD)car(dstack_get(this_bvm,0));
+    popd(this_bvm);
 
     Sleep(seconds*1000);
 
