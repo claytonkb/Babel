@@ -20,26 +20,30 @@ if($#ARGV > -1){
     $rev_id = `git rev-parse HEAD`;
     $date = `date`;
 
-    open FILE, ">>doc/babel_op.md";
-    print FILE "\nGit ID: $rev_id\nGenerated: $date\n";
-    close FILE;
+    @files = qw{
+        doc/babel_op 
+        doc/babel_gsg
+        doc/babel_guts
+        README };
 
-    open FILE, ">>doc/babel_gsg.md";
-    print FILE "\nGit ID: $rev_id\nGenerated: $date\n";
-    close FILE;
+    for(@files){
 
-    open FILE, ">>doc/babel_guts.md";
-    print FILE "\nGit ID: $rev_id\nGenerated: $date\n";
-    close FILE;
+        open FILE, "$_.md";
+        @file_lines = <FILE>;
+        close FILE;
 
-    open FILE, ">>README.md";
-    print FILE "\nGit ID: $rev_id\nGenerated: $date\n";
-    close FILE;
+        push @file_lines, ("\n", "Git ID: $rev_id\n", "Generated: $date\n");
 
-    `perl markdown.pl doc/babel_gsg.md > html/babel_gsg.html`;
-    `perl markdown.pl doc/babel_guts.md > html/babel_guts.html`;
-    `perl markdown.pl doc/babel_op.md > html/babel_op.html`;
-    `perl markdown.pl README.md > html/README.html`;
+        open FILE, ">$_.stamped.md";
+        print FILE @file_lines; #"\nGit ID: $rev_id\nGenerated: $date\n";
+
+    }
+
+    `perl markdown.pl doc/babel_gsg.stamped.md > html/babel_gsg.html`;
+    `perl markdown.pl doc/babel_contact.md > html/babel_contact.html`;
+    `perl markdown.pl doc/babel_guts.stamped.md > html/babel_guts.html`;
+    `perl markdown.pl doc/babel_op.stamped.md > html/babel_op.html`;
+    `perl markdown.pl README.stamped.md > html/README.html`;
 
 }
 

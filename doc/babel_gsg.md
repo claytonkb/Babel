@@ -1,8 +1,9 @@
 ![](sacred_scarab.jpg)
 
-[**Contact Us**](babel_contact.md)  
+[**Contact Us**](babel_contact.html)  
 <a href="https://github.com/claytonkb/Babel" target="_blank">Babel on github</a>  
-<a href="http://rosettacode.org/wiki/Category:Babel" target="_blank">Babel at RoesttaCode</a>  
+<a href="http://rosettacode.org/wiki/Category:Babel" target="_blank">Babel at RosettaCode</a>   
+<a href="https://thestrangeloop.com/sessions/babel-an-untyped-stack-based-hll" target="_blank">Babel at Strange Loop 2013</a>  
 
 [Babel Internals](babel_guts.html)  
 [Babel Operator Reference](babel_op.html)
@@ -620,5 +621,4 @@ is treated as if it defines a symbolic section. That is, use of an
 otherwise undefined symbol implicitly creates an entry in the symbol-table 
 for that symbol. This is the case regardless of whether the symbol refers 
 to a symbolic variable or a reference variable.
-
 
