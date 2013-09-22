@@ -181,7 +181,7 @@ bvm_cache *consls(bvm_cache *this_bvm){ // consls#
 
 //
 //
-mword *_consls(mword *car_field, mword *cdr_field){
+mword *_consls(mword *car_field, mword *cdr_field){ // XXX DEPRECATE
 
     mword *temp_cons = new_cons;
 

@@ -459,7 +459,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     rsvd,
     exha,
     rsvd,
-    rsvd, //    keysha,
+    keysha,
     rsvd,
     rsvd,
     rsvd,
@@ -475,7 +475,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     //160
     rsvd,
     rsvd,
-    rsvd,//inskha,
+    inskha,
     rsvd,
     rsvd,
     rsvd,

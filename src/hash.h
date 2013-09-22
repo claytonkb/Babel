@@ -54,8 +54,15 @@ bvm_cache *luha(bvm_cache *this_bvm);
 bvm_cache *exha(bvm_cache *this_bvm);
 bvm_cache *rmha(bvm_cache *this_bvm);
 
-static mword rkeysha(mword *hash_table, mword *hash, mword level);
-mword _keysha(mword *hash_table, mword *hash);
+bvm_cache *inskha(bvm_cache *this_bvm);
+
+//static mword rkeysha(mword *hash_table, mword *hash, mword level);
+//mword _keysha(mword *hash_table, mword *hash);
+
+mword *_entha(mword *hash_table);
+mword *rentha(mword *hash_table, mword level);
+
+bvm_cache *keysha(bvm_cache *this_bvm);
 
 //bvm_cache *inskha(bvm_cache *this_bvm);
 //mword *_inskha(mword *hash_table, mword *key, mword *val);

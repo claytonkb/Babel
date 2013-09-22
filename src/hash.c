@@ -31,21 +31,32 @@ bvm_cache *newha(bvm_cache *this_bvm){ // newha#
 
 /* hash operator
 **keysha**  
-> Extracts all "keys" from the hash. Note that the extracted keys  
-> are actually hash-references, not symbolic keys. The symbolic  
-> keys can be recovered with the lukha operator.  
+> Extracts all keys from the hash. 
 */
+bvm_cache *keysha(bvm_cache *this_bvm){ // newha#
+
+    mword *hash_table = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
+    mword *result = _entha(hard_detag(hash_table));
 
 
+
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+// Returns a list of all entries in the hash
 //
-//
-mword _keysha(mword *hash_table, mword *hash){ // _keysha#
+mword *_entha(mword *hash_table){ // _entha#
 
     if(is_nil(hash_table)){
-        return 0;
+        return nil;
     }
     else{
-        return rkeysha(hash_table, hash, 0);
+        return rentha(hash_table, 0);
     }
 
 }
@@ -53,24 +64,58 @@ mword _keysha(mword *hash_table, mword *hash){ // _keysha#
 
 //
 //
-static mword rkeysha(mword *hash_table, mword *hash, mword level){ // rkeysha#
+mword *rentha(mword *hash_table, mword level){ // rentha#
 
-    mword *temp;
-    mword cons_side   = _cxr1(hash,level);
-    mword *next_level = (mword*)cxr(hash_table,cons_side);
+//    mword *temp;
+//    mword cons_side   = _cxr1(hash,level);
+//    mword *next_level = (mword*)cxr(hash_table,cons_side);
 
     //FIXME: Check level == HASH_BIT_SIZE
 
-    if(is_nil(next_level)){ //dead-end
-        return 0;
+    if(is_nil(hash_table)){ //dead-end
+
+        return nil;
     }
-    else if(is_conslike(next_level)){
-        rkeysha((mword*)c(hash_table,cons_side), hash, level+1);
+    else if(is_conslike(hash_table)){
+
+        mword *list0 = rentha((mword*)car(hash_table), level+1);
+        mword *list1 = rentha((mword*)cdr(hash_table), level+1);
+
+        if(is_nil(list0)){
+            if(is_nil(list1)){
+
+                return nil;
+            }
+            else{
+
+                return list1;
+            }
+        }
+        else{
+            if(is_nil(list1)){
+
+                return list0;
+            }
+            else{
+//                _dump(list0);
+//                die;
+                return _append_direct(list0, list1);
+            }
+        }
+
     }
-    else if(is_tptr(next_level)){ // XXX ASSUMES well-formed hash-entry
+    else if(is_tptr(hash_table)){ // XXX ASSUMES well-formed hash-entry
+
         //append it to the keys_list
-        //return (tageq(car(next_level),hash,TAG_SIZE));
+//        _dump(_ith(hard_detag(hash_table),1));
+//        die;
+        return consa(hard_detag(hash_table),nil);
     }
+    else{
+
+        fatal("unexpected element in hash-table");
+    }
+
 
 }
 
@@ -147,11 +192,43 @@ mword *new_hash_table_entry(mword *hash, mword *key, mword *payload){  // new_ha
 
 }
 
+
+/* hash operator
+**inskha**  
+> Insert into hash:  
+>  
+> my_hash `"foo" 42 inskha`  
+>  
+> ... inserts the value 42 into my_hash with the key "foo". Does 
+> store the key in the hash.  
+*/
+bvm_cache *inskha(bvm_cache *this_bvm){ // insha#
+
+    mword *hash_table = dstack_get(this_bvm,2);
+    mword *key        = dstack_get(this_bvm,1);
+    mword *payload    = dstack_get(this_bvm,0);
+
+    mword *hash = _hash8(key);
+
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+
+    _insha(hash_table, hash, nil, new_hash_table_entry( hash, key, payload ));
+
+//    pushd(this_bvm, hash_table, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+
+
 /* hash operator
 **insha**  
 > Insert into hash:  
 >  
-> my_hash `[{0 0 0 0}] ["foo"] hash8 [42] insha`  
+> my_hash `"foo" hash8 42 insha`  
 >  
 > ... inserts the value 42 into my_hash with the key "foo". Does not  
 > store the key in the hash.  

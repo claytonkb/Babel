@@ -146,6 +146,8 @@
     (exha           (oper 0x154))
     (keysha         (oper 0x156))
 
+    (inskha         (oper 0x162))
+
     (ar2str         (oper 0x180))
     (str2ar         (oper 0x181))
     (cu2dec         (oper 0x184))
