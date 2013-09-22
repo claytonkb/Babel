@@ -1,5 +1,9 @@
 ![](sacred_scarab.jpg)
 
+[**Contact Us**](babel_contact.md)
+<a href="https://github.com/claytonkb/Babel" target="_blank">Babel on github</a>  
+<a href="http://rosettacode.org/wiki/Category:Babel" target="_blank">Babel at RoesttaCode</a>  
+
 [Getting Started Guide](babel_gsg.html)
 
 Babel Guts
@@ -490,9 +494,4 @@ Or division,
 >       A B /    <===>   "A / B"
 
 The flow of data is as consistently left-to-right as possible.
-
-
-Git ID: 70f6ef8015bec0b6c9f7069e617c7f4662284ef3
-
-Generated: Tue, Aug 27, 2013  9:39:45 PM
 

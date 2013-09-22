@@ -7,6 +7,10 @@ use Data::Dumper;
 print <<'HEADER';
 ![](sacred_scarab.jpg)
 
+[**Contact Us**](babel_contact.md)
+<a href="https://github.com/claytonkb/Babel" target="_blank">Babel on github</a>  
+<a href="http://rosettacode.org/wiki/Category:Babel" target="_blank">Babel at RoesttaCode</a>  
+
 [Getting Started Guide](babel_gsg.html)
 
 Babel Operator Reference

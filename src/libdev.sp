@@ -14,5 +14,21 @@
 
 (cpf86 (val 'C:\Program Files (x86)\'))
 
-(d (code show stdout8)))
+(d (code show stdout8))
+
+(collect (code -1 take))
+
+(vals (code (code 
+        keysha 
+        (code 2 ith) 
+        each 
+        collect !)
+    nest))
+
+(keys (code (code 
+        keysha 
+        (code 1 ith) 
+        each 
+        collect !)
+    nest)))
 

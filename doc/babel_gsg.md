@@ -1,11 +1,10 @@
 ![](sacred_scarab.jpg)
 
-You can browse or download Babel on <a href="https://github.com/claytonkb/Babel" target="_blank">github</a>.
+[**Contact Us**](babel_contact.md)  
+<a href="https://github.com/claytonkb/Babel" target="_blank">Babel on github</a>  
+<a href="http://rosettacode.org/wiki/Category:Babel" target="_blank">Babel at RoesttaCode</a>  
 
-Be sure to check out the many examples of <a href="http://rosettacode.org/wiki/Category:Babel" target="_blank">Babel code on rosettacode.org.</a>
-
-[Babel Internals](babel_guts.html)
-
+[Babel Internals](babel_guts.html)  
 [Babel Operator Reference](babel_op.html)
 
 Contents
@@ -622,8 +621,4 @@ otherwise undefined symbol implicitly creates an entry in the symbol-table
 for that symbol. This is the case regardless of whether the symbol refers 
 to a symbolic variable or a reference variable.
 
-
-Git ID: 70f6ef8015bec0b6c9f7069e617c7f4662284ef3
-
-Generated: Tue, Aug 27, 2013  9:39:45 PM
 
