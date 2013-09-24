@@ -3,7 +3,7 @@
 
 #include "babel.h"
 #include "util.h"
-#include "bvm_opcodes.h"
+//#include "bvm_opcodes.h"
 #include "array.h"
 #include "stack.h"
 #include "mt19937ar.h"
@@ -114,6 +114,10 @@ bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
 
 bvm_cache *dev(bvm_cache *this_bvm){ // dev#
+
+//    mword *temp = _bvm_init(dstack_get(this_bvm,0));
+//    _dump(temp);
+//    die;
 
 //    _dump(this_bvm->rstack_ptr);
 //    die;

@@ -5,7 +5,7 @@
 #include "logic.h"
 #include "stack.h"
 #include "list.h"
-#include "bvm_opcodes.h"
+//#include "bvm_opcodes.h"
 #include "array.h"
 #include "alloc.h"
 #include "tptr.h"

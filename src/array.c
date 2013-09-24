@@ -6,7 +6,7 @@
 #include "list.h"
 #include "stack.h"
 #include "bstruct.h"
-#include "bvm_opcodes.h"
+//#include "bvm_opcodes.h"
 #include "except.h"
 #include "bvm.h"
 #include "load.h"

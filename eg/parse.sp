@@ -2,9 +2,9 @@
 -- Strange Loop Conference 2013 ELC
 
 ((main (code 
-    argv1 eval slurp8 
+    argv1 ! >>>
     str2ar ar2ls
-    parser eval ))
+    parser ! ))
 
 (argv1 (code 'argv' lusym 1 th))
 

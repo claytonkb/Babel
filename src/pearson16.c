@@ -5,7 +5,7 @@
 #include "pearson16.h"
 #include "list.h"
 #include "stack.h"
-#include "bvm_opcodes.h"
+//#include "bvm_opcodes.h"
 #include "array.h"
 #include "except.h"
 

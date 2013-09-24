@@ -5,14 +5,14 @@
 #include "bvm.h"
 #include "load.h"
 #include "stack.h"
-#include "bvm_opcodes.h"
-#include "bvm_interp.h"
+//#include "bvm_opcodes.h"
+//#include "bvm_interp.h"
 #include "arith.h"
 #include "io.h"
 #include "array.h"
 #include "eval.h"
 #include "list.h"
-#include "debug.h"
+//#include "debug.h"
 #include "pearson16.h"
 #include "except.h"
 #include "cmp.h"
@@ -165,7 +165,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
             icar(this_bvm->code_ptr) = cdr(car(this_bvm->code_ptr));
         }
         else if(icar(this_bvm->advance_type) == BVM_RETURN){
-            die;
+            //die;
             break;
         }
         else{
@@ -192,6 +192,96 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
 }
 
 
+mword *_bvm_init(mword *bvm_to_load){ // _bvm_init#
+
+//    mword *bvm_to_load = dstack_get(this_bvm,0);   
+//    popd(this_bvm);
+
+
+    mword *list = get_tptr(bvm_to_load);
+
+    mword load_length = _len(list);
+
+    int i;
+    mword *loaded_bvm;
+
+    if(tageq(bvm_to_load,BABEL_TAG_SYM_BVM,TAG_SIZE)){
+
+
+        mword *base_hash_table  = new_hash_table();
+        mword *sym_table        = new_hash_table();
+
+
+        _insha( base_hash_table,      
+                _hash8(C2B("/babel/tag/sym_table")),
+                nil,                           
+                new_hash_table_entry(  _hash8(C2B("/babel/tag/sym_table")),
+                                       nil,   
+                                       sym_table ) );
+
+
+        for(i=0; i<load_length; i++){
+
+
+            mword *payload = (mword*)icar(list);
+            mword *hash = _ith(payload,0);
+            mword *value = _ith(payload,1);
+
+            if(
+                tageq(   hash,  BABEL_TAG_BVM_CODE,         TAG_SIZE)
+                || tageq(hash,  BABEL_TAG_BVM_STACK,        TAG_SIZE)
+                || tageq(hash,  BABEL_TAG_BVM_RSTACK,       TAG_SIZE)
+                || tageq(hash,  BABEL_TAG_BVM_JUMP_TABLE,   TAG_SIZE)){
+            //insert into base hash table:
+
+                _insha( base_hash_table,                         
+                    hash,                                
+                    nil,                           
+                    new_hash_table_entry(   hash,         
+                                            nil,   
+                                            hash ) );
+            }
+            else{ //insert into sym_table
+
+                _insha( sym_table,
+                    hash,
+                    nil,
+                    new_hash_table_entry(   hash,
+                                            nil,
+                                            hash ) );
+            }
+
+
+            list = (mword*)cdr(list);
+
+        }
+
+
+        loaded_bvm = new_tptr(_hash8(C2B("/babel/tag/bvm")), base_hash_table);
+
+
+        _insha( base_hash_table,
+                _hash8(C2B("/babel/tag/self")),
+                nil,                           
+                new_hash_table_entry(  _hash8(C2B("/babel/tag/self")),
+                                       nil,   
+                                       loaded_bvm ) );
+
+
+    }
+    else{
+
+        fatal("Unrecognized bvm tag");
+    }
+
+//    pushd(this_bvm, loaded_bvm, IMMORTAL);
+//
+//    return this_bvm;
+
+    return loaded_bvm;
+
+}
+
 /* bvm operator
 **babel**
 > This operator "execs" a loaded BVM on TOS
@@ -206,17 +296,19 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop#
 
     new_bvm.sym_table = (mword*)bvm_sym_table(new_bvm.self);
 
-    //FIXME: Assumes we want to clone:
-    set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
-    set_sym(new_bvm_ptr, "epoch",  (mword*)get_sym(this_bvm, "epoch") );
-    set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
-    set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
+    if(tageq(new_bvm.self,BABEL_TAG_SPARSE_BVM,TAG_SIZE)){
+        //FIXME: Assumes we want to clone:
+        set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
+        set_sym(new_bvm_ptr, "epoch",  (mword*)get_sym(this_bvm, "epoch") );
+        set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
+        set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
 
-    set_sym(new_bvm_ptr, "steps",          _newva((mword)-1) );
-    set_sym(new_bvm_ptr, "thread_id",      _newva( icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
-    set_sym(new_bvm_ptr, "advance_type",   _newva((mword)BVM_ADVANCE) );
-    set_sym(new_bvm_ptr, "soft_root",      nil );
-    set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
+        set_sym(new_bvm_ptr, "steps",          _newva((mword)-1) );
+        set_sym(new_bvm_ptr, "thread_id",      _newva( icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+        set_sym(new_bvm_ptr, "advance_type",   _newva((mword)BVM_ADVANCE) );
+        set_sym(new_bvm_ptr, "soft_root",      nil );
+        set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
+    }
 
     flush_bvm_cache(this_bvm);
     update_bvm_cache(&new_bvm);
@@ -233,6 +325,38 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop#
     return this_bvm;
 
 }
+
+
+/* bvm operator
+**hibernate**
+Saves the current BVM off to disk. Takes one argument
+to specify the filename to save to.
+*/
+bvm_cache *hibernate(bvm_cache *this_bvm){ // hibernate#
+
+    mword *filename = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
+    icar(this_bvm->code_ptr) = cdr(car(this_bvm->code_ptr));
+    icar(this_bvm->advance_type) = BVM_ADVANCE;
+    icar(this_bvm->steps)--;
+    
+    flush_bvm_cache(this_bvm);
+
+    mword *bvm_out = get_tptr(this_bvm->self);
+
+    mword *temp_bvm_out = new_tptr(_hash8(C2B("/babel/tag/hiber_bvm")), bvm_out);
+
+    bvm_out = _unload(temp_bvm_out);
+
+    _spit_mword((char*)_b2c(filename), bvm_out);
+
+    icar(this_bvm->advance_type) = BVM_RETURN;    
+
+    return this_bvm;
+
+}
+
 
 
 //

@@ -7,7 +7,7 @@
 #include "bstruct.h"
 #include "except.h"
 #include "list.h"
-#include "bvm_opcodes.h"
+//#include "bvm_opcodes.h"
 #include "io.h"
 #include "array.h"
 #include "utf8.h"

@@ -6,7 +6,7 @@
 #include "io.h"
 #include "bvm.h"
 #include "pearson16.h"
-#include "debug.h"
+//#include "debug.h"
 #include <time.h>
 #include "mt19937ar.h"
 #include "array.h"

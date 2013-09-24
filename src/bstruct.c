@@ -4,7 +4,7 @@
 #include "babel.h"
 #include "bstruct.h"
 #include "load.h"
-#include "bvm_opcodes.h"
+//#include "bvm_opcodes.h"
 #include "stack.h"
 #include "bvm.h"
 #include "array.h"

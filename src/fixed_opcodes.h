@@ -7,14 +7,14 @@
 #include "bvm.h"
 #include "load.h"
 #include "stack.h"
-#include "bvm_opcodes.h"
-#include "bvm_interp.h"
+//#include "bvm_opcodes.h"
+//#include "bvm_interp.h"
 #include "arith.h"
 #include "io.h"
 #include "array.h"
 #include "eval.h"
 #include "list.h"
-#include "debug.h"
+//#include "debug.h"
 #include "pearson16.h"
 #include "except.h"
 #include "cmp.h"
@@ -710,8 +710,11 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     cond,
     append,
     newha,
+
+    //220
     bvmrstack,
     bvmsym,
+    hibernate,
 
 };
 

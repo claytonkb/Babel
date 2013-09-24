@@ -9,7 +9,7 @@
 #include "stack.h"
 #include "pearson16.h"
 #include "bvm.h"
-#include "bvm_opcodes.h"
+//#include "bvm_opcodes.h"
 #include "bstruct.h"
 #include "string.h"
 #include "tptr.h"

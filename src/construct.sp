@@ -4,7 +4,7 @@
 -- simulations or upload virtual objects when they hack into the 
 -- Matrix...
 
-(   (root       (tag '/babel/tag/bvm'
+(   (root       (tag '/babel/tag/sparse_bvm'
                     (list bvm_code
                     bvm_stack
                     jump_table

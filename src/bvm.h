@@ -30,6 +30,8 @@ bvm_cache *flush_bvm_cache(bvm_cache *this_bvm);
 bvm_cache *exec(bvm_cache *this_bvm);
 bvm_cache *bvmrstack(bvm_cache *this_bvm);
 bvm_cache *bvmsym(bvm_cache *this_bvm);
+bvm_cache *hibernate(bvm_cache *this_bvm);
+mword *_bvm_init(mword *bvm_to_load);
 
 //#include "list.h"
 //

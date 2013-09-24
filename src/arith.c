@@ -6,7 +6,7 @@
 #include "stack.h"
 #include "list.h"
 #include "bstruct.h"
-#include "bvm_opcodes.h"
+//#include "bvm_opcodes.h"
 #include "array.h"
 #include "bvm.h"
 #include "alloc.h"

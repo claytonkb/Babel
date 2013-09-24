@@ -94,7 +94,7 @@ mword *empty_string;
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 548
+#define NUM_INTERP_OPCODES 549
 
 // Operating-system compatibility
 #define WINDOWS

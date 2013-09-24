@@ -7,32 +7,13 @@
 #include "stack.h"
 #include "bstruct.h"
 #include "array.h"
-#include "bvm_opcodes.h"
+//#include "bvm_opcodes.h"
 #include "list.h"
 #include "alloc.h"
 
 //
 // babel_operator
-bvm_cache *load(bvm_cache *this_bvm){
-
-//    mword *result    = new_atom;
-//    (mword *)*result = _load(TOS_0(this_bvm), size(TOS_0(this_bvm)));
-//
-//    hard_zap(this_bvm);
-//
-//    push_alloc(this_bvm, result, MORTAL);
-//
-//    return this_bvm;
-//
-////    _load((mword*)TOS_0);
-////    TOS_0 = TOS_0 + MWORD_SIZE;
-
-//    mword *result   = _load(dstack_get(this_bvm,0), size(dstack_get(this_bvm,0)));
-//
-//    zapd(this_bvm,0);
-//    pushd(this_bvm, result, IMMORTAL);
-//
-//    return this_bvm;
+bvm_cache *load(bvm_cache *this_bvm){ // load#
 
     mword *op0 = dstack_get(this_bvm,0);//, size(dstack_get(this_bvm,0)));
     popd(this_bvm);
@@ -50,8 +31,6 @@ mword *_load(mword *tree, mword tree_size){ // _load#
 
     int i;
 
-//    mword tree_size  = size(tree);
-//    mword *dest      = 0;
     mword *LUT_abs   = _newin(tree_size);
     mword *LUT_rel   = _newlfi(tree_size,-1);
 
@@ -186,7 +165,7 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword elem){
 
 //
 // babel_operator
-bvm_cache *unload(bvm_cache *this_bvm){
+bvm_cache *unload(bvm_cache *this_bvm){ // unload#
 
     mword *op0 = dstack_get(this_bvm,0);//, size(dstack_get(this_bvm,0)));
     popd(this_bvm);

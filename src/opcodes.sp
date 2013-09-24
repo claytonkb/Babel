@@ -264,5 +264,6 @@
     (newha          (oper 0x21f))
 
     (bvmrstack      (oper 0x220))
-    (bvmsym         (oper 0x221)))
+    (bvmsym         (oper 0x221))
+    (hibernate      (oper 0x222)))
 

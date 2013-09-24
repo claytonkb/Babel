@@ -5,8 +5,8 @@
 #include "eval.h"
 #include "stack.h"
 #include "bstruct.h"
-#include "debug.h"
-#include "bvm_opcodes.h"
+//#include "debug.h"
+//#include "bvm_opcodes.h"
 #include "array.h"
 #include "bvm.h"
 #include "list.h"
@@ -603,11 +603,11 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
                     set_code_ptr(this_bvm,(mword*)_ith(cond_list,1));
 
                     // Not sure which is uglier...                    
-                    cond_list = (mword*)icdr(rtos);
-                    (mword*)*cond_list = _pop((mword*)icar(cond_list));
-                    (mword*)*cond_list = _pop((mword*)icar(cond_list));
+                    //cond_list = (mword*)icdr(rtos);
+                    //(mword*)*cond_list = _pop((mword*)icar(cond_list));
+                    //(mword*)*cond_list = _pop((mword*)icar(cond_list));
 
-                    //*(mword*)icdr(rtos) = icdr(icdr(icar(icdr(rtos)));
+                    *(mword*)icdr(rtos) = icdr(icdr(icar(icdr(rtos))));
 
                 }
             }
