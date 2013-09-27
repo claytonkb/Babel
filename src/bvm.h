@@ -32,6 +32,7 @@ bvm_cache *bvmrstack(bvm_cache *this_bvm);
 bvm_cache *bvmsym(bvm_cache *this_bvm);
 bvm_cache *hibernate(bvm_cache *this_bvm);
 mword *_bvm_init(mword *bvm_to_load);
+bvm_cache *bvm_step(bvm_cache *this_bvm);
 
 //#include "list.h"
 //

@@ -293,13 +293,16 @@ bvm_cache *unshift(bvm_cache *this_bvm){ // unshift#
 */
 bvm_cache *pop(bvm_cache *this_bvm){ // pop#
 
-    mword *list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 0);
+    mword *head_list = dstack_get(this_bvm, 0);
+    popd(this_bvm);
 
-    set_in_udr_stack(this_bvm, this_bvm->dstack_ptr, 0, (mword*)icdr(list));
+    mword *popped_list = _pop(head_list);
+    //(mword*)c(list,1) = nil;
 
-    (mword*)c(list,1) = nil;
+    //set_in_udr_stack(this_bvm, this_bvm->dstack_ptr, 0, (mword*)icdr(list));
 
-    pushd(this_bvm, list, IMMORTAL);
+    pushd(this_bvm, popped_list, IMMORTAL);
+    pushd(this_bvm, head_list, IMMORTAL);
 
     return this_bvm;
 

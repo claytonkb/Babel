@@ -265,5 +265,6 @@
 
     (bvmrstack      (oper 0x220))
     (bvmsym         (oper 0x221))
-    (hibernate      (oper 0x222)))
+    (hibernate      (oper 0x222))
+    (bvm_step       (oper 0x223)))
 

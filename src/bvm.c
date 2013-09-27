@@ -282,11 +282,72 @@ mword *_bvm_init(mword *bvm_to_load){ // _bvm_init#
 
 }
 
+
+
+// This is a temporary operator to enable the REPL
+//
+bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
+
+    //Check for existence of sym_table
+    //if !exists -> initialize BVM
+    //else if exists -> don't reinitialize, already done
+
+    bvm_cache new_bvm_cache;
+    bvm_cache *new_bvm_ptr = &new_bvm_cache;
+
+    mword *op_bvm = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
+    new_bvm_ptr->self      = op_bvm;
+    new_bvm_ptr->sym_table = (mword*)bvm_sym_table(new_bvm_cache.self);
+
+    mword *op_bvm_sym_table = (mword*)bvm_sym_table(op_bvm);
+           op_bvm_sym_table = hard_detag(op_bvm_sym_table);
+
+    if(is_nil(car(op_bvm_sym_table)) && is_nil(cdr(op_bvm_sym_table))){ // sym_table is uninitialized
+
+        if(tageq(new_bvm_cache.self,BABEL_TAG_SPARSE_BVM,TAG_SIZE)){
+
+            //FIXME: Assumes we want to clone:
+            set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
+            set_sym(new_bvm_ptr, "epoch",  (mword*)get_sym(this_bvm, "epoch") );
+            set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
+            set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
+
+            set_sym(new_bvm_ptr, "thread_id",      _newva( icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+            set_sym(new_bvm_ptr, "advance_type",   _newva((mword)BVM_ADVANCE) );
+            set_sym(new_bvm_ptr, "soft_root",      nil );
+            set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
+
+        }
+
+    }
+
+    set_sym( new_bvm_ptr, "steps", _newva((mword)1) );
+
+    flush_bvm_cache(this_bvm);
+    update_bvm_cache(new_bvm_ptr);
+
+    bvm_interp(new_bvm_ptr);
+
+    flush_bvm_cache(new_bvm_ptr);
+    update_bvm_cache(this_bvm); // Technically, this is not necessary
+                                // but it doesn't hurt
+
+    //FIXME - push stack of new_bvm_cache onto this_bvm when bvm_interp returns
+    //push_alloc(this_bvm, new_bvm_cache.stack_ptr, BVMEXEC);
+
+    return this_bvm;
+
+}
+
+
+
 /* bvm operator
 **babel**
 > This operator "execs" a loaded BVM on TOS
 */
-bvm_cache *babelop(bvm_cache *this_bvm){ // babelop#
+bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
 
     bvm_cache new_bvm;
     bvm_cache *new_bvm_ptr = &new_bvm;

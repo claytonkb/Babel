@@ -15,6 +15,8 @@
 mword *new_tptr(const mword *hash, mword *bs);
 
 mword *tptr_extract_hash(mword *tptr);
+void tptr_update_hash(mword *tptr, mword *hash);
+
 mword *tptr_extract_ptr(mword *tptr); 
     //Different from get_tptr because get_tptr returns the ptr for 
     //THIS tptr whereas tptr_extract_ptr is recursive

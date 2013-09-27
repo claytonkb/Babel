@@ -452,14 +452,15 @@ bvm_cache *bbl2str(bvm_cache *this_bvm){ // bbl2str#
     }
 
     mword *temp   = _newlf(length);
-    mword *result = _newin(1);
-    (mword*)*result = temp;
+    mword *result = temp;
+//    mword *result = _newin(1);
+//    (mword*)*result = temp;
 
     memcpy(temp, buffer, buf_size);
     c(temp,length-1) = last_mword;
     free(buffer);
 
-    push_alloc(this_bvm,result,MORTAL);
+    pushd(this_bvm,result,MORTAL);
 
     return this_bvm;
 
@@ -507,26 +508,35 @@ mword rbbl2str(mword *bs, char *buffer){ // rbbl2str#
 
     MARK_TRAVERSED(bs);
 
+    #define INTE_OPEN  "(ptr "
+    #define INTE_CLOSE ") "
+    #define LEAF_OPEN  "(val "
+    #define LEAF_CLOSE ") "
+
     if(is_inte(bs)){
 
-        buf_size += sprintf(buffer+buf_size, "[ ");
+        //buf_size += sprintf(buffer+buf_size, "[ ");
+        buf_size += sprintf(buffer+buf_size, INTE_OPEN);
 
         for(i=0; i<num_entries; i++){
             buf_size += rbbl2str((mword *)*(bs+i), buffer+buf_size);
         }
 
-        buf_size += sprintf(buffer+buf_size, "] ");
+        //buf_size += sprintf(buffer+buf_size, "] ");
+        buf_size += sprintf(buffer+buf_size, INTE_CLOSE);
 
     }
     else{ // is_leaf
 
-        buf_size += sprintf(buffer+buf_size, "{ ");
+        //buf_size += sprintf(buffer+buf_size, "{ ");
+        buf_size += sprintf(buffer+buf_size, LEAF_OPEN);
 
         for(i=0; i<num_entries; i++){
             buf_size += sprintf(buffer+buf_size, "0x%x ", *(mword *)(bs+i));
         }
 
-        buf_size += sprintf(buffer+buf_size, "} ");
+        //buf_size += sprintf(buffer+buf_size, "} ");
+        buf_size += sprintf(buffer+buf_size, LEAF_CLOSE);
 
     }
 

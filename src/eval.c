@@ -282,6 +282,7 @@ bvm_cache *iter(bvm_cache *this_bvm){ // iter#
         if( tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)
             || tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)
             || tageq(tag,BABEL_TAG_EACH,TAG_SIZE)
+            || tageq(tag,BABEL_TAG_EACHAR,TAG_SIZE)
             || tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
             break;
         }

@@ -46,6 +46,19 @@ mword *tptr_extract_hash(mword *tptr){ // tptr_extract_hash#
 
 //
 //
+void tptr_update_hash(mword *tptr, mword *hash){ // tptr_update_hash#
+
+    int i;
+
+    for(i=0; i<HASH_SIZE; i++){
+        tptr[i] = c(hash,i);
+    }
+
+}
+
+
+//
+//
 mword *tptr_extract_ptr(mword *tptr){ // tptr_extract_ptr#
 
     mword* temp = (mword*)(tptr+TPTR_PTR);

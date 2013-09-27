@@ -5,6 +5,10 @@ use strict;
 use Data::Dumper;
 
 print <<'HEADER';
+<head>
+    <title>Babel Programming Language</title>
+</head>
+
 ![](sacred_scarab.jpg)
 
 [**Contact Us**](babel_contact.html)  
