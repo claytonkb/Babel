@@ -426,6 +426,8 @@ mword *_bons(mword *list){ // _bons#
 bvm_cache *ls2lf(bvm_cache *this_bvm){ // ls2lf#
 
     mword *list = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
     mword *result = _ls2lf(list);
 
     pushd(this_bvm, result, IMMORTAL);

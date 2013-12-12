@@ -123,8 +123,8 @@ To see a listing of the binary file that was created, open filename.sp.lst.
 For example, the above code would result in the following lines in the
 .lst file:
 
-`0000 00000004  
-0004 0000000a`  
+> `0000 00000004`  
+> `0004 0000000a`   
 
 The first line is at offset 0 and has a value of 4, meaning a leaf-array of
 4 bytes in length. The second line is at offset 4 and has the value of 0xa,
@@ -133,33 +133,33 @@ program.
 
 The kinds of lists which sparse recognizes are:
 
-> `(val  ...)`  Creates a leaf-array (values)  
-> `(ptr  ...)`  Creates an interior-array (pointers)  
-> `(tag  ...)`  Creates a tagged-pointer  
-> `(list ...)`  Creates a Lisp-style list  
-> `(hash ...)`  Returns the Pearson16 hash of a string  
-> `(oper ...)`  Inserts a constant value into a code-list as an operator  
-> `(ref  ...)`  Creates a reference  
-> `(code ...)`  Creates a code-list  
-   
+        (val  ...)  Creates a leaf-array (values)  
+        (ptr  ...)  Creates an interior-array (pointers)  
+        (tag  ...)  Creates a tagged-pointer  
+        (list ...)  Creates a Lisp-style list  
+        (hash ...)  Returns the Pearson16 hash of a string  
+        (oper ...)  Inserts a constant value into a code-list as an operator  
+        (ref  ...)  Creates a reference  
+        (code ...)  Creates a code-list  
+       
 Examples. Paste these into some filename.sp file and use sparse.pl to compile
 and see the results in the .lst file. Note that none of these examples are
 runnable as a Babel Virtual Machine, that is, you cannot pass the generated
 .bbl file to Babel.
 
-> `((root (val  1 2 3)))`  
-> `((root (ptr  1 2 3)))`  
-> `((root (ptr root)))`  
-> `((root (list 1 2 3)))`  
-> `((root (tag 'foo' nil)))`  
-> `((root (hash 'foo')))`  
-> `((root (oper 0x134)))`  
-> `((root (ref 'foo')))`  
+        ((root (val  1 2 3)))  
+        ((root (ptr  1 2 3)))  
+        ((root (ptr root)))  
+        ((root (list 1 2 3)))  
+        ((root (tag 'foo' nil)))  
+        ((root (hash 'foo')))  
+        ((root (oper 0x134)))  
+        ((root (ref 'foo')))  
    
 In order to generate meaningful code-lists, you will need to pass 
 src/opcodes.sp to sparse.pl in addition to your .sp filename.
 
-> `((root (code fnord fnord)))`  
+        ((root (code fnord fnord)))  
 
 In order to create a loadable BVM, you will need to pass both src/opcodes.sp
 and src/construct.sp to sparse.pl in addition to your .sp filename. You must
@@ -168,16 +168,16 @@ construct.sp) and you must define a 'main' section and a 'symbol' section.
 
 For example, if foo.sp is the following:
 
-> `(   (main (code "Hello, world\n" stdout8))  
->    (symbol (list nil)))`  
+        (   (main (code "Hello, world\n" stdout8))  
+        (symbol (list nil)))  
   
 ... then you can compile a loadable BVM out from it with the following command:
 
-> `perl sparse.pl foo.sp src/construct.sp src/opcodes.sp`   
+        perl sparse.pl foo.sp src/construct.sp src/opcodes.sp   
 
 Now, foo.sp.bbl can be executed by the Babel interpreter directly:
 
-> `bin/babel.exe foo.sp.bbl`  
+        bin/babel.exe foo.sp.bbl
 
 <a name="bipedal"></a>
 Babel Program Description Language (Bipedal)
@@ -188,17 +188,19 @@ Babel 1.0. The primary design goal of Bipedal has been to make the syntax
 reflect the underlying data structure that is being described as closely as 
 possible. 
 
+*Lexicals*
+
 Bipedal is UTF-8 encoded - this means you can give your sections any name 
 that can be encoded in UTF-8. You can easily alias the built-in operator 
 names, as well.
 
 Like any other postfix language, operands come first, then operators:
 
->       2 3 + 4 *
+        2 3 + 4 *
 
 The above expression, when evaluated, will result in 20.
 
->       "Hello, " "world" . <<
+        "Hello, " "world" . <<
 
 When this expression is evaluated, it will place the two strings on the 
 stack, concatenate them and then print them to STDOUT.
@@ -208,142 +210,149 @@ leaf-arrays and **pointers** are stored in interior-arrays. In Bipedal, there
 are two syntactic elements that describe values: a number or a string.
 
 A **number** can be a decimal integer, decimal floating-point, hexadecimal, 
-binary or a p-number (or pnum - support will be added in Babel 2.0). 
-Bipedal differentiates between integer and floating-point based on the 
-presence of a decimal-point and the default is integer.
+or binary. Bipedal differentiates between integer and floating-point based 
+on the presence of a decimal-point and the default is integer.
 
-> `-42e15`  
-> `32.7152e-12`  
-> `0x13`  
-> `0b1101111`  
-> `0p(101)1.11e-5`  
+        -42e15  
+        32.7152e-12  
+        0x13  
+        0b1101111  
 
 The limits are dependent on MWORD\_SIZE (use the msize operator to get 
 this) except for pnums which can be of arbitrary size.
 
 A string is a set of characters wrapped in quotes:
 
-> `"Lorem ipsum dolor sit amet"`  
-> `'Lorem ipsum dolor sit amet'`  
+        "Lorem ipsum dolor sit amet"  
+        'Lorem ipsum dolor sit amet'  
 
 ... or in a quote-block (see below). The quote character can be escaped 
 with a backslash in the usual way. Line comments in Bipedal are specified 
 by double-dash:
 
-> `-- This is a comment`  
+        -- This is a comment  
+
+*Sections*
 
 Bipedal is organized at the top-level as a set of labeled text blocks 
-which can be nested. A label is a string of characters that begins at 
-the left-edge and is followed by a colon or equal-sign:
+which can be nested via indentation, like a YAML file. A label is a string 
+of characters that begins at the left-edge and is followed by a colon or 
+equal-sign:
 
-> `this_is\ a\ label\!\@          :`  
-> `this_is\ a\ label_too:`  
-> `this_is\ a\ label           =`  
-> `and\=so\=is\=this=`  
+        this_is\ a\ label\!\@          :  
+        this_is\ a\ label_too:  
+        this_is\ a\ label           =  
+        and\=so\=is\=this=  
 
 Any character can be used in a label, including the colon and equal-sign. 
 However, any ASCII character that is not an identifier-character must be 
 escaped with the backslash. Non-ASCII Unicode characters can be used 
-freely. The first text in a Bipedal file is ignored until the first, 
-left-justified label is encountered.
+freely.
 
 A label opens an indented text block which is terminated either by the end 
 of file or by a dedent. The indent must be at least one space. Tabs or any 
 other whitespace cannot be used as an indent character. A line that is 
-less than one space further indented than the left-edge of the current 
-block is a dedent and ends the current text block. A labeled text block 
-allows the definition of a section.
+one space less indented than the left-edge of the current block, or the 
+end-of-file, is a dedent and ends the current text block. A labeled text 
+block allows the definition of a section.
 
-> `my_section : ( 10 9 8 7 6 5 4 3 2 1 "Blast off!" )`  
+        my_section : ( 10 9 8 7 6 5 4 3 2 1 "Blast off!" )  
 
-Every section is entered into the symbol table at compile-time. Hence, 
-every section label is a symbol. However, symbols can also be created 
-dynamically so not every symbol is a section.
+*Leaf-arrays*
 
 A leaf-array is defined by enclosing a string or one or more numbers in 
-square-brackets:
+square-brackets with the 'val' tag:
 
-> `[1 1 2 3 5 8 13 0x15]`
-> `["Smart men are named Leonardo"]`
+        [val 1 1 2 3 5 8 13 0x15]
 
-If the section is a leaf-array that only contains a single number or a 
-single string value, the square-brackets can be removed because they are 
-implied:
+A single number or string can be enclosed in brackets without the val tag:
 
-> `foo : 1234`    
-> `bar : "baz"`    
+        [101]
+        ["Let me not to the marriage of true minds admit impediments"]
 
-A leaf-array cannot nest and an interior-array cannot contain values, so 
-the following are illegal:
+A section consisting of a single number or string value is encoded as a 
+leaf-array:
 
-> `["speeding" ["jaywalking"]]`  
-> `[["littering"] "loitering"]`  
+        foo : 1234    
+        bar : "baz"    
 
-An interior-array is defined by enclosing one or more leaf-arrays, labels 
-or interior arrays in square-brackets:
+An empty section defaults to nil:
 
-> `[["the"]["cuckoo’s"]["nest"]]`  
-
-Note that values are represented in bold boxes, pointers are represented in standard boxes. 
-Because the square brackets are overloaded between leaf-arrays and interior-arrays, it is possible to have ambiguous sections:
-
-> `A : [B]`  
-> `B : [A]`  
-
-Whenever Babel cannot unambiguously resolve the meaning of square-brackets
-in two or more sections, it will treat them as interior-arrays. So, the 
-above example would resolve to section A being an interior-array with a 
-single direct-reference to section B and vice-versa.
-
-An empty namespace defaults to nil:
-
-> `foo :`  
-> `bar : 123`  
+        foo :
+        bar : 123
 
 ... is equivalent to:
 
-> `foo : nil`  
-> `bar : 123`  
+        foo : nil  
+        bar : 123  
+
+You can alias one section to another:
+
+        foo : bar
+
+Anywhere foo is used, it will be as if bar had been used instead. You 
+cannot use sigils (see below) on either side of an alias statement and the 
+alias inherits any sigil attached to the aliased section. You cannot alias a 
+location label. Aliases have global visibility, so you can alias any 
+section by using its full name. You can use this feature to alias the 
+built-in operators to a name of your preference:
+
+        suma : +  
+        foo : { 2 3 suma }  
+
+If a symbol is not defined by a labeled section in your Bipedal file, it 
+is treated as if it defines a symbolic section. That is, use of an 
+otherwise undefined symbol implicitly creates an entry in the symbol-table 
+for that symbol. This is the case regardless of whether the symbol refers 
+to a symbolic variable or a reference variable.
+
+*Interior-array*
+
+An interior-array is defined by enclosing one or more leaf-arrays, labels 
+or interior arrays in square-brackets with the 'ptr' tag:
+
+        [ptr ["achilles"] ["tortoise"] ] 
+
+*Lists*
 
 Lists are created with parentheses. A list in Babel means a linked-list 
 in the Lisp-sense. The following are equivalent:
 
-> `(1 2 3)`  
+        (1 2 3)  
 
-> `[[1] [[2] [[3] nil]]]`  
+        [ptr 1 [ptr 2 [ptr 3 nil]]]  
 
 You can verify this with the following code:
 
-> `{ (1 2 3) [[1] [[2] [[3] nil]]] eq }`  
+        { (1 2 3) [ptr 1 [ptr 2 [ptr 3 nil]]] == }  
 
-... which will evaluate to 1 (true).
+... which will evaluate to 0 (same, see `arcmp`).
 
-The nil element is distinct from Lisp’s in that Babel has no notion of an 
-atomic and nil is just implemented as an entry in the symbol table - 
+The nil element is distinct from that of Lisp in that Babel has no notion of 
+an atomic and nil is just implemented as an entry in the symbol table - 
 but you can take its car or cdr and you will always get nil again. In 
 keeping with the spirit of Lisp, you can also notate nil as 
 empty-parentheses or empty-brackets:
 
-> `[] == () == nil`
+        [] == () == nil
 
 One final difference between Bipedal syntax and Lisp syntax is that 
 Bipedal does not use the dot-notation. In Lisp, the following syntax
 
-> `(1 2 . 3)`  
+        (1 2 . 3)
 
 ... expresses the same list as the following written in Bipedal:
 
-> `(1 [2 3])`  
+        (1 [ptr 2 3])
 
 In Babel, operands in the code-stream are differentiated from operators 
 by being nested in an interior-array. For example, to add two numbers, 
 the following are all equivalent:
 
-> `A: ( [42] [23] + )`  
-> `B: ( (42) (23) + )`  
-> `C: ( [42 nil] [23 nil] + )`  
-> `D: ( [42 nil] [23 nil] 0x38 )`  
-
+        A: ( [42] [23] + )  
+        B: ( (42) (23) + )  
+        C: ( [ptr 42 nil] [ptr 23 nil] + )  
+        D: ( [ptr 42 nil] [ptr 23 nil] 0x38 )  
 
 A-D all produce the same result when executed. A and B do not generate 
 exactly the same byte-code but B, C and D do.
@@ -353,37 +362,73 @@ it performs the nesting of non-operators automatically, thus reducing
 visual clutter. It also alters the meaning of labeled references. The 
 following are identically equivalent:
 
-> `( [2] [3] + )`  
+        ( [2] [3] + )  
 
-> `{ 2 3 + }`  
+        { 2 3 + }  
 
 And:
 
-> `( ["Hello, "] ["world\n"] . << )`  
+        ( ["Hello, "] ["world\n"] . << )  
 
-> `{ "Hello, "  "world\n" . << }`  
+        { "Hello, "  "world\n" . << }  
 
 You can check that this is the case:
 
-> `{ { 1 2 3 "Hello, world" } ( [1] [2] [3] ["Hello, world"] ) eq }`  
+        { { 1 2 3 "Hello, world" } ( [1] [2] [3] ["Hello, world"] ) == }
 
-Note that the default meaning of labeled references is different 
-depending on whether you are in code-list or data-list context.
+*Tagged-pointers*
 
 The tagged-pointer is the third basic sub-type alongside interior-arrays 
 and leaf-arrays that together comprise the bstruct type in which all 
-Babel data is stored. A tagged-pointer is created using the 
-angle-brackets:
+Babel data is stored. A tagged-pointer is created using square-brackets with
+the 'tag' ptr:
 
-< tag stuff >
+        [tag <stuff>]
 
 The stuff that follows the tag (if any) is dependent on the tag. Certain 
 built-ins, such as nil, are implemented internally using tagged-pointers.
 
-Sigils
-------
+*References*
 
-Babel permits the use of a sigil (magic symbol) to specify the meaning of 
+A reference permits indexing into any portion of a bstruct. There are two
+syntaxes for creating references. The first is to use square brackets with
+the 'ref' tag:
+
+        [ref 'foo']
+
+The above creates a reference to 'foo'. A reference can index into any number
+of hash-tables and lists:
+
+        [ref 'foo' 0 15 'bar']
+
+This will create a reference that looks up foo in the local symbol-table, 
+finds the 0th element of the list returned, then finds the 15th element of the 
+list returned, then indexes into the returned hash-table with 'bar'. 
+
+The refa tag creates a reference which uses array-indexing. The refg tag
+creates a reference that begins lookup in the global symbol-table.
+
+The second syntax for creating refernces is a URI-style syntax:
+
+        foo/0/15/bar
+
+Equivalent:
+
+        ./foo/0/15/bar
+
+Numeric elements in the URI are interpreted as list-indices. To begin with 
+the global symbol-table, simply begin the URI with a '/':
+
+        /foo/0/15/bar
+
+Finally, since references can be used to index into any bstruct, use the
+`lu` operator to apply a reference to a particular data-structure:
+
+        (1 2 3) ./1 lu --> returns 2
+
+*Sigils*
+
+Bipedal permits the use of a sigil (magic symbol) to specify the meaning of 
 a label or symbol. There are six sigils:
 
 <table>
@@ -395,13 +440,7 @@ a label or symbol. There are six sigils:
     <td>*</td><td>Lexical substitution</td><td>Leaf-array</td><td>"Contents-of" (C)</td>
   </tr>
   <tr>
-    <td>&</td><td>Direct reference</td><td>Interior-array and list</td><td>Reference (C++)</td>
-  </tr>
-  <tr>
-    <td>$</td><td>Indirect reference</td><td>N/A</td><td>Reference (Perl)</td>
-  </tr>
-  <tr>
-    <td>%</td><td>Soft reference</td><td>Code-list</td><td>Hash-sigil (Perl)</td>
+    <td>&</td><td>Direct pointer</td><td>Interior-array and list</td><td>Reference (C++)</td>
   </tr>
   <tr>
     <td>!</td><td>Auto-eval reference</td><td>N/A</td><td>Imperative - do it!</td>
@@ -415,13 +454,8 @@ Appending a sigil to a section label or to a symbol imparts that magical
 property to it and may alter its default behavior. A sigil appended to a 
 label overrides the default sense of that label in any context. However, 
 you can double-override the symbol by appending a different sigil in a 
-particular context:
-
-> `foo% : 127`  
-> `bar : ( foo& ) --> Overrides foo back to a direct-reference`  
-
-The default behavior of a bare symbol varies depending on the context in 
-which it occurs. 
+particular context. The default behavior of a bare symbol varies depending 
+on the context in which it occurs. 
 
 The asterisk (*) specifies that a symbol or section is to be used for 
 lexical substitution. Lexical substitution allows a section or string to 
@@ -431,12 +465,12 @@ not macros.
 
 This:
 
-> `foo : (1 2 3)`  
-> `bar : (foo* 4 5)`  
+        foo : (1 2 3)  
+        bar : (foo* 4 5)  
 
 ... is equivalent to this:
 
-> `bar : (1 2 3 4 5)`  
+        bar : (1 2 3 4 5)
 
 The order in which you define sections is maintained by Bipedal. In the 
 above example, foo has precedence over bar.
@@ -446,10 +480,10 @@ substituted only into interior arrays, leaf arrays only into leaf arrays,
 lists only into lists, code-lists only into code-lists and strings only 
 into strings (a compile-time version of string interpolation).
 
-> `hi : "hello"`  
-> `hw : "hi* world"`  
+        hi : "hello"  
+        hw : "hi* world"  
 
-hw evaluates to "hello world"
+`hw` evaluates to "hello world"
 
 Only double-quotes (and interpolating quote blocks) will perform lexical 
 substitution of strings. Use single-quotes if you want to use asterisks in 
@@ -458,132 +492,100 @@ a string without having to escape each one.
 If you plan to use a section primarily for lexical substitution, you can 
 append an asterisk to the section-definition label.
 
-> `foo* : [bar baz]`  
-> `bop : [foo doo wop]`  
+        foo* : [ptr bar baz]  
+        bop  : [ptr foo doo wop]  
 
 Equivalent to:
 
-> `bop : [bar baz doo wop]`  
+        bop : [bar baz doo wop]  
 
 And:
 
-> `add2 : { 2 + }`  
-> `bar : { 1 add2* }`  
+        add2 : { 2 + }  
+        bar  : { 1 add2* }  
 
 Equivalent to:
 
-> `bar : { 1 2 + }`  
+        bar : { 1 2 + }  
 
-In a leaf-array, the default (and only) meaning of a symbol is lexical 
-substitution.
+In a leaf-array, the only meaning of a symbol is lexical substitution.
 
-> `foo : [ 1 2 3 ]`  
-> `bar : [ foo 4 5 ]`  
+        foo : [val 1 2 3 ]  
+        bar : [val foo 4 5 ]  
 
 Equivalent to:
 
-> `bar : [ 1 2 3 4 5 ]`  
+        bar : [ 1 2 3 4 5 ]  
 
 Gratuitous use of sigils is permitted:
 
-> `foo* : [1 2 3]`  
-> `bar : [foo* 4 5]`  
+        foo* : [val 1 2 3]  
+        bar  : [val foo* 4 5]  
 
 You cannot use any other sigil than the asterisk on a symbol that occurs 
 in a leaf-array. If the symbol cannot be lexically substituted into the 
-leaf-array, an error will occur. A reference to ‘foo’ refers directly to 
-the thing called ‘foo’ at compile-time rather than performing a lookup in 
-the symbol table at run-time. There are two types of references - direct 
-references (pointer) and indirect references (pointer-pointer). 
+leaf-array, an error will occur. 
 
 In list context or interior-array context, the default meaning of a bare 
-symbol is a direct reference.
+symbol is a direct pointer.
 
-> `foo : [1 2 3]`  
-> `bar : [foo [4] [5]]`  
+        foo : [ptr 1 2 3]  
+        bar : [ptr foo [4] [5]]  
 
 Equivalent to:
 
-> `bar : [[1 2 3] [4] [5]]`  
+        bar : [ptr [ptr 1 2 3] [4] [5]]  
 
 The same is true of lists:
 
-> `foo : (1 2 3)`  
-> `bar : (foo 4 5)`  
+        foo : (1 2 3)  
+        bar : (foo 4 5)  
 
 Equivalent to:
 
-> `bar : ((1 2 3) 4 5)`  
+        bar : ((1 2 3) 4 5)  
 
-Note that, unlike lexical substitution, a direct-reference to foo is 
-actually a pointer to foo and, therefore, preserves the nesting but does 
-not make a copy. If you want to nest and make a copy:
+Note that, unlike lexical substitution, a direct-pointer to foo preserves 
+the nesting but does not make a copy. If you want to nest and make a copy:
 
-> `foo : [1 2 3]`  
-> `bar : [[foo*] [4] [5]]`  
+        foo : [1 2 3]  
+        bar : [[foo*] [4] [5]]  
 
-If you want an indirect reference in list, interior-array or code-list 
-context, use the dollar-sign sigil ($):
+In list, interior-array or code-list contexts, the default meaning of a bare
+symbol is as a reference.
 
-> `foo : [1 2 3]`  
-> `bar : [foo$ [4] [5]]`  
+        foo : [ptr 1 2 3]  
+        bar : [ptr foo [4] [5]]  
 
-Equivalent to:
+Note that foo does not need to be defined at compile-time. If you want a 
+direct-pointer instead of a reference, use the ampersand sigil (&):
 
-> `bar : [[[1 2 3]] [4] [5]]`  
+        foo& : 0x38  
+        bar  : [ptr foo [4] [5]]  
 
-Note the extra pair of brackets. As a general rule, you should never need 
-to use indirect references in interior-array or list context.
+or:  
 
-> `foo : (1 2 3)`  
-> `bar : { foo$ len }`  
+        bar  : [ptr foo& [4] [5]]  
 
-Equivalent to:
+Note that, in this case, foo must be defined at compile-time.
 
-> `bar : ( [foo] len )`  
-
-In code-lists, if you want a direct-reference, use the ampersand sigil 
-(&):
-
-> `foo& : 0x38`  
-> `bar : { foo }`  
-
-Equivalent to:
-
-> `bar : ( 0x38 )`  
-
-If you want to use a symbol as a hash-reference in an interior array or a 
-list, use the percent sigil (%):
-
-> `foo : [1 2 3 bar%]`  
-> `bar : (1 2 3 bar%)`  
-
-In a code-list, the default meaning of a bare symbol is as a hash-reference. 
-
-> `foo : (1 2 3)`  
-> `bar : { foo len }`  
-
-Equivalent to:
-
-> `bar : ([foo%] len)`  
-
-In Babel code, a hash-reference can have one of two effects - it can either 
+In Babel code, a reference can have one of two effects - it can either 
 auto-eval a named section or it can auto-lookup data from the symbol table 
 and place it on the stack. The default sense is to auto-lookup data. If 
 you want to auto-eval it, you can use the auto-eval sigil, bang (!):
 
-> `add2 : { 2 + }`  
-> `foo : { 3 add2! }`  
+        add2 : { 2 + }  
+        foo  : { 3 add2! }  
 
-Note that this has exactly the same effect as:
+Note that, in this case, the above form has the same effect as:
 
-> `foo : { 3 add2 eval }`  
+        foo : { 3 add2 ! }  
 
 Most of the time, you will likely want to simply define the section with 
 the auto-eval sigil:
 
-> `add2! : { 2 + }`  
-> `foo : { 3 add2 }`  
+        add2! : { 2 + }  
+        foo   : { 3 add2 }  
 
 The auto-eval sigil can only be used in code-list context.
 
@@ -591,38 +593,19 @@ The location sigil (@) can never be used as a section definition label or
 in array context. It allows you to create direct references within a list 
 or code-list. For example:
 
-> `foo: ( 1 2 three@ 3)`  
-> `bar: { foo/three car %d << }`  
+        foo: ( 1 2 three@ 3 )  
+        bar: { foo/three car %d << }  
 
-Equivalent to:
+Equivalent effect as:
 
-> `{ foo cdr cdr car %d << }`  
+        { foo cdr cdr car %d << }  
 
 You can use this facility to create a _compile-time hash_ that permits 
 your code to reach the elements of a list but without the overhead of 
 run-time hashing. For example:
 
-> `( first_name@        "John"`  
-> `last_name@           "Smith"`  
-> `ID@                  "19010378" )`  
+        ( first_name@        "John"  
+        last_name@           "Smith"  
+        ID@                  "19010378" )  
 
-An unenclosed bare symbol is treated as a simple alias.
-
-> `foo : bar`  
-
-Anywhere foo is used, it will be as if bar had been used instead. You 
-cannot use sigils on either side of an alias statement and the alias 
-inherits any sigil attached to the aliased section. You cannot alias a 
-location label. Aliases have global visibility, so you can alias any 
-section by using its full name. You can use this feature to alias the 
-built-in operators to a name of your preference:
-
-> `suma : +`  
-> `foo : { 2 3 suma }`  
-
-If a symbol is not defined by a labeled section in your Bipedal file, it 
-is treated as if it defines a symbolic section. That is, use of an 
-otherwise undefined symbol implicitly creates an entry in the symbol-table 
-for that symbol. This is the case regardless of whether the symbol refers 
-to a symbolic variable or a reference variable.
 

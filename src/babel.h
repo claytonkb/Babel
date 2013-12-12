@@ -1,4 +1,5 @@
 // babel.h
+//
 // Every .c file in the Babel project should include this file
 
 #ifndef BABEL_H
@@ -94,7 +95,7 @@ mword *empty_string;
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 550
+#define NUM_INTERP_OPCODES 551
 
 // Operating-system compatibility
 #define WINDOWS
@@ -221,6 +222,31 @@ mword *empty_string;
 #define mktptr(x) ( new_tptr( \
                         _hash8(C2B(x)), \
                             consa( nil, nil ) ) )
+
+#include "array.h"
+
+#define MKTMP(n) tmp##n
+
+#define TMPLINE MKTMP(__LINE__)
+
+#define mkartmp(w,x,y,...) \
+    mword x[] = { MWORDS(y), __VA_ARGS__ }; \
+    mword *w = x+1;
+
+#define mkar(x,y,...) mkartmp(x,TMPLINE,y,__VA_ARGS__)
+
+#define mklstmp(w,x,y,...) \
+    mword x[] = { MWORDS(y), __VA_ARGS__ }; \
+    mword *w = _ar2ls( x+1 );
+
+#define mkls(x,y,...) mklstmp(x,TMPLINE,y,__VA_ARGS__)
+
+//    mkar(myarray,3,1,2,3);
+//    mkls(mylist, 3,1,2,3);
+//
+//    _dump(mylist);
+//
+//    die;
 
 // non-allocating cons
 // XXX: Doesn't work with tptr...

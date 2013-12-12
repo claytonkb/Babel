@@ -1,0 +1,5 @@
+-- ptr.sp
+
+((root (ptr 0xace 0xcab 0xfad)))
+
+

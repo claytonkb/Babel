@@ -329,94 +329,11 @@ Memory management
 
 Babel uses a combination of automatic and manual memory management.
 Memory created by built-in operators is automatically managed, according to 
-specific rules. All other memory must be created and destroyed by the user 
-through the newlf/newin and free/del operators.
-
-Stack memory management
------------------------
-
-- Built-ins
-
-    Built-in operators can create results on the stack. The memory for
-    these results is created automatically. When the values are consumed
-    by another built-in operator, they are also automatically freed.
-
-    For example,
-
-    >       2 3 +
-
-    ... creates the result {5} which is allocated automatically and put
-    on the stack. When this result is then consumed by the next 
-    instruction:
-
-    >       4 mul
-
-    ... the intermediate result {5} is freed and the new result {20} is 
-    automatically allocated and put on the stack.
-
-- User operators
-
-    User operators can provide a destructor function to Babel when they 
-    are registered. This function will be called whenever the operator's
-    results are consumed by another operator (built-in or otherwise).
-
-    To signal consumption of a value (removal from the stack) to other 
-    operators, call the zap() function.
-
-Load memory management
-----------------------
-
-The load operator accepts a leaf-array containing an "offset relative" 
-bstruct as input and generates a "live" bstruct as output. In order to
-maintain the ability to destruct any portion of a bstruct at any time, the
-load operator is required to allocate every basic structure as it is 
-loaded from the leaf-array (it can't simply load in-place).
-
-Namespace memory management
----------------------------
-
-Memory destruction within a namespace is hierarchical. This means that if 
-you create /foo/bar and then destroy /foo, /foo/bar will also be 
-destroyed. Note that simply removing a namespace does not affect memory
-allocation, it's when you use the del operator on a namespace.
-
-The book-keeping data in a namespace is always automatically memory-
-managed.
-
-Hash memory management
-----------------------
-
-The book-keeping data in a hash is automatically memory-managed.
-
-Mortality
----------
-
-Each item on the stack is either mortal or immortal. Mortal items are freed
-when they are consumed by an operator. Immortal items are not freed.
-
-When you create new  memory:
-
-    `10 newin`
-
-... it is mortal. When this object is zap'd, it will be freed. If you want 
-the object to be freed when it is zap'd, use the immortal operator:
-
-    `10 newin immortal`
+specific rules. All other memory must be created and destroyed by the user.
 
 <a name="misc"></a>
 Miscellaneous Topics
 ====================
-
-P-numbers
----------
-
-Babel has built-in support for arbitrary precision p-adic numbers, called 
-p-numbers for short. The p-operators (padd, psub, etc.) implement this
-functionality.
-
-To calculate the square-root of two to five words of precision:
-
-    [5] [2] psqrt
 
 File I/O
 --------
@@ -426,12 +343,6 @@ slurp functionality.
 
 For more robust file functionality, Babel provides memory-mapped files.
 
-Operand-checking
-----------------
-
-Operands are checked for each operator. Babel 2.0 may include optimized
-non-checking operators for use in well-tested code.
-
 Jump table
 ----------
 
@@ -440,7 +351,6 @@ added in with the newop operator are dynamically assigned jump table offsets.
 
 When constructing a bvm for launch, the parent bvm can restrict the built-in
 operators that are available through the hidden section of the header.
-
 
 pearson.pl
 ----------

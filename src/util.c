@@ -147,5 +147,21 @@ bvm_cache *dev(bvm_cache *this_bvm){ // dev#
 }
 
 
+bvm_cache *readmem(bvm_cache *this_bvm){ // readmem#
+
+    mword *ptr = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
+    mword *result = _newlfi(1,*ptr);
+
+    pushd(this_bvm, 
+            result,
+            IMMORTAL);
+
+    return this_bvm;
+
+}
+
+
 // Clayton Bauman 2011
 

@@ -475,11 +475,10 @@ bvm_cache *newin(bvm_cache *this_bvm){
 */
 bvm_cache *newlf(bvm_cache *this_bvm){
 
-    fatal("stack fix not done");
-    mword *result = _newlf((mword)car(TOS_0(this_bvm))); //FIXME: There is no checking...
+    mword *result = _newlf((mword)car(dstack_get(this_bvm,0))); //FIXME: There is no checking...
+    popd(this_bvm);
 
-    zap(this_bvm);
-    push_alloc(this_bvm, result, MORTAL);
+    pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;
 

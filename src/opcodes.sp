@@ -68,6 +68,7 @@
     (cudiv          (oper 0x033))
     (u/             (oper 0x033))
     (curem          (oper 0x035))
+    (u%             (oper 0x035))
     (ciadd          (oper 0x038))
     (+              (oper 0x038))
     (cisub          (oper 0x039))
@@ -87,6 +88,7 @@
 
     (fnord          (oper 0x100))
     (babel          (oper 0x102))
+    (!!             (oper 0x102))
     (msize          (oper 0x107))
     (arlen8         (oper 0x108))
     (#8             (oper 0x108))
@@ -266,5 +268,6 @@
     (bvmrstack      (oper 0x220))
     (bvmsym         (oper 0x221))
     (hibernate      (oper 0x222))
-    (bvm_step       (oper 0x223)))
+    (bvm_step       (oper 0x223))
+    (rawmem         (oper 0x224)))
 

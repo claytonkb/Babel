@@ -144,19 +144,19 @@ bvm_cache* cimul(bvm_cache *this_bvm){ // cimul#
     result = _newva( expr );
 
 
-#define babel_signed_division(expr)             \
-                                                \
-    mword opA = c( op0, 0 );                    \
-    mword opB = c( op1, 0 );                    \
-                                                \
-    if( opA == 0 ){                             \
-       fatal("zero divisor or modulus");        \
-    }                                           \
-                                                \
-    int signed_result = (int)(expr);            \
-                                                \
-    result = _newva( (mword)signed_result );
-
+//#define babel_signed_division(expr)             \
+//                                                \
+//    mword opA = c( op0, 0 );                    \
+//    mword opB = c( op1, 0 );                    \
+//                                                \
+//    if( opA == 0 ){                             \
+//       fatal("zero divisor or modulus");        \
+//    }                                           \
+//                                                \
+//    int signed_result = (int)(expr);            \
+//                                                \
+//    result = _newva( (mword)signed_result );
+//
 
 /* arithmetic operator
 **cudiv** (u/)  
@@ -186,6 +186,20 @@ bvm_cache* curem(bvm_cache *this_bvm){ // curem#
 }
 
 
+#define babel_signed_division(expr)             \
+                                                \
+    int opA = (int)c( op0, 0 );                    \
+    int opB = (int)c( op1, 0 );                    \
+                                                \
+    if( opA == 0 ){                             \
+       fatal("zero divisor or modulus");        \
+    }                                           \
+                                                \
+    int signed_result = (int)(expr);            \
+                                                \
+    result = _newva( (mword)signed_result );\
+
+
 /* arithmetic operator
 **cidiv** (/)  
 > C-style integer division  
@@ -195,7 +209,7 @@ bvm_cache* cidiv(bvm_cache *this_bvm){ // cidiv#
 
     babel_operator_typeB( 
             this_bvm, 
-            babel_signed_division( opB / opA ) );
+            babel_signed_division(opB / opA) );
 
 }
 

@@ -746,7 +746,7 @@ sub encode_code_list{
                 push (@{$element_list}, $_) for (@{$encoded});
             }
             else{ #symbol
-                unless($symbol_table->{$element}[0] eq "oper"){
+                if($symbol_table->{$element}[0] and !($symbol_table->{$element}[0] eq "oper")){
                     $element_list->[$car] = ($$offset+1) * $MWORD_SIZE;
                     $$offset += 2;
                     $car = $#{$element_list};
