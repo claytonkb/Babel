@@ -50,7 +50,7 @@ if($#ARGV > -1){
 @files = qw {   babel pearson16 stack array load list bstruct 
                 string utf8 hash tptr alloc ref arith bvm eval
                 cmp except io logic mt19937ar shift 
-                tags util interp };
+                tags util interp mem };
 
 $_ = "src/$_.c" for @files;
 

@@ -573,9 +573,10 @@ bvm_cache *hard_zap(bvm_cache *this_bvm){
 // XXX DEPRECATE
 void free_stack_entry(bvm_cache *this_bvm){
 
-    bfree(STACK_ENTRY_LIF((mword*)car(this_bvm->dstack_ptr)));
-    bfree(car(this_bvm->dstack_ptr));
-    bfree(this_bvm->dstack_ptr);
+//    bfree(STACK_ENTRY_LIF((mword*)car(this_bvm->dstack_ptr)));
+//    bfree(car(this_bvm->dstack_ptr));
+//    bfree(this_bvm->dstack_ptr);
+//
 
 }
 

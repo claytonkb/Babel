@@ -417,7 +417,8 @@ mword *_cp(mword *bs){ // _cp#
     mword *temp = _unload(bs);
     
     bs = _load(temp, size(temp));
-    bfree(temp);
+//    bfree(temp);
+    free(temp-1);
 
     return bs;    
 
@@ -958,18 +959,26 @@ mword *_trav(mword *bs, mword *trav_list){
 > `[(0 (1))] cp`  
 >
 > There is now (0 (1)) on TOS but the original object
-> still exists as-is.  
+> still exists as-is. The original is removed from the
+> stack. If you want to have the original and the copy
+> both on the stack after cp, you will need to say:
+> 
+> `dup cp`
 >
 > This operator is recursive.              
 */
 bvm_cache *cp(bvm_cache *this_bvm){ // cp#
 
-    mword *bs  = get_from_udr_stack(this_bvm,this_bvm->dstack_ptr,0);
+    mword *bs  = get_from_udr_stack(this_bvm,this_bvm->dstack_ptr,0); //XXX
+        //NOTE: The above line is correct - we CAN'T use dstack_get here
+    popd(this_bvm);
 
-    mword *result = _unload(bs);
+    mword *result = _cp(bs);
 
-    result = _load(result,size(result));
-
+//    mword *result = _unload(bs);
+//
+//    result = _load(result,size(result));
+//
     pushd(this_bvm, result, IMMORTAL);
 
     return this_bvm;

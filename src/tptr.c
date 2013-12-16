@@ -11,7 +11,8 @@
 //
 mword *new_tptr(const mword *hash, mword *bs){ // new_tptr#
 
-    mword *ptr = balloc( MWORDS( TPTR_SIZE ) ); 
+//    mword *ptr = balloc( MWORDS( TPTR_SIZE ) ); 
+    mword *ptr = malloc( MWORDS( TPTR_SIZE ) ); 
     int i;
 
     ptr[0] = 0; // X.s = 0 -> tagged-ptr

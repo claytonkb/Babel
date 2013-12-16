@@ -39,10 +39,11 @@ typedef struct {
 //    mword *argv;
     mword *steps;
     mword *advance_type;
+    //mem_context *mem;
 
-} bvm_cache;
+} bvm_cache; // bvm_cache#
 
-typedef bvm_cache *(*babel_op)(bvm_cache *); // bvm_cache#
+typedef bvm_cache *(*babel_op)(bvm_cache *); // babel_op#
 
 //bvm_cache *interp_init(int argc, char **argv);
 //bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);

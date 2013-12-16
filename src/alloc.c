@@ -15,8 +15,8 @@
 bvm_cache *free_op(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
-    bfree(TOS_0(this_bvm));
-    hard_zap(this_bvm);
+//    bfree(TOS_0(this_bvm));
+//    hard_zap(this_bvm);
 
     return this_bvm;
 
@@ -60,30 +60,30 @@ void _del(mword *bs){ // _del#
     for(i=0;i<size(del_list);i++){
         if(!is_nil((mword*)c(del_list,i))){
             //FIXME: It's ok to delete non-interp nil's
-            bfree((mword*)c(del_list,i));
+//            bfree((mword*)c(del_list,i));
         }
     }
 
 }
 
-//_balloc() 
+////_balloc() 
+////
+//mword *_balloc(mword size){
 //
-mword *_balloc(mword size){
-
-    // FIXME: Check allocation limit; except if exceeded
-
-    mword *ptr = malloc( MWORDS( size ) ); // 3 = s-field + car + cdr
-
-    if(ptr == NULL){
-        fatal("malloc returned NULL");
-        //FIXME: Exception
-    }
-
-    //FIXME: Put ptr into the bvm's alloc table
-
-    return ptr;
-
-}
+//    // FIXME: Check allocation limit; except if exceeded
+//
+//    mword *ptr = malloc( MWORDS( size ) ); // 3 = s-field + car + cdr
+//
+//    if(ptr == NULL){
+//        fatal("malloc returned NULL");
+//        //FIXME: Exception
+//    }
+//
+//    //FIXME: Put ptr into the bvm's alloc table
+//
+//    return ptr;
+//
+//}
 
 /* alloc operator
 **destroy**  
