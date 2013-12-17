@@ -21,6 +21,7 @@
 #include "list.h"
 #include <stdarg.h>
 #include "ref.h"
+#include "mem.h"
 
 //
 //
@@ -147,8 +148,25 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
 
     init_nil();    //initialize nil (global constant)
 
+    mword *construct_load_area = malloc(MWORDS(BBL_SIZE));
+    memcpy(construct_load_area, bbl, MWORDS(BBL_SIZE));
+
+//    _mem(construct_load_area+1);
+//    die;
+
     //load the root bvm
     this_bvm->self = _load((mword*)bbl,BBL_SIZE);
+
+//    mc_load(construct_load_area);
+//    this_bvm->self = construct_load_area+1;
+
+//    _mem(this_bvm->self);
+//    die;
+
+//    _mem(this_bvm->self);
+
+//die;
+
     this_bvm->sym_table = (mword*)bvm_sym_table(this_bvm->self);
 
     capture_env(this_bvm, envp);
@@ -162,6 +180,18 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
     init_argv(this_bvm, argc, argv);
 
     mword *jump_table    = init_interp_jump_table();
+
+    this_bvm->mem = mc_init();
+
+
+
+//    mword *z = this_bvm->mem->primary->base_ptr;
+//    z[(MEM_SIZE>>1)-1] = 0xbabeface;
+//    d(z[(MEM_SIZE>>1)-1]);
+
+//    mword *z = this_bvm->mem->secondary->alloc_ptr;
+//    *z = 0xbabeface;
+//    d(*z);
 
     set_sym(this_bvm, "steps",          _newva((mword)-1) );
     set_sym(this_bvm, "thread_id",      _newva(0) );

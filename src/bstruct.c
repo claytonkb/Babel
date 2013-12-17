@@ -417,6 +417,8 @@ mword *_cp(mword *bs){ // _cp#
     mword *temp = _unload(bs);
     
     bs = _load(temp, size(temp));
+//    bs = mc_load(temp, size(temp));
+    
 //    bfree(temp);
     free(temp-1);
 

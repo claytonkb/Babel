@@ -6,28 +6,13 @@
 
 #include "babel.h"
 
-// Memory size is 128MB
-#define MEM_SIZE 1<<27
 
-typedef struct {
-
-    mword *base_ptr;
-    mword *alloc_ptr;
-
-} alloc_block; // alloc_block#
-
-typedef struct {
-
-    alloc_block *primary;
-    alloc_block *secondary;
-
-} mem_context; // mem_context#
-
-mem_context *init_mem_context(void);
-void destroy_mem_context(mem_context *m);
-mword *mc_alloc(alloc_block *b, int size);
-int mc_free(mword *p);
-void copy_collect(mem_context *m);
+mem_context *mc_init(void);
+void mc_destroy(mem_context *m);
+mword *mc_alloc(mem_context *m, mword sfield);
+void mc_free(alloc_block *b, mword *p);
+void mc_reclamate(alloc_block *b);
+void mc_copy_collect(bvm_cache *this_bvm);
 
 #endif //MEM_H
 

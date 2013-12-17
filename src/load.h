@@ -21,6 +21,9 @@ mword _runload(mword *bs, mword *LUT_abs, mword *LUT_rel, mword *dest, mword *of
 mword get_rel_offset(mword *LUT_abs, mword *LUT_rel, mword *entry);
 //mword *_newtptr(void);
 
+void mc_load(mword *tree);
+void mc_rload(mword *tree, mword offset);
+
 //void load(void);
 ////void load_tree(mword *tree, mword offset);
 ////void _load(mword *tree);//, mword offset);

@@ -17,54 +17,6 @@
 #include <assert.h>
 #include <setjmp.h>
 
-// TYPEDEFS
-typedef void(*std_fn_ptr)(void);
-
-typedef unsigned mword; // mword#
-typedef signed   smword;
-
-typedef struct {
-
-    mword *code_ptr;
-    mword *rstack_ptr;
-
-    mword *dstack_ptr;
-    mword *ustack_ptr;
-
-    mword *jump_table;
-    mword *sym_table;
-    mword *self;
-
-    mword *thread_id;
-//    mword *argv;
-    mword *steps;
-    mword *advance_type;
-    //mem_context *mem;
-
-} bvm_cache; // bvm_cache#
-
-typedef bvm_cache *(*babel_op)(bvm_cache *); // babel_op#
-
-//bvm_cache *interp_init(int argc, char **argv);
-//bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
-//void init_interp_jump_table(bvm_cache *this_bvm);
-//void print_env(char **envp);
-void dump_mem(mword *mem, int size);
-void temp_rbs2gv(mword *bs);
-
-#define BIG_ENDIAN    0
-#define LITTLE_ENDIAN 1
-
-// GLOBALS
-mword *nil; // nil#
-mword *empty_string;
-
-//mword*      internal_global_VM; //Interpreter-visible machine pointer
-//mword*      global_VM;          //Machine pointer
-////mword       global_machine_page_size;
-//jmp_buf     exception_env;
-//int         exception_type;
-
 // CONSTANTS
 #define MWORD_SIZE sizeof(mword) // MWORD_SIZE#
 #define MWORD_BIT_SIZE (MWORD_SIZE << 3) // MWORD_BIT_SIZE#
@@ -77,7 +29,7 @@ mword *empty_string;
 #define CTL_MASK (MWORD_SIZE-1) // CTL_MASK#
 #define STRLEN(s) (sizeof(s)-1) // STRLEN#
 #define C2B(x)    (_c2b(x, STRLEN(x))) // C2B#
-#define OVERRUN_LIMIT 1<<16
+#define OVERRUN_LIMIT (1<<16)
 
 #define HASH_BIT_SIZE 128 // HASH_BIT_SIZE#
 #define HASH_SIZE (HASH_BIT_SIZE/MWORD_BIT_SIZE) // HASH_SIZE#
@@ -98,6 +50,87 @@ mword *empty_string;
 // This includes many reserved opcodes
 #define NUM_INTERP_OPCODES 551
 
+// TYPEDEFS
+typedef void(*std_fn_ptr)(void);
+
+typedef unsigned mword; // mword#
+typedef signed   smword;
+
+typedef struct {
+
+    mword *base_ptr;
+    mword *alloc_ptr;
+
+} alloc_block; // alloc_block#
+
+typedef struct {
+
+    alloc_block *primary;
+    alloc_block *secondary;
+
+} mem_context; // mem_context#
+
+typedef struct {
+
+    mword *code_ptr;
+    mword *rstack_ptr;
+
+    mword *dstack_ptr;
+    mword *ustack_ptr;
+
+    mword *jump_table;
+    mword *sym_table;
+    mword *self;
+
+    mword *thread_id;
+    mword *steps;
+    mword *advance_type;
+    mem_context *mem;
+
+} bvm_cache; // bvm_cache#
+
+typedef bvm_cache *(*babel_op)(bvm_cache *); // babel_op#
+
+//bvm_cache *interp_init(int argc, char **argv);
+//bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
+//void init_interp_jump_table(bvm_cache *this_bvm);
+//void print_env(char **envp);
+void dump_mem(mword *mem, int size);
+void temp_rbs2gv(mword *bs);
+
+//MEMORY
+
+#define bfree(x)  free((mword*)(x)-1)
+
+// Memory size is 32MB
+#define MEM_SIZE (1<<25)          // MEM_SIZE#
+
+#define ALLOC_ENTRY_IN_USE 1    // ALLOC_ENTRY_IN_USE#
+#define ALLOC_ENTRY_FREE   0    // ALLOC_ENTRY_FREE#
+
+#define r(x)          (*((mword*)x-2)) // r#
+
+#define mc_alloc_size(x) (x == 0 ? TPTR_SIZE : (abs(x)/MWORD_SIZE))
+
+#define TOP_OF_ALLOC_BLOCK(x) (x->base_ptr+(MEM_SIZE>>1)-1)
+
+#define newleaf(x,y) (mc_alloc( x->mem, MWORDS(y) ))
+#define newinte(x,y) (mc_alloc( x->mem, MWORDS(-1*y) ))
+#define newtptr(x)   (mc_alloc( x->mem, 0 ))
+
+#define BIG_ENDIAN    0
+#define LITTLE_ENDIAN 1
+
+// GLOBALS
+mword *nil; // nil#
+mword *empty_string;
+
+//mword*      internal_global_VM; //Interpreter-visible machine pointer
+//mword*      global_VM;          //Machine pointer
+////mword       global_machine_page_size;
+//jmp_buf     exception_env;
+//int         exception_type;
+
 // Operating-system compatibility
 #define WINDOWS
 //#define STAR_NIX
@@ -117,6 +150,7 @@ mword *empty_string;
 
 #define is_conslike(x) (is_inte(x) && size(x) == 2) // is_conslike#
 
+//FIXME: alloc_size and size are non-optimized... use inline fn?
 #define size(x)      (abs(s(x))/MWORD_SIZE) // size#
 #define c(x,y)       (*((mword*)x + y)) // c#
 

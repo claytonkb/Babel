@@ -10,6 +10,7 @@
 //#include "bvm_opcodes.h"
 #include "list.h"
 #include "alloc.h"
+#include "tptr.h"
 
 //
 // babel_operator
@@ -41,7 +42,14 @@ mword *_load(mword *tree, mword tree_size){ // _load#
     mword offset     = MWORD_SIZE;
     mword LUT_offset = 0;
 
-    return rload(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
+    mword *result = rload(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
+
+    bfree(LUT_abs);
+    bfree(LUT_rel);
+
+    return result;
+
+//    return rload(tree, offset, LUT_abs, LUT_rel, &LUT_offset);
 
 //    mword *tree = global_VM-1;
 //    load_tree_reset(tree, 1*MWORD_SIZE);
@@ -161,6 +169,85 @@ mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword elem){
 
 }
 
+///////////////////////////////////////////////////////////////////
+//                  XXX MC ENHANCEMENT XXX
+///////////////////////////////////////////////////////////////////
+
+void mc_load(mword *bs){
+
+    mc_rload(bs, 1);
+
+    rclean(bs+1);
+
+//    _dump(bs);
+//    die;
+
+}
+
+//mc_rload
+//
+void mc_rload(mword *tree, mword offset){
+
+    int i;
+
+    mword *this_elem = tree+offset;
+
+    if( TRAVERSED((mword*)(this_elem)) ){ 
+        return;
+    }
+
+//    printf("\n");
+//    _mem(this_elem);
+
+    int num_elem = size(this_elem);
+
+//    d(num_elem);
+
+    mword *new_arr;
+
+    if(is_inte(this_elem)){
+
+//trace;
+
+        MARK_TRAVERSED(this_elem);
+
+        for(i=0; i<num_elem; i++){
+            mc_rload(tree, c(this_elem,i)/MWORD_SIZE );
+            c(this_elem,i) = (mword)(c(this_elem,i) + tree); // add base offset
+        }
+
+    }
+    else if(is_leaf(this_elem)){
+
+//trace;
+
+        MARK_TRAVERSED(this_elem);
+
+    }
+    else{
+
+//trace;
+
+        MARK_TRAVERSED(this_elem);
+
+        mc_rload(tree, c(this_elem,TPTR_PTR)/MWORD_SIZE );
+        c(this_elem,TPTR_PTR) = (mword)(c(this_elem,TPTR_PTR) + tree);
+
+    }
+
+//    MARK_TRAVERSED(this_elem);
+//
+//    s(tree+*offset) |= 0x1; //Mark dumped
+//
+//    return new_arr;
+
+}
+
+
+
+///////////////////////////////////////////////////////////////////
+//                  XXX END OF MC ENHANCEMENT XXX
+///////////////////////////////////////////////////////////////////
 
 
 //

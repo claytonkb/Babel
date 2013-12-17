@@ -31,22 +31,105 @@ implementation is bug-free. Gradually, the GC will be made more
 */
 
 #include "mem.h"
+#include "load.h"
 
-mem_context *init_mem_context(void){
+// mc_init
+//
+mem_context *mc_init(void){
+
+    mem_context *m = malloc(sizeof(mem_context));
+
+    m->primary   = malloc(sizeof(alloc_block));
+    m->secondary = malloc(sizeof(alloc_block));
+
+    m->primary->base_ptr   = malloc(MWORDS(MEM_SIZE>>1));
+    m->secondary->base_ptr = malloc(MWORDS(MEM_SIZE>>1));
+
+//    m->primary->alloc_ptr   = m->primary->base_ptr   + (MEM_SIZE>>1)-1;
+//    m->secondary->alloc_ptr = m->secondary->base_ptr + (MEM_SIZE>>1)-1;
+
+    m->primary->alloc_ptr   = TOP_OF_ALLOC_BLOCK(m->primary  );
+    m->secondary->alloc_ptr = TOP_OF_ALLOC_BLOCK(m->secondary);
+
+    return m;
+
 }
 
-void destroy_mem_context(mem_context *m){
+// mc_destroy
+//
+// Undoes mc_init
+//
+void mc_destroy(mem_context *m){
+
+    free(m->primary->base_ptr  );
+    free(m->secondary->base_ptr);
+
+    free(m->primary);
+    free(m->secondary);
+
+    free(m);
+
 }
 
-mword *mc_alloc(alloc_block *b, int size){
+// mc_alloc
+//
+mword *mc_alloc(mem_context *m, mword sfield){
+
+    alloc_block *b = m->primary;
+    mword mc_size = mc_alloc_size(sfield);
+
+    if(b->alloc_ptr-mc_size-1 < b->base_ptr){
+
+        // copy-collect
+
+    }
+
+    b->alloc_ptr -= (mc_size+1);
+
+    mword *return_ptr = b->alloc_ptr+2;
+
+    r(return_ptr) = ALLOC_ENTRY_IN_USE;
+    s(return_ptr) = sfield;
+
+    return return_ptr;
+
 }
 
-int mc_free(mword *p){ // <-- if matches alloc_ptr, can be freed!
-//      returns the amount of memory freed
+// mc_free
+//
+void mc_free(alloc_block *b, mword *p){
+
+    r(p) = ALLOC_ENTRY_FREE;
+
+    mc_reclamate(b);
+
 }
 
-void copy_collect(mem_context *m){
+// mc_reclamate
+//
+void mc_reclamate(alloc_block *b){
+
+    while( b->alloc_ptr < TOP_OF_ALLOC_BLOCK(b) 
+            && *(b->alloc_ptr+1) == ALLOC_ENTRY_FREE ){
+        b->alloc_ptr += mc_alloc_size( *(b->alloc_ptr+2) );
+    }
+
 }
+
+// mc_copy_collect
+//
+void mc_copy_collect(bvm_cache *this_bvm){
+
+    flush_bvm_cache(this_bvm);
+
+    mword *temp_bvm = _unload(this_bvm->self);
+
+    
+    // swap primary<->secondary alloc blocks
+    // _unload this_bvm
+
+}
+
 
 // Clayton Bauman 2013
 
