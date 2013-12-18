@@ -257,6 +257,10 @@ mem_context *mem;
                         _hash8(C2B(x)), \
                             consa( nil, nil ) ) )
 
+#define mktptr2(x) ( new_tptr( \
+                        x, \
+                        nil ) )
+
 #include "array.h"
 
 #define MKTMP(n) tmp##n
@@ -403,6 +407,23 @@ mem_context *mem;
     return this_bvm;
 
 
+// babel_operator_typeZ#
+#define babel_operator_typeZ(x,y)               \
+    mword *op0 = dstack_get(x,0);               \
+    mword *op1 = dstack_get(x,1);               \
+    mword *result;                              \
+                                                \
+    y                                           \
+    popd(x);                                    \
+    popd(x);                                    \
+                                                \
+    push_udr_stack(x->dstack_ptr,               \
+            new_dstack_entry2(result,           \
+                mktptr2(BABEL_TAG_PACMAN)));    \
+                                                \
+    return this_bvm;
+
+//    pushd(x, result, IMMORTAL);                 \
 
 // BVM
 #define BVM_ADVANCE  0

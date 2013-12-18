@@ -29,6 +29,14 @@ mword *new_dstack_entry(mword *operand, mword alloc_type){ // new_dstack_entry#
 
 }
 
+mword *new_dstack_entry2(mword *operand, mword *alloc_type){ // new_dstack_entry2#
+
+    return
+        consa( operand,
+            consa( alloc_type, nil ));
+
+}
+
 
 //
 //

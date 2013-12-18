@@ -5,6 +5,9 @@
 #define STACK_H
 
 mword *new_dstack_entry(mword *operand, mword alloc_type);
+
+mword *new_dstack_entry2(mword *operand, mword *alloc_type);
+
 void push_udr_stack(mword *stack_ptr, mword *stack_entry);
 mword *pop_udr_stack(mword *stack_ptr);
 mword *new_rstack_entry(mword *operand, mword *eval_type);

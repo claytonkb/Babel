@@ -116,9 +116,12 @@ bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 bvm_cache *dev(bvm_cache *this_bvm){ // dev#
 
     int i;
+    int mem_bank_size = TOP_OF_ALLOC_BANK(mem->primary) 
+                            - mem->primary->alloc_ptr;
+
     for(
             i=1;
-            i < TOP_OF_ALLOC_BANK(mem->primary)-mem->primary->alloc_ptr;
+            i <= mem_bank_size;
             i++
             ){
 

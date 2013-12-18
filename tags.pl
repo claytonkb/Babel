@@ -47,6 +47,7 @@ my $tags =
         "BABEL_TAG_REF_ARRAY"           => "/babel/tag/ref_array",
         "BABEL_TAG_REF_LIST"            => "/babel/tag/ref_list",
         "BABEL_TAG_COND"                => "/babel/tag/cond",
+        "BABEL_TAG_PACMAN"              => "/babel/tag/pacman",
         "BABEL_TAG_COMPAT"              => "WINDOWS;32", };
 
 

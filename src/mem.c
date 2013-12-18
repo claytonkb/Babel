@@ -73,19 +73,20 @@ void mc_destroy(void){
 mword *mc_alloc(mword sfield){
 
     alloc_bank *b = mem->primary;
-    mword mc_size = mc_alloc_size(sfield)+1;
 
-    if(b->alloc_ptr-mc_size < b->base_ptr){
-        // copy-collect
-        fatal("mc_copy_collect");
-    }
+    mword mc_size = mc_alloc_size(sfield)+2;
+
+//    if(b->alloc_ptr-mc_size < b->base_ptr){
+//        // copy-collect
+//        fatal("mc_copy_collect");
+//    }
 
     b->alloc_ptr -= mc_size;
 
-    mword *return_ptr = b->alloc_ptr+2;
+    mword *return_ptr = b->alloc_ptr+3;
 
     //r(return_ptr) = mc_size;
-    r(return_ptr) = 0xbabeface;
+    r(return_ptr) = mc_size;
     s(return_ptr) = sfield;
 
     return return_ptr;
@@ -100,7 +101,7 @@ void mc_free(mword *p){
 
     r(p) = MARK_NOT_IN_USE(r(p));
 
-    mc_reclamate();
+//    mc_reclamate();
 
 }
 
@@ -110,7 +111,7 @@ void mc_reclamate(void){
 
     alloc_bank *b = mem->primary;
 
-#define is_free(x) ((x)<0)
+#define is_free(x) (*(x)<0)
 #define reclamate_elem(x) x->alloc_ptr += abs(*(x->alloc_ptr+1))
 
     while( b->alloc_ptr < TOP_OF_ALLOC_BANK(b) 

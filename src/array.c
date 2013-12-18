@@ -175,10 +175,13 @@ mword *_newva(mword value){ // _newva#
 
     mword *ptr = mc_alloc(MWORDS(1));
 
-    ptr[0] = MWORD_SIZE;
-    ptr[1] = value;
+    //ptr[0] = MWORD_SIZE;
+    //ptr[1] = value;
 
-    return ptr+1;
+    //return ptr+1;
+
+    c(ptr,0) = value;
+    return ptr;
 
 }
 

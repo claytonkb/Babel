@@ -10,6 +10,7 @@
 #include "array.h"
 #include "bvm.h"
 #include "alloc.h"
+#include "tptr.h"
 
 
 #define babel_arithmetic(expr)                  \
@@ -53,6 +54,10 @@ bvm_cache *cuadd(bvm_cache *this_bvm){ // cuadd#
     babel_operator_typeB( 
             this_bvm, 
             babel_arithmetic( opA + opB ) );
+
+//    babel_operator_typeZ( 
+//            this_bvm, 
+//            babel_arithmetic( opA + opB ) );
 
 }
 
