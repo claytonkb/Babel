@@ -71,7 +71,7 @@ void mc_destroy(void){
 // mc_alloc
 //
 mword *mc_alloc(mword sfield){
-    
+
     alloc_bank *b = mem->primary;
     mword mc_size = mc_alloc_size(sfield)+1;
 
@@ -84,9 +84,9 @@ mword *mc_alloc(mword sfield){
 
     mword *return_ptr = b->alloc_ptr+2;
 
-    r(return_ptr) = mc_size;
+    //r(return_ptr) = mc_size;
+    r(return_ptr) = 0xbabeface;
     s(return_ptr) = sfield;
-    
 
     return return_ptr;
 

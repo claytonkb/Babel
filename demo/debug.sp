@@ -68,7 +68,8 @@
 
 (save_bbl2str (code 
     bvm_dstack_ptr !
-    car car
+--    car car
+    car
     bs2gv
     "debug.dot"
     spit8 ))

@@ -115,6 +115,20 @@ bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
 bvm_cache *dev(bvm_cache *this_bvm){ // dev#
 
+    int i;
+    for(
+            i=1;
+            i < TOP_OF_ALLOC_BANK(mem->primary)-mem->primary->alloc_ptr;
+            i++
+            ){
+
+        printf("%08x\n", c(mem->primary->alloc_ptr,i));
+        //printf("%08x\n", c((this_bvm->self-1),i));
+
+    }
+
+    die;
+
 //    mword *temp = _bvm_init(dstack_get(this_bvm,0));
 //    _dump(temp);
 //    die;
@@ -122,8 +136,8 @@ bvm_cache *dev(bvm_cache *this_bvm){ // dev#
 //    _dump(this_bvm->rstack_ptr);
 //    die;
 
-    _dump(this_bvm->dstack_ptr);
-    die;
+//    _dump(this_bvm->dstack_ptr);
+//    die;
 
 //    _dump(dstack_get(this_bvm,0));
 //    die;

@@ -12,6 +12,7 @@
 #include "load.h"
 #include "alloc.h"
 #include "tptr.h"
+#include "mem.h"
 
 /* 
 **th**  
@@ -166,10 +167,13 @@ inline mword* val(mword *leaf, mword index){ // val#
 //
 mword *_newva(mword value){ // _newva#
 
-    mword *ptr = malloc( MWORDS(1) );
-    if(ptr == NULL){
-        error("_newva: malloc returned NULL");
-    }
+//    mword *ptr = malloc( MWORDS(1) );
+//
+//    if(ptr == NULL){
+//        error("_newva: malloc returned NULL");
+//    }
+
+    mword *ptr = mc_alloc(MWORDS(1));
 
     ptr[0] = MWORD_SIZE;
     ptr[1] = value;
