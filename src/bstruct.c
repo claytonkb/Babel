@@ -51,19 +51,26 @@ void rclean(mword *bs){ // rclean#
     int i;
     mword bs_size;
 
+//trace;
+
     if( !(s(bs) & CTL_MASK) ){ //Already cleaned
         return;
     }
 
     s(bs) = s(bs) & ~CTL_MASK; //Mark clean
 
+//_mem(bs);
+
     if( is_inte(bs) ){
+//trace;
+
         int num_elem = size(bs);
         for(i=0; i<num_elem; i++){
             rclean((mword *)*(bs+i));
         }
     }
     else if(is_tptr(bs)){
+//trace;
         rclean(bs+HASH_SIZE+1);
     }
 
@@ -415,16 +422,16 @@ mword _rlst(mword *bs, void *v){ // _rlst#
 mword *_cp(mword *bs){ // _cp#
 
     mword *temp = _unload(bs);
-    
+
     bs = _load(temp, size(temp));
-//    bs = mc_load(temp, size(temp));
-    
+
 //    bfree(temp);
-    free(temp-1);
+    //free(temp-1);
 
     return bs;    
 
 }
+
 
 //
 // babel_operator

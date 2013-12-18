@@ -842,9 +842,11 @@ sub create_nil{
     my ($addr_lut, $offset) = @_;
 
     $addr_lut->{nil} = ($$offset+1) * $MWORD_SIZE;
-    $$offset += 8;
+#    $$offset += 8;
+    $$offset += 7;
 
-    return [ 0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $addr_lut->{nil}, $addr_lut->{nil} ];
+#    return [ 0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -2*$MWORD_SIZE, $addr_lut->{nil}, $addr_lut->{nil} ];
+    return [ 0, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, -1*$MWORD_SIZE, $addr_lut->{nil} ];
 
 }
 
@@ -908,8 +910,48 @@ sub create_c{
     my $c_file = shift;
     my $obj_root = shift;
 
+
+    my $BBL_SIZE = $#{$obj_root} + 1;
+
+my $H_FILE_TEXT = <<"END_H_FILE_TEXT";
+// construct.sp.h
+//
+
+#ifndef CONSTRUCT_SP_H
+#define CONSTRUCT_SP_H
+
+#include "babel.h"
+
+#define BBL_SIZE $BBL_SIZE
+
+extern const mword bbl[BBL_SIZE];
+
+#endif //CONSTRUCT_SP_H
+
+// Clayton Bauman 2013
+END_H_FILE_TEXT
+
+    open H_FILE,   ">${c_file}.h" or die "Couldn't create .h: $!";
+
+    print H_FILE $H_FILE_TEXT;
+
+    close H_FILE;
+
+
     open C_FILE,   ">${c_file}.c" or die "Couldn't create .c: $!";
-    printf C_FILE ("#define BBL_SIZE %d\nunsigned bbl[BBL_SIZE] = {", $#{$obj_root} + 1);
+
+my $C_FILE_TEXT = <<'END_C_FILE_TEXT';
+// construct.sp.c
+//
+
+#include "construct.sp.h"
+
+const mword bbl[] = {
+END_C_FILE_TEXT
+
+
+    #printf C_FILE ("#define BBL_SIZE %d\nunsigned bbl[BBL_SIZE] = {", $#{$obj_root} + 1);
+    print C_FILE $C_FILE_TEXT; #("#include \"construct.sp.h\"\n\nunsigned bbl[BBL_SIZE] = {");
 
     my $i = 0;
     for(@{$obj_root}){
@@ -920,7 +962,8 @@ sub create_c{
         #$i++;
     }
 
-    print C_FILE "\n};\n";
+    print C_FILE "\n};\n\n";
+    print C_FILE "// Clayton Bauman 2013\n";
     close C_FILE;
 
 }

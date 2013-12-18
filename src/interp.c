@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include "ref.h"
 #include "mem.h"
+//#include "construct.sp.h"
 
 //
 //
@@ -144,28 +145,30 @@ void init_argv(bvm_cache *this_bvm, int argc, char **argv){
 //
 bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){ // interp_init#
 
-    #include "construct.sp.c"
-
     init_nil();    //initialize nil (global constant)
+    mc_init();
 
-    mword *construct_load_area = malloc(MWORDS(BBL_SIZE));
-    memcpy(construct_load_area, bbl, MWORDS(BBL_SIZE));
+    mword *load_bbl = malloc(MWORDS(BBL_SIZE));
+    memcpy(load_bbl, bbl, MWORDS(BBL_SIZE));
 
-//    _mem(construct_load_area+1);
+//    int i;
+//    for(i=0;i<BBL_SIZE;i++){
+//        printf("%08x\n", c(bbl,i));
+//        //printf("%08x\n", c((this_bvm->self-1),i));
+//    }
+//
 //    die;
 
-    //load the root bvm
-    this_bvm->self = _load((mword*)bbl,BBL_SIZE);
-
-//    mc_load(construct_load_area);
-//    this_bvm->self = construct_load_area+1;
-
-//    _mem(this_bvm->self);
+    this_bvm->self = _load((mword*)load_bbl,BBL_SIZE);
 //    die;
-
-//    _mem(this_bvm->self);
-
-//die;
+//
+//    int i;
+//    for(i=0;i<BBL_SIZE;i++){
+//        printf("%08x\n", c(bbl,i));
+//        //printf("%08x\n", c((this_bvm->self-1),i));
+//    }
+//
+//    die;
 
     this_bvm->sym_table = (mword*)bvm_sym_table(this_bvm->self);
 
@@ -181,9 +184,7 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
 
     mword *jump_table    = init_interp_jump_table();
 
-    this_bvm->mem = mc_init();
-
-
+    //this_bvm->mem = mc_init();
 
 //    mword *z = this_bvm->mem->primary->base_ptr;
 //    z[(MEM_SIZE>>1)-1] = 0xbabeface;

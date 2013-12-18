@@ -5,15 +5,6 @@
 #define LOAD_H
 
 bvm_cache *load(bvm_cache *this_bvm);
-//void clean_tree(mword *tree);
-mword *_load(mword *tree, mword tree_size);
-mword *rload(
-        mword *tree, 
-        mword offset,
-        mword *LUT_abs, 
-        mword *LUT_rel, 
-        mword *LUT_offset);
-mword *get_abs_offset(mword *LUT_rel, mword *LUT_abs, mword elem);
 
 bvm_cache *unload(bvm_cache *this_bvm);
 mword *_unload(mword *bs);
@@ -21,8 +12,8 @@ mword _runload(mword *bs, mword *LUT_abs, mword *LUT_rel, mword *dest, mword *of
 mword get_rel_offset(mword *LUT_abs, mword *LUT_rel, mword *entry);
 //mword *_newtptr(void);
 
-void mc_load(mword *tree);
-void mc_rload(mword *tree, mword offset);
+mword *_load(mword *bs, mword size);
+void _rload(mword *tree, mword offset);
 
 //void load(void);
 ////void load_tree(mword *tree, mword offset);

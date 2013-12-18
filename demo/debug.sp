@@ -201,7 +201,7 @@
 (hex08 (code 
 
     %x
-    <- zero_pad ducp ! dup ->
+    <- zero_pad cp dup ->
     
     dup 
 
@@ -218,7 +218,7 @@
 
 (sw- (code <-> -))
 (zero_pad (val "00000000"))
-(ducp (code cp <-> zap))
+-- (ducp (code cp <-> zap))
 
 
 (listing (code 

@@ -5,10 +5,7 @@
 #ifndef BABEL_H
 #define BABEL_H
 
-//Uncomment to turn on tracing in bvm_interp():
-//#define BVM_TRACE
-
-#define BABEL_VERSION ("0.4")
+#define BABEL_VERSION ("0.5")
 
 #include <stdio.h>
 #include <string.h>
@@ -61,12 +58,12 @@ typedef struct {
     mword *base_ptr;
     mword *alloc_ptr;
 
-} alloc_block; // alloc_block#
+} alloc_bank; // alloc_bank#
 
 typedef struct {
 
-    alloc_block *primary;
-    alloc_block *secondary;
+    alloc_bank *primary;
+    alloc_bank *secondary;
 
 } mem_context; // mem_context#
 
@@ -85,7 +82,7 @@ typedef struct {
     mword *thread_id;
     mword *steps;
     mword *advance_type;
-    mem_context *mem;
+    //mem_context *mem;
 
 } bvm_cache; // bvm_cache#
 
@@ -105,18 +102,18 @@ void temp_rbs2gv(mword *bs);
 // Memory size is 32MB
 #define MEM_SIZE (1<<25)          // MEM_SIZE#
 
-#define ALLOC_ENTRY_IN_USE 1    // ALLOC_ENTRY_IN_USE#
-#define ALLOC_ENTRY_FREE   0    // ALLOC_ENTRY_FREE#
+//#define ALLOC_ENTRY_IN_USE 1    // ALLOC_ENTRY_IN_USE#
+//#define ALLOC_ENTRY_FREE   0    // ALLOC_ENTRY_FREE#
 
 #define r(x)          (*((mword*)x-2)) // r#
 
 #define mc_alloc_size(x) (x == 0 ? TPTR_SIZE : (abs(x)/MWORD_SIZE))
 
-#define TOP_OF_ALLOC_BLOCK(x) (x->base_ptr+(MEM_SIZE>>1)-1)
+#define TOP_OF_ALLOC_BANK(x) (x->base_ptr+(MEM_SIZE>>1)-1)
 
-#define newleaf(x,y) (mc_alloc( x->mem, MWORDS(y) ))
-#define newinte(x,y) (mc_alloc( x->mem, MWORDS(-1*y) ))
-#define newtptr(x)   (mc_alloc( x->mem, 0 ))
+#define newleaf(x) (mc_alloc( MWORDS(x) ))
+#define newinte(x) (mc_alloc( MWORDS(-1*x) ))
+#define newtptr(x) (mc_alloc( 0 ))
 
 #define BIG_ENDIAN    0
 #define LITTLE_ENDIAN 1
@@ -124,6 +121,7 @@ void temp_rbs2gv(mword *bs);
 // GLOBALS
 mword *nil; // nil#
 mword *empty_string;
+mem_context *mem;
 
 //mword*      internal_global_VM; //Interpreter-visible machine pointer
 //mword*      global_VM;          //Machine pointer
@@ -172,6 +170,7 @@ mword *empty_string;
 #define is_nil_interp(x) ( (mword*)x == nil ) // is_nil_interp#
 
 #include "tags.h"
+#include "construct.sp.h"
 
 #define is_bvm(x) ( tagcmp((x),BABEL_TAG_BVM,MIN_TAG_SIZE) ) // is_bvm#
 #define is_ref(x) ( tageq((x),BABEL_TAG_REF,MIN_TAG_SIZE) ) // is_ref#
@@ -412,6 +411,10 @@ mword *empty_string;
 #define BVM_NEXT     3
 
 // DEBUG
+
+//Uncomment to turn on tracing in bvm_interp():
+//#define BVM_TRACE
+
 #define DIE_CODE 1
 #define QUOTEME(x) #x
 #define d(x) printf("%s %08x\n", QUOTEME(x), x);  // d#
