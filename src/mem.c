@@ -97,9 +97,13 @@ mword *mc_alloc(mword sfield){
 //
 void mc_free(mword *p){
 
+//trace;
+
 #define MARK_NOT_IN_USE(x) (-1*abs(x))
 
     r(p) = MARK_NOT_IN_USE(r(p));
+//    r(p) = -1*r(p);
+//    d(r(p));
 
 //    mc_reclamate();
 

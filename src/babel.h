@@ -238,9 +238,9 @@ mem_context *mem;
 #define popr(x) pop_udr_stack(x->rstack_ptr) // popr#
 
 //#define zapd(x) _del( (mword*)icar( popd(x) ) )
-#define zapd(x,y) zap_from_udr_stack( x->dstack_ptr, y )    // zapd#
-#define zapu(x,y) zap_from_udr_stack( x->ustack_ptr, y )    // zapu#
-#define zapr(x,y) zap_from_udr_stack( x->rstack_ptr, y )    // zapr#
+#define zapd(x) zap_udr_stack( x->dstack_ptr )    // zapd#
+#define zapu(x) zap_udr_stack( x->ustack_ptr )    // zapu#
+#define zapr(x) zap_udr_stack( x->rstack_ptr )    // zapr#
 
 #define set_code_ptr(x,y) ((mword*)c(x->code_ptr,0) = y)
 #define set_ustack_ptr(x,y) ((mword*)c(x->ustack_ptr,0) = y)
@@ -414,8 +414,8 @@ mem_context *mem;
     mword *result;                              \
                                                 \
     y                                           \
-    popd(x);                                    \
-    popd(x);                                    \
+    zapd(x);                                    \
+    zapd(x);                                    \
                                                 \
     push_udr_stack(x->dstack_ptr,               \
             new_dstack_entry2(result,           \

@@ -18,6 +18,7 @@ mword *remove_from_udr_stack(mword *stack_ptr, mword stack_index);
 mword *get_tag_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
 //inline mword *get_from_rstack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
 bvm_cache *nest(bvm_cache *this_bvm);
+void zap_udr_stack(mword *stack_ptr);
 
 bvm_cache *hard_zap     (bvm_cache *this_bvm);
 bvm_cache *swap         (bvm_cache *this_bvm);

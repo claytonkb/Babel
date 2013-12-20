@@ -51,13 +51,13 @@ arithmetic._
 */
 bvm_cache *cuadd(bvm_cache *this_bvm){ // cuadd#
 
-    babel_operator_typeB( 
-            this_bvm, 
-            babel_arithmetic( opA + opB ) );
-
-//    babel_operator_typeZ( 
+//    babel_operator_typeB( 
 //            this_bvm, 
 //            babel_arithmetic( opA + opB ) );
+
+    babel_operator_typeZ( 
+            this_bvm, 
+            babel_arithmetic( opA + opB ) );
 
 }
 
@@ -69,9 +69,14 @@ bvm_cache *cuadd(bvm_cache *this_bvm){ // cuadd#
 */
 bvm_cache *cusub(bvm_cache *this_bvm){ // cusub#
 
-    babel_operator_typeB( 
+//    babel_operator_typeB( 
+//            this_bvm, 
+//            babel_arithmetic( opB - opA ) );
+
+    babel_operator_typeZ( 
             this_bvm, 
             babel_arithmetic( opB - opA ) );
+
 }
 
 

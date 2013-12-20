@@ -18,6 +18,7 @@
 #include "tptr.h"
 #include "pearson16.h"
 #include "string.h"
+#include "mem.h"
 
 //
 //
@@ -105,6 +106,7 @@ inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stac
 }
 
 
+// "Selective zap", i.e. "zap the nth item on stack"
 //
 mword *remove_from_udr_stack(mword *stack_ptr, mword stack_index){ // remove_from_udr_stack#
 
@@ -151,7 +153,29 @@ mword *remove_from_udr_stack(mword *stack_ptr, mword stack_index){ // remove_fro
 }
 
 
-// FIXME: Completely busted...
+// same as pop_udr_stack except calls mc_free if PACMAN tag
+//
+void zap_udr_stack(mword *stack_ptr){ // zap_udr_stack#
+
+    mword *tag = (mword*)icar(icdr(icar(icar(stack_ptr))));
+    mword *temp = (mword*)icar(icar(icar(stack_ptr)));
+
+    (mword*)*stack_ptr = _pop((mword*)icar(stack_ptr));
+
+    //_dump(stack_ptr);
+
+//    trace;
+//    _mem(temp);
+//    printf("\n");
+
+    if(is_tptr(tag) && tageq(tag,BABEL_TAG_PACMAN,TAG_SIZE)){
+        //printf("MATCH\n");
+        mc_free(temp);
+    }
+
+}
+
+
 //
 inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index){ // zap_from_udr_stack#
 

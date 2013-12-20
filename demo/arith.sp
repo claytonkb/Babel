@@ -25,7 +25,9 @@
         500 %)
     each
 
-    -- dev
+    dev
+
+    -- "Done!\n" <<
 
     collect !)))
 
