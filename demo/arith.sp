@@ -9,6 +9,7 @@
 
 (main (code 
 
+    (code 
     numbers
     (code
         1   u+
@@ -23,9 +24,10 @@
         -10 /
 
         500 %)
-    each
+    each)
+    4 times
 
-    dev
+    -- dev
 
     -- "Done!\n" <<
 

@@ -79,10 +79,10 @@ mword *mc_alloc(mword sfield){
 
     mword mc_size = mc_alloc_size(sfield)+1;
 
-//    if(b->alloc_ptr-mc_size < b->base_ptr){
-//        // copy-collect
-//        fatal("mc_copy_collect");
-//    }
+    if(b->alloc_ptr-mc_size < b->base_ptr){
+        // copy-collect
+        fatal("mc_copy_collect");
+    }
 
     b->alloc_ptr -= mc_size;
 
