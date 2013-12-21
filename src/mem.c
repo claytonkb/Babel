@@ -82,6 +82,7 @@ mword *mc_alloc(mword sfield){
     if(b->alloc_ptr-mc_size < b->base_ptr){
         // copy-collect
         fatal("mc_copy_collect");
+        // mc_copy_collect(this_bvm);
     }
 
     b->alloc_ptr -= mc_size;
@@ -183,14 +184,38 @@ mword mc_bank_usage(alloc_bank *b){
 //
 mword mc_copy_collect(bvm_cache *this_bvm){
 
+#define swap_banks                      \
+alloc_bank *temp    = mem->primary;     \
+mem->primary        = mem->secondary;   \
+mem->secondary      = mem->primary;     \
+
+    static float mc_compaction_ratio=0;
+
     flush_bvm_cache(this_bvm);
 
     mc_reset_bank(mem->secondary);
 
-    //swap the banks
-    alloc_bank *temp    = mem->primary;
-    mem->primary        = mem->secondary;
-    mem->secondary      = mem->primary;    
+    if(0){
+//    if(mc_compaction_ratio!=0){
+
+        if( (mc_compaction_ratio >= (1/3)) //FIXME: naked constants
+                && (mc_compaction_ratio <= (2/3))){
+            swap_banks;
+        }
+        else{
+            if(mc_compaction_ratio < (1/3)){
+                //set MEM_SIZE=MEM_SIZE/2
+            }
+            else{ //mc_compaction_ratio > (2/3)
+                //set MEM_SIZE=MEM_SIZE*2
+            }
+            //free old secondary bank and allocate a new one
+        }
+
+    }
+    else{
+        swap_banks;
+    }
 
     //now call _cp
     mword *temp_bvm = _cp(this_bvm->self);
@@ -202,7 +227,9 @@ mword mc_copy_collect(bvm_cache *this_bvm){
     // swap primary<->secondary alloc banks
     // _unload this_bvm
 
-    return mc_bank_usage(mem->primary);
+    mc_compaction_ratio = mc_bank_usage(mem->primary);
+
+    return mc_compaction_ratio;
 
 }
 
