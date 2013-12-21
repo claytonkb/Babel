@@ -58,5 +58,6 @@
         each
         ->
         clear)
-    each)))
+    each
+    dev)))
 

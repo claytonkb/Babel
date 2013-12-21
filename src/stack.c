@@ -20,6 +20,17 @@
 #include "string.h"
 #include "mem.h"
 
+
+//
+//
+void free_lumbar(mword *stack_entry){
+
+    mc_free((mword*)icdr(stack_entry));
+    mc_free(stack_entry);
+
+}
+
+
 //
 //
 mword *new_dstack_entry(mword *operand, mword alloc_type){ // new_dstack_entry#
@@ -30,6 +41,9 @@ mword *new_dstack_entry(mword *operand, mword alloc_type){ // new_dstack_entry#
 
 }
 
+
+//
+//
 mword *new_dstack_entry2(mword *operand, mword *alloc_type){ // new_dstack_entry2#
 
     return
@@ -52,10 +66,16 @@ void push_udr_stack(mword *stack_ptr, mword *stack_entry){ // push_udr_stack#
 //
 mword *pop_udr_stack(mword *stack_ptr){ // pop_udr_stack#
 
-    mword *temp = (mword*)icar(icar(stack_ptr));
+    //mword *temp = (mword*)icar(icar(stack_ptr));
+    mword *temp = (mword*)icar(stack_ptr);
+
     (mword*)*stack_ptr = _pop((mword*)icar(stack_ptr));
 
-    return temp;
+    free_lumbar(temp);
+
+    return (mword*)icar(temp);
+
+    //return temp;
 
 }
 
@@ -157,6 +177,8 @@ mword *remove_from_udr_stack(mword *stack_ptr, mword stack_index){ // remove_fro
 //
 void zap_udr_stack(mword *stack_ptr){ // zap_udr_stack#
 
+    mword *free_ptr = (mword*)icar(stack_ptr);
+
     mword *tag = (mword*)icar(icdr(icar(icar(stack_ptr))));
     mword *temp = (mword*)icar(icar(icar(stack_ptr)));
 
@@ -172,6 +194,8 @@ void zap_udr_stack(mword *stack_ptr){ // zap_udr_stack#
         //printf("MATCH\n");
         mc_free(temp);
     }
+
+    free_lumbar(free_ptr);
 
 }
 

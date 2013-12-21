@@ -148,7 +148,10 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
     init_nil();    //initialize nil (global constant)
     mc_init();
 
-    mword *load_bbl = malloc(MWORDS(BBL_SIZE));
+//    mword *load_bbl = malloc(MWORDS(BBL_SIZE));
+//    memcpy(load_bbl, bbl, MWORDS(BBL_SIZE));
+
+    mword *load_bbl = mc_alloc(MWORDS(BBL_SIZE));
     memcpy(load_bbl, bbl, MWORDS(BBL_SIZE));
 
 //    int i;

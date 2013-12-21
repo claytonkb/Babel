@@ -37,5 +37,6 @@
         <- z -> 
         !
         zap)
-    each)))
+    each
+    dev)))
 

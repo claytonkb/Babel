@@ -4,6 +4,8 @@
 #ifndef STACK_H
 #define STACK_H
 
+void free_lumbar(mword *stack_entry);
+
 mword *new_dstack_entry(mword *operand, mword alloc_type);
 
 mword *new_dstack_entry2(mword *operand, mword *alloc_type);

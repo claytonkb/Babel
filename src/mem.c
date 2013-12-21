@@ -33,6 +33,7 @@ implementation is bug-free. Gradually, the GC will be made more
 #include "mem.h"
 #include "load.h"
 
+
 // mc_init
 //
 void mc_init(void){
@@ -52,6 +53,7 @@ void mc_init(void){
 
 }
 
+
 // mc_destroy
 //
 // Undoes mc_init
@@ -68,13 +70,14 @@ void mc_destroy(void){
 
 }
 
+
 // mc_alloc
 //
 mword *mc_alloc(mword sfield){
 
     alloc_bank *b = mem->primary;
 
-    mword mc_size = mc_alloc_size(sfield)+2;
+    mword mc_size = mc_alloc_size(sfield)+1;
 
 //    if(b->alloc_ptr-mc_size < b->base_ptr){
 //        // copy-collect
@@ -83,28 +86,57 @@ mword *mc_alloc(mword sfield){
 
     b->alloc_ptr -= mc_size;
 
-    mword *return_ptr = b->alloc_ptr+3;
+    mword *return_ptr = b->alloc_ptr+1;
 
     //r(return_ptr) = mc_size;
-    r(return_ptr) = mc_size;
     s(return_ptr) = sfield;
 
     return return_ptr;
 
 }
 
+
+//// mc_alloc
+////
+//mword *mc_alloc(mword sfield){
+//
+//    alloc_bank *b = mem->primary;
+//
+//    mword mc_size = mc_alloc_size(sfield)+2;
+//
+////    if(b->alloc_ptr-mc_size < b->base_ptr){
+////        // copy-collect
+////        fatal("mc_copy_collect");
+////    }
+//
+//    b->alloc_ptr -= mc_size;
+//
+//    mword *return_ptr = b->alloc_ptr+3;
+//
+//    //r(return_ptr) = mc_size;
+//    r(return_ptr) = mc_size;
+//    s(return_ptr) = sfield;
+//
+//    return return_ptr;
+//
+//}
+
+
 // mc_free
 //
 void mc_free(mword *p){
 
-//trace;
-
-#define MARK_NOT_IN_USE(x) (-1*abs(x))
-
-    r(p) = MARK_NOT_IN_USE(r(p));
-//    r(p) = -1*r(p);
-//    d(r(p));
-
+////trace;
+//
+//#define MARK_NOT_IN_USE(x) (-1*abs(x))
+//
+//    r(p) = MARK_NOT_IN_USE(r(p));
+////    r(p) = -1*r(p);
+////    d(r(p));
+//
+////    d(p);
+////    d(mem->primary->alloc_ptr);
+//
 //    mc_reclamate();
 
 }
@@ -122,6 +154,7 @@ void mc_reclamate(void){
             && is_free(b->alloc_ptr+1) ){
 
         reclamate_elem(b);
+trace;
 
     }
 

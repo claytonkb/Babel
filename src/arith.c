@@ -55,7 +55,7 @@ bvm_cache *cuadd(bvm_cache *this_bvm){ // cuadd#
 //            this_bvm, 
 //            babel_arithmetic( opA + opB ) );
 
-    babel_operator_typeZ( 
+    babel_operator_typeB( 
             this_bvm, 
             babel_arithmetic( opA + opB ) );
 
@@ -73,7 +73,7 @@ bvm_cache *cusub(bvm_cache *this_bvm){ // cusub#
 //            this_bvm, 
 //            babel_arithmetic( opB - opA ) );
 
-    babel_operator_typeZ( 
+    babel_operator_typeB( 
             this_bvm, 
             babel_arithmetic( opB - opA ) );
 
@@ -86,6 +86,10 @@ bvm_cache *cusub(bvm_cache *this_bvm){ // cusub#
 > `{a} {b}| -> {a+b}|`  
 */
 bvm_cache* ciadd(bvm_cache *this_bvm){ // ciadd#
+
+//    babel_operator_typeB( 
+//            this_bvm, 
+//            babel_signed_arithmetic( opA + opB ) );
 
     babel_operator_typeB( 
             this_bvm, 
@@ -100,6 +104,10 @@ bvm_cache* ciadd(bvm_cache *this_bvm){ // ciadd#
 > `{a} {b}| -> {a-b}|`  
 */
 bvm_cache* cisub(bvm_cache *this_bvm){ // cisub#
+
+//    babel_operator_typeB( 
+//            this_bvm, 
+//            babel_signed_arithmetic( opB - opA ) );
 
     babel_operator_typeB( 
             this_bvm, 
@@ -118,6 +126,10 @@ bvm_cache* cisub(bvm_cache *this_bvm){ // cisub#
 */
 bvm_cache* cumul(bvm_cache *this_bvm){ // cumul#
 
+//    babel_operator_typeB( 
+//            this_bvm, 
+//            babel_arithmetic( opA * opB ) );
+
     babel_operator_typeB( 
             this_bvm, 
             babel_arithmetic( opA * opB ) );
@@ -133,6 +145,10 @@ bvm_cache* cumul(bvm_cache *this_bvm){ // cumul#
 > See also: cumul  
 */
 bvm_cache* cimul(bvm_cache *this_bvm){ // cimul#
+
+//    babel_operator_typeB( 
+//            this_bvm, 
+//            babel_signed_arithmetic( opA * opB ) );
 
     babel_operator_typeB( 
             this_bvm, 
@@ -175,6 +191,10 @@ bvm_cache* cimul(bvm_cache *this_bvm){ // cimul#
 */
 bvm_cache* cudiv(bvm_cache *this_bvm){ // cudiv#
 
+//    babel_operator_typeB( 
+//            this_bvm, 
+//            babel_division( opB / opA ) );
+
     babel_operator_typeB( 
             this_bvm, 
             babel_division( opB / opA ) );
@@ -188,6 +208,10 @@ bvm_cache* cudiv(bvm_cache *this_bvm){ // cudiv#
 > `{a} {b}| -> {a%b}|`  
 */
 bvm_cache* curem(bvm_cache *this_bvm){ // curem#
+
+//    babel_operator_typeB( 
+//            this_bvm, 
+//            babel_division( opB % opA ) );
 
     babel_operator_typeB( 
             this_bvm, 
@@ -217,6 +241,10 @@ bvm_cache* curem(bvm_cache *this_bvm){ // curem#
 */
 bvm_cache* cidiv(bvm_cache *this_bvm){ // cidiv#
 
+//    babel_operator_typeB( 
+//            this_bvm, 
+//            babel_signed_division(opB / opA) );
+
     babel_operator_typeB( 
             this_bvm, 
             babel_signed_division(opB / opA) );
@@ -230,6 +258,10 @@ bvm_cache* cidiv(bvm_cache *this_bvm){ // cidiv#
 > `{a} {b}| -> {a%b}|`  
 */
 bvm_cache* cirem(bvm_cache *this_bvm){ // cirem#
+
+//    babel_operator_typeB( 
+//            this_bvm, 
+//            babel_signed_division( opB % opA ) );
 
     babel_operator_typeB( 
             this_bvm, 

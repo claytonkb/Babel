@@ -122,14 +122,17 @@ bvm_cache *isinte(bvm_cache *this_bvm){ // isinte#
 //
 mword *_newlf(mword size){ // _newlf#
 
-    mword *ptr = malloc( MWORDS(size+1) );
-    if(ptr == NULL){
-        error("_newlf: malloc returned NULL");
-    }
+    //mword *ptr = malloc( MWORDS(size+1) );
+    mword *ptr = mc_alloc(  MWORDS(size) );
 
-    ptr[0] = size * MWORD_SIZE;
+//    if(ptr == NULL){
+//        error("_newlf: malloc returned NULL");
+//    }
 
-    return ptr+1;
+    //ptr[0] = size * MWORD_SIZE;
+
+    //return ptr+1;
+    return ptr;
 
 }
 
@@ -138,15 +141,17 @@ mword *_newlf(mword size){ // _newlf#
 //
 mword *_newlfi(mword size, mword init){ // _newlfi#
 
-    mword *ptr = malloc( MWORDS(size+1) );
-    if(ptr == NULL){
-        error("_newlfi: malloc returned NULL");
-    }
+    //mword *ptr = malloc( MWORDS(size+1) );
+    mword *ptr = mc_alloc( MWORDS(size) );
 
-    memset((char*)ptr,init,MWORDS(size+1));
-    ptr[0] = size * MWORD_SIZE;
+//    if(ptr == NULL){
+//        error("_newlfi: malloc returned NULL");
+//    }
 
-    return ptr+1;
+    memset((char*)ptr,init,MWORDS(size));
+    //ptr[0] = size * MWORD_SIZE;
+
+    return ptr;
 
 }
 
@@ -190,19 +195,22 @@ mword *_newva(mword value){ // _newva#
 //
 mword *_newin(mword size){ // _newin#
 
-    mword *ptr = malloc( MWORDS(size+1) );
-    if(ptr == NULL){
-        error("_newin: malloc returned NULL");
-    }
+//    mword *ptr = malloc( MWORDS(size+1) );
+    mword *ptr = mc_alloc( -1*MWORDS(size) );
 
-    ptr[0] = -1 * size * MWORD_SIZE;
+//    if(ptr == NULL){
+//        error("_newin: malloc returned NULL");
+//    }
+//
+//    ptr[0] = -1 * size * MWORD_SIZE;
 
     int i;
-    for(i = 1; i<=size; i++){ // All pointers must be valid - initialize to nil
+    for(i = 0; i<size; i++){ // All pointers must be valid - initialize to nil
         ptr[i] = (mword)nil;
     }
 
-    return ptr+1;
+    //return ptr+1;
+    return ptr;
 
 }
 
@@ -210,23 +218,25 @@ mword *_newin(mword size){ // _newin#
 //
 mword *_newtptr(void){ // _newtptr# XXX DEPRECATE
 
-    mword *ptr = malloc( MWORDS( TPTR_SIZE ) );
+    //mword *ptr = malloc( MWORDS( TPTR_SIZE ) );
+    mword *ptr = mc_alloc( 0 );
 
-    if(ptr == NULL){
-        error("_newtptr: malloc returned NULL");
-    }
+//    if(ptr == NULL){
+//        error("_newtptr: malloc returned NULL");
+//    }
 
     //FIXME: 32-bit specific and UGLY
-    ptr[0] = 0;
+    //ptr[0] = 0;
+    ptr[0] = 0xdeadbeef;
     ptr[1] = 0xdeadbeef;
     ptr[2] = 0xdeadbeef;
     ptr[3] = 0xdeadbeef;
-    ptr[4] = 0xdeadbeef;
-    ptr[5] = (mword)(-1*MWORD_SIZE);
-    ptr[6] = (mword)nil;
+    ptr[4] = (mword)(-1*MWORD_SIZE);
+    ptr[5] = (mword)nil;
 //    ptr[7] = (mword)nil;
 
-    return ptr+1;
+    //return ptr+1;
+    return ptr;
 
 }
 

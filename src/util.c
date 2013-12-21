@@ -120,8 +120,8 @@ bvm_cache *dev(bvm_cache *this_bvm){ // dev#
                             - mem->primary->alloc_ptr;
 
     for(
-            i=1;
-            i <= mem_bank_size;
+            i=0;
+            i < mem_bank_size;
             i++
             ){
 

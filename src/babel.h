@@ -357,20 +357,20 @@ mem_context *mem;
     return this_bvm;
 
 
-// babel_operator_typeB#
-#define babel_operator_typeB(x,y)               \
-    mword *op0 = dstack_get(x,0);               \
-    mword *op1 = dstack_get(x,1);               \
-    mword *result;                              \
-                                                \
-    y                                           \
-    popd(x);                                    \
-    popd(x);                                    \
-                                                \
-    pushd(x, result, IMMORTAL);                 \
-                                                \
-    return this_bvm;
-
+//// babel_operator_typeB#
+//#define babel_operator_typeB(x,y)               \
+//    mword *op0 = dstack_get(x,0);               \
+//    mword *op1 = dstack_get(x,1);               \
+//    mword *result;                              \
+//                                                \
+//    y                                           \
+//    popd(x);                                    \
+//    popd(x);                                    \
+//                                                \
+//    pushd(x, result, IMMORTAL);                 \
+//                                                \
+//    return this_bvm;
+//
 
 // babel_operator_typeC#
 #define babel_operator_typeC(x,y)               \
@@ -408,7 +408,7 @@ mem_context *mem;
 
 
 // babel_operator_typeZ#
-#define babel_operator_typeZ(x,y)               \
+#define babel_operator_typeB(x,y)               \
     mword *op0 = dstack_get(x,0);               \
     mword *op1 = dstack_get(x,1);               \
     mword *result;                              \
