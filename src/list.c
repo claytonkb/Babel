@@ -167,7 +167,7 @@ bvm_cache *isnil(bvm_cache *this_bvm){ // isnil#
 */
 bvm_cache *consls(bvm_cache *this_bvm){ // consls#
 
-    mword *result = consa(
+    mword *result = consa2( this_bvm,
                         dstack_get(this_bvm,1),
                         dstack_get(this_bvm,0));
     popd(this_bvm);

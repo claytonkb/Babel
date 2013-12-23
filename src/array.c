@@ -329,7 +329,7 @@ bvm_cache *th(bvm_cache *this_bvm){ // th#
 mword *_th(bvm_cache *this_bvm, mword *bs, mword entry){ // _th#
 
     if(is_leaf(bs)){
-        return _new2va(this_bvm, c(bs,entry%size(bs))); //FIXME DEPRECATED _newva
+        return _new2va(this_bvm, c(bs,entry%size(bs))); 
     }
     
     //we are assuming that we never get a tptr...
@@ -812,7 +812,7 @@ mword *_ar2ls(bvm_cache *this_bvm, mword *arr){ // _ar2ls#
     }
     else{
         for(i=size(arr)-1;i>=0;i--){
-            entry = _new2lf(this_bvm, 1); // FIXME DEPRECATED _newlf
+            entry = _new2lf(this_bvm, 1);
             *entry = c(arr,i);
             last_cons = _consls(entry,last_cons);
         }

@@ -1,6 +1,11 @@
 // mem.c
 //
 
+// XXX Might have to perform a special memory check before doing a babelop
+// due to potential cache-conflicts with mc_alloc if anything goes wrong...
+// basically, anything that uses flush_bvm_cache or update_bvm_cache has
+// to be careful that a memory error cannot occur.
+
 /* memory guts
 
 This is the interpreter's memory management subsystem and should not be 
@@ -35,10 +40,7 @@ implementation is bug-free. Gradually, the GC will be made more
 
 
 /////////////////////////////////////////////////////////////////////////////
-
 // Babel> grep -n _newva src/* | grep FIXME
-// src/array.c:346:        return _newva(c(bs,entry%size(bs))); //FIXME DEPRECATED _newva
-// src/stack.c:40:            consa( _newva( alloc_type), nil )); //FIXME DEPRECATED _newva
 //
 // Accepts a data value and returns a leaf-array
 // of size 1 containing that data value
@@ -343,7 +345,7 @@ mem->secondary      = mem->primary;     \
     // swap primary<->secondary alloc banks
     // _unload this_bvm
 
-    mc_compaction_ratio = mc_bank_usage(mem->primary);
+    //mc_compaction_ratio = mc_bank_usage(mem->primary);
 
     return mc_compaction_ratio;
 

@@ -396,14 +396,14 @@ bvm_cache *take(bvm_cache *this_bvm){ // take#
 //        while(!is_nil(this_bvm->dstack_ptr)){
         while(!dstack_empty(this_bvm)){
             list_entry = dstack_get(this_bvm,0);
-            result = consa(list_entry, result);
+            result = consa2(this_bvm, list_entry, result);
             popd(this_bvm);
         }
     }
     else{
         for(i=0;i<count;i++){
             list_entry = dstack_get(this_bvm,0);
-            result = consa(list_entry, result);
+            result = consa2(this_bvm, list_entry, result);
             popd(this_bvm);
         }
     }
@@ -518,13 +518,13 @@ bvm_cache *nest(bvm_cache *this_bvm){ // nest#
 
     mword *nest_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *nest_rstack_entry = consa(save_dstack,
-                                    consa(save_ustack,
-                                        consa(nest_return, nil)));
+    mword *nest_rstack_entry = consa2(this_bvm, save_dstack,
+                                    consa2(this_bvm, save_ustack,
+                                        consa2(this_bvm, nest_return, nil)));
 
     pushr(this_bvm, nest_rstack_entry, _hash8(C2B("/babel/tag/nest")));
 
-    this_bvm->code_ptr = consa(nest_body,nil);
+    this_bvm->code_ptr = consa2(this_bvm, nest_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
