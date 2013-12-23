@@ -125,7 +125,7 @@ void init_argv(bvm_cache *this_bvm, int argc, char **argv){
     #define NUM_BABEL_INTERP_ARGS 1 
     if(argc > NUM_BABEL_INTERP_ARGS){
 
-        temp_argv = _newin(argc-NUM_BABEL_INTERP_ARGS);
+        temp_argv = _new2in(this_bvm, argc-NUM_BABEL_INTERP_ARGS);
 
         int i;
         for( i = NUM_BABEL_INTERP_ARGS; i < argc; i++ ){
@@ -179,7 +179,7 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
 
     gen_time_string(this_bvm);
 
-    empty_string = _newlfi(1,0);
+    empty_string = _new2lfi(this_bvm, 1,0);
 
     init_srand(this_bvm);
 
@@ -197,9 +197,9 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
 //    *z = 0xbabeface;
 //    d(*z);
 
-    set_sym(this_bvm, "steps",          _newva((mword)-1) );
-    set_sym(this_bvm, "thread_id",      _newva(0) );
-    set_sym(this_bvm, "advance_type",   _newva((mword)BVM_ADVANCE) );
+    set_sym(this_bvm, "steps",          _new2va( this_bvm, (mword)-1) );
+    set_sym(this_bvm, "thread_id",      _new2va( this_bvm, 0) );
+    set_sym(this_bvm, "advance_type",   _new2va( this_bvm, (mword)BVM_ADVANCE) );
     set_sym(this_bvm, "soft_root",      nil );
     set_sym(this_bvm, "jump_table",     jump_table );
 
@@ -247,7 +247,7 @@ mword *init_interp_jump_table(void){
 
     #define num_opcodes (sizeof(interp_fixed_opcodes)/sizeof(babel_op))
 
-    mword *temp = _newlf(num_opcodes);
+    mword *temp = malloc(MWORDS(num_opcodes));
 
     int i;
     for(i=0;i<num_opcodes;i++){

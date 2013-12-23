@@ -9,7 +9,7 @@
 #include "array.h"
 #include "bstruct.h"
 #include "tptr.h"
-
+#include "mem.h"
 
 /* list operator
 **ins**  
@@ -146,7 +146,7 @@ bvm_cache *cdrindex(bvm_cache *this_bvm){ // cdrindex#
 */
 bvm_cache *isnil(bvm_cache *this_bvm){ // isnil#
 
-    mword *result = _newva(is_nil(dstack_get(this_bvm,0)));
+    mword *result = _new2va( this_bvm, is_nil(dstack_get(this_bvm,0)));
     popd(this_bvm);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -193,7 +193,7 @@ mword *_consls(mword *car_field, mword *cdr_field){ // XXX DEPRECATE
 
 
 // Allocating cons
-//
+// XXX DEPRECATE, see consa2
 mword *consa(mword *car_field, mword *cdr_field){ // consa#
 
     mword *temp_cons = new_cons;
@@ -203,7 +203,6 @@ mword *consa(mword *car_field, mword *cdr_field){ // consa#
     return temp_cons;
 
 }
-
 
 
 /* list operator
@@ -356,7 +355,7 @@ bvm_cache *shift(bvm_cache *this_bvm){ // shift#
 bvm_cache *len(bvm_cache *this_bvm){ // len#
 
     mword *list = getd(this_bvm,0);
-    mword *result = _newva( _len( list ) );
+    mword *result = _new2va( this_bvm,  _len( list ) );
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -391,7 +390,7 @@ mword _len(mword *list){ // _len#
 bvm_cache *bons(bvm_cache *this_bvm){ // bons#
 
     mword *list = getd(this_bvm,0);
-    mword *result = _bons(list);
+    mword *result = _bons(this_bvm, list);
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -402,9 +401,9 @@ bvm_cache *bons(bvm_cache *this_bvm){ // bons#
 
 //
 //
-mword *_bons(mword *list){ // _bons#
+mword *_bons(bvm_cache *this_bvm, mword *list){ // _bons#
 
-    mword *arr = _newin(_len(list));
+    mword *arr = _new2in(this_bvm, _len(list));
 
     int i=0;
 

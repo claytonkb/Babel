@@ -28,6 +28,7 @@
 #include "tptr.h"
 #include "ref.h"
 #include <windows.h>
+#include "mem.h"
 
 /* bvm operator
 **code**  
@@ -80,10 +81,10 @@ bvm_cache *exec(bvm_cache *this_bvm){ // exec#
         &pi )           // Pointer to PROCESS_INFORMATION structure
         )
     {
-        result = _newva(0);
+        result = _new2va( this_bvm, 0);
     }
 
-    result = _newva(1);
+    result = _new2va( this_bvm, 1);
    
     pushd(this_bvm, result, IMMORTAL); 
 
@@ -314,8 +315,8 @@ bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
             set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
             set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
 
-            set_sym(new_bvm_ptr, "thread_id",      _newva( icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
-            set_sym(new_bvm_ptr, "advance_type",   _newva((mword)BVM_ADVANCE) );
+            set_sym(new_bvm_ptr, "thread_id",      _new2va( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+            set_sym(new_bvm_ptr, "advance_type",   _new2va( this_bvm, (mword)BVM_ADVANCE) );
             set_sym(new_bvm_ptr, "soft_root",      nil );
             set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
 
@@ -323,7 +324,7 @@ bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
 
     }
 
-    set_sym( new_bvm_ptr, "steps", _newva((mword)1) );
+    set_sym( new_bvm_ptr, "steps", _new2va( this_bvm, (mword)1) );
 
     flush_bvm_cache(this_bvm);
     update_bvm_cache(new_bvm_ptr);
@@ -364,9 +365,9 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
         set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
         set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
 
-        set_sym(new_bvm_ptr, "steps",          _newva((mword)-1) );
-        set_sym(new_bvm_ptr, "thread_id",      _newva( icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
-        set_sym(new_bvm_ptr, "advance_type",   _newva((mword)BVM_ADVANCE) );
+        set_sym(new_bvm_ptr, "steps",          _new2va( this_bvm, (mword)-1) );
+        set_sym(new_bvm_ptr, "thread_id",      _new2va( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+        set_sym(new_bvm_ptr, "advance_type",   _new2va( this_bvm, (mword)BVM_ADVANCE) );
         set_sym(new_bvm_ptr, "soft_root",      nil );
         set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
     }

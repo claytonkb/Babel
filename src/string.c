@@ -14,6 +14,7 @@
 #include "alloc.h"
 #include "bstruct.h"
 #include "tptr.h"
+#include "mem.h"
 
 ////These operate on array-8:
 ////chomp
@@ -77,13 +78,13 @@ bvm_cache *cr(bvm_cache *this_bvm){ // cr#
 
     if      ( is_leaf(operand)  ){
         size8 = _arlen8(operand) + NEWLINE_SIZE;
-        result = (char*)_newlf( array8_size(size8) );
+        result = (char*)_new2lf(this_bvm,  array8_size(size8) );
     }
     else{ //Throw an exception
         error("cr: cannot concatenate to a non-leaf array");
     }
 
-    mword *temp = _newin(1);
+    mword *temp = _new2in(this_bvm, 1);
     (mword*)*temp = (mword*)result;
 
     mword i,j;
@@ -112,7 +113,7 @@ bvm_cache *cr(bvm_cache *this_bvm){ // cr#
 
 
 //FIXME: Probably broken, doesn't seem to work
-//
+// --> Rename and back-propagate... UGH!!!!
 mword *_b2c(mword *string){
 
     mword strsize = size(string);
@@ -121,7 +122,8 @@ mword *_b2c(mword *string){
 
     last_mword = alignment_word8(dec_alignment_word8(last_mword)+1);
 
-    mword *cstr = _newlf(strsize+1); //Just allocate an extra space in case we need it...
+//Just allocate an extra space in case we need it...
+    mword *cstr = _newlf(strsize+1); //FIXME DEPRECATED _newlf (see above)
 
     memcpy(cstr, string, char_length);
 
@@ -169,6 +171,7 @@ mword *_b2c(mword *string){
 //
 //}
 
+// rename and back-propagate
 //
 mword *_c2b(char *string, mword max_safe_length){ // _c2b#
 
@@ -195,7 +198,7 @@ mword *_c2b(char *string, mword max_safe_length){ // _c2b#
 //    d(char_length)
 //    d(length)
 
-    mword *result = _newlf(length);
+    mword *result = _newlf(length); //FIXME DEPRECATED _newlf (see above)
 
     memcpy(result, string, char_length);
 
@@ -242,7 +245,7 @@ bvm_cache *ar2str(bvm_cache *this_bvm){ // ar2str#
         arlength++;
     }
 
-    result = _newlf(arlength);
+    result = _new2lf(this_bvm, arlength);
     memcpy(result, temp_buffer, utf8_length);
     free(temp_buffer);
 
@@ -275,7 +278,7 @@ bvm_cache *str2ar(bvm_cache *this_bvm){ // str2ar#
     mword length8 = _arlen8(op0);
     mword u8_length = (mword)u8_strlen((char *)op0, length8);
 
-    mword *result = _newlf(u8_length+1);
+    mword *result = _new2lf(this_bvm, u8_length+1);
 
     mword length = u8_toucs((uint32_t *)result, u8_length+1, (char *)op0, length8);
 
@@ -297,7 +300,7 @@ bvm_cache *catoi(bvm_cache *this_bvm){ // catoi#
     popd(this_bvm);
 
     mword *cstr = _b2c(op0);
-    mword *result = _newlf(1);
+    mword *result = _new2lf(this_bvm, 1);
     *result = (mword)atoi((char*)cstr);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -316,7 +319,7 @@ bvm_cache *dec2ci(bvm_cache *this_bvm){ // dec2ci#
     popd(this_bvm);
 
     mword *cstr = _b2c(op0);
-    mword *result = _newlf(1);
+    mword *result = _new2lf(this_bvm, 1);
     *result = (mword)atoi((char*)cstr);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -335,7 +338,7 @@ bvm_cache *hex2cu(bvm_cache *this_bvm){ // hex2cu#
     popd(this_bvm);
 
     mword *cstr = _b2c(op0);
-    unsigned long *result = (unsigned long *)_newlf( sizeof(unsigned long) / sizeof(mword) ); //XXX Hmmmmmmm
+    unsigned long *result = (unsigned long *)_new2lf(this_bvm, sizeof(unsigned long) / sizeof(mword) ); //XXX Hmmmmmmm
     *result = strtoul ((char*)cstr,NULL,16);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -358,7 +361,7 @@ bvm_cache *hex2cu(bvm_cache *this_bvm){ // hex2cu#
         arlength++;                                     \
     }                                                   \
                                                         \
-    mword *result = _newlf(arlength);                   \
+    mword *result = _new2lf(this_bvm, arlength);        \
                                                         \
     memcpy(result, buffer, size);                       \
     c(result,arlength-1) = alignment_word8(size);       \
@@ -417,7 +420,7 @@ bvm_cache *ordop(bvm_cache *this_bvm){ // ordop# ord#
 
     char ord_value = (char)icar(result);
 
-    result = _newva(ord_value);
+    result = _new2va( this_bvm, ord_value);
 
     pushd(this_bvm, result, IMMORTAL);
 

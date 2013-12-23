@@ -74,10 +74,14 @@ bvm_cache *hash8(bvm_cache *this_bvm){ // hash8#
 
 }
 
+// XXX
+// This will be painful to fix... copy with new name (_hash2 or something)
+// and shift everything over.... UGH!
+// XXX
 //
 mword *_hash8(mword *key){ // _hash8#
 
-    return _pearson16(_newlfi(HASH_SIZE,0), key, _arlen8(key));
+    return _pearson16(_newlfi(HASH_SIZE,0), key, _arlen8(key)); //FIXME DEPRECATED _newlfi (see above)
 
 }
 

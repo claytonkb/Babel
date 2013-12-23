@@ -38,33 +38,13 @@ bvm_cache *free_op(bvm_cache *this_bvm){
 bvm_cache *del(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
-    _del(TOS_0(this_bvm));
-    hard_zap(this_bvm);
+//    _del(TOS_0(this_bvm));
+//    hard_zap(this_bvm);
 
     return this_bvm;
 
 }
 
-
-//
-//
-void _del(mword *bs){ // _del#
-
-    int i;
-
-//    _dump(bs)
-//        die
-//
-    mword *del_list = _bs2ar(bs);
-
-    for(i=0;i<size(del_list);i++){
-        if(!is_nil((mword*)c(del_list,i))){
-            //FIXME: It's ok to delete non-interp nil's
-//            bfree((mword*)c(del_list,i));
-        }
-    }
-
-}
 
 ////_balloc() 
 ////

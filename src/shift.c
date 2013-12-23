@@ -8,13 +8,14 @@
 //#include "bvm_opcodes.h"
 #include "array.h"
 #include "tptr.h"
+#include "mem.h"
 
 #define babel_shift_operator(expr)              \
                                                 \
     mword opA = c( op1, 0 );                    \
     mword opB = c( op0, 0 );                    \
                                                 \
-    result = _newva( expr );
+    result = _new2va( this_bvm,  expr );
 
 #define babel_signed_shift_operator(expr)       \
                                                 \
@@ -23,7 +24,7 @@
                                                 \
     int signed_result = (int)(expr);            \
                                                 \
-    result = _newva( (mword)signed_result );
+    result = _new2va( this_bvm,  (mword)signed_result );
 
 /* shift operator
 **cushl/shl**  
@@ -76,7 +77,7 @@ bvm_cache *curol(bvm_cache *this_bvm){
     mword *op0 = dstack_get(this_bvm,0);
     mword *op1 = dstack_get(this_bvm,1);
 
-    mword *result    = _newva(0);
+    mword *result    = _new2va( this_bvm, 0);
 
     mword tempA = (mword)icar(op1) << (mword)icar(op0);
     mword tempB = (mword)icar(op1) >> (MWORD_BIT_SIZE - (mword)icar(op0));
@@ -101,7 +102,7 @@ bvm_cache *curor(bvm_cache *this_bvm){
     mword *op0 = dstack_get(this_bvm,0);
     mword *op1 = dstack_get(this_bvm,1);
 
-    mword *result    = _newva(0);
+    mword *result    = _new2va( this_bvm, 0);
 
     mword tempA = (mword)icar(op1) >> (mword)icar(op0);
     mword tempB = (mword)icar(op1) << (MWORD_BIT_SIZE - (mword)icar(op0));

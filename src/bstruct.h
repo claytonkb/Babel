@@ -94,7 +94,8 @@ bvm_cache *ducp(bvm_cache *this_bvm);
 //void cp(void);
 //void span(void);
 
-mword *_bs2ar(mword *bs);
+//mword *_bs2ar(mword *bs);
+mword *_bs2ar(bvm_cache *this_bvm, mword *bs);
 void rbs2ar(mword *bs, mword *arr_list, mword *offset);
 
 bvm_cache *span(bvm_cache *this_bvm);

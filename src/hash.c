@@ -1,5 +1,6 @@
 // hash.c
 //
+//
 
 #include "babel.h"
 #include "hash.h"
@@ -13,7 +14,7 @@
 #include "bstruct.h"
 #include "string.h"
 #include "tptr.h"
-
+#include "mem.h"
 
 /* hash operator
 **newha**
@@ -348,7 +349,7 @@ bvm_cache *exha(bvm_cache *this_bvm){ // exha#
     popd(this_bvm);
     popd(this_bvm);
 
-    mword *result = _newva(_exha(get_tptr(hash_table), hash));
+    mword *result = _new2va( this_bvm, _exha(get_tptr(hash_table), hash));
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -477,7 +478,7 @@ bvm_cache *rmha(bvm_cache *this_bvm){ // rmha#
     popd(this_bvm);
     popd(this_bvm);
 
-    mword *result = _newva(_rmha(get_tptr(hash_table), hash));
+    mword *result = _new2va( this_bvm, _rmha(get_tptr(hash_table), hash));
 
     pushd(this_bvm, result, IMMORTAL);
 

@@ -24,9 +24,8 @@ bvm_cache *slice8(bvm_cache *this_bvm);
 mword array8_size(mword size8);
 bvm_cache *th(bvm_cache *this_bvm);
 
-mword *_th(mword *bs, mword entry);
-
-mword *_mkin(mword *entries, mword size);
+//mword *_th(mword *bs, mword entry);
+mword *_th(bvm_cache *this_bvm, mword *bs, mword entry);
 
 //XXX DEPRECATED
 //bvm_cache *w(bvm_cache *this_bvm);
@@ -49,11 +48,13 @@ void   _trunc(mword *operand, mword new_size);
 int    _arcmp(mword *left, mword *right);
 mword  _cxr1(mword *val, mword bit);
 mword _cxr8(mword *val, mword bit);
-mword *_ar2ls(mword *arr);
+//mword *_ar2ls(mword *arr);
+mword *_ar2ls(bvm_cache *this_bvm, mword *arr);
 //mword *_cxr(mword *array, mword offset);
 
 bvm_cache *perm(bvm_cache *this_bvm);
 void _perm(mword *src, mword *dest, mword *perm_matrix);
+
 
 
 #endif //ARRAY_H

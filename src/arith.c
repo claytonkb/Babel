@@ -11,14 +11,14 @@
 #include "bvm.h"
 #include "alloc.h"
 #include "tptr.h"
-
+#include "mem.h"
 
 #define babel_arithmetic(expr)                  \
                                                 \
     mword opA = c( op0, 0 );                    \
     mword opB = c( op1, 0 );                    \
                                                 \
-    result = _newva( expr );
+    result = _new2va( this_bvm, expr );
 
 
 #define babel_signed_arithmetic(expr)           \
@@ -28,7 +28,7 @@
                                                 \
     int signed_result = (int)(expr);            \
                                                 \
-    result = _newva( (mword)signed_result);
+    result = _new2va( this_bvm,  (mword)signed_result);
 
 /* arithmetic operator
 _Note: The arithmetic operators are all prefixed with 'c' because
@@ -167,7 +167,7 @@ bvm_cache* cimul(bvm_cache *this_bvm){ // cimul#
        fatal("zero divisor or modulus");        \
     }                                           \
                                                 \
-    result = _newva( expr );
+    result = _new2va( this_bvm,  expr );
 
 
 //#define babel_signed_division(expr)             \
@@ -181,7 +181,7 @@ bvm_cache* cimul(bvm_cache *this_bvm){ // cimul#
 //                                                \
 //    int signed_result = (int)(expr);            \
 //                                                \
-//    result = _newva( (mword)signed_result );
+//    result = _new2va( this_bvm,  (mword)signed_result );
 //
 
 /* arithmetic operator
@@ -231,7 +231,7 @@ bvm_cache* curem(bvm_cache *this_bvm){ // curem#
                                                 \
     int signed_result = (int)(expr);            \
                                                 \
-    result = _newva( (mword)signed_result );\
+    result = _new2va( this_bvm,  (mword)signed_result );\
 
 
 /* arithmetic operator
@@ -279,7 +279,7 @@ bvm_cache* ciabs(bvm_cache *this_bvm){ // ciabs#
 
 #define ciabs_operator                          \
     mword opA = c( op0, 0 );                    \
-    result = _newva( abs( (int)opA ) );
+    result = _new2va( this_bvm,  abs( (int)opA ) );
 
     babel_operator_typeA( this_bvm, ciabs_operator );
 

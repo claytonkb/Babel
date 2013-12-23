@@ -37,18 +37,18 @@ mword *new_dstack_entry(mword *operand, mword alloc_type){ // new_dstack_entry#
 
     return
         consa( operand,
-            consa( _newva(alloc_type), nil ));
+            consa( _newva( alloc_type), nil )); //FIXME DEPRECATED _newva
 
 }
 
 
 //
 //
-mword *new_dstack_entry2(mword *operand, mword *alloc_type){ // new_dstack_entry2#
+mword *new_dstack_entry2(bvm_cache *this_bvm, mword *operand, mword *alloc_type){ // new_dstack_entry2#
 
     return
-        consa( operand,
-            consa( alloc_type, nil ));
+        consa2(this_bvm, operand,
+            consa2(this_bvm, alloc_type, nil ));
 
 }
 
@@ -424,7 +424,7 @@ bvm_cache *take(bvm_cache *this_bvm){ // take#
 */
 bvm_cache *depth(bvm_cache *this_bvm){ // depth#
 
-    mword *result = _newva(1);
+    mword *result = _new2va( this_bvm, 1);
 
     *result = _len((mword*)icar(this_bvm->dstack_ptr));
 
@@ -537,10 +537,7 @@ bvm_cache *nest(bvm_cache *this_bvm){ // nest#
 //
 mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
 
-    //FIXME: href
-//    while(is_href(stack_entry)){
-//        stack_entry = _luha(this_bvm->sym_table, stack_entry);
-//    }
+    fatal("Why are you here??")
 
     return (mword*)stack_entry;
 
@@ -551,17 +548,7 @@ mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
 //
 void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 
-    mword *new_stack_cons  = new_cons;
-    mword *new_stack_entry = _newin(STACK_ENTRY_SIZE);
-    mword *type            = new_atom;
-
-    c(type,0) = alloc_type; // alloc_type = operand for auto-alloc
-    STACK_ENTRY_VAL(new_stack_entry) = operand;
-    STACK_ENTRY_LIF(new_stack_entry) = type;
-
-    //cons(new_stack_cons, new_stack_entry, this_bvm->dstack_ptr);
-
-    this_bvm->dstack_ptr = new_stack_cons;
+    fatal("Why are you here??");
 
 }
 
@@ -571,17 +558,7 @@ void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 //
 void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 
-    mword *new_stack_cons  = new_cons;
-    mword *new_stack_entry = _newin(STACK_ENTRY_SIZE);
-    mword *type            = new_atom;
-
-    c(type,0) = alloc_type; // alloc_type = operand for auto-alloc
-    STACK_ENTRY_VAL(new_stack_entry) = operand;
-    STACK_ENTRY_LIF(new_stack_entry) = type;
-
-    cons(new_stack_cons, new_stack_entry, this_bvm->rstack_ptr);
-
-    this_bvm->rstack_ptr = new_stack_cons;
+    fatal("Why are you here??");
 
 }
 
@@ -589,17 +566,7 @@ void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 //
 void push_alloc_ustack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 
-    mword *new_stack_cons  = new_cons;
-    mword *new_stack_entry = _newin(STACK_ENTRY_SIZE);
-    mword *type            = new_atom;
-
-    c(type,0) = alloc_type; // alloc_type = operand for auto-alloc
-    STACK_ENTRY_VAL(new_stack_entry) = operand;
-    STACK_ENTRY_LIF(new_stack_entry) = type;
-
-    cons(new_stack_cons, new_stack_entry, this_bvm->ustack_ptr);
-
-    this_bvm->ustack_ptr = new_stack_cons;
+    fatal("Why are you here??");
 
 }
 
@@ -607,19 +574,7 @@ void push_alloc_ustack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 //
 bvm_cache *hard_zap(bvm_cache *this_bvm){
 
-    if(is_nil(this_bvm->dstack_ptr)){
-        return this_bvm;
-    }
-
-    mword *temp_stack_ptr = (mword*)cdr(this_bvm->dstack_ptr);
-
-//    bfree(STACK_ENTRY_TYP((mword*)car(this_bvm->dstack_ptr)));
-//    bfree(car(this_bvm->dstack_ptr));
-//    bfree(this_bvm->dstack_ptr);
-
-    free_stack_entry(this_bvm);
-
-    this_bvm->dstack_ptr = temp_stack_ptr;
+    fatal("Why are you here??");
 
     return this_bvm;
 
@@ -629,24 +584,17 @@ bvm_cache *hard_zap(bvm_cache *this_bvm){
 // XXX DEPRECATE
 void free_stack_entry(bvm_cache *this_bvm){
 
-//    bfree(STACK_ENTRY_LIF((mword*)car(this_bvm->dstack_ptr)));
-//    bfree(car(this_bvm->dstack_ptr));
-//    bfree(this_bvm->dstack_ptr);
-//
-
+    fatal("Why are you here??");
+    
 }
 
 
 // XXX DEPRECATE
 mword *pop_rstack(bvm_cache *this_bvm){
 
-    //If rstack is empty: except()
+    fatal("Why are you here??");
 
-    mword *temp_rstack = this_bvm->rstack_ptr;
-//    code_ptr = car(rstack_ptr);
-
-    this_bvm->rstack_ptr = (mword*)scdr(this_bvm->rstack_ptr);
-    //FIXME: Leaky!
+    mword *temp_rstack;// = this_bvm->rstack_ptr;
 
     return (mword*)car(temp_rstack);
 
@@ -655,13 +603,9 @@ mword *pop_rstack(bvm_cache *this_bvm){
 // XXX DEPRECATE
 mword *pop_ustack(bvm_cache *this_bvm){
 
-    //If rstack is empty: except()
+    fatal("Why are you here??");
 
-    mword *temp_ustack = this_bvm->ustack_ptr;
-//    code_ptr = car(rstack_ptr);
-
-    this_bvm->ustack_ptr = (mword*)scdr(this_bvm->ustack_ptr);
-    //FIXME: Leaky!
+    mword *temp_ustack;// = this_bvm->ustack_ptr;
 
     return (mword*)car(temp_ustack);
 

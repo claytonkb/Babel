@@ -8,7 +8,8 @@ void free_lumbar(mword *stack_entry);
 
 mword *new_dstack_entry(mword *operand, mword alloc_type);
 
-mword *new_dstack_entry2(mword *operand, mword *alloc_type);
+//mword *new_dstack_entry2(mword *operand, mword *alloc_type);
+mword *new_dstack_entry2(bvm_cache *this_bvm, mword *operand, mword *alloc_type);
 
 void push_udr_stack(mword *stack_ptr, mword *stack_entry);
 mword *pop_udr_stack(mword *stack_ptr);

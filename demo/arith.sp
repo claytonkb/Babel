@@ -25,7 +25,7 @@
 
         500 %)
     each)
-    5 times
+    4 times
 
     -- dev
 

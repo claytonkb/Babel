@@ -12,7 +12,7 @@ bvm_cache *free_op(bvm_cache *this_bvm);
 //mword *_balloc(mword size);
 
 bvm_cache *del(bvm_cache *this_bvm);
-void _del(mword *bs);
+//void _del(mword *bs);
 
 #endif //ALLOC_H
 

@@ -34,6 +34,97 @@ implementation is bug-free. Gradually, the GC will be made more
 #include "load.h"
 
 
+/////////////////////////////////////////////////////////////////////////////
+
+// Babel> grep -n _newva src/* | grep FIXME
+// src/array.c:346:        return _newva(c(bs,entry%size(bs))); //FIXME DEPRECATED _newva
+// src/stack.c:40:            consa( _newva( alloc_type), nil )); //FIXME DEPRECATED _newva
+//
+// Accepts a data value and returns a leaf-array
+// of size 1 containing that data value
+//
+mword *_new2va(bvm_cache *this_bvm, mword value){
+
+    mword *ptr = mc_2alloc(this_bvm, MWORDS(1));
+
+    c(ptr,0) = value;
+    return ptr;
+
+}
+
+
+// creates a new leaf-array of given size
+//
+mword *_new2lf(bvm_cache *this_bvm, mword size){
+
+    mword *ptr = mc_2alloc( this_bvm, MWORDS(size) );
+
+    return ptr;
+
+}
+
+
+// same as _newlf but with mem initialization (byte-wise)
+//
+mword *_new2lfi(bvm_cache *this_bvm, mword size, mword init){
+
+    //mword *ptr = mc_2alloc( this_bvm, MWORDS(size) );
+    mword *ptr = _new2lf(this_bvm, size);
+
+    memset((char*)ptr,init,MWORDS(size));
+
+    return ptr;
+
+}
+
+
+//
+//
+mword *_new2in(bvm_cache *this_bvm, mword size){
+
+    mword *ptr = mc_2alloc( this_bvm, -1*MWORDS(size) );
+
+    int i;
+    for(i = 0; i<size; i++){ // All pointers must be valid - initialize to nil
+        ptr[i] = (mword)nil;
+    }
+
+    return ptr;
+
+}
+
+
+//
+mword *_new2tptr(bvm_cache *this_bvm){
+
+    mword *ptr = mc_2alloc( this_bvm, 0 );
+
+    //FIXME: 32-bit specific and UGLY
+    ptr[0] = 0xdeadbeef;
+    ptr[1] = 0xdeadbeef;
+    ptr[2] = 0xdeadbeef;
+    ptr[3] = 0xdeadbeef;
+    ptr[4] = (mword)(-1*MWORD_SIZE);
+    ptr[5] = (mword)nil;
+
+    return ptr;
+
+}
+
+
+// Allocating cons
+//
+mword *consa2(bvm_cache *this_bvm, mword *car_field, mword *cdr_field){
+
+    mword *temp_cons = _new2in(this_bvm, 2);
+
+    cons(temp_cons, car_field, cdr_field);
+
+    return temp_cons;
+
+}
+
+
 // mc_init
 //
 void mc_init(void){
@@ -74,6 +165,31 @@ void mc_destroy(void){
 // mc_alloc
 //
 mword *mc_alloc(mword sfield){
+
+    alloc_bank *b = mem->primary;
+
+    mword mc_size = mc_alloc_size(sfield)+1;
+
+    if(b->alloc_ptr-mc_size < b->base_ptr){
+        // copy-collect
+        fatal("mc_copy_collect");
+        // mc_copy_collect(this_bvm);
+    }
+
+    b->alloc_ptr -= mc_size;
+
+    mword *return_ptr = b->alloc_ptr+1;
+
+    //r(return_ptr) = mc_size;
+    s(return_ptr) = sfield;
+
+    return return_ptr;
+
+}
+
+// mc_2alloc
+//
+mword *mc_2alloc(bvm_cache *this_bvm, mword sfield){
 
     alloc_bank *b = mem->primary;
 

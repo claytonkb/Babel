@@ -13,6 +13,7 @@
 #include "tptr.h"
 #include "pearson16.h"
 #include "string.h"
+#include "mem.h"
 
 /* flow-control operator
 **eval** (!)  
@@ -53,7 +54,7 @@ void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){ // _eval#
 bvm_cache *loop(bvm_cache *this_bvm){ // loop#
 
     mword *loop_body = dstack_get(this_bvm,0);
-    mword *iteration = _newva(0);
+    mword *iteration = _new2va( this_bvm, 0);
 
     popd(this_bvm); 
 
@@ -107,7 +108,7 @@ bvm_cache *gotoop(bvm_cache *this_bvm){ // gotoop# goto#
 */
 bvm_cache *times(bvm_cache *this_bvm){ // times#
 
-    mword *iterations  = _newva(icar(dstack_get(this_bvm,0)));
+    mword *iterations  = _new2va( this_bvm, icar(dstack_get(this_bvm,0)));
     mword *times_body  = dstack_get(this_bvm,1);
 
     popd(this_bvm); 
@@ -163,7 +164,7 @@ bvm_cache *each(bvm_cache *this_bvm){ // each#
     if(is_nil(each_list))
         return this_bvm;
 
-    mword *iteration = _newva(0);
+    mword *iteration = _new2va( this_bvm, 0);
 
     mword *each_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
@@ -204,7 +205,7 @@ bvm_cache *ifte(bvm_cache *this_bvm){ // ifte#
     popd(this_bvm);
     popd(this_bvm);
 
-    mword *ifte_select = _newva(IFTE_COND);
+    mword *ifte_select = _new2va( this_bvm, IFTE_COND);
 
     mword *ifte_rstack_entry = consa(ifte_select,
                                 consa(then_clause,
@@ -234,12 +235,12 @@ bvm_cache *whileop(bvm_cache *this_bvm){ // whileop# while#
 
     mword *while_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *iteration = _newva(0);
+    mword *iteration = _new2va( this_bvm, 0);
 
     popd(this_bvm);
     popd(this_bvm);
 
-    mword *while_select = _newva(WHILE_COND);
+    mword *while_select = _new2va( this_bvm, WHILE_COND);
 
     mword *while_rstack_entry = consa(iteration,
                                 consa(while_body,
@@ -294,7 +295,7 @@ bvm_cache *iter(bvm_cache *this_bvm){ // iter#
 
     mword *rtos = rstack_get(this_bvm,i);
 
-    result = _newva(*(mword*)icar(rtos));
+    result = _new2va( this_bvm, *(mword*)icar(rtos));
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -432,7 +433,7 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
             mword *entry;
             if(is_leaf(array)){
-                entry = _newva(c(array,*iter));
+                entry = _new2va( this_bvm, c(array,*iter));
             }
             else{
                 entry = (mword*)c(array,*iter);
@@ -786,7 +787,7 @@ bvm_cache *cond(bvm_cache *this_bvm){ // cond#
 
     mword *cond_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *cond_select = _newva(COND_COND);
+    mword *cond_select = _new2va( this_bvm, COND_COND);
 
     mword *cond_rstack_entry = consa(cond_select,
                                 consa((mword*)icdr(cond_list), //XXX Loop bug?
@@ -865,7 +866,7 @@ bvm_cache *eachar(bvm_cache *this_bvm){
     if(is_nil(each_array))
         return this_bvm;
 
-    mword *iteration = _newva(0);
+    mword *iteration = _new2va( this_bvm, 0);
 
     mword *each_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
@@ -878,7 +879,7 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
     mword *entry;
     if(is_leaf(each_array)){
-        entry = _newva(c(each_array,0));
+        entry = _new2va( this_bvm, c(each_array,0));
     }
     else{
         entry = (mword*)c(each_array,0);

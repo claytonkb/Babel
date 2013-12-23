@@ -14,6 +14,7 @@
 #include "alloc.h"
 #include "tptr.h"
 #include "pearson16.h"
+#include "mem.h"
 
 #ifdef WINDOWS
 #include <windows.h>
@@ -24,7 +25,7 @@
 bvm_cache *randop(bvm_cache *this_bvm){
 
     mword num_mwords = icar(dstack_get(this_bvm,0));
-    mword *result    = _newlf(num_mwords);
+    mword *result    = _new2lf(this_bvm, num_mwords);
 
     int i;
     for(i=0;i<num_mwords;i++){
@@ -169,7 +170,7 @@ bvm_cache *readmem(bvm_cache *this_bvm){ // readmem#
     mword *ptr = dstack_get(this_bvm,0);
     popd(this_bvm);
 
-    mword *result = _newlfi(1,*ptr);
+    mword *result = _new2lfi(this_bvm, 1,*ptr);
 
     pushd(this_bvm, 
             result,

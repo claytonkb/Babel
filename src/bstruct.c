@@ -15,6 +15,7 @@
 #include "alloc.h"
 #include "tptr.h"
 #include "string.h"
+#include "mem.h"
 
 /* bstruct operator
 **unload**
@@ -134,7 +135,7 @@ mword _fn_recurse(mword *bs, bstruct_op_fn_ptr bfn, void *v){ // _fn_recurse#
 //count nil...
 bvm_cache *mu(bvm_cache *this_bvm){ // mu#
 
-    mword *result = _newva(_mu(dstack_get(this_bvm,0)));
+    mword *result = _new2va( this_bvm, _mu(dstack_get(this_bvm,0)));
     popd(this_bvm);
 
     pushd(this_bvm, result, MORTAL);
@@ -180,7 +181,7 @@ mword _rmu(mword *bs, void *v){ // _rmu#
 */
 bvm_cache *nlf(bvm_cache *this_bvm){ // nlf#
 
-    mword *result = _newva(_nlf(dstack_get(this_bvm,0)));
+    mword *result = _new2va( this_bvm, _nlf(dstack_get(this_bvm,0)));
     popd(this_bvm);
 
     pushd(this_bvm, result, MORTAL);
@@ -223,7 +224,7 @@ mword _rnlf(mword *bs, void *v){ // _rnlf#
 */
 bvm_cache *nin(bvm_cache *this_bvm){ // nin#
 
-    mword *result = _newva(_nin(dstack_get(this_bvm,0)));
+    mword *result = _new2va( this_bvm, _nin(dstack_get(this_bvm,0)));
     popd(this_bvm);
 
     pushd(this_bvm, result, MORTAL);
@@ -261,7 +262,7 @@ mword _rnin(mword *bs, void *v){ // _rnin#
 */
 bvm_cache *ntag(bvm_cache *this_bvm){ // ntag#
 
-    mword *result = _newva(_ntag(dstack_get(this_bvm,0)));
+    mword *result = _new2va( this_bvm, _ntag(dstack_get(this_bvm,0)));
     popd(this_bvm);
 
     pushd(this_bvm, result, MORTAL);
@@ -303,7 +304,7 @@ mword _rntag(mword *bs, void *v){ // _rntag#
 */
 bvm_cache *nva(bvm_cache *this_bvm){ // nva#
 
-    mword *result = _newva(_nva(dstack_get(this_bvm,0)));
+    mword *result = _new2va( this_bvm, _nva(dstack_get(this_bvm,0)));
     popd(this_bvm);
 
     pushd(this_bvm, result, MORTAL);
@@ -348,7 +349,7 @@ mword _rnva(mword *bs, void *v){ // _rnva#
 */
 bvm_cache *npt(bvm_cache *this_bvm){ // npt#
 
-    mword *result = _newva(_nptr(dstack_get(this_bvm,0)));
+    mword *result = _new2va( this_bvm, _nptr(dstack_get(this_bvm,0)));
     popd(this_bvm);
 
     pushd(this_bvm, result, MORTAL);
@@ -461,7 +462,7 @@ bvm_cache *bbl2str(bvm_cache *this_bvm){ // bbl2str#
         length++;
     }
 
-    mword *temp   = _newlf(length);
+    mword *temp   = _new2lf(this_bvm, length);
     mword *result = temp;
 //    mword *result = _newin(1);
 //    (mword*)*result = temp;
@@ -572,7 +573,9 @@ bvm_cache *bs2gv(bvm_cache *this_bvm){ // bs2gv#
 
 
 //Returns a string containing the Graphviz text file
-//
+// To fix _newlf DEPRECATED issue, create two versions:
+//      debug version -> uses malloc, not mc_alloc
+//      normal version -> uses mc_alloc
 mword *_bs2gv(mword *bs){ // _bs2gv#
 
     // Figure out buffer size
@@ -604,7 +607,7 @@ mword *_bs2gv(mword *bs){ // _bs2gv#
         length++;
     }
 
-    mword *result = _newlf(length);
+    mword *result = _newlf(length); //FIXME DEPRECATED _newlf (see above)
     memcpy(result, buffer, buf_size);
     c(result,length-1) = last_mword;
     free(buffer);
@@ -1021,7 +1024,7 @@ bvm_cache *ducp(bvm_cache *this_bvm){
 bvm_cache *span(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
-    mword *result = _bs2ar(TOS_0(this_bvm));
+    mword *result = _bs2ar(this_bvm, TOS_0(this_bvm));
 
     hard_zap(this_bvm);
 
@@ -1033,13 +1036,13 @@ bvm_cache *span(bvm_cache *this_bvm){
 
 //Creates an interior array with one pointer to each array
 //in a bstruct
-mword *_bs2ar(mword *bs){ 
+mword *_bs2ar(bvm_cache *this_bvm, mword *bs){ 
 
     mword num_arrays  = _nin  (bs);
           num_arrays += _nlf  (bs);
 //          num_arrays += _nhref(bs);
 
-    mword *arr_list = _newin(num_arrays);
+    mword *arr_list = _new2in(this_bvm, num_arrays);
     mword offset = 0;
 
     rbs2ar(bs, arr_list, &offset);

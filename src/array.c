@@ -57,7 +57,7 @@
 bvm_cache *sfield(bvm_cache *this_bvm){ // sfield#
 
 #define babel_sfield_operator \
-    result = _newva( s( op0 ) );
+    result = _new2va( this_bvm,  s( op0 ) );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -75,7 +75,7 @@ bvm_cache *sfield(bvm_cache *this_bvm){ // sfield#
 bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 
 #define babel_arlen_operator \
-    result = _newva( size( op0 ) );
+    result = _new2va( this_bvm,  size( op0 ) );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -93,7 +93,7 @@ bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 bvm_cache *islf(bvm_cache *this_bvm){ // islf#
 
 #define babel_islf_operator \
-    result = _newva( is_leaf( op0 ) );
+    result = _new2va( this_bvm,  is_leaf( op0 ) );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -110,7 +110,7 @@ bvm_cache *islf(bvm_cache *this_bvm){ // islf#
 bvm_cache *isinte(bvm_cache *this_bvm){ // isinte#
 
 #define babel_isinte_operator \
-    result = _newva( is_inte( op0 ) );
+    result = _new2va( this_bvm,  is_inte( op0 ) );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -152,17 +152,6 @@ mword *_newlfi(mword size, mword init){ // _newlfi#
     //ptr[0] = size * MWORD_SIZE;
 
     return ptr;
-
-}
-
-
-// indexes a leaf-array and creates a leaf-array to hold its result
-//
-inline mword* val(mword *leaf, mword index){ // val#
-
-    mword *temp = new_atom;
-    c(temp,0) = c(leaf,index);
-    return temp;
 
 }
 
@@ -240,20 +229,16 @@ mword *_newtptr(void){ // _newtptr# XXX DEPRECATE
 
 }
 
+// indexes a leaf-array and creates a leaf-array to hold its result
+//
+inline mword* val(mword *leaf, mword index){ // val#
 
-// utility function used for rstack
-mword *_mkin(mword *entries, mword size){
-
-    mword *arr = _newin(size);
-
-    int i;
-    for(i=0;i<size;i++){
-        c(arr,i) = entries[i];
-    }
-
-    return arr;
+    mword *temp = new_atom;
+    c(temp,0) = c(leaf,index);
+    return temp;
 
 }
+
 
 /* > XXX: DEPRECATE (redundant to cut)
 **slice**
@@ -284,10 +269,10 @@ bvm_cache *slice(bvm_cache *this_bvm){
     else{
 
         if(is_leaf(array)){
-            result = _newlf(end-start);
+            result = _new2lf(this_bvm, (mword)(end-start));
         }
         else{
-            result = _newin(end-start);
+            result = _new2in(this_bvm, end-start);
         }
 
         mword i,j;
@@ -333,7 +318,7 @@ bvm_cache *th(bvm_cache *this_bvm){ // th#
     popd(this_bvm);
     popd(this_bvm);
 
-    pushd(this_bvm, _th(array,index), IMMORTAL);
+    pushd(this_bvm, _th(this_bvm, array,index), IMMORTAL);
 
     return this_bvm;
 
@@ -341,10 +326,10 @@ bvm_cache *th(bvm_cache *this_bvm){ // th#
 
 //
 //
-mword *_th(mword *bs, mword entry){ // _th#
+mword *_th(bvm_cache *this_bvm, mword *bs, mword entry){ // _th#
 
     if(is_leaf(bs)){
-        return _newva(c(bs,entry%size(bs)));
+        return _new2va(this_bvm, c(bs,entry%size(bs))); //FIXME DEPRECATED _newva
     }
     
     //we are assuming that we never get a tptr...
@@ -398,12 +383,12 @@ bvm_cache *cut(bvm_cache *this_bvm){ // cut#
         mword num_entries = size(src);
 
         if(is_leaf(src)){
-            result_pre  = _newlf(cut_point);
-            result_post = _newlf(num_entries-cut_point);
+            result_pre  = _new2lf(this_bvm, cut_point);
+            result_post = _new2lf(this_bvm, num_entries-cut_point);
         }
         else{
-            result_pre = _newin(cut_point);
-            result_post = _newin(num_entries-cut_point);
+            result_pre = _new2in(this_bvm, cut_point);
+            result_post = _new2in(this_bvm, num_entries-cut_point);
         }
 
         //TODO: memcpy!
@@ -440,7 +425,7 @@ bvm_cache *cut(bvm_cache *this_bvm){ // cut#
 bvm_cache *arlen8(bvm_cache *this_bvm){ // arlen8#
 
 #define babel_arlen8_operator \
-    result = _newva( _arlen8( op0 ) );
+    result = _new2va( this_bvm,  _arlen8( op0 ) );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -474,7 +459,7 @@ mword _arlen8(mword *string){ // _arlen8#
 */
 bvm_cache *newin(bvm_cache *this_bvm){
 
-    mword *result = _newin(icar(dstack_get(this_bvm,0))); //FIXME: There is no checking...
+    mword *result = _new2in(this_bvm, icar(dstack_get(this_bvm,0))); //FIXME: There is no checking...
 
     popd(this_bvm);
 
@@ -492,7 +477,7 @@ bvm_cache *newin(bvm_cache *this_bvm){
 */
 bvm_cache *newlf(bvm_cache *this_bvm){
 
-    mword *result = _newlf((mword)car(dstack_get(this_bvm,0))); //FIXME: There is no checking...
+    mword *result = _new2lf(this_bvm, (mword)car(dstack_get(this_bvm,0))); //FIXME: There is no checking...
     popd(this_bvm);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -592,10 +577,10 @@ bvm_cache *arcat(bvm_cache *this_bvm){
     mword size_right = size(right);
 
     if      ( is_leaf(right)  &&  is_leaf(left) ){
-        result = _newlf( size_left + size_right );
+        result = _new2lf(this_bvm,  size_left + size_right );
     }
     else if ( is_inte(right)  &&  is_inte(left) ){
-        result = _newin( size_left + size_right );
+        result = _new2in(this_bvm,  size_left + size_right );
     }
     else{ //FIXME: Throw an exception
         fatal("arcat: cannot concatenate leaf array and interior array");
@@ -663,7 +648,7 @@ bvm_cache *arcat8(bvm_cache *this_bvm){ // arcat8#
 //    d(array8_size(total_size));
 
     if      ( is_leaf(right)  &&  is_leaf(left) ){
-        result = (char*)_newlf( array8_total_size );
+        result = (char*)_new2lf(this_bvm,  array8_total_size );
     }
     else{ //FIXME: Throw an exception
         fatal("arcat8: cannot concatenate interior array");
@@ -711,7 +696,7 @@ bvm_cache *slice8(bvm_cache *this_bvm){
 
     char *result;
     if(is_leaf(TOS_2(this_bvm))){
-        result = (char*)_newlf(array8_size(size8));
+        result = (char*)_new2lf(this_bvm, array8_size(size8));
     }
     else{
         error("slice8: cannot slice8 a non-leaf array");
@@ -747,7 +732,7 @@ bvm_cache *slice8(bvm_cache *this_bvm){
 */
 bvm_cache *arcmp(bvm_cache *this_bvm){ // arcmp#
 
-    mword *result = _newva(1);//    = new_atom;
+    mword *result = _new2va( this_bvm, 1);//    = new_atom;
 
     mword *left = dstack_get(this_bvm,1);
     mword *right = dstack_get(this_bvm,0);
@@ -803,7 +788,7 @@ int _arcmp(mword *left, mword *right){ // _arcmp#
 bvm_cache *ar2ls(bvm_cache *this_bvm){ // ar2ls#
 
 #define babel_ar2ls_operator \
-    result = _ar2ls(dstack_get(this_bvm,0));
+    result = _ar2ls(this_bvm, dstack_get(this_bvm,0));
 
     babel_operator_typeA( 
             this_bvm, 
@@ -814,7 +799,7 @@ bvm_cache *ar2ls(bvm_cache *this_bvm){ // ar2ls#
 
 //
 //
-mword *_ar2ls(mword *arr){ // _ar2ls#
+mword *_ar2ls(bvm_cache *this_bvm, mword *arr){ // _ar2ls#
 
     mword *last_cons = (mword*)nil;
     int i;
@@ -827,7 +812,7 @@ mword *_ar2ls(mword *arr){ // _ar2ls#
     }
     else{
         for(i=size(arr)-1;i>=0;i--){
-            entry = _newlf(1);
+            entry = _new2lf(this_bvm, 1); // FIXME DEPRECATED _newlf
             *entry = c(arr,i);
             last_cons = _consls(entry,last_cons);
         }
@@ -858,10 +843,10 @@ bvm_cache *perm(bvm_cache *this_bvm){ // perm#
     popd(this_bvm);
 
     if(is_inte(src_array)){
-        result = _newin(size(src_array));
+        result = _new2in(this_bvm, size(src_array));
     }
     else if(is_leaf(src_array)){
-        result = _newlf(size(src_array));
+        result = _new2lf(this_bvm, size(src_array));
     }
     else{ // FIXME: Throw exception
         fatal("perm: !is_leaf && !is_inte");
@@ -894,5 +879,8 @@ void _perm(mword *src, mword *dest, mword *perm_matrix){ // _perm#
 
 }
 
+
+
 // Clayton Bauman 2011
+
 

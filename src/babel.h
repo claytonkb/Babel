@@ -100,7 +100,7 @@ void temp_rbs2gv(mword *bs);
 #define bfree(x)  free((mword*)(x)-1)
 
 // Memory size is 32MB
-#define MEM_SIZE (1<<15)          // MEM_SIZE#
+#define MEM_SIZE (1<<16)          // MEM_SIZE#
 
 //#define ALLOC_ENTRY_IN_USE 1    // ALLOC_ENTRY_IN_USE#
 //#define ALLOC_ENTRY_FREE   0    // ALLOC_ENTRY_FREE#
@@ -263,21 +263,21 @@ mem_context *mem;
 
 #include "array.h"
 
-#define MKTMP(n) tmp##n
-
-#define TMPLINE MKTMP(__LINE__)
-
-#define mkartmp(w,x,y,...) \
-    mword x[] = { MWORDS(y), __VA_ARGS__ }; \
-    mword *w = x+1;
-
-#define mkar(x,y,...) mkartmp(x,TMPLINE,y,__VA_ARGS__)
-
-#define mklstmp(w,x,y,...) \
-    mword x[] = { MWORDS(y), __VA_ARGS__ }; \
-    mword *w = _ar2ls( x+1 );
-
-#define mkls(x,y,...) mklstmp(x,TMPLINE,y,__VA_ARGS__)
+//#define MKTMP(n) tmp##n
+//
+//#define TMPLINE MKTMP(__LINE__)
+//
+//#define mkartmp(w,x,y,...) \
+//    mword x[] = { MWORDS(y), __VA_ARGS__ }; \
+//    mword *w = x+1;
+//
+//#define mkar(x,y,...) mkartmp(x,TMPLINE,y,__VA_ARGS__)
+//
+//#define mklstmp(w,x,y,...) \
+//    mword x[] = { MWORDS(y), __VA_ARGS__ }; \
+//    mword *w = _ar2ls( x+1 );
+//
+//#define mkls(x,y,...) mklstmp(x,TMPLINE,y,__VA_ARGS__)
 
 //    mkar(myarray,3,1,2,3);
 //    mkls(mylist, 3,1,2,3);
@@ -418,10 +418,10 @@ mem_context *mem;
     zapd(x);                                    \
                                                 \
     push_udr_stack(x->dstack_ptr,               \
-            new_dstack_entry2(result,           \
+            new_dstack_entry2(x, result,           \
                 mktptr2(BABEL_TAG_PACMAN)));    \
                                                 \
-    return this_bvm;
+    return x;
 
 //    pushd(x, result, IMMORTAL);                 \
 
