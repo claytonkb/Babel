@@ -39,7 +39,7 @@ bvm_cache *keysha(bvm_cache *this_bvm){ // newha#
     mword *hash_table = dstack_get(this_bvm,0);
     popd(this_bvm);
 
-    mword *result = _entha(hard_detag(hash_table));
+    mword *result = _entha(this_bvm, hard_detag(hash_table));
 
 
 
@@ -51,13 +51,13 @@ bvm_cache *keysha(bvm_cache *this_bvm){ // newha#
 
 // Returns a list of all entries in the hash
 //
-mword *_entha(mword *hash_table){ // _entha#
+mword *_entha(bvm_cache *this_bvm, mword *hash_table){ // _entha#
 
     if(is_nil(hash_table)){
         return nil;
     }
     else{
-        return rentha(hash_table, 0);
+        return rentha(this_bvm, hash_table, 0);
     }
 
 }
@@ -65,7 +65,7 @@ mword *_entha(mword *hash_table){ // _entha#
 
 //
 //
-mword *rentha(mword *hash_table, mword level){ // rentha#
+mword *rentha(bvm_cache *this_bvm, mword *hash_table, mword level){ // rentha#
 
 //    mword *temp;
 //    mword cons_side   = _cxr1(hash,level);
@@ -79,8 +79,8 @@ mword *rentha(mword *hash_table, mword level){ // rentha#
     }
     else if(is_conslike(hash_table)){
 
-        mword *list0 = rentha((mword*)car(hash_table), level+1);
-        mword *list1 = rentha((mword*)cdr(hash_table), level+1);
+        mword *list0 = rentha(this_bvm, (mword*)car(hash_table), level+1);
+        mword *list1 = rentha(this_bvm, (mword*)cdr(hash_table), level+1);
 
         if(is_nil(list0)){
             if(is_nil(list1)){
@@ -100,7 +100,7 @@ mword *rentha(mword *hash_table, mword level){ // rentha#
             else{
 //                _dump(list0);
 //                die;
-                return _append_direct(list0, list1);
+                return _append_direct(this_bvm, list0, list1);
             }
         }
 

@@ -675,8 +675,8 @@ bvm_cache *append(bvm_cache *this_bvm){ // append#
 
     mword *list = dstack_get(this_bvm,0);
 
-    //mword *result = _append_direct(_ith(list,0), _ith(list,1));
-    mword *result = _append(list);
+    //mword *result = _append_direct(this_bvm, _ith(list,0), _ith(list,1));
+    mword *result = _append(this_bvm, list);
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -685,20 +685,20 @@ bvm_cache *append(bvm_cache *this_bvm){ // append#
 }
 
 
-mword *_append(mword *lists){ // _append#
+mword *_append(bvm_cache *this_bvm, mword *lists){ // _append#
 
     if(is_nil(icdr(lists)))
         return (mword*)icar(lists);
         //return lists;
 
-    return _append_direct(_ith(lists,0),_append((mword*)icdr(lists)));
+    return _append_direct(this_bvm, _ith(lists,0),_append(this_bvm, (mword*)icdr(lists)));
 
 }
 
 
 //
 //
-mword *_append_direct(mword *head_list, mword *tail_list){ // _append_direct#
+mword *_append_direct(bvm_cache *this_bvm, mword *head_list, mword *tail_list){ // _append_direct#
 
     mword *endls = _list_end(head_list);
 

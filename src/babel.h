@@ -229,7 +229,7 @@ mem_context *mem;
 #define pushd(x,y,z) push_udr_stack(x->dstack_ptr, new_dstack_entry(y,z)) // pushd#
 #define popd(x) pop_udr_stack(x->dstack_ptr) // popd#
 //#define popd(x) *x->dstack_ptr = _shift(icar(x->dstack_ptr));
-#define getd(x,y) get_from_udr_stack(x, x->dstack_ptr, y); remove_from_udr_stack(this_bvm->dstack_ptr,y);   // getd#
+#define getd(x,y) get_from_udr_stack(x, x->dstack_ptr, y); remove_from_udr_stack(x, x->dstack_ptr,y);   // getd#
 
 #define pushu(x,y,z) push_udr_stack(x->ustack_ptr, new_dstack_entry(y,z)) // pushu#
 #define popu(x) pop_udr_stack(x->ustack_ptr) // popu#

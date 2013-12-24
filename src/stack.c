@@ -128,7 +128,7 @@ inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stac
 
 // "Selective zap", i.e. "zap the nth item on stack"
 //
-mword *remove_from_udr_stack(mword *stack_ptr, mword stack_index){ // remove_from_udr_stack#
+mword *remove_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // remove_from_udr_stack#
 
     mword *temp;
     mword *zapped;
@@ -153,7 +153,7 @@ mword *remove_from_udr_stack(mword *stack_ptr, mword stack_index){ // remove_fro
             //_dump(zapped);
             //die;
             //_del(zapped);
-            _append_direct(work_stack,tail);
+            _append_direct(this_bvm, work_stack,tail);
         }
         else if( length > stack_index ){
             zapped = _list_cut(work_stack, stack_index);
@@ -201,7 +201,7 @@ void zap_udr_stack(mword *stack_ptr){ // zap_udr_stack#
 
 
 //
-inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index){ // zap_from_udr_stack#
+inline mword *zap_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // zap_from_udr_stack#
 
     mword *temp;
     mword *zapped;
@@ -226,7 +226,7 @@ inline mword *zap_from_udr_stack(mword *stack_ptr, mword stack_index){ // zap_fr
             //_dump(zapped);
             //die;
             //_del(zapped);
-            _append_direct(work_stack,tail);
+            _append_direct(this_bvm, work_stack,tail);
         }
         else if( length > stack_index ){
             zapped = _list_cut(work_stack, stack_index);
@@ -279,7 +279,7 @@ bvm_cache *sel(bvm_cache *this_bvm){ // sel#
         popd(this_bvm);
     }
     else{
-        remove_from_udr_stack(this_bvm->dstack_ptr,1);
+        remove_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 1);
     }
 
     return this_bvm;
