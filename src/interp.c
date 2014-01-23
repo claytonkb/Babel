@@ -247,7 +247,9 @@ mword *init_interp_jump_table(void){
 
     #define num_opcodes (sizeof(interp_fixed_opcodes)/sizeof(babel_op))
 
-    mword *temp = malloc(MWORDS(num_opcodes));
+    mword *temp = malloc(MWORDS(num_opcodes+1));
+    temp[0] = num_opcodes * MWORD_SIZE;
+    temp++;
 
     int i;
     for(i=0;i<num_opcodes;i++){

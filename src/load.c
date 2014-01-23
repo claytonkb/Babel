@@ -151,6 +151,7 @@ mword *_unload(mword *bs){//, mword offset){
 //    mword *LUT_rel   = _newin(num_arrays);
 
     mword *dest      = newleaf(bs_size);
+//trace;
 
 //    mword *LUT_abs   = newinte(num_arrays);
 //    mword *LUT_rel   = newinte(num_arrays);

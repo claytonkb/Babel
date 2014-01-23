@@ -60,6 +60,7 @@
 (bvm_sym_table  (code cdr cdr cdr car car))
 
 
+-- FIXME: jump_table needs to be set to nil before unload...
 (save_bvm (code 
     unload
     "debug.bbl"
