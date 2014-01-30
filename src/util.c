@@ -25,7 +25,7 @@
 bvm_cache *randop(bvm_cache *this_bvm){
 
     mword num_mwords = icar(dstack_get(this_bvm,0));
-    mword *result    = _new2lf(this_bvm, num_mwords);
+    mword *result    = _newlf(this_bvm, num_mwords);
 
     int i;
     for(i=0;i<num_mwords;i++){
@@ -96,8 +96,8 @@ bvm_cache *lusym(bvm_cache *this_bvm){ // lusym#
     popd(this_bvm);
 
     pushd(this_bvm, 
-//            (mword*)get_sym(this_bvm, (char*)_b2c(symbol)), 
-            _luha( get_tptr(this_bvm->sym_table), _hash8(symbol)),
+//            (mword*)get_sym(this_bvm, (char*)_b2c(this_bvm, symbol)), 
+            _luha(this_bvm,  get_tptr(this_bvm->sym_table), _hash8(this_bvm, symbol)),
             IMMORTAL);
 
     return this_bvm;
@@ -116,24 +116,24 @@ bvm_cache *fnord(bvm_cache *this_bvm){ // fnord#
 
 bvm_cache *dev(bvm_cache *this_bvm){ // dev#
 
-    int i;
-    int mem_bank_size = TOP_OF_ALLOC_BANK(mem->primary) 
-                            - mem->primary->alloc_ptr;
+//    int i;
+//    int mem_bank_size = TOP_OF_ALLOC_BANK(mem->primary) 
+//                            - mem->primary->alloc_ptr;
+//
+//    for(
+//            i=0;
+//            i < mem_bank_size;
+//            i++
+//            ){
+//
+//        printf("%08x\n", c(mem->primary->alloc_ptr,i));
+//        //printf("%08x\n", c((this_bvm->self-1),i));
+//
+//    }
+//
+//    die;
 
-    for(
-            i=0;
-            i < mem_bank_size;
-            i++
-            ){
-
-        printf("%08x\n", c(mem->primary->alloc_ptr,i));
-        //printf("%08x\n", c((this_bvm->self-1),i));
-
-    }
-
-    die;
-
-//    mword *temp = _bvm_init(dstack_get(this_bvm,0));
+//    mword *temp = _bvm_init(this_bvm, dstack_get(this_bvm,0));
 //    _dump(temp);
 //    die;
 
@@ -153,12 +153,12 @@ bvm_cache *dev(bvm_cache *this_bvm){ // dev#
 
 //    mword *op0 = dstack_get(this_bvm,0);               
 //
-//    mword *temp = _shift(op0);
+//    mword *temp = _shift(this_bvm, op0);
 //
 //    _dump(temp);
 //    die;
 //
-//    mword *temp = _shift(op0);
+//    mword *temp = _shift(this_bvm, op0);
 
     return this_bvm;
 
@@ -170,7 +170,7 @@ bvm_cache *readmem(bvm_cache *this_bvm){ // readmem#
     mword *ptr = dstack_get(this_bvm,0);
     popd(this_bvm);
 
-    mword *result = _new2lfi(this_bvm, 1,*ptr);
+    mword *result = _newlfi(this_bvm, 1,*ptr);
 
     pushd(this_bvm, 
             result,

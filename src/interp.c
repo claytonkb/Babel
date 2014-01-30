@@ -26,9 +26,9 @@
 
 //
 //
-void init_nil(void){ // init_nil#
+void init_nil(bvm_cache *this_bvm){ // init_nil#
 
-    nil = new_tptr(BABEL_TAG_INTERP_NIL, NULL);
+    nil = new_tptr(this_bvm, BABEL_TAG_INTERP_NIL, NULL);
     set_tptr(nil,nil);
 
 }
@@ -38,7 +38,7 @@ void init_nil(void){ // init_nil#
 void capture_env(bvm_cache *this_bvm, char **envp){ // capture_env#
 
     char** env;
-    mword *env_hash = new_hash_table();
+    mword *env_hash = new_hash_table(this_bvm);
 
     char *split_point;
 
@@ -47,25 +47,25 @@ void capture_env(bvm_cache *this_bvm, char **envp){ // capture_env#
 
     for(env = envp; *env != NULL; env++){
 
-        //printf("%s\n", *env);
         split_point = strchr(*env,'=');
-        env_var_val = _c2b(split_point+1,OVERRUN_LIMIT);
+
+        env_var_val = _c2b(this_bvm, split_point+1,OVERRUN_LIMIT);
         *split_point = 0;
-        env_var_name = _c2b(*env,OVERRUN_LIMIT);
+        env_var_name = _c2b(this_bvm, *env,OVERRUN_LIMIT);
 
        // hash_insert(env_hash, env_var_name, env_var_val);
-        _insha( env_hash,                         
+        _insha(this_bvm,  env_hash,                         
                 nil,                                
                 env_var_name,                           
-                new_hash_table_entry(  nil,         
+                new_hash_table_entry(this_bvm,   nil,         
                                         env_var_name,   
                                         env_var_val ) );
 
     }
 
-//    mword *path = _luha( get_tptr(env_hash), _hash8(C2B("PATH")) );
+//    mword *path = _luha(this_bvm,  get_tptr(env_hash), _hash8(this_bvm, C2B("PATH")) );
 
-//mword *_luha(mword *hash_table, mword *hash){ // _luha#
+//mword *_luha(this_bvm, mword *hash_table, mword *hash){ // _luha#
 //    _dump(path);
 
 //    printf("%s\n", (char*)path);
@@ -90,9 +90,9 @@ void gen_time_string(bvm_cache *this_bvm){
     char time_string[MAX_TIME_STRING_LENGTH];
     time( &rawtime );    
     strcpy( time_string, ctime(&rawtime) );
-    //return _c2b(time_string, MAX_TIME_STRING_LENGTH);
+    //return _c2b(this_bvm, time_string, MAX_TIME_STRING_LENGTH);
 
-    set_sym( this_bvm, "epoch", _c2b(time_string, MAX_TIME_STRING_LENGTH) );
+    set_sym( this_bvm, "epoch", _c2b(this_bvm, time_string, MAX_TIME_STRING_LENGTH) );
 
 }
 
@@ -103,10 +103,10 @@ void init_srand(bvm_cache *this_bvm){
 
     // FIXME: strlen... get rid
     // This needs to be enhanced to look for existing srand...
-    //mword *time_hash;// = new_hash();
-    mword *hash_init = new_hash();
+    //mword *time_hash;// = new_hash(this_bvm);
+    mword *hash_init = new_hash(this_bvm);
     mword *epoch = get_sym( this_bvm, "epoch" );
-    mword *time_hash = _pearson16( hash_init, epoch, _arlen8(epoch) );
+    mword *time_hash = _pearson16(this_bvm,  hash_init, epoch, _arlen8(this_bvm, epoch) );
     init_by_array( time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
     set_sym( this_bvm, "srand", time_hash );
@@ -125,12 +125,12 @@ void init_argv(bvm_cache *this_bvm, int argc, char **argv){
     #define NUM_BABEL_INTERP_ARGS 1 
     if(argc > NUM_BABEL_INTERP_ARGS){
 
-        temp_argv = _new2in(this_bvm, argc-NUM_BABEL_INTERP_ARGS);
+        temp_argv = _newin(this_bvm, argc-NUM_BABEL_INTERP_ARGS);
 
         int i;
         for( i = NUM_BABEL_INTERP_ARGS; i < argc; i++ ){
             (mword*)c((mword*)temp_argv, i-NUM_BABEL_INTERP_ARGS)
-                = _c2b(argv[i], 100);
+                = _c2b(this_bvm, argv[i], 100);
         }
 
     }
@@ -145,13 +145,13 @@ void init_argv(bvm_cache *this_bvm, int argc, char **argv){
 //
 bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){ // interp_init#
 
-    init_nil();    //initialize nil (global constant)
-    mc_init();
+    mc_init(this_bvm);
+    init_nil(this_bvm);    //initialize nil (global constant)
 
 //    mword *load_bbl = malloc(MWORDS(BBL_SIZE));
 //    memcpy(load_bbl, bbl, MWORDS(BBL_SIZE));
 
-    mword *load_bbl = mc_alloc(MWORDS(BBL_SIZE));
+    mword *load_bbl = mc_alloc(this_bvm, MWORDS(BBL_SIZE));
     memcpy(load_bbl, bbl, MWORDS(BBL_SIZE));
 
 //    int i;
@@ -162,7 +162,7 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
 //
 //    die;
 
-    this_bvm->self = _load((mword*)load_bbl,BBL_SIZE);
+    this_bvm->self = _load(this_bvm, (mword*)load_bbl,BBL_SIZE);
 //    die;
 //
 //    int i;
@@ -175,19 +175,19 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
 
     this_bvm->sym_table = (mword*)bvm_sym_table(this_bvm->self);
 
-    capture_env(this_bvm, envp);
+    capture_env(this_bvm, envp); // FIXME: DIES HERE 1/28/14
 
     gen_time_string(this_bvm);
 
-    empty_string = _new2lfi(this_bvm, 1,0);
+    empty_string = _newlfi(this_bvm, 1,0);
 
     init_srand(this_bvm);
 
     init_argv(this_bvm, argc, argv);
 
-    mword *jump_table    = init_interp_jump_table();
+    mword *jump_table    = init_interp_jump_table(this_bvm);
 
-    //this_bvm->mem = mc_init();
+    //this_bvm->mem = mc_init(this_bvm);
 
 //    mword *z = this_bvm->mem->primary->base_ptr;
 //    z[(MEM_SIZE>>1)-1] = 0xbabeface;
@@ -197,9 +197,9 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
 //    *z = 0xbabeface;
 //    d(*z);
 
-    set_sym(this_bvm, "steps",          _new2va( this_bvm, (mword)-1) );
-    set_sym(this_bvm, "thread_id",      _new2va( this_bvm, 0) );
-    set_sym(this_bvm, "advance_type",   _new2va( this_bvm, (mword)BVM_ADVANCE) );
+    set_sym(this_bvm, "steps",          _newva( this_bvm, (mword)-1) );
+    set_sym(this_bvm, "thread_id",      _newva( this_bvm, 0) );
+    set_sym(this_bvm, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
     set_sym(this_bvm, "soft_root",      nil );
     set_sym(this_bvm, "jump_table",     jump_table );
 
@@ -238,7 +238,7 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
 
 
 //
-mword *init_interp_jump_table(void){
+mword *init_interp_jump_table(bvm_cache *this_bvm){
 
     #include "fixed_opcodes.h"
 
@@ -247,7 +247,7 @@ mword *init_interp_jump_table(void){
 
     #define num_opcodes (sizeof(interp_fixed_opcodes)/sizeof(babel_op))
 
-    mword *temp = malloc(MWORDS(num_opcodes+1));
+    mword *temp = malloc(MWORDS(num_opcodes+1)); //XXX WAIVER XXX
     temp[0] = num_opcodes * MWORD_SIZE;
     temp++;
 
@@ -258,7 +258,7 @@ mword *init_interp_jump_table(void){
 
     return temp;
 
-//    this_bvm->jump_table = _newlf(num_opcodes);
+//    this_bvm->jump_table = _newlf(this_bvm, num_opcodes);
 //
 //    int i;
 //    for(i=0;i<num_opcodes;i++){

@@ -12,8 +12,8 @@
 #define bvm_jump_table(x)   car(icar(icdr(cdr(x)))) // bvm_jump_table#
 #define bvm_sym_table(x)    (mword*)get_tptr((mword*)icar(icdr(icdr(cdr(x))))) // bvm_sym_table#
 
-#define eval_return(x) _ith((mword*)icar(x),0) // eval_return#
-#define eval_type(x)   _ith((mword*)icar(x),1) // eval_type#
+#define eval_return(x) _ith(this_bvm, (mword*)icar(x),0) // eval_return#
+#define eval_type(x)   _ith(this_bvm, (mword*)icar(x),1) // eval_type#
 
 void bbl2gv(mword *tree);
 mword tree_bbl2gv(mword *tree);
@@ -31,15 +31,15 @@ bvm_cache *exec(bvm_cache *this_bvm);
 bvm_cache *bvmrstack(bvm_cache *this_bvm);
 bvm_cache *bvmsym(bvm_cache *this_bvm);
 bvm_cache *hibernate(bvm_cache *this_bvm);
-mword *_bvm_init(mword *bvm_to_load);
+mword *_bvm_init(bvm_cache *this_bvm, mword *bvm_to_load);
 bvm_cache *bvm_step(bvm_cache *this_bvm);
 
 //#include "list.h"
 //
 //void bvmexec(void);
 //void _bvmexec(mword *bvm);
-////void _bvm_init(mword *bvm);
-//void _bvm_init(mword *bvm, int argc, char **argv);
+////void _bvm_init(this_bvm, mword *bvm);
+//void _bvm_init(this_bvm, mword *bvm, int argc, char **argv);
 //void bvm_init(mword *bvm);
 //void bvm_check(void);
 //void bvm_interp(void);

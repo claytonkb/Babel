@@ -57,7 +57,7 @@
 bvm_cache *sfield(bvm_cache *this_bvm){ // sfield#
 
 #define babel_sfield_operator \
-    result = _new2va( this_bvm,  s( op0 ) );
+    result = _newva( this_bvm,  s( op0 ) );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -75,7 +75,7 @@ bvm_cache *sfield(bvm_cache *this_bvm){ // sfield#
 bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 
 #define babel_arlen_operator \
-    result = _new2va( this_bvm,  size( op0 ) );
+    result = _newva( this_bvm,  size( op0 ) );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -93,7 +93,7 @@ bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 bvm_cache *islf(bvm_cache *this_bvm){ // islf#
 
 #define babel_islf_operator \
-    result = _new2va( this_bvm,  is_leaf( op0 ) );
+    result = _newva( this_bvm,  is_leaf( op0 ) );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -110,7 +110,7 @@ bvm_cache *islf(bvm_cache *this_bvm){ // islf#
 bvm_cache *isinte(bvm_cache *this_bvm){ // isinte#
 
 #define babel_isinte_operator \
-    result = _new2va( this_bvm,  is_inte( op0 ) );
+    result = _newva( this_bvm,  is_inte( op0 ) );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -120,18 +120,10 @@ bvm_cache *isinte(bvm_cache *this_bvm){ // isinte#
 
 // creates a new leaf-array of given size
 //
-mword *_newlf(mword size){ // _newlf#
+mword *_newlf(bvm_cache *this_bvm, mword size){ // _newlf#
 
-    //mword *ptr = malloc( MWORDS(size+1) );
-    mword *ptr = mc_alloc(  MWORDS(size) );
+    mword *ptr = mc_alloc(this_bvm,   MWORDS(size) );
 
-//    if(ptr == NULL){
-//        error("_newlf: malloc returned NULL");
-//    }
-
-    //ptr[0] = size * MWORD_SIZE;
-
-    //return ptr+1;
     return ptr;
 
 }
@@ -139,17 +131,11 @@ mword *_newlf(mword size){ // _newlf#
 
 // same as _newlf but with mem initialization (byte-wise)
 //
-mword *_newlfi(mword size, mword init){ // _newlfi#
+mword *_newlfi(bvm_cache *this_bvm, mword size, mword init){ // _newlfi#
 
-    //mword *ptr = malloc( MWORDS(size+1) );
-    mword *ptr = mc_alloc( MWORDS(size) );
-
-//    if(ptr == NULL){
-//        error("_newlfi: malloc returned NULL");
-//    }
+    mword *ptr = mc_alloc(this_bvm,  MWORDS(size) );
 
     memset((char*)ptr,init,MWORDS(size));
-    //ptr[0] = size * MWORD_SIZE;
 
     return ptr;
 
@@ -159,20 +145,9 @@ mword *_newlfi(mword size, mword init){ // _newlfi#
 // Accepts a data value and returns a leaf-array
 // of size 1 containing that data value
 //
-mword *_newva(mword value){ // _newva#
+mword *_newva(bvm_cache *this_bvm, mword value){ // _newva#
 
-//    mword *ptr = malloc( MWORDS(1) );
-//
-//    if(ptr == NULL){
-//        error("_newva: malloc returned NULL");
-//    }
-
-    mword *ptr = mc_alloc(MWORDS(1));
-
-    //ptr[0] = MWORD_SIZE;
-    //ptr[1] = value;
-
-    //return ptr+1;
+    mword *ptr = mc_alloc(this_bvm, MWORDS(1));
 
     c(ptr,0) = value;
     return ptr;
@@ -182,56 +157,48 @@ mword *_newva(mword value){ // _newva#
 
 //
 //
-mword *_newin(mword size){ // _newin#
+mword *_newin(bvm_cache *this_bvm, mword size){ // _newin#
 
-//    mword *ptr = malloc( MWORDS(size+1) );
-    mword *ptr = mc_alloc( -1*MWORDS(size) );
-
-//    if(ptr == NULL){
-//        error("_newin: malloc returned NULL");
-//    }
-//
-//    ptr[0] = -1 * size * MWORD_SIZE;
+    mword *ptr = mc_alloc(this_bvm,  -1*MWORDS(size) );
 
     int i;
     for(i = 0; i<size; i++){ // All pointers must be valid - initialize to nil
         ptr[i] = (mword)nil;
     }
 
-    //return ptr+1;
     return ptr;
 
 }
 
 
+////
+//mword *_newtptr(bvm_cache *this_bvm){ // _newtptr# XXX DEPRECATE
 //
-mword *_newtptr(void){ // _newtptr# XXX DEPRECATE
-
-    //mword *ptr = malloc( MWORDS( TPTR_SIZE ) );
-    mword *ptr = mc_alloc( 0 );
-
-//    if(ptr == NULL){
-//        error("_newtptr: malloc returned NULL");
+//    mword *ptr = mc_alloc(this_bvm,  0 );
+//trace;
+//    int i;
+//    for(i=0;i<HASH_SIZE;i++){
+//        ptr[i] = 0xdeadbeef;
 //    }
-
-    //FIXME: 32-bit specific and UGLY
-    //ptr[0] = 0;
-    ptr[0] = 0xdeadbeef;
-    ptr[1] = 0xdeadbeef;
-    ptr[2] = 0xdeadbeef;
-    ptr[3] = 0xdeadbeef;
-    ptr[4] = (mword)(-1*MWORD_SIZE);
-    ptr[5] = (mword)nil;
-//    ptr[7] = (mword)nil;
-
-    //return ptr+1;
-    return ptr;
-
-}
+//
+//    ptr[HASH_SIZE  ] = (mword)(-1*MWORD_SIZE);
+//    ptr[HASH_SIZE+1] = (mword)nil;
+//
+//    //FIXME: 32-bit specific and UGLY
+////    ptr[0] = 0xdeadbeef;
+////    ptr[1] = 0xdeadbeef;
+////    ptr[2] = 0xdeadbeef;
+////    ptr[3] = 0xdeadbeef;
+////    ptr[4] = (mword)(-1*MWORD_SIZE);
+////    ptr[5] = (mword)nil;
+//
+//    return ptr;
+//
+//}
 
 // indexes a leaf-array and creates a leaf-array to hold its result
 //
-inline mword* val(mword *leaf, mword index){ // val#
+inline mword* val(bvm_cache *this_bvm, mword *leaf, mword index){ // val#
 
     mword *temp = new_atom;
     c(temp,0) = c(leaf,index);
@@ -269,10 +236,10 @@ bvm_cache *slice(bvm_cache *this_bvm){
     else{
 
         if(is_leaf(array)){
-            result = _new2lf(this_bvm, (mword)(end-start));
+            result = _newlf(this_bvm, (mword)(end-start));
         }
         else{
-            result = _new2in(this_bvm, end-start);
+            result = _newin(this_bvm, end-start);
         }
 
         mword i,j;
@@ -294,7 +261,7 @@ bvm_cache *slice(bvm_cache *this_bvm){
 
 //
 //
-mword _cxr1(mword *val, mword bit){ // _cxr1#
+mword _cxr1(bvm_cache *this_bvm, mword *val, mword bit){ // _cxr1#
 
     mword mword_select = bit/(MWORD_BIT_SIZE);
     mword bit_offset = bit % MWORD_BIT_SIZE;
@@ -329,7 +296,7 @@ bvm_cache *th(bvm_cache *this_bvm){ // th#
 mword *_th(bvm_cache *this_bvm, mword *bs, mword entry){ // _th#
 
     if(is_leaf(bs)){
-        return _new2va(this_bvm, c(bs,entry%size(bs))); 
+        return _newva(this_bvm, c(bs,entry%size(bs))); 
     }
     
     //we are assuming that we never get a tptr...
@@ -383,12 +350,12 @@ bvm_cache *cut(bvm_cache *this_bvm){ // cut#
         mword num_entries = size(src);
 
         if(is_leaf(src)){
-            result_pre  = _new2lf(this_bvm, cut_point);
-            result_post = _new2lf(this_bvm, num_entries-cut_point);
+            result_pre  = _newlf(this_bvm, cut_point);
+            result_post = _newlf(this_bvm, num_entries-cut_point);
         }
         else{
-            result_pre = _new2in(this_bvm, cut_point);
-            result_post = _new2in(this_bvm, num_entries-cut_point);
+            result_pre = _newin(this_bvm, cut_point);
+            result_post = _newin(this_bvm, num_entries-cut_point);
         }
 
         //TODO: memcpy!
@@ -425,7 +392,7 @@ bvm_cache *cut(bvm_cache *this_bvm){ // cut#
 bvm_cache *arlen8(bvm_cache *this_bvm){ // arlen8#
 
 #define babel_arlen8_operator \
-    result = _new2va( this_bvm,  _arlen8( op0 ) );
+    result = _newva( this_bvm,  _arlen8(this_bvm,  op0 ) );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -436,11 +403,11 @@ bvm_cache *arlen8(bvm_cache *this_bvm){ // arlen8#
 
 // 
 //
-mword _arlen8(mword *string){ // _arlen8#
+mword _arlen8(bvm_cache *this_bvm, mword *string){ // _arlen8#
 
     mword strsize = size(string) - 1;
     mword last_mword = c(string, strsize);
-    mword alignment = dec_alignment_word8(last_mword);
+    mword alignment = dec_alignment_word8(this_bvm, last_mword);
 
     if(last_mword){
         return  (strsize * MWORD_SIZE) - (MWORD_SIZE - alignment);
@@ -459,7 +426,7 @@ mword _arlen8(mword *string){ // _arlen8#
 */
 bvm_cache *newin(bvm_cache *this_bvm){
 
-    mword *result = _new2in(this_bvm, icar(dstack_get(this_bvm,0))); //FIXME: There is no checking...
+    mword *result = _newin(this_bvm, icar(dstack_get(this_bvm,0))); //FIXME: There is no checking...
 
     popd(this_bvm);
 
@@ -477,7 +444,7 @@ bvm_cache *newin(bvm_cache *this_bvm){
 */
 bvm_cache *newlf(bvm_cache *this_bvm){
 
-    mword *result = _new2lf(this_bvm, (mword)car(dstack_get(this_bvm,0))); //FIXME: There is no checking...
+    mword *result = _newlf(this_bvm, (mword)car(dstack_get(this_bvm,0))); //FIXME: There is no checking...
     popd(this_bvm);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -500,7 +467,7 @@ bvm_cache *trunc(bvm_cache *this_bvm){
         error("trunc: cannot truncate to larger size");
     }
 
-    _trunc(TOS_1(this_bvm), (mword)car(TOS_0(this_bvm)));
+    _trunc(this_bvm, TOS_1(this_bvm), (mword)car(TOS_0(this_bvm)));
 
     zap(this_bvm);
 
@@ -511,7 +478,7 @@ bvm_cache *trunc(bvm_cache *this_bvm){
 
 //
 //
-void _trunc(mword *operand, mword new_size){
+void _trunc(bvm_cache *this_bvm, mword *operand, mword new_size){
 
     if(is_leaf(operand)){
         s(operand) = (new_size*MWORD_SIZE);
@@ -526,7 +493,7 @@ void _trunc(mword *operand, mword new_size){
 
 //Returns an alignment word based on size8
 //
-mword alignment_word8(mword size8){
+mword alignment_word8(bvm_cache *this_bvm, mword size8){
 
     if(size8 % MWORD_SIZE == 0)
         return 0;
@@ -540,7 +507,7 @@ mword alignment_word8(mword size8){
 
 // Decodes the alignment word
 //
-mword dec_alignment_word8(mword alignment_word){
+mword dec_alignment_word8(bvm_cache *this_bvm, mword alignment_word){
 
     if(alignment_word == 0){
         return 0;
@@ -577,10 +544,10 @@ bvm_cache *arcat(bvm_cache *this_bvm){
     mword size_right = size(right);
 
     if      ( is_leaf(right)  &&  is_leaf(left) ){
-        result = _new2lf(this_bvm,  size_left + size_right );
+        result = _newlf(this_bvm,  size_left + size_right );
     }
     else if ( is_inte(right)  &&  is_inte(left) ){
-        result = _new2in(this_bvm,  size_left + size_right );
+        result = _newin(this_bvm,  size_left + size_right );
     }
     else{ //FIXME: Throw an exception
         fatal("arcat: cannot concatenate leaf array and interior array");
@@ -611,7 +578,7 @@ bvm_cache *arcat(bvm_cache *this_bvm){
 
 }
 
-mword array8_size(mword size8){ // array8_size#
+mword array8_size(bvm_cache *this_bvm, mword size8){ // array8_size#
 
     mword size = size8 / MWORD_SIZE;
 
@@ -638,17 +605,17 @@ bvm_cache *arcat8(bvm_cache *this_bvm){ // arcat8#
     popd(this_bvm);
     popd(this_bvm);
 
-    mword size_left  = _arlen8(left);
-    mword size_right = _arlen8(right);
+    mword size_left  = _arlen8(this_bvm, left);
+    mword size_right = _arlen8(this_bvm, right);
     mword total_size = size_left + size_right;
-    mword array8_total_size = array8_size(total_size);
+    mword array8_total_size = array8_size(this_bvm, total_size);
 
 //    d(size_left);
 //    d(size_right);
-//    d(array8_size(total_size));
+//    d(array8_size(this_bvm, total_size));
 
     if      ( is_leaf(right)  &&  is_leaf(left) ){
-        result = (char*)_new2lf(this_bvm,  array8_total_size );
+        result = (char*)_newlf(this_bvm,  array8_total_size );
     }
     else{ //FIXME: Throw an exception
         fatal("arcat8: cannot concatenate interior array");
@@ -674,7 +641,7 @@ bvm_cache *arcat8(bvm_cache *this_bvm){ // arcat8#
 
     }
 
-    c((mword*)result,array8_total_size-1) = alignment_word8(total_size);
+    c((mword*)result,array8_total_size-1) = alignment_word8(this_bvm, total_size);
 
     pushd(this_bvm, (mword*)result, IMMORTAL);
 
@@ -696,7 +663,7 @@ bvm_cache *slice8(bvm_cache *this_bvm){
 
     char *result;
     if(is_leaf(TOS_2(this_bvm))){
-        result = (char*)_new2lf(this_bvm, array8_size(size8));
+        result = (char*)_newlf(this_bvm, array8_size(this_bvm, size8));
     }
     else{
         error("slice8: cannot slice8 a non-leaf array");
@@ -712,7 +679,7 @@ bvm_cache *slice8(bvm_cache *this_bvm){
 
     }    
 
-    c((mword*)result,array8_size(size8)-1) = alignment_word8(size8);
+    c((mword*)result,array8_size(this_bvm, size8)-1) = alignment_word8(this_bvm, size8);
 
     zap(this_bvm);
     zap(this_bvm);
@@ -732,7 +699,7 @@ bvm_cache *slice8(bvm_cache *this_bvm){
 */
 bvm_cache *arcmp(bvm_cache *this_bvm){ // arcmp#
 
-    mword *result = _new2va( this_bvm, 1);//    = new_atom;
+    mword *result = _newva( this_bvm, 1);//    = new_atom;
 
     mword *left = dstack_get(this_bvm,1);
     mword *right = dstack_get(this_bvm,0);
@@ -741,12 +708,12 @@ bvm_cache *arcmp(bvm_cache *this_bvm){ // arcmp#
     popd(this_bvm);
 
     if(is_leaf(left) && is_leaf(right)){
-        *result = (mword)_arcmp(left, right);
+        *result = (mword)_arcmp(this_bvm, left, right);
     }
     else if(is_inte(left) && is_inte(right)){
-        mword *unloaded_left  = _unload(left);
-        mword *unloaded_right = _unload(right);
-        *result = (mword)_arcmp(unloaded_left, unloaded_right);
+        mword *unloaded_left  = _unload(this_bvm, left);
+        mword *unloaded_right = _unload(this_bvm, right);
+        *result = (mword)_arcmp(this_bvm, unloaded_left, unloaded_right);
     }
     else{
         error("Non-matching operands");
@@ -761,7 +728,7 @@ bvm_cache *arcmp(bvm_cache *this_bvm){ // arcmp#
 
 //
 //
-int _arcmp(mword *left, mword *right){ // _arcmp#
+int _arcmp(bvm_cache *this_bvm, mword *left, mword *right){ // _arcmp#
 
     if(size(left) > size(right)){
         return 1;
@@ -807,14 +774,14 @@ mword *_ar2ls(bvm_cache *this_bvm, mword *arr){ // _ar2ls#
 
     if(is_inte(arr)){
         for(i=size(arr)-1;i>=0;i--){
-            last_cons = _consls((mword*)c(arr,i),last_cons);
+            last_cons = _consls(this_bvm, (mword*)c(arr,i),last_cons);
         }
     }
     else{
         for(i=size(arr)-1;i>=0;i--){
-            entry = _new2lf(this_bvm, 1);
+            entry = _newlf(this_bvm, 1);
             *entry = c(arr,i);
-            last_cons = _consls(entry,last_cons);
+            last_cons = _consls(this_bvm, entry,last_cons);
         }
     }
 
@@ -843,16 +810,16 @@ bvm_cache *perm(bvm_cache *this_bvm){ // perm#
     popd(this_bvm);
 
     if(is_inte(src_array)){
-        result = _new2in(this_bvm, size(src_array));
+        result = _newin(this_bvm, size(src_array));
     }
     else if(is_leaf(src_array)){
-        result = _new2lf(this_bvm, size(src_array));
+        result = _newlf(this_bvm, size(src_array));
     }
     else{ // FIXME: Throw exception
         fatal("perm: !is_leaf && !is_inte");
     }
 
-    _perm(src_array, result, perm_matrix);
+    _perm(this_bvm, src_array, result, perm_matrix);
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -863,7 +830,7 @@ bvm_cache *perm(bvm_cache *this_bvm){ // perm#
 
 //
 //
-void _perm(mword *src, mword *dest, mword *perm_matrix){ // _perm#
+void _perm(bvm_cache *this_bvm, mword *src, mword *dest, mword *perm_matrix){ // _perm#
 
     mword array_size = size(src);
 

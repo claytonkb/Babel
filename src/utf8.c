@@ -14,16 +14,6 @@
   Clayton Bauman: Some modifications have been made from Bezanson's original code
 */
 
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <string.h>
-//#include <stdarg.h>
-//#ifdef WIN32
-//#include <malloc.h>
-//#else
-//#include <malloc.h>
-//#endif
-
 #include "utf8.h"
 
 static const uint32_t offsetsFromUTF8[6] = {
@@ -85,11 +75,9 @@ int u8_toucs(uint32_t *dest, int sz, char *src, int srcsz)
         }
         ch -= offsetsFromUTF8[nb];
         dest[i++] = ch;
-//        printf("%04d %08x\n", i-1, (unsigned)dest[i-1]);
-    }
+}
  done_toucs:
     dest[i] = 0;
-//    printf("%04d %08x\n", i, (unsigned)dest[i]);
     return i;
 }
 
@@ -117,51 +105,33 @@ int u8_toutf8(char *dest, int sz, uint32_t *src, int srcsz)
         if (ch < 0x80) {
             if (dest >= dest_end)
                 return dest-dest_begin+1;
-//            printf("%04d ", i);
             *dest++ = (char)ch;
-//            printf("%02x\n", (unsigned char)*(dest-1));
         }
         else if (ch < 0x800) {
             if (dest >= dest_end-1)
-//                return i;
                 return dest-dest_begin+1;
-//            printf("%04d ", i);
             *dest++ = (ch>>6) | 0xC0;
-//            printf("%02x ", (unsigned char)*(dest-1));
             *dest++ = (ch & 0x3F) | 0x80;
-//            printf("%02x\n", (unsigned char)*(dest-1));
         }
         else if (ch < 0x10000) {
             if (dest >= dest_end-2)
-//                return i;
                 return dest-dest_begin+1;
-//            printf("%04d ", i);
             *dest++ = (ch>>12) | 0xE0;
-//            printf("%02x ", (unsigned char)*(dest-1));
             *dest++ = ((ch>>6) & 0x3F) | 0x80;
-//            printf("%02x ", (unsigned char)*(dest-1));
             *dest++ = (ch & 0x3F) | 0x80;
-//            printf("%02x\n", (unsigned char)*(dest-1));
         }
         else if (ch < 0x110000) {
             if (dest >= dest_end-3)
-//                return i;
                 return dest-dest_begin+1;
-//            printf("%04d ", i);
             *dest++ = (ch>>18) | 0xF0;
-//            printf("%02x ", (unsigned char)*(dest-1));
             *dest++ = ((ch>>12) & 0x3F) | 0x80;
-//            printf("%02x ", (unsigned char)*(dest-1));
             *dest++ = ((ch>>6) & 0x3F) | 0x80;
-//            printf("%02x ", (unsigned char)*(dest-1));
             *dest++ = (ch & 0x3F) | 0x80;
-//            printf("%02x\n", (unsigned char)*(dest-1));
         }
         i++;
     }
     if (dest < dest_end)
         *dest = '\0';
-//    return i;
     return dest-dest_begin+1; // size in bytes of UTF-8 string
 }
 

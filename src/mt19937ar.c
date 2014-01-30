@@ -171,7 +171,7 @@ unsigned long genrand_int32(void)
 //} 
 ///* These real versions are due to Isaku Wada, 2002/01/09 added */
 //
-//int main(void)
+//int main(this_bvm, void)
 //{
 //    int i;
 //    unsigned long init[4]={0x123, 0x234, 0x345, 0x456}, length=4;

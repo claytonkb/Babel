@@ -4,19 +4,19 @@
 #define PEARSON16_H
 
 //char *pearson16_byte_perm;
-mword *new_hash(void);
+mword *new_hash(bvm_cache *this_bvm);
 //void pearson16_init(void);
 extern const char pearson16_byte_perm[4096];
 
 bvm_cache *hash8(bvm_cache *this_bvm);
-mword *_hash8(mword *key);
+mword *_hash8(bvm_cache *this_bvm, mword *key);
 
 //void phash8(void);
 //void phash(void);
 //void hash8(void);
 //void hash(void);
-////mword *_pearson16(mword* sinit, mword *skey);
-mword *_pearson16(mword* sinit, mword *skey, mword strlen);
+////mword *_pearson16(this_bvm, mword* sinit, mword *skey);
+mword *_pearson16(bvm_cache *this_bvm, mword* sinit, mword *skey, mword strlen);
 
 //FIXME: 32-bit specific:
 //#define HASH_SIZE 4

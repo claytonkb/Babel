@@ -4,16 +4,16 @@
 #ifndef STACK_H
 #define STACK_H
 
-void free_lumbar(mword *stack_entry);
+void free_lumbar(bvm_cache *this_bvm, mword *stack_entry);
 
-mword *new_dstack_entry(mword *operand, mword alloc_type);
+mword *new_dstack_entry(bvm_cache *this_bvm, mword *operand, mword alloc_type);
 
 //mword *new_dstack_entry2(mword *operand, mword *alloc_type);
 mword *new_dstack_entry2(bvm_cache *this_bvm, mword *operand, mword *alloc_type);
 
-void push_udr_stack(mword *stack_ptr, mword *stack_entry);
-mword *pop_udr_stack(mword *stack_ptr);
-mword *new_rstack_entry(mword *operand, mword *eval_type);
+void push_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword *stack_entry);
+mword *pop_udr_stack(bvm_cache *this_bvm, mword *stack_ptr);
+mword *new_rstack_entry(bvm_cache *this_bvm, mword *operand, mword *eval_type);
 inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
 inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index, mword *bs);
 inline mword *zap_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
@@ -21,7 +21,7 @@ mword *remove_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_
 mword *get_tag_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
 //inline mword *get_from_rstack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index);
 bvm_cache *nest(bvm_cache *this_bvm);
-void zap_udr_stack(mword *stack_ptr);
+void zap_udr_stack(bvm_cache *this_bvm, mword *stack_ptr);
 
 bvm_cache *hard_zap     (bvm_cache *this_bvm);
 bvm_cache *swap         (bvm_cache *this_bvm);

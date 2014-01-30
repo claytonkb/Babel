@@ -17,7 +17,7 @@
 
 //FIXME: Lots of bad things in here...
 //
-mword *_slurp(mword *filename){ // _slurp#
+mword *_slurp(bvm_cache *this_bvm, mword *filename){ // _slurp#
 
     long   size;
     FILE*  file;
@@ -25,7 +25,7 @@ mword *_slurp(mword *filename){ // _slurp#
     size_t result;
     long   file_mword_size;
 
-    file = fopen ( (char*)_b2c(filename) , "rb" );
+    file = fopen ( (char*)_b2c(this_bvm, filename) , "rb" );
 //    file = fopen(filename , "rb");
 
     if (file==NULL) {
@@ -47,16 +47,12 @@ mword *_slurp(mword *filename){ // _slurp#
 
     file_mword_size++; //for the alignment_word
 
-    last_mword = alignment_word8(size);
+    last_mword = alignment_word8(this_bvm, size);
 
-    buffer = _newlf(file_mword_size);
+    buffer = _newlf(this_bvm, file_mword_size);
 
-    if (buffer == NULL) {
-        error("_slurp: malloc returned NULL");
-    }
-
-    if ((mword)buffer & (MWORD_SIZE-1)) {
-        error("_slurp: expected memory to be MWORD_SIZE aligned");
+    if ((mword)buffer & (MWORD_SIZE-1)) { //FIXME: This shouldn't be here...
+        error("expected memory to be MWORD_SIZE aligned");
     }
 
     // copy the file into the buffer:
@@ -87,8 +83,8 @@ mword *_slurp(mword *filename){ // _slurp#
 */
 bvm_cache *slurp(bvm_cache *this_bvm){ // slurp#
 
-    mword *filename = _b2c(dstack_get(this_bvm,0));
-    mword *result   = _slurp(filename);
+    mword *filename = _b2c(this_bvm, dstack_get(this_bvm,0));
+    mword *result   = _slurp(this_bvm, filename);
 
     popd(this_bvm);
 
@@ -109,12 +105,12 @@ bvm_cache *slurp(bvm_cache *this_bvm){ // slurp#
 */
 bvm_cache *slurp_mword(bvm_cache *this_bvm){ // slurp_mword
 
-    mword *filename = _b2c(dstack_get(this_bvm,0));
+    mword *filename = _b2c(this_bvm, dstack_get(this_bvm,0));
     popd(this_bvm);
 
-    mword *result   = _slurp(filename);
+    mword *result   = _slurp(this_bvm, filename);
 
-    _trunc(result, size(result)-1);
+    _trunc(this_bvm, result, size(result)-1);
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -177,7 +173,7 @@ bvm_cache *cprints(bvm_cache *this_bvm){ // cprints#
 */
 bvm_cache *spit(bvm_cache *this_bvm){ // spit#
 
-    _spit((char*)dstack_get(this_bvm,0), dstack_get(this_bvm,1));
+    _spit(this_bvm, (char*)dstack_get(this_bvm,0), dstack_get(this_bvm,1));
     popd(this_bvm);
     popd(this_bvm);
 
@@ -188,11 +184,11 @@ bvm_cache *spit(bvm_cache *this_bvm){ // spit#
 
 //
 //
-void _spit(char *filename, mword *fileout){ // _spit#
+void _spit(bvm_cache *this_bvm, char *filename, mword *fileout){ // _spit#
 
     FILE * pFile;
 
-    mword filesize   = _arlen8(fileout);
+    mword filesize   = _arlen8(this_bvm, fileout);
 
     pFile = fopen(filename , "wb");
 
@@ -218,8 +214,8 @@ void _spit(char *filename, mword *fileout){ // _spit#
 */
 bvm_cache *journal(bvm_cache *this_bvm){ // journal8#
 
-    mword *filename = _b2c(dstack_get(this_bvm,0));
-    _journal((char*)filename, dstack_get(this_bvm,1));
+    mword *filename = _b2c(this_bvm, dstack_get(this_bvm,0));
+    _journal(this_bvm, (char*)filename, dstack_get(this_bvm,1));
     popd(this_bvm);
     popd(this_bvm);
 
@@ -230,11 +226,11 @@ bvm_cache *journal(bvm_cache *this_bvm){ // journal8#
 
 //
 //
-void _journal(char *filename, mword *fileout){ // _journal
+void _journal(bvm_cache *this_bvm, char *filename, mword *fileout){ // _journal
 
     FILE * pFile;
 
-    mword filesize   = _arlen8(fileout);
+    mword filesize   = _arlen8(this_bvm, fileout);
 
     pFile = fopen(filename , "ab"); //First try
 
@@ -266,7 +262,7 @@ void _journal(char *filename, mword *fileout){ // _journal
 */
 bvm_cache *spit_mword(bvm_cache *this_bvm){ // spit_mword
 
-    _spit_mword((char*)dstack_get(this_bvm,0), dstack_get(this_bvm,1));
+    _spit_mword(this_bvm, (char*)dstack_get(this_bvm,0), dstack_get(this_bvm,1));
     popd(this_bvm);
     popd(this_bvm);
 
@@ -277,7 +273,7 @@ bvm_cache *spit_mword(bvm_cache *this_bvm){ // spit_mword
 
 //
 //
-void _spit_mword(char *filename, mword *fileout){ // _spit_mword#
+void _spit_mword(bvm_cache *this_bvm, char *filename, mword *fileout){ // _spit_mword#
 
     FILE * pFile;
 
@@ -302,7 +298,7 @@ void _spit_mword(char *filename, mword *fileout){ // _spit_mword#
 
 //bvm_cache *spit_mword(bvm_cache *this_bvm){ // spit_mword
 //
-//    char *filename = (char*)_b2c(dstack_get(this_bvm,0));
+//    char *filename = (char*)_b2c(this_bvm, dstack_get(this_bvm,0));
 //
 //    FILE * pFile;
 //
@@ -379,11 +375,11 @@ bvm_cache *stdinln(bvm_cache *this_bvm){ // stdinln#
         arlength++;
     }
 
-    mword *result = _newlf(arlength);
+    mword *result = _newlf(this_bvm, arlength);
     memcpy(result, buffer, i);
     free(buffer);
 
-    c(result,arlength-1) = alignment_word8(i);
+    c(result,arlength-1) = alignment_word8(this_bvm, i);
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -400,7 +396,7 @@ bvm_cache *stdinln(bvm_cache *this_bvm){ // stdinln#
 */
 bvm_cache *stdoutop8(bvm_cache *this_bvm){ // stdoutop8#
 
-    _stdoutop8(dstack_get(this_bvm,0));
+    _stdoutop8(this_bvm, dstack_get(this_bvm,0));
 
     popd(this_bvm);
 
@@ -414,10 +410,10 @@ bvm_cache *stdoutop8(bvm_cache *this_bvm){ // stdoutop8#
 > Prints an array8 to STDOUT in UTF-8 encoding   
 > `{"string"}| -> |`  
 */
-void _stdoutop8(mword *string){ // _stdoutop8#
+void _stdoutop8(bvm_cache *this_bvm, mword *string){ // _stdoutop8#
 
     int i;
-    mword length = _arlen8(string);
+    mword length = _arlen8(this_bvm, string);
 
     char *cast_string = (char*)string;
 

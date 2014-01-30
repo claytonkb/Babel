@@ -22,7 +22,7 @@ bvm_cache *insls(bvm_cache *this_bvm){ // insls#
     mword *dest_list = dstack_get(this_bvm,1); // XXX: User-dependent
     popd(this_bvm);
 
-    mword *end_src_list   = _list_end(src_list);
+    mword *end_src_list   = _list_end(this_bvm, src_list);
     mword *next_dest_list = (mword*)icdr(dest_list);
 
     (mword*)c(dest_list,1) = src_list;
@@ -35,10 +35,10 @@ bvm_cache *insls(bvm_cache *this_bvm){ // insls#
 
 //
 //
-inline mword *_unshift(mword *list, mword *bs){ // _unshift#
+inline mword *_unshift(bvm_cache *this_bvm, mword *list, mword *bs){ // _unshift#
 
-    mword *endls = _list_end(list);
-    (mword*)c(endls,1) = consa( bs, nil );
+    mword *endls = _list_end(this_bvm, list);
+    (mword*)c(endls,1) = consa(this_bvm,  bs, nil );
 
     return list;
 
@@ -47,11 +47,11 @@ inline mword *_unshift(mword *list, mword *bs){ // _unshift#
 
 //
 //
-inline mword *_shift(mword *list){ // _shift#
+inline mword *_shift(bvm_cache *this_bvm, mword *list){ // _shift#
 
     if(is_nil(list)) return nil;
 
-    mword *endls = _list_next_to_end(list);
+    mword *endls = _list_next_to_end(this_bvm, list);
 
     if(is_nil(endls)) return nil;
 
@@ -65,16 +65,16 @@ inline mword *_shift(mword *list){ // _shift#
 
 //
 //
-inline mword *_push(mword *list, mword *bs){ // _push#
+inline mword *_push(bvm_cache *this_bvm, mword *list, mword *bs){ // _push#
 
-    return consa( bs, list );
+    return consa(this_bvm,  bs, list );
 
 }
 
 
 // FIXME: icar doesn't work with tptrs...
 //
-inline mword *_pop(mword *list){ // _pop#
+inline mword *_pop(bvm_cache *this_bvm, mword *list){ // _pop#
 
     if(is_nil(list)) return nil;
 
@@ -146,7 +146,7 @@ bvm_cache *cdrindex(bvm_cache *this_bvm){ // cdrindex#
 */
 bvm_cache *isnil(bvm_cache *this_bvm){ // isnil#
 
-    mword *result = _new2va( this_bvm, is_nil(dstack_get(this_bvm,0)));
+    mword *result = _newva( this_bvm, is_nil(dstack_get(this_bvm,0)));
     popd(this_bvm);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -167,7 +167,7 @@ bvm_cache *isnil(bvm_cache *this_bvm){ // isnil#
 */
 bvm_cache *consls(bvm_cache *this_bvm){ // consls#
 
-    mword *result = consa2( this_bvm,
+    mword *result = consa( this_bvm,
                         dstack_get(this_bvm,1),
                         dstack_get(this_bvm,0));
     popd(this_bvm);
@@ -181,7 +181,7 @@ bvm_cache *consls(bvm_cache *this_bvm){ // consls#
 
 //
 //
-mword *_consls(mword *car_field, mword *cdr_field){ // XXX DEPRECATE
+mword *_consls(bvm_cache *this_bvm, mword *car_field, mword *cdr_field){ // XXX DEPRECATE
 
     mword *temp_cons = new_cons;
 
@@ -193,10 +193,11 @@ mword *_consls(mword *car_field, mword *cdr_field){ // XXX DEPRECATE
 
 
 // Allocating cons
-// XXX DEPRECATE, see consa2
-mword *consa(mword *car_field, mword *cdr_field){ // consa#
+// XXX DEPRECATE, see consa
+mword *consa(bvm_cache *this_bvm, mword *car_field, mword *cdr_field){ // consa#
 
-    mword *temp_cons = new_cons;
+    //mword *temp_cons = new_cons;
+    mword *temp_cons = _newin(this_bvm, 2);
 
     cons(temp_cons, car_field, cdr_field);
 
@@ -236,7 +237,7 @@ bvm_cache *list_end(bvm_cache *this_bvm){
 
 //
 //
-mword *_list_end(mword *list){ // _list_end#
+mword *_list_end(bvm_cache *this_bvm, mword *list){ // _list_end#
 
     while(!is_nil(cdr(list))){
         list = (mword*)cdr(list);
@@ -245,7 +246,7 @@ mword *_list_end(mword *list){ // _list_end#
     
 }
 
-mword *_list_next_to_end(mword *list){
+mword *_list_next_to_end(bvm_cache *this_bvm, mword *list){
 
     while(!is_nil(cdr(cdr(list)))){
         list = (mword*)cdr(list);
@@ -272,7 +273,7 @@ bvm_cache *unshift(bvm_cache *this_bvm){ // unshift#
 //    _dump(dest_list);
 //    die;
 
-    mword *endls = _list_end(dest_list);
+    mword *endls = _list_end(this_bvm, dest_list);
     (mword*)c(endls,1) = push_list;
 
     //zap(this_bvm);
@@ -295,7 +296,7 @@ bvm_cache *pop(bvm_cache *this_bvm){ // pop#
     mword *head_list = dstack_get(this_bvm, 0);
     popd(this_bvm);
 
-    mword *popped_list = _pop(head_list);
+    mword *popped_list = _pop(this_bvm, head_list);
     //(mword*)c(list,1) = nil;
 
     //set_in_udr_stack(this_bvm, this_bvm->dstack_ptr, 0, (mword*)icdr(list));
@@ -319,7 +320,7 @@ bvm_cache *push(bvm_cache *this_bvm){ // push#
     mword *dest_list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 0);
     mword *push_list = getd(this_bvm, 1);
 
-    mword *endls = _list_end(dest_list);
+    mword *endls = _list_end(this_bvm, dest_list);
     (mword*)c(endls,1) = push_list;
 
     return this_bvm;
@@ -336,7 +337,7 @@ bvm_cache *push(bvm_cache *this_bvm){ // push#
 bvm_cache *shift(bvm_cache *this_bvm){ // shift#
 
     mword *list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 0);
-    mword *endls = _list_next_to_end(list);
+    mword *endls = _list_next_to_end(this_bvm, list);
 
     mword *shifted = (mword*)c(endls,1);
     (mword*)c(endls,1) = nil;
@@ -355,7 +356,7 @@ bvm_cache *shift(bvm_cache *this_bvm){ // shift#
 bvm_cache *len(bvm_cache *this_bvm){ // len#
 
     mword *list = getd(this_bvm,0);
-    mword *result = _new2va( this_bvm,  _len( list ) );
+    mword *result = _newva( this_bvm,  _len(this_bvm,  list ) );
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -366,7 +367,7 @@ bvm_cache *len(bvm_cache *this_bvm){ // len#
 
 //
 //
-mword _len(mword *list){ // _len#
+mword _len(bvm_cache *this_bvm, mword *list){ // _len#
 
     mword length = 0;
 
@@ -403,7 +404,7 @@ bvm_cache *bons(bvm_cache *this_bvm){ // bons#
 //
 mword *_bons(bvm_cache *this_bvm, mword *list){ // _bons#
 
-    mword *arr = _new2in(this_bvm, _len(list));
+    mword *arr = _newin(this_bvm, _len(this_bvm, list));
 
     int i=0;
 
@@ -427,7 +428,7 @@ bvm_cache *ls2lf(bvm_cache *this_bvm){ // ls2lf#
     mword *list = dstack_get(this_bvm,0);
     popd(this_bvm);
 
-    mword *result = _ls2lf(list);
+    mword *result = _ls2lf(this_bvm, list);
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -438,9 +439,9 @@ bvm_cache *ls2lf(bvm_cache *this_bvm){ // ls2lf#
 
 //
 //
-mword *_ls2lf(mword *list){ // _ls2lf#
+mword *_ls2lf(bvm_cache *this_bvm, mword *list){ // _ls2lf#
 
-    mword *arr = _newlf(_len(list));
+    mword *arr = _newlf(this_bvm, _len(this_bvm, list));
 
     int i=0;
     while(!is_nil(list)){
@@ -470,7 +471,7 @@ bvm_cache *ith(bvm_cache *this_bvm){ // ith#
     mword *list  = getd(this_bvm,1);
     mword *index = getd(this_bvm,0);
 
-    mword *result = _ith(list, c(index,0));
+    mword *result = _ith(this_bvm, list, c(index,0));
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -481,7 +482,7 @@ bvm_cache *ith(bvm_cache *this_bvm){ // ith#
 
 //
 //
-mword *_ith(mword *list, mword i){ // _ith#
+mword *_ith(bvm_cache *this_bvm, mword *list, mword i){ // _ith#
 
     while(i > 0){
         i--;
@@ -506,7 +507,7 @@ mword *_ith(mword *list, mword i){ // _ith#
 bvm_cache *walk(bvm_cache *this_bvm){
 
     fatal("stack fix not done");
-    mword *result = _walk(TOS_1(this_bvm),TOS_0(this_bvm));
+    mword *result = _walk(this_bvm, TOS_1(this_bvm),TOS_0(this_bvm));
 
     hard_zap(this_bvm);
     hard_zap(this_bvm);
@@ -518,13 +519,13 @@ bvm_cache *walk(bvm_cache *this_bvm){
 }
 
 //
-mword *_walk(mword *bs, mword *walk_list){
+mword *_walk(bvm_cache *this_bvm, mword *bs, mword *walk_list){
 
     if (is_nil(walk_list)) return bs;
 
     if (!is_inte(bs)) error("_walk: Can't walk non-interior array");
 
-    return _walk(_ith(bs,(mword)car(car(walk_list))),(mword*)cdr(walk_list));
+    return _walk(this_bvm, _ith(this_bvm, bs,(mword)car(car(walk_list))),(mword*)cdr(walk_list));
 
 }
 
@@ -537,7 +538,7 @@ bvm_cache *reverse(bvm_cache *this_bvm){ // reverse#
     mword *list = dstack_get(this_bvm,0);
     popd(this_bvm);
 
-    mword *result = _reverse(list,nil);
+    mword *result = _reverse(this_bvm, list,nil);
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -548,7 +549,7 @@ bvm_cache *reverse(bvm_cache *this_bvm){ // reverse#
 
 //
 //
-mword *_reverse(mword *list, mword *new_cdr){ // _reverse#
+mword *_reverse(bvm_cache *this_bvm, mword *list, mword *new_cdr){ // _reverse#
 
     mword *temp = (mword*)cdr(list);
 
@@ -557,7 +558,7 @@ mword *_reverse(mword *list, mword *new_cdr){ // _reverse#
     if(is_nil(temp))
         return list;
 
-    return _reverse(temp, list);
+    return _reverse(this_bvm, temp, list);
 
 }
 
@@ -573,7 +574,7 @@ bvm_cache *split(bvm_cache *this_bvm){ // split#
     mword *list     = getd(this_bvm,1);
     mword *indices  = getd(this_bvm,0);
 
-    mword *result = _split(list, indices);
+    mword *result = _split(this_bvm, list, indices);
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -584,29 +585,29 @@ bvm_cache *split(bvm_cache *this_bvm){ // split#
 
 //
 //
-mword *_split(mword *list, mword *indices){ // _split#
+mword *_split(bvm_cache *this_bvm, mword *list, mword *indices){ // _split#
 
-    return _rsplit(list,indices,0);
+    return _rsplit(this_bvm, list,indices,0);
 
 }
 
 
 //
 //
-mword *_rsplit(mword *list, mword *indices, mword count){ // _rsplit#
+mword *_rsplit(bvm_cache *this_bvm, mword *list, mword *indices, mword count){ // _rsplit#
 
     mword *orig_list = list;
     mword *temp_list;
 
-    if (is_nil(indices)) return consa( orig_list, nil );
+    if (is_nil(indices)) return consa(this_bvm,  orig_list, nil );
 
     if (is_nil(list)) return nil;// 
 
     mword curr_index = car(car(indices));
 
-    if (curr_index < count) return consa( orig_list, nil );
+    if (curr_index < count) return consa(this_bvm,  orig_list, nil );
 
-    if (curr_index == 0) return consa( nil, consa( orig_list, nil ) );
+    if (curr_index == 0) return consa(this_bvm,  nil, consa(this_bvm,  orig_list, nil ) );
 
     indices = (mword*)cdr(indices);
 
@@ -636,14 +637,14 @@ mword *_rsplit(mword *list, mword *indices, mword count){ // _rsplit#
         (mword*)icdr(prev_list) = nil;
     }
 
-    return consa( orig_list, _rsplit(list, indices, count) );
+    return consa(this_bvm,  orig_list, _rsplit(this_bvm, list, indices, count) );
 
 }
 
 
 //
 //
-mword *_list_cut(mword *list, mword index){ // _list_cut#
+mword *_list_cut(bvm_cache *this_bvm, mword *list, mword index){ // _list_cut#
 
     mword *temp;
 
@@ -660,7 +661,7 @@ mword *_list_cut(mword *list, mword index){ // _list_cut#
 
     }
 
-    return _list_cut( (mword*)icdr(list), index-1 );
+    return _list_cut(this_bvm,  (mword*)icdr(list), index-1 );
 
 }
 
@@ -675,7 +676,7 @@ bvm_cache *append(bvm_cache *this_bvm){ // append#
 
     mword *list = dstack_get(this_bvm,0);
 
-    //mword *result = _append_direct(this_bvm, _ith(list,0), _ith(list,1));
+    //mword *result = _append_direct(this_bvm, _ith(this_bvm, list,0), _ith(this_bvm, list,1));
     mword *result = _append(this_bvm, list);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -691,7 +692,7 @@ mword *_append(bvm_cache *this_bvm, mword *lists){ // _append#
         return (mword*)icar(lists);
         //return lists;
 
-    return _append_direct(this_bvm, _ith(lists,0),_append(this_bvm, (mword*)icdr(lists)));
+    return _append_direct(this_bvm, _ith(this_bvm, lists,0),_append(this_bvm, (mword*)icdr(lists)));
 
 }
 
@@ -700,7 +701,7 @@ mword *_append(bvm_cache *this_bvm, mword *lists){ // _append#
 //
 mword *_append_direct(bvm_cache *this_bvm, mword *head_list, mword *tail_list){ // _append_direct#
 
-    mword *endls = _list_end(head_list);
+    mword *endls = _list_end(this_bvm, head_list);
 
     (mword *)icdr(endls) = tail_list;
 

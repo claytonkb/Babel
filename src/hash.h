@@ -25,28 +25,36 @@
 
 // hash_insert#
 #define hash_insert(hash_table, key, payload)       \
-    _insha(     hash_table,                         \
+    _insha(this_bvm,      hash_table,                         \
                 nil,                                \
                 C2B(key),                           \
-                new_hash_table_entry(  nil,         \
+                new_hash_table_entry(this_bvm,   nil,         \
                                         C2B(key),   \
                                         payload ) );
 
 
-mword *new_hash_table(void);
-void _insha(mword *hash_table, mword *hash, mword *key, mword *entry);
+mword *new_hash_table(bvm_cache *this_bvm);
+void _insha(bvm_cache *this_bvm, mword *hash_table, mword *hash, mword *key, mword *entry);
 
-mword *new_hash_table_entry(mword *hash, mword *key, mword *payload);
-static void rinsha(mword *hash_table, mword *hash, mword *key, mword *entry, mword level);
+mword *new_hash_table_entry(bvm_cache *this_bvm, mword *hash, mword *key, mword *payload);
+//static void rinsha(mword *hash_table, mword *hash, mword *key, mword *entry, mword level);
+static void rinsha(bvm_cache *this_bvm, mword *hash_table, mword *hash, mword *key, mword *entry, mword level);
 
-mword _exha(mword *hash_table, mword *hash);
-static mword rexha(mword *hash_table, mword *hash, mword level);
+//mword _exha(mword *hash_table, mword *hash);
+mword _exha(bvm_cache *this_bvm, mword *hash_table, mword *hash);
 
-mword *_luha(mword *hash_table, mword *hash);
-static mword *rluha(mword *hash_table, mword *hash, mword level);
+//static mword rexha(mword *hash_table, mword *hash, mword level);
+static mword rexha(bvm_cache *this_bvm, mword *hash_table, mword *hash, mword level);
 
-mword _rmha(mword *hash_table, mword *hash);
-static mword rrmha(mword *hash_table, mword *hash, mword level);
+mword *_luha(bvm_cache *this_bvm, mword *hash_table, mword *hash);
+
+//static mword *rluha(mword *hash_table, mword *hash, mword level);
+static mword *rluha(bvm_cache *this_bvm, mword *hash_table, mword *hash, mword level);
+
+mword _rmha(bvm_cache *this_bvm, mword *hash_table, mword *hash);
+
+//static mword rrmha(mword *hash_table, mword *hash, mword level);
+static mword rrmha(bvm_cache *this_bvm, mword *hash_table, mword *hash, mword level);
 
 bvm_cache *newha(bvm_cache *this_bvm);
 bvm_cache *insha(bvm_cache *this_bvm);
@@ -73,7 +81,7 @@ bvm_cache *keysha(bvm_cache *this_bvm);
 //mword _rexha(mword *hash_table, mword *hash, mword level);
 //
 //bvm_cache *luha(bvm_cache *this_bvm);
-//mword *_luha(mword *hash_table, mword *hash);
+//mword *_luha(this_bvm, mword *hash_table, mword *hash);
 //mword *_rluha(mword *hash_table, mword *hash, mword level);
 
 
@@ -84,15 +92,15 @@ bvm_cache *keysha(bvm_cache *this_bvm);
 //mword _exha_tree(mword *hash_table, mword *hash, mword level);
 //
 //void luha(void);
-//mword *_luha(mword *hash_table, mword *hash);
+//mword *_luha(this_bvm, mword *hash_table, mword *hash);
 //mword *_luha_tree(mword *hash_table, mword *hash, mword level);
 //
 //void rmha(void);
-//void _rmha(mword *hash_table,mword *hash);
+//void _rmha(this_bvm, mword *hash_table,mword *hash);
 //mword *_rmha_tree(mword *hash_table, mword *hash, mword level);
 //
 //void insha(void);
-//mword *_insha(mword *hash_table, mword *hash, mword *val);
+//mword *_insha(this_bvm, mword *hash_table, mword *hash, mword *val);
 //void _insha_tree(mword *hash_table, mword *hash, mword *val, mword level);
 //
 //void inskha(void);

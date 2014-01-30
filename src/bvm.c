@@ -57,7 +57,7 @@ bvm_cache *exec(bvm_cache *this_bvm){ // exec#
 
 #ifdef WINDOWS
 
-    char *process_string = (char*)_b2c(dstack_get(this_bvm,0));
+    char *process_string = (char*)_b2c(this_bvm, dstack_get(this_bvm,0));
     popd(this_bvm);
 
     mword *result;
@@ -81,10 +81,10 @@ bvm_cache *exec(bvm_cache *this_bvm){ // exec#
         &pi )           // Pointer to PROCESS_INFORMATION structure
         )
     {
-        result = _new2va( this_bvm, 0);
+        result = _newva( this_bvm, 0);
     }
 
-    result = _new2va( this_bvm, 1);
+    result = _newva( this_bvm, 1);
    
     pushd(this_bvm, result, IMMORTAL); 
 
@@ -193,7 +193,7 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
 }
 
 
-mword *_bvm_init(mword *bvm_to_load){ // _bvm_init#
+mword *_bvm_init(bvm_cache *this_bvm, mword *bvm_to_load){ // _bvm_init#
 
 //    mword *bvm_to_load = dstack_get(this_bvm,0);   
 //    popd(this_bvm);
@@ -201,7 +201,7 @@ mword *_bvm_init(mword *bvm_to_load){ // _bvm_init#
 
     mword *list = get_tptr(bvm_to_load);
 
-    mword load_length = _len(list);
+    mword load_length = _len(this_bvm, list);
 
     int i;
     mword *loaded_bvm;
@@ -209,14 +209,14 @@ mword *_bvm_init(mword *bvm_to_load){ // _bvm_init#
     if(tageq(bvm_to_load,BABEL_TAG_SYM_BVM,TAG_SIZE)){
 
 
-        mword *base_hash_table  = new_hash_table();
-        mword *sym_table        = new_hash_table();
+        mword *base_hash_table  = new_hash_table(this_bvm);
+        mword *sym_table        = new_hash_table(this_bvm);
 
 
-        _insha( base_hash_table,      
-                _hash8(C2B("/babel/tag/sym_table")),
+        _insha(this_bvm,  base_hash_table,      
+                _hash8(this_bvm, C2B("/babel/tag/sym_table")),
                 nil,                           
-                new_hash_table_entry(  _hash8(C2B("/babel/tag/sym_table")),
+                new_hash_table_entry(this_bvm,   _hash8(this_bvm, C2B("/babel/tag/sym_table")),
                                        nil,   
                                        sym_table ) );
 
@@ -225,8 +225,8 @@ mword *_bvm_init(mword *bvm_to_load){ // _bvm_init#
 
 
             mword *payload = (mword*)icar(list);
-            mword *hash = _ith(payload,0);
-            mword *value = _ith(payload,1);
+            mword *hash = _ith(this_bvm, payload,0);
+            mword *value = _ith(this_bvm, payload,1);
 
             if(
                 tageq(   hash,  BABEL_TAG_BVM_CODE,         TAG_SIZE)
@@ -235,19 +235,19 @@ mword *_bvm_init(mword *bvm_to_load){ // _bvm_init#
                 || tageq(hash,  BABEL_TAG_BVM_JUMP_TABLE,   TAG_SIZE)){
             //insert into base hash table:
 
-                _insha( base_hash_table,                         
+                _insha(this_bvm,  base_hash_table,                         
                     hash,                                
                     nil,                           
-                    new_hash_table_entry(   hash,         
+                    new_hash_table_entry(this_bvm,    hash,         
                                             nil,   
                                             hash ) );
             }
             else{ //insert into sym_table
 
-                _insha( sym_table,
+                _insha(this_bvm,  sym_table,
                     hash,
                     nil,
-                    new_hash_table_entry(   hash,
+                    new_hash_table_entry(this_bvm,    hash,
                                             nil,
                                             hash ) );
             }
@@ -258,13 +258,13 @@ mword *_bvm_init(mword *bvm_to_load){ // _bvm_init#
         }
 
 
-        loaded_bvm = new_tptr(_hash8(C2B("/babel/tag/bvm")), base_hash_table);
+        loaded_bvm = new_tptr(this_bvm, _hash8(this_bvm, C2B("/babel/tag/bvm")), base_hash_table);
 
 
-        _insha( base_hash_table,
-                _hash8(C2B("/babel/tag/self")),
+        _insha(this_bvm,  base_hash_table,
+                _hash8(this_bvm, C2B("/babel/tag/self")),
                 nil,                           
-                new_hash_table_entry(  _hash8(C2B("/babel/tag/self")),
+                new_hash_table_entry(this_bvm,   _hash8(this_bvm, C2B("/babel/tag/self")),
                                        nil,   
                                        loaded_bvm ) );
 
@@ -303,7 +303,9 @@ bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
     new_bvm_ptr->sym_table = (mword*)bvm_sym_table(new_bvm_cache.self);
 
     mword *op_bvm_sym_table = (mword*)bvm_sym_table(op_bvm);
-           op_bvm_sym_table = hard_detag(op_bvm_sym_table);
+           op_bvm_sym_table = hard_detag(this_bvm, op_bvm_sym_table);
+
+    new_bvm_ptr->mem = this_bvm->mem;
 
     if(is_nil(car(op_bvm_sym_table)) && is_nil(cdr(op_bvm_sym_table))){ // sym_table is uninitialized
 
@@ -315,8 +317,8 @@ bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
             set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
             set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
 
-            set_sym(new_bvm_ptr, "thread_id",      _new2va( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
-            set_sym(new_bvm_ptr, "advance_type",   _new2va( this_bvm, (mword)BVM_ADVANCE) );
+            set_sym(new_bvm_ptr, "thread_id",      _newva( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+            set_sym(new_bvm_ptr, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
             set_sym(new_bvm_ptr, "soft_root",      nil );
             set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
 
@@ -324,7 +326,7 @@ bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
 
     }
 
-    set_sym( new_bvm_ptr, "steps", _new2va( this_bvm, (mword)1) );
+    set_sym( new_bvm_ptr, "steps", _newva( this_bvm, (mword)1) );
 
     flush_bvm_cache(this_bvm);
     update_bvm_cache(new_bvm_ptr);
@@ -358,6 +360,9 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
 
     new_bvm.sym_table = (mword*)bvm_sym_table(new_bvm.self);
 
+    //Memory context is global across all BVM's in this thread...
+    new_bvm.mem = this_bvm->mem;
+
     if(tageq(new_bvm.self,BABEL_TAG_SPARSE_BVM,TAG_SIZE)){
         //FIXME: Assumes we want to clone:
         set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
@@ -365,12 +370,15 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
         set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
         set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
 
-        set_sym(new_bvm_ptr, "steps",          _new2va( this_bvm, (mword)-1) );
-        set_sym(new_bvm_ptr, "thread_id",      _new2va( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
-        set_sym(new_bvm_ptr, "advance_type",   _new2va( this_bvm, (mword)BVM_ADVANCE) );
+        set_sym(new_bvm_ptr, "steps",          _newva( this_bvm, (mword)-1) );
+        set_sym(new_bvm_ptr, "thread_id",      _newva( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+        set_sym(new_bvm_ptr, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
         set_sym(new_bvm_ptr, "soft_root",      nil );
         set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
     }
+//    else{
+//        fatal("Unrecognized BVM");
+//    }
 
     flush_bvm_cache(this_bvm);
     update_bvm_cache(&new_bvm);
@@ -407,11 +415,11 @@ bvm_cache *hibernate(bvm_cache *this_bvm){ // hibernate#
 
     mword *bvm_out = get_tptr(this_bvm->self);
 
-    mword *temp_bvm_out = new_tptr(_hash8(C2B("/babel/tag/hiber_bvm")), bvm_out);
+    mword *temp_bvm_out = new_tptr(this_bvm, _hash8(this_bvm, C2B("/babel/tag/hiber_bvm")), bvm_out);
 
-    bvm_out = _unload(temp_bvm_out);
+    bvm_out = _unload(this_bvm, temp_bvm_out);
 
-    _spit_mword((char*)_b2c(filename), bvm_out);
+    _spit_mword(this_bvm, (char*)_b2c(this_bvm, filename), bvm_out);
 
     icar(this_bvm->advance_type) = BVM_RETURN;    
 
@@ -479,7 +487,7 @@ bvm_cache *self(bvm_cache *this_bvm){
 
     flush_bvm_cache(this_bvm);
 
-//    mword *result = _bs2gv(this_bvm->self);
+//    mword *result = _bs2gv(this_bvm, this_bvm->self);
 //    push_alloc(this_bvm, result, IMMORTAL);
 
     pushd(this_bvm, this_bvm->self, IMMORTAL);
@@ -586,7 +594,7 @@ bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){ // flush_bvm_cache#
 //
 //    printf("}\n");
 //
-//    rclean(tree);
+//    rclean(this_bvm, tree);
 //
 //}
 //

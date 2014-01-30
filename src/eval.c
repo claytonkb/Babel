@@ -38,9 +38,9 @@ bvm_cache *eval(bvm_cache *this_bvm){ // eval#
 //
 void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){ // _eval#
 
-    pushr(this_bvm, eval_return, _hash8(C2B("/babel/tag/eval")));
+    pushr(this_bvm, eval_return, _hash8(this_bvm, C2B("/babel/tag/eval")));
 
-    this_bvm->code_ptr = consa2(this_bvm, eval_body,nil);
+    this_bvm->code_ptr = consa(this_bvm, eval_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -54,20 +54,20 @@ void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){ // _eval#
 bvm_cache *loop(bvm_cache *this_bvm){ // loop#
 
     mword *loop_body = dstack_get(this_bvm,0);
-    mword *iteration = _new2va( this_bvm, 0);
+    mword *iteration = _newva( this_bvm, 0);
 
     popd(this_bvm); 
 
     // ADD this for `last` operator
     mword *loop_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *loop_rstack_entry = consa2(this_bvm, iteration,
-                                    consa2(this_bvm, loop_body,
-                                        consa2(this_bvm, loop_return, nil)));
+    mword *loop_rstack_entry = consa(this_bvm, iteration,
+                                    consa(this_bvm, loop_body,
+                                        consa(this_bvm, loop_return, nil)));
 
-    pushr(this_bvm, loop_rstack_entry, _hash8(C2B("/babel/tag/loop")));
+    pushr(this_bvm, loop_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/loop")));
 
-    this_bvm->code_ptr = consa2(this_bvm, loop_body,nil);
+    this_bvm->code_ptr = consa(this_bvm, loop_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -86,7 +86,7 @@ bvm_cache *gotoop(bvm_cache *this_bvm){ // gotoop# goto#
     mword *goto_point = dstack_get(this_bvm,0);               
     popd(this_bvm); 
 
-    this_bvm->code_ptr = consa2(this_bvm, goto_point,nil);
+    this_bvm->code_ptr = consa(this_bvm, goto_point,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -108,7 +108,7 @@ bvm_cache *gotoop(bvm_cache *this_bvm){ // gotoop# goto#
 */
 bvm_cache *times(bvm_cache *this_bvm){ // times#
 
-    mword *iterations  = _new2va( this_bvm, icar(dstack_get(this_bvm,0)));
+    mword *iterations  = _newva( this_bvm, icar(dstack_get(this_bvm,0)));
     mword *times_body  = dstack_get(this_bvm,1);
 
     popd(this_bvm); 
@@ -119,13 +119,13 @@ bvm_cache *times(bvm_cache *this_bvm){ // times#
 
     mword *times_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *times_rstack_entry = consa2(this_bvm, iterations,
-                                    consa2(this_bvm, times_body,
-                                        consa2(this_bvm, times_return, nil)));
+    mword *times_rstack_entry = consa(this_bvm, iterations,
+                                    consa(this_bvm, times_body,
+                                        consa(this_bvm, times_return, nil)));
 
-    pushr(this_bvm, times_rstack_entry, _hash8(C2B("/babel/tag/times")));
+    pushr(this_bvm, times_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/times")));
 
-    this_bvm->code_ptr = consa2(this_bvm, times_body,nil);
+    this_bvm->code_ptr = consa(this_bvm, times_body,nil);
 
     //_dump(this_bvm->code_ptr);
 
@@ -164,20 +164,20 @@ bvm_cache *each(bvm_cache *this_bvm){ // each#
     if(is_nil(each_list))
         return this_bvm;
 
-    mword *iteration = _new2va( this_bvm, 0);
+    mword *iteration = _newva( this_bvm, 0);
 
     mword *each_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *each_rstack_entry = consa2(this_bvm, iteration,
-                                    consa2(this_bvm, each_body,
-                                        consa2(this_bvm, each_return, 
-                                            consa2(this_bvm, each_list, nil))));
+    mword *each_rstack_entry = consa(this_bvm, iteration,
+                                    consa(this_bvm, each_body,
+                                        consa(this_bvm, each_return, 
+                                            consa(this_bvm, each_list, nil))));
 
-    pushr(this_bvm, each_rstack_entry, _hash8(C2B("/babel/tag/each")));
+    pushr(this_bvm, each_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/each")));
 
     pushd(this_bvm, (mword*)icar(each_list), IMMORTAL);
 
-    this_bvm->code_ptr = consa2(this_bvm, each_body,nil);
+    this_bvm->code_ptr = consa(this_bvm, each_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -205,16 +205,16 @@ bvm_cache *ifte(bvm_cache *this_bvm){ // ifte#
     popd(this_bvm);
     popd(this_bvm);
 
-    mword *ifte_select = _new2va( this_bvm, IFTE_COND);
+    mword *ifte_select = _newva( this_bvm, IFTE_COND);
 
-    mword *ifte_rstack_entry = consa2(this_bvm, ifte_select,
-                                consa2(this_bvm, then_clause,
-                                    consa2(this_bvm, ifte_return,
-                                        consa2(this_bvm, else_clause, nil ))));
+    mword *ifte_rstack_entry = consa(this_bvm, ifte_select,
+                                consa(this_bvm, then_clause,
+                                    consa(this_bvm, ifte_return,
+                                        consa(this_bvm, else_clause, nil ))));
 
-    pushr(this_bvm, ifte_rstack_entry, _hash8(C2B("/babel/tag/ifte")));
+    pushr(this_bvm, ifte_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/ifte")));
 
-    this_bvm->code_ptr = consa2(this_bvm, cond_clause,nil);
+    this_bvm->code_ptr = consa(this_bvm, cond_clause,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -235,22 +235,22 @@ bvm_cache *whileop(bvm_cache *this_bvm){ // whileop# while#
 
     mword *while_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *iteration = _new2va( this_bvm, 0);
+    mword *iteration = _newva( this_bvm, 0);
 
     popd(this_bvm);
     popd(this_bvm);
 
-    mword *while_select = _new2va( this_bvm, WHILE_COND);
+    mword *while_select = _newva( this_bvm, WHILE_COND);
 
-    mword *while_rstack_entry = consa2(this_bvm, iteration,
-                                consa2(this_bvm, while_body,
-                                    consa2(this_bvm, while_return,
-                                        consa2(this_bvm, cond_clause,
-                                            consa2(this_bvm, while_select, nil )))));
+    mword *while_rstack_entry = consa(this_bvm, iteration,
+                                consa(this_bvm, while_body,
+                                    consa(this_bvm, while_return,
+                                        consa(this_bvm, cond_clause,
+                                            consa(this_bvm, while_select, nil )))));
 
-    pushr(this_bvm, while_rstack_entry, _hash8(C2B("/babel/tag/while")));
+    pushr(this_bvm, while_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/while")));
 
-    this_bvm->code_ptr = consa2(this_bvm, cond_clause,nil);
+    this_bvm->code_ptr = consa(this_bvm, cond_clause,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -268,7 +268,7 @@ bvm_cache *iter(bvm_cache *this_bvm){ // iter#
 
     mword *result;
 
-    int rstack_depth = _len((mword*)icar(this_bvm->rstack_ptr));
+    int rstack_depth = _len(this_bvm, (mword*)icar(this_bvm->rstack_ptr));
     int i = 0;
 
     mword *tag;
@@ -295,7 +295,7 @@ bvm_cache *iter(bvm_cache *this_bvm){ // iter#
 
     mword *rtos = rstack_get(this_bvm,i);
 
-    result = _new2va( this_bvm, *(mword*)icar(rtos));
+    result = _newva( this_bvm, *(mword*)icar(rtos));
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -310,7 +310,7 @@ bvm_cache *iter(bvm_cache *this_bvm){ // iter#
 */
 bvm_cache *next(bvm_cache *this_bvm){ // next#
 
-    int rstack_depth = _len((mword*)icar(this_bvm->rstack_ptr));
+    int rstack_depth = _len(this_bvm, (mword*)icar(this_bvm->rstack_ptr));
     int i = 0;
 
     mword *tag;
@@ -361,14 +361,14 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
     if(tageq(tag,BABEL_TAG_EVAL,TAG_SIZE)){
 
         sink = popr(this_bvm);
-        this_bvm->code_ptr = consa2(this_bvm, rtos,nil);
+        this_bvm->code_ptr = consa(this_bvm, rtos,nil);
 
     }
     else if(tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)){
 
         iter = (mword*)icar(rtos);
         *iter = *iter + 1;
-        this_bvm->code_ptr = consa2(this_bvm, (mword*)icar(icdr(rtos)),nil);
+        this_bvm->code_ptr = consa(this_bvm, (mword*)icar(icdr(rtos)),nil);
 
     }
     else if(tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)){
@@ -380,18 +380,18 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
         if(*iter == 0){
 
             sink = popr(this_bvm);
-            //this_bvm->code_ptr = consa2(this_bvm, (mword*)icar(icdr(icdr(rtos))),nil);
-            //this_bvm->code_ptr = consa2(this_bvm, _ith(rtos,2),nil);
-            //(mword*)c(this_bvm->code_ptr,0) = _ith(rtos,2);
-            set_code_ptr(this_bvm, _ith(rtos,2));
+            //this_bvm->code_ptr = consa(this_bvm, (mword*)icar(icdr(icdr(rtos))),nil);
+            //this_bvm->code_ptr = consa(this_bvm, _ith(this_bvm, rtos,2),nil);
+            //(mword*)c(this_bvm->code_ptr,0) = _ith(this_bvm, rtos,2);
+            set_code_ptr(this_bvm, _ith(this_bvm, rtos,2));
 
         }
         else{
 
-            //this_bvm->code_ptr = consa2(this_bvm, (mword*)icar(icdr(rtos)),nil);
-            //this_bvm->code_ptr = consa2(this_bvm, _ith(rtos,1),nil);
-            //(mword*)c(this_bvm->code_ptr,0) = _ith(rtos,1);
-            set_code_ptr(this_bvm, _ith(rtos,1));
+            //this_bvm->code_ptr = consa(this_bvm, (mword*)icar(icdr(rtos)),nil);
+            //this_bvm->code_ptr = consa(this_bvm, _ith(this_bvm, rtos,1),nil);
+            //(mword*)c(this_bvm->code_ptr,0) = _ith(this_bvm, rtos,1);
+            set_code_ptr(this_bvm, _ith(this_bvm, rtos,1));
 
         }
     }
@@ -405,14 +405,14 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
         if(is_nil(icdr(icar(list)))){
 
             sink = popr(this_bvm);
-            this_bvm->code_ptr = consa2(this_bvm, (mword*)icar(icdr(icdr(rtos))),nil);
+            this_bvm->code_ptr = consa(this_bvm, (mword*)icar(icdr(icdr(rtos))),nil);
 
         }
         else{
 
             *list = icdr(icar(list));
             pushd(this_bvm, (mword*)icar(icar(list)), IMMORTAL);
-            this_bvm->code_ptr = consa2(this_bvm, (mword*)icar(icdr(rtos)),nil);
+            this_bvm->code_ptr = consa(this_bvm, (mword*)icar(icdr(rtos)),nil);
 
         }
     }
@@ -421,19 +421,19 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
         iter = (mword*)icar(rtos);
         *iter = *iter + 1;
 
-        mword *array = _ith(rtos,3);
+        mword *array = _ith(this_bvm, rtos,3);
 
         if(*iter >= size(array)){
 
             sink = popr(this_bvm);
-            set_code_ptr(this_bvm, _ith(rtos,2));
+            set_code_ptr(this_bvm, _ith(this_bvm, rtos,2));
 
         }
         else{
 
             mword *entry;
             if(is_leaf(array)){
-                entry = _new2va( this_bvm, c(array,*iter));
+                entry = _newva( this_bvm, c(array,*iter));
             }
             else{
                 entry = (mword*)c(array,*iter);
@@ -442,7 +442,7 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
             pushd(this_bvm, entry, IMMORTAL);
             //pushd(this_bvm, (mword*)c(array,), IMMORTAL);
 
-            set_code_ptr(this_bvm, _ith(rtos,1));
+            set_code_ptr(this_bvm, _ith(this_bvm, rtos,1));
 
         }
     }
@@ -453,7 +453,7 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
         if(*ifte_select == IFTE_BODY){
 
             sink = popr(this_bvm);
-            this_bvm->code_ptr = consa2(this_bvm, (mword*)icar(icdr(icdr(rtos))),nil);
+            this_bvm->code_ptr = consa(this_bvm, (mword*)icar(icdr(icdr(rtos))),nil);
 
         }
         else{
@@ -465,12 +465,12 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
             if(!is_false(cond)){
 
-                this_bvm->code_ptr = consa2(this_bvm, (mword*)icar(icdr(rtos)),nil);
+                this_bvm->code_ptr = consa(this_bvm, (mword*)icar(icdr(rtos)),nil);
     
             }
             else{
 
-                this_bvm->code_ptr = consa2(this_bvm, (mword*)icar(icdr(icdr(icdr(rtos)))),nil);
+                this_bvm->code_ptr = consa(this_bvm, (mword*)icar(icdr(icdr(icdr(rtos)))),nil);
     
             }
 
@@ -481,14 +481,14 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
         iter = (mword*)icar(rtos);
         *iter = *iter + 1;
 
-        mword *while_select = _ith(rtos,4);
+        mword *while_select = _ith(this_bvm, rtos,4);
 
         if(*while_select == WHILE_BODY){
 
             *while_select = WHILE_COND;
 
-            mword *cond_clause = _ith(rtos,3);
-            this_bvm->code_ptr = consa2(this_bvm, cond_clause,nil);
+            mword *cond_clause = _ith(this_bvm, rtos,3);
+            this_bvm->code_ptr = consa(this_bvm, cond_clause,nil);
             
     
 
@@ -502,14 +502,14 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
             if(!is_false(cond)){
 
-                mword *while_body = _ith(rtos,1);
-                this_bvm->code_ptr = consa2(this_bvm, while_body,nil);
+                mword *while_body = _ith(this_bvm, rtos,1);
+                this_bvm->code_ptr = consa(this_bvm, while_body,nil);
     
             }
             else{
 
-                mword *while_return = _ith(rtos,2);
-                this_bvm->code_ptr = consa2(this_bvm, while_return,nil);
+                mword *while_return = _ith(this_bvm, rtos,2);
+                this_bvm->code_ptr = consa(this_bvm, while_return,nil);
                 sink = popr(this_bvm);
 
             }
@@ -520,42 +520,42 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
         mword *save_TOS = dstack_get(this_bvm,0);
         popd(this_bvm);
 
-//        (mword*)icar(this_bvm->dstack_ptr) = _ith(rtos,0);
-//        (mword*)icar(this_bvm->ustack_ptr) = _ith(rtos,1);
+//        (mword*)icar(this_bvm->dstack_ptr) = _ith(this_bvm, rtos,0);
+//        (mword*)icar(this_bvm->ustack_ptr) = _ith(this_bvm, rtos,1);
 
-        set_dstack_ptr(this_bvm, _ith(rtos,0));
-        set_ustack_ptr(this_bvm, _ith(rtos,1));
+        set_dstack_ptr(this_bvm, _ith(this_bvm, rtos,0));
+        set_ustack_ptr(this_bvm, _ith(this_bvm, rtos,1));
 
         pushd(this_bvm, save_TOS, IMMORTAL);
 
-//        this_bvm->dstack_ptr = consa2(this_bvm, _ith(rtos,0),nil);
-//        this_bvm->ustack_ptr = consa2(this_bvm, _ith(rtos,1),nil);
+//        this_bvm->dstack_ptr = consa(this_bvm, _ith(this_bvm, rtos,0),nil);
+//        this_bvm->ustack_ptr = consa(this_bvm, _ith(this_bvm, rtos,1),nil);
 
-        this_bvm->code_ptr         = consa2(this_bvm, _ith(rtos,2),nil);
+        this_bvm->code_ptr         = consa(this_bvm, _ith(this_bvm, rtos,2),nil);
         sink = popr(this_bvm);   
 
     }
     else if(tageq(tag,BABEL_TAG_LET,TAG_SIZE)){
 
-        mword *walker = _ith(rtos,0);
+        mword *walker = _ith(this_bvm, rtos,0);
 
         while(!is_nil(walker)){
             (mword*)icar(icar(icar(walker))) = (mword*)icdr(icar(walker));
             walker = (mword*)icdr(walker);
         }
 
-        set_code_ptr(this_bvm, _ith(rtos,2));
+        set_code_ptr(this_bvm, _ith(this_bvm, rtos,2));
 
         sink = popr(this_bvm);
 
     }
-    else if(tageq(tag,BABEL_TAG_COND,TAG_SIZE)){ // FIXME: use _pop() instead of manual list-mods
+    else if(tageq(tag,BABEL_TAG_COND,TAG_SIZE)){ // FIXME: use _pop(this_bvm) instead of manual list-mods
 
-        mword *cond_select = _ith(rtos,0);
+        mword *cond_select = _ith(this_bvm, rtos,0);
 
         if(*cond_select == COND_BODY){
 
-            set_code_ptr(this_bvm, _ith(rtos,2));
+            set_code_ptr(this_bvm, _ith(this_bvm, rtos,2));
             popr(this_bvm);
 
         }
@@ -568,46 +568,46 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
                 *cond_select = COND_BODY;
 
-                mword *cond_list = _ith(rtos,1);
+                mword *cond_list = _ith(this_bvm, rtos,1);
 
                 if(is_nil(cond_list)){ // _len of cond_list is odd
 
-                    set_code_ptr(this_bvm, _ith(rtos,2));
+                    set_code_ptr(this_bvm, _ith(this_bvm, rtos,2));
                     popr(this_bvm);
 
                 }
                 else{
                     
-                    set_code_ptr(this_bvm,_ith(cond_list,0));
+                    set_code_ptr(this_bvm,_ith(this_bvm, cond_list,0));
 
                 }
             }
             else{ // if(is_false(cond))
 
                 //*cond_select = COND_COND;
-                mword *cond_list = _ith(rtos,1);
+                mword *cond_list = _ith(this_bvm, rtos,1);
 
                 if( is_nil(cond_list) ){ // _len of cond_list is odd
 
-                    set_code_ptr(this_bvm, _ith(rtos,2));
+                    set_code_ptr(this_bvm, _ith(this_bvm, rtos,2));
                     popr(this_bvm);
 
                 }
                 else if( is_nil(icdr(cond_list)) ){ // we've reached the end...
 
-                    set_code_ptr(this_bvm, _ith(rtos,2));
+                    set_code_ptr(this_bvm, _ith(this_bvm, rtos,2));
                     popr(this_bvm);
 
                 }
                 else{
 
                     //set_code_ptr(this_bvm,(mword*)icar(icdr(cond_list)));
-                    set_code_ptr(this_bvm,(mword*)_ith(cond_list,1));
+                    set_code_ptr(this_bvm,(mword*)_ith(this_bvm, cond_list,1));
 
                     // Not sure which is uglier...                    
                     //cond_list = (mword*)icdr(rtos);
-                    //(mword*)*cond_list = _pop((mword*)icar(cond_list));
-                    //(mword*)*cond_list = _pop((mword*)icar(cond_list));
+                    //(mword*)*cond_list = _pop(this_bvm, (mword*)icar(cond_list));
+                    //(mword*)*cond_list = _pop(this_bvm, (mword*)icar(cond_list));
 
                     *(mword*)icdr(rtos) = icdr(icdr(icar(icdr(rtos))));
 
@@ -619,14 +619,14 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
 // If we reach this point, then we've 'failed'
 
-//        mword *walker = _ith(rtos,0);
+//        mword *walker = _ith(this_bvm, rtos,0);
 //
 //        while(!is_nil(walker)){
 //            (mword*)icar(icar(icar(walker))) = (mword*)icdr(icar(walker));
 //            walker = (mword*)icdr(walker);
 //        }
 //
-//        set_code_ptr(this_bvm, _ith(rtos,2));
+//        set_code_ptr(this_bvm, _ith(this_bvm, rtos,2));
 //
 //        sink = popr(this_bvm);
 
@@ -650,7 +650,7 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 */
 bvm_cache *last(bvm_cache *this_bvm){ // last#
 
-    int rstack_depth = _len((mword*)icar(this_bvm->rstack_ptr));
+    int rstack_depth = _len(this_bvm, (mword*)icar(this_bvm->rstack_ptr));
     int i = 0;
 
     mword *tag;
@@ -676,9 +676,9 @@ bvm_cache *last(bvm_cache *this_bvm){ // last#
 
     mword *rtos = rstack_get(this_bvm,i);
 
-    mword *last_return = _ith(rtos,2);
+    mword *last_return = _ith(this_bvm, rtos,2);
 
-    this_bvm->code_ptr = consa2(this_bvm, last_return,nil);
+    this_bvm->code_ptr = consa(this_bvm, last_return,nil);
 
     for(;i>=0;i--){
         popr(this_bvm);
@@ -707,20 +707,20 @@ bvm_cache *let(bvm_cache *this_bvm){ // let#
 
     mword *walker = let_list;
     while(!is_nil(walker)){
-        mword *let_list_entry = consa2(this_bvm,  (mword*)icar(walker), (mword*)car(icar(walker)) );
+        mword *let_list_entry = consa(this_bvm,  (mword*)icar(walker), (mword*)car(icar(walker)) );
         (mword*)icar(walker) = let_list_entry;
         walker = (mword*)icdr(walker);
     }
 
     mword *let_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *let_rstack_entry = consa2(this_bvm, let_list,
-                                    consa2(this_bvm, let_body,
-                                        consa2(this_bvm, let_return, nil)));
+    mword *let_rstack_entry = consa(this_bvm, let_list,
+                                    consa(this_bvm, let_body,
+                                        consa(this_bvm, let_return, nil)));
 
-    pushr(this_bvm, let_rstack_entry, _hash8(C2B("/babel/tag/let")));
+    pushr(this_bvm, let_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/let")));
 
-    this_bvm->code_ptr = consa2(this_bvm, let_body,nil);
+    this_bvm->code_ptr = consa(this_bvm, let_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -744,20 +744,20 @@ bvm_cache *alt(bvm_cache *this_bvm){ // alt#
 
     mword *walker = alt_list;
     while(!is_nil(walker)){
-        mword *alt_list_entry = consa2(this_bvm,  (mword*)icar(walker), (mword*)car(icar(walker)) );
+        mword *alt_list_entry = consa(this_bvm,  (mword*)icar(walker), (mword*)car(icar(walker)) );
         (mword*)icar(walker) = alt_list_entry;
         walker = (mword*)icdr(walker);
     }
 
     mword *alt_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *alt_rstack_entry = consa2(this_bvm, alt_list,
-                                    consa2(this_bvm, alt_body,
-                                        consa2(this_bvm, alt_return, nil)));
+    mword *alt_rstack_entry = consa(this_bvm, alt_list,
+                                    consa(this_bvm, alt_body,
+                                        consa(this_bvm, alt_return, nil)));
 
-    pushr(this_bvm, alt_rstack_entry, _hash8(C2B("/babel/tag/alt")));
+    pushr(this_bvm, alt_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/alt")));
 
-    this_bvm->code_ptr = consa2(this_bvm, alt_body,nil);
+    this_bvm->code_ptr = consa(this_bvm, alt_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -782,22 +782,22 @@ bvm_cache *cond(bvm_cache *this_bvm){ // cond#
     mword *cond_list = dstack_get(this_bvm, 0);
     popd(this_bvm);
 
-    if(_len(cond_list) < 2)
+    if(_len(this_bvm, cond_list) < 2)
         return this_bvm;
 
     mword *cond_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *cond_select = _new2va( this_bvm, COND_COND);
+    mword *cond_select = _newva( this_bvm, COND_COND);
 
-    mword *cond_rstack_entry = consa2(this_bvm, cond_select,
-                                consa2(this_bvm, (mword*)icdr(cond_list), //XXX Loop bug?
-                                    consa2(this_bvm, cond_return, nil )));
+    mword *cond_rstack_entry = consa(this_bvm, cond_select,
+                                consa(this_bvm, (mword*)icdr(cond_list), //XXX Loop bug?
+                                    consa(this_bvm, cond_return, nil )));
 
-    pushr(this_bvm, cond_rstack_entry, _hash8(C2B("/babel/tag/cond")));
+    pushr(this_bvm, cond_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/cond")));
 
     //dup(this_bvm); // Perform this step before eval'ing each cond
 
-    //this_bvm->code_ptr = consa2(this_bvm, (mword*)icar(cond_list),nil);
+    //this_bvm->code_ptr = consa(this_bvm, (mword*)icar(cond_list),nil);
     set_code_ptr(this_bvm,(mword*)icar(cond_list));
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
@@ -827,7 +827,7 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 //    mword *count = new_atom;
 //    *count = EACHAR_INIT_INDEX;
 //
-//    mword *temp = _newin(EACHAR_RSTACK_ENTRIES);
+//    mword *temp = _newin(this_bvm, EACHAR_RSTACK_ENTRIES);
 //    (mword*)c(temp,EACHAR_RSTACK_ARRAY)  = array;
 //    (mword*)c(temp,EACHAR_RSTACK_BODY)   = body;
 //            c(temp,EACHAR_RSTACK_RETURN) = cdr(this_bvm->code_ptr);
@@ -866,20 +866,20 @@ bvm_cache *eachar(bvm_cache *this_bvm){
     if(is_nil(each_array))
         return this_bvm;
 
-    mword *iteration = _new2va( this_bvm, 0);
+    mword *iteration = _newva( this_bvm, 0);
 
     mword *each_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *each_rstack_entry = consa2(this_bvm, iteration,
-                                    consa2(this_bvm, each_body,
-                                        consa2(this_bvm, each_return, 
-                                            consa2(this_bvm, each_array, nil))));
+    mword *each_rstack_entry = consa(this_bvm, iteration,
+                                    consa(this_bvm, each_body,
+                                        consa(this_bvm, each_return, 
+                                            consa(this_bvm, each_array, nil))));
 
-    pushr(this_bvm, each_rstack_entry, _hash8(C2B("/babel/tag/eachar")));
+    pushr(this_bvm, each_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/eachar")));
 
     mword *entry;
     if(is_leaf(each_array)){
-        entry = _new2va( this_bvm, c(each_array,0));
+        entry = _newva( this_bvm, c(each_array,0));
     }
     else{
         entry = (mword*)c(each_array,0);
@@ -887,7 +887,7 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
     pushd(this_bvm, entry, IMMORTAL);
 
-    this_bvm->code_ptr = consa2(this_bvm, each_body,nil);
+    this_bvm->code_ptr = consa(this_bvm, each_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 
@@ -912,7 +912,7 @@ bvm_cache *ifop(bvm_cache *this_bvm){
 //
 //    dup(this_bvm); //Almost always we need to dup the TOS...
 //
-//    mword *temp = _newin(IFOP_RSTACK_ENTRIES);
+//    mword *temp = _newin(this_bvm, IFOP_RSTACK_ENTRIES);
 //
 //    (mword*)c(temp,IFOP_RSTACK_RETURN) = (mword*)cdr(this_bvm->code_ptr);
 //    (mword*)c(temp,IFOP_RSTACK_THEN)   = then_clause;

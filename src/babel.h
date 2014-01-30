@@ -25,7 +25,7 @@
 
 #define CTL_MASK (MWORD_SIZE-1) // CTL_MASK#
 #define STRLEN(s) (sizeof(s)-1) // STRLEN#
-#define C2B(x)    (_c2b(x, STRLEN(x))) // C2B#
+#define C2B(x)    (_c2b(this_bvm, x, STRLEN(x))) // C2B#
 #define OVERRUN_LIMIT (1<<16)
 
 #define HASH_BIT_SIZE 128 // HASH_BIT_SIZE#
@@ -53,21 +53,21 @@ typedef void(*std_fn_ptr)(void);
 typedef unsigned mword; // mword#
 typedef signed   smword;
 
-typedef struct {
+typedef struct { // alloc_bank#
 
     mword *base_ptr;
     mword *alloc_ptr;
 
-} alloc_bank; // alloc_bank#
+} alloc_bank; 
 
-typedef struct {
+typedef struct { // mem_context#
 
     alloc_bank *primary;
     alloc_bank *secondary;
 
-} mem_context; // mem_context#
+} mem_context; 
 
-typedef struct {
+typedef struct { // bvm_cache#
 
     mword *code_ptr;
     mword *rstack_ptr;
@@ -82,15 +82,17 @@ typedef struct {
     mword *thread_id;
     mword *steps;
     mword *advance_type;
-    //mem_context *mem;
+    mem_context *mem;
 
-} bvm_cache; // bvm_cache#
+    mword *flags;
+
+} bvm_cache;
 
 typedef bvm_cache *(*babel_op)(bvm_cache *); // babel_op#
 
 //bvm_cache *interp_init(int argc, char **argv);
 //bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
-//void init_interp_jump_table(bvm_cache *this_bvm);
+//void init_interp_jump_table(this_bvm, bvm_cache *this_bvm);
 //void print_env(char **envp);
 void dump_mem(mword *mem, int size);
 void temp_rbs2gv(mword *bs);
@@ -100,7 +102,7 @@ void temp_rbs2gv(mword *bs);
 #define bfree(x)  free((mword*)(x)-1)
 
 // Memory size is 32MB
-#define MEM_SIZE (1<<26)          // MEM_SIZE#
+#define MEM_SIZE (1<<16)          // MEM_SIZE#
 
 //#define ALLOC_ENTRY_IN_USE 1    // ALLOC_ENTRY_IN_USE#
 //#define ALLOC_ENTRY_FREE   0    // ALLOC_ENTRY_FREE#
@@ -111,9 +113,9 @@ void temp_rbs2gv(mword *bs);
 
 #define TOP_OF_ALLOC_BANK(x) (x->base_ptr+(MEM_SIZE>>1)-1)
 
-#define newleaf(x) (mc_alloc( MWORDS(x) ))
-#define newinte(x) (mc_alloc( MWORDS(-1*x) ))
-#define newtptr(x) (mc_alloc( 0 ))
+#define newleaf(x) (mc_alloc(this_bvm,  MWORDS(x) ))
+#define newinte(x) (mc_alloc(this_bvm,  MWORDS(-1*x) ))
+#define newtptr(x) (mc_alloc(this_bvm,  0 ))
 
 #define BIG_ENDIAN    0
 #define LITTLE_ENDIAN 1
@@ -121,7 +123,7 @@ void temp_rbs2gv(mword *bs);
 // GLOBALS
 mword *nil; // nil#
 mword *empty_string;
-mem_context *mem;
+//mem_context *mem;
 
 //mword*      internal_global_VM; //Interpreter-visible machine pointer
 //mword*      global_VM;          //Machine pointer
@@ -208,13 +210,13 @@ mem_context *mem;
 //General-purpose car/cdr:
 //#define car(x)      (is_tptr(x) ? tcar(x) : icar(x))
 //#define cdr(x)      (is_tptr(x) ? tcdr(x) : icdr(x))
-#define car(x)      ( icar(detag((mword*)x)) ) // car#
-#define cdr(x)      ( icdr(detag((mword*)x)) ) // cdr#
+#define car(x)      ( icar(detag(this_bvm, (mword*)x)) ) // car#
+#define cdr(x)      ( icdr(detag(this_bvm, (mword*)x)) ) // cdr#
 
 //General-purpose cxr:
 //#define tcxr(x,y)     c((mword*)x,HASH_SIZE+1+(y%2)) // txcr#
 //#define  cxr(x,y)     (is_tptr(x) ? tcxr(x,y) : c((mword*)(x),y))
-#define  cxr(x,y)     ( c((mword*)(detag(x)),y) ) // cxr#
+#define  cxr(x,y)     ( c((mword*)(detag(this_bvm, x)),y) ) // cxr#
 
 // FIXME: Not tptr-safe
 #define is_false(x) (    (is_leaf(x) && icar(x) == 0) || (is_nil(x)) ) // is_false#
@@ -222,25 +224,25 @@ mem_context *mem;
 //#define is_false(x) (    is_leaf(x) && icar(x) == 0 ||  is_nil(car(x)) ) // is_false#
 //                     || !is_leaf(x) && is_nil(car(x)) )
 
-//#define get_sym(x,y)   ( _luha( (mword*)car(x->sym_table), _hash8(C2B(y))) )   // get_sym#
-#define get_sym(x,y)   ( _luha( get_tptr(x->sym_table), _hash8(C2B(y))) )   // get_sym#
+//#define get_sym(x,y)   ( _luha(this_bvm,  (mword*)car(x->sym_table), _hash8(this_bvm, C2B(y))) )   // get_sym#
+#define get_sym(x,y)   ( _luha(this_bvm,  get_tptr(x->sym_table), _hash8(this_bvm, C2B(y))) )   // get_sym#
 #define set_sym(x,y,z) hash_insert( x->sym_table, (y), (z) ) // set_sym#
 
-#define pushd(x,y,z) push_udr_stack(x->dstack_ptr, new_dstack_entry(y,z)) // pushd#
-#define popd(x) pop_udr_stack(x->dstack_ptr) // popd#
-//#define popd(x) *x->dstack_ptr = _shift(icar(x->dstack_ptr));
+#define pushd(x,y,z) push_udr_stack(this_bvm, x->dstack_ptr, new_dstack_entry(this_bvm, y,z)) // pushd#
+#define popd(x) pop_udr_stack(this_bvm, x->dstack_ptr) // popd#
+//#define popd(x) *x->dstack_ptr = _shift(this_bvm, icar(x->dstack_ptr));
 #define getd(x,y) get_from_udr_stack(x, x->dstack_ptr, y); remove_from_udr_stack(x, x->dstack_ptr,y);   // getd#
 
-#define pushu(x,y,z) push_udr_stack(x->ustack_ptr, new_dstack_entry(y,z)) // pushu#
-#define popu(x) pop_udr_stack(x->ustack_ptr) // popu#
+#define pushu(x,y,z) push_udr_stack(this_bvm, x->ustack_ptr, new_dstack_entry(this_bvm, y,z)) // pushu#
+#define popu(x) pop_udr_stack(this_bvm, x->ustack_ptr) // popu#
 
-#define pushr(x,y,z) push_udr_stack(x->rstack_ptr, new_rstack_entry(y,z)) // pushr#
-#define popr(x) pop_udr_stack(x->rstack_ptr) // popr#
+#define pushr(x,y,z) push_udr_stack(this_bvm, x->rstack_ptr, new_rstack_entry(this_bvm, y,z)) // pushr#
+#define popr(x) pop_udr_stack(this_bvm, x->rstack_ptr) // popr#
 
 //#define zapd(x) _del( (mword*)icar( popd(x) ) )
-#define zapd(x) zap_udr_stack( x->dstack_ptr )    // zapd#
-#define zapu(x) zap_udr_stack( x->ustack_ptr )    // zapu#
-#define zapr(x) zap_udr_stack( x->rstack_ptr )    // zapr#
+#define zapd(x) zap_udr_stack(this_bvm,  x->dstack_ptr )    // zapd#
+#define zapu(x) zap_udr_stack(this_bvm,  x->ustack_ptr )    // zapu#
+#define zapr(x) zap_udr_stack(this_bvm,  x->rstack_ptr )    // zapr#
 
 #define set_code_ptr(x,y) ((mword*)c(x->code_ptr,0) = y)
 #define set_ustack_ptr(x,y) ((mword*)c(x->ustack_ptr,0) = y)
@@ -248,16 +250,16 @@ mem_context *mem;
 #define set_rstack_ptr(x,y) ((mword*)c(x->rstack_ptr,0) = y)
 
 //#define mkref(x)  mkref#
-#define mkref(x) ( new_tptr( \
-                        _hash8(C2B("/babel/tag/ref")), \
-                            consa( x, nil ) ) )
+#define mkref(x) ( new_tptr(this_bvm,  \
+                        _hash8(this_bvm, C2B("/babel/tag/ref")), \
+                            consa(this_bvm,  x, nil ) ) )
 
 //#define mktptr(x) mktptr#
-#define mktptr(x) ( new_tptr( \
-                        _hash8(C2B(x)), \
-                            consa( nil, nil ) ) )
+#define mktptr(x) ( new_tptr(this_bvm,  \
+                        _hash8(this_bvm, C2B(x)), \
+                            consa(this_bvm,  nil, nil ) ) )
 
-#define mktptr2(x) ( new_tptr( \
+#define mktptr2(x) ( new_tptr(this_bvm,  \
                         x, \
                         nil ) )
 
@@ -290,8 +292,8 @@ mem_context *mem;
 // XXX: Doesn't work with tptr...
 #define cons(a,b,c) icar(a) = (mword)(b); icdr(a) = (mword)(c); // cons#
 
-#define new_cons (_newin(2)) // new_cons#
-#define new_atom (_newlfi(1,0)) // new_atom#
+#define new_cons (_newin(this_bvm, 2)) // new_cons#
+#define new_atom (_newlfi(this_bvm, 1,0)) // new_atom#
 
 // Stack
 #define dstack_get(x,y) get_from_udr_stack(x, x->dstack_ptr, y) // dstack_get#
@@ -354,7 +356,7 @@ mem_context *mem;
                                                 \
     pushd(x, result, IMMORTAL);                 \
                                                 \
-    return this_bvm;
+    return x;
 
 
 //// babel_operator_typeB#
@@ -417,7 +419,7 @@ mem_context *mem;
     zapd(x);                                    \
     zapd(x);                                    \
                                                 \
-    push_udr_stack(x->dstack_ptr,               \
+    push_udr_stack(this_bvm, x->dstack_ptr,               \
             new_dstack_entry2(x, result,           \
                 mktptr2(BABEL_TAG_PACMAN)));    \
                                                 \
@@ -440,8 +442,8 @@ mem_context *mem;
 #define QUOTEME(x) #x
 #define d(x) printf("%s %08x\n", QUOTEME(x), x);  // d#
 #define _mem(x)  int _i; printf("%08x\n", s(x)); for(_i=0; _i<alloc_size(x)-1; _i++){ printf("%08x\n", c(x,_i)); } // _mem#
-#define _dump(x) printf("%s\n", _bs2gv(x));  // _dump#
-#define _dumpd(x) printf("%s\n", _bs2gv(x->dstack_ptr));  // _dumpd#
+#define _dump(x) printf("%s\n", _bs2gv(this_bvm, x));  // _dump#
+#define _dumpd(x) printf("%s\n", _bs2gv(this_bvm, x->dstack_ptr));  // _dumpd#
 #define die      fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);  // die#
 #define warn(x)  fprintf(stderr, "WARNING: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__);  // warn#
 #define error(x) fprintf(stderr, "ERROR: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); // error#

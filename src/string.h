@@ -5,8 +5,8 @@
 #define STRING_H
 
 //void b2c(void);
-mword *_b2c(mword *string);
-mword *_c2b(char *string, mword max_safe_length);
+mword *_b2c(bvm_cache *this_bvm, mword *string);
+mword *_c2b(bvm_cache *this_bvm, char *string, mword max_safe_length);
 
 bvm_cache *ar2str(bvm_cache *this_bvm);
 bvm_cache *str2ar(bvm_cache *this_bvm);

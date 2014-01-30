@@ -20,7 +20,7 @@ bvm_cache *load(bvm_cache *this_bvm){ // load#
     mword *op0 = dstack_get(this_bvm,0);//, size(dstack_get(this_bvm,0)));
     popd(this_bvm);
 
-    mword *result   = _load(op0, alloc_size(op0));
+    mword *result   = _load(this_bvm, op0, alloc_size(op0));
 
 //    _mem(result);
 //
@@ -38,15 +38,15 @@ bvm_cache *load(bvm_cache *this_bvm){ // load#
 //                  XXX MC ENHANCEMENT XXX
 ///////////////////////////////////////////////////////////////////
 
-mword *_load(mword *bs, mword size){
+mword *_load(bvm_cache *this_bvm, mword *bs, mword size){
 
 //    size = MWORDS(size);
 //
 //    mword *load_area = malloc(size); //FIXME
 //    memcpy(load_area, bs, size);
 //
-//    _rload(load_area, 1);
-//    rclean(load_area+1);
+//    _rload(this_bvm, load_area, 1);
+//    rclean(this_bvm, load_area+1);
 //
 //    return load_area+1;
 
@@ -54,9 +54,9 @@ mword *_load(mword *bs, mword size){
 //_mem(bs+1);
 //
 
-    _rload(bs, 1);
+    _rload(this_bvm, bs, 1);
 
-    rclean(bs+1);
+    rclean(this_bvm, bs+1);
 
 //    int i;
 //    for(i=0;i<size;i++){
@@ -72,7 +72,7 @@ mword *_load(mword *bs, mword size){
 
 //_rload
 //
-void _rload(mword *tree, mword offset){
+void _rload(bvm_cache *this_bvm, mword *tree, mword offset){
 
     int i;
 
@@ -91,7 +91,7 @@ void _rload(mword *tree, mword offset){
         MARK_TRAVERSED(this_elem);
 
         for(i=0; i<num_elem; i++){
-            _rload(tree, c(this_elem,i)/MWORD_SIZE );
+            _rload(this_bvm, tree, c(this_elem,i)/MWORD_SIZE );
             c(this_elem,i) = (mword)(c(this_elem,i)/MWORD_SIZE + tree); // add base offset
         }
 
@@ -106,7 +106,7 @@ void _rload(mword *tree, mword offset){
         MARK_TRAVERSED(this_elem);
         MARK_TRAVERSED(this_elem+TPTR_PTR);
 
-        _rload(tree, c(this_elem,TPTR_PTR)/MWORD_SIZE );
+        _rload(this_bvm, tree, c(this_elem,TPTR_PTR)/MWORD_SIZE );
         c(this_elem,TPTR_PTR) = (mword)(c(this_elem,TPTR_PTR)/MWORD_SIZE + tree);
 
     }
@@ -126,7 +126,7 @@ bvm_cache *unload(bvm_cache *this_bvm){ // unload#
 
     mword *op0 = dstack_get(this_bvm,0);//, size(dstack_get(this_bvm,0)));
     popd(this_bvm);
-    mword *result   = _unload(op0);
+    mword *result   = _unload(this_bvm, op0);
 
     //zapd(this_bvm,0);
     pushd(this_bvm, result, IMMORTAL);
@@ -139,16 +139,16 @@ bvm_cache *unload(bvm_cache *this_bvm){ // unload#
 // space, there is no reason unload() should require 2N space to
 // unload an object of size N. Future perf enhancement will implement
 // a binary tree to store the address translations.
-mword *_unload(mword *bs){//, mword offset){
+mword *_unload(bvm_cache *this_bvm, mword *bs){//, mword offset){
 
-    mword bs_size     = _mu   (bs);
-    mword num_arrays  = _nin  (bs);
-          num_arrays += _nlf  (bs);
-          num_arrays += _ntag (bs);
+    mword bs_size     = _mu   (this_bvm, bs);
+    mword num_arrays  = _nin  (this_bvm, bs);
+          num_arrays += _nlf  (this_bvm, bs);
+          num_arrays += _ntag (this_bvm, bs);
 
-//    mword *dest      = _newlf(bs_size);
-//    mword *LUT_abs   = _newin(num_arrays);
-//    mword *LUT_rel   = _newin(num_arrays);
+//    mword *dest      = _newlf(this_bvm, bs_size);
+//    mword *LUT_abs   = _newin(this_bvm, num_arrays);
+//    mword *LUT_rel   = _newin(this_bvm, num_arrays);
 
     mword *dest      = newleaf(bs_size);
 //trace;
@@ -156,14 +156,15 @@ mword *_unload(mword *bs){//, mword offset){
 //    mword *LUT_abs   = newinte(num_arrays);
 //    mword *LUT_rel   = newinte(num_arrays);
 
-    mword *LUT_abs   = malloc(MWORDS(num_arrays));
-    mword *LUT_rel   = malloc(MWORDS(num_arrays));
+    //free'd below...
+    mword *LUT_abs   = malloc(MWORDS(num_arrays)); // XXX WAIVER XXX
+    mword *LUT_rel   = malloc(MWORDS(num_arrays)); // XXX WAIVER XXX
 
     mword offset     = 0;
     mword LUT_offset = 0;
 
-    _runload(bs, LUT_abs, LUT_rel, dest, &offset, &LUT_offset);
-    rclean(bs);
+    _runload(this_bvm, bs, LUT_abs, LUT_rel, dest, &offset, &LUT_offset);
+    rclean(this_bvm, bs);
 
     free(LUT_abs);
     free(LUT_rel);
@@ -173,7 +174,7 @@ mword *_unload(mword *bs){//, mword offset){
 }
 
 //
-mword _runload(
+mword _runload(bvm_cache *this_bvm, 
         mword *bs, 
         mword *LUT_abs, 
         mword *LUT_rel, 
@@ -185,7 +186,7 @@ mword _runload(
     mword rel_offset;
 
     if( TRAVERSED(bs) ){ //& (MWORD_SIZE-1) ){ //Already dumped
-        return get_rel_offset(LUT_abs, LUT_rel, bs);
+        return get_rel_offset(this_bvm, LUT_abs, LUT_rel, bs);
     }
 
     int num_elem = size(bs);
@@ -205,7 +206,7 @@ mword _runload(
         MARK_TRAVERSED(bs);
         *offset = *offset + num_elem;
         for(i=0; i<num_elem; i++){
-            c(dest,local_offset+i) = _runload(
+            c(dest,local_offset+i) = _runload(this_bvm, 
                                         (mword*)c(bs,i), 
                                         LUT_abs, 
                                         LUT_rel, 
@@ -231,7 +232,7 @@ mword _runload(
             c(dest,(*offset)) = c(bs,i);
             *offset = *offset+1;
         }
-        _runload((mword*)bs+HASH_SIZE+1, 
+        _runload(this_bvm, (mword*)bs+HASH_SIZE+1, 
                     LUT_abs, 
                     LUT_rel, 
                     dest, 
@@ -244,7 +245,7 @@ mword _runload(
 }
 
 //
-mword get_rel_offset(mword *LUT_abs, mword *LUT_rel, mword *entry){
+mword get_rel_offset(bvm_cache *this_bvm, mword *LUT_abs, mword *LUT_rel, mword *entry){
 
     int i=0;
     int LUT_size = size(LUT_abs);

@@ -14,7 +14,7 @@
     mword opA = c( op1, 0 );                    \
     mword opB = c( op0, 0 );                    \
                                                 \
-    result = _newva( expr );
+    result = _newva(this_bvm,  expr );
 
 
 #define babel_signed_compare_operator(expr)     \
@@ -24,7 +24,7 @@
                                                 \
     int signed_result = (int)(expr);            \
                                                 \
-    result = _newva( (mword)signed_result );
+    result = _newva(this_bvm,  (mword)signed_result );
 
 
 /* comparison operator

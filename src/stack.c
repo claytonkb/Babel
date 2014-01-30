@@ -23,21 +23,21 @@
 
 //
 //
-void free_lumbar(mword *stack_entry){
+void free_lumbar(bvm_cache *this_bvm, mword *stack_entry){
 
-    mc_free((mword*)icdr(stack_entry));
-    mc_free(stack_entry);
+    mc_free(this_bvm, (mword*)icdr(stack_entry));
+    mc_free(this_bvm, stack_entry);
 
 }
 
 
 //
 //
-mword *new_dstack_entry(mword *operand, mword alloc_type){ // new_dstack_entry#
+mword *new_dstack_entry(bvm_cache *this_bvm, mword *operand, mword alloc_type){ // new_dstack_entry#
 
     return
-        consa( operand,
-            consa( _newva( alloc_type), nil )); //FIXME DEPRECATED _newva
+        consa(this_bvm,  operand,
+            consa(this_bvm,  _newva(this_bvm,  alloc_type), nil )); //FIXME DEPRECATED _newva
 
 }
 
@@ -47,31 +47,31 @@ mword *new_dstack_entry(mword *operand, mword alloc_type){ // new_dstack_entry#
 mword *new_dstack_entry2(bvm_cache *this_bvm, mword *operand, mword *alloc_type){ // new_dstack_entry2#
 
     return
-        consa2(this_bvm, operand,
-            consa2(this_bvm, alloc_type, nil ));
+        consa(this_bvm, operand,
+            consa(this_bvm, alloc_type, nil ));
 
 }
 
 
 //
 //
-void push_udr_stack(mword *stack_ptr, mword *stack_entry){ // push_udr_stack#
+void push_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword *stack_entry){ // push_udr_stack#
 
-    (mword*)c(stack_ptr,0) = _push((mword*)c(stack_ptr,0), stack_entry);
+    (mword*)c(stack_ptr,0) = _push(this_bvm, (mword*)c(stack_ptr,0), stack_entry);
 
 }
 
 
 //
 //
-mword *pop_udr_stack(mword *stack_ptr){ // pop_udr_stack#
+mword *pop_udr_stack(bvm_cache *this_bvm, mword *stack_ptr){ // pop_udr_stack#
 
     //mword *temp = (mword*)icar(icar(stack_ptr));
     mword *temp = (mword*)icar(stack_ptr);
 
-    (mword*)*stack_ptr = _pop((mword*)icar(stack_ptr));
+    (mword*)*stack_ptr = _pop(this_bvm, (mword*)icar(stack_ptr));
 
-    free_lumbar(temp);
+    free_lumbar(this_bvm, temp);
 
     return (mword*)icar(temp);
 
@@ -82,11 +82,11 @@ mword *pop_udr_stack(mword *stack_ptr){ // pop_udr_stack#
 
 //
 //
-mword *new_rstack_entry(mword *operand, mword *eval_type){ // new_rstack_entry#
+mword *new_rstack_entry(bvm_cache *this_bvm, mword *operand, mword *eval_type){ // new_rstack_entry#
 
     return
-        consa( operand,
-            consa( eval_type, nil ));
+        consa(this_bvm,  operand,
+            consa(this_bvm,  eval_type, nil ));
 
 }
 
@@ -95,9 +95,9 @@ mword *new_rstack_entry(mword *operand, mword *eval_type){ // new_rstack_entry#
 //
 inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // get_from_udr_stack#
 
-//    return _chain_deref( this_bvm->sym_table, (mword*)icar( _ith( (mword*)icar( stack_ptr ), stack_index )) );
-//    return (mword*)icar( _ith( (mword*)icar( stack_ptr ), stack_index ));
-    return _chain_deref( this_bvm, (mword*)icar( _ith( (mword*)icar( stack_ptr ), stack_index )) );
+//    return _chain_deref( this_bvm->sym_table, (mword*)icar( _ith(this_bvm,  (mword*)icar( stack_ptr ), stack_index )) );
+//    return (mword*)icar( _ith(this_bvm,  (mword*)icar( stack_ptr ), stack_index ));
+    return _chain_deref( this_bvm, (mword*)icar( _ith(this_bvm,  (mword*)icar( stack_ptr ), stack_index )) );
 
 }
 
@@ -106,8 +106,8 @@ inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword st
 //
 mword *get_tag_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index){ // get_tag_from_udr_stack#
 
-//    return _chain_deref( this_bvm->sym_table, (mword*)icdr( _ith( (mword*)icar( stack_ptr ), stack_index )) );
-    return (mword*)icdr( _ith( (mword*)icar( stack_ptr ), stack_index ));
+//    return _chain_deref( this_bvm->sym_table, (mword*)icdr( _ith(this_bvm,  (mword*)icar( stack_ptr ), stack_index )) );
+    return (mword*)icdr( _ith(this_bvm,  (mword*)icar( stack_ptr ), stack_index ));
 
 }
 
@@ -116,8 +116,8 @@ mword *get_tag_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack
 //
 inline mword *set_in_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_index, mword *bs){ // set_in_udr_stack#
 
-//    mword *stack_entry = _chain_deref( this_bvm->sym_table, (mword*)icar( icar( _ith( stack_ptr, stack_index ))) );
-    mword *stack_entry = (mword*)icar( icar( _ith( stack_ptr, stack_index )));
+//    mword *stack_entry = _chain_deref( this_bvm->sym_table, (mword*)icar( icar( _ith(this_bvm,  stack_ptr, stack_index ))) );
+    mword *stack_entry = (mword*)icar( icar( _ith(this_bvm,  stack_ptr, stack_index )));
 
     (mword*)c(stack_entry,0) = bs;
 
@@ -137,18 +137,18 @@ mword *remove_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_
     mword *work_stack = (mword*)car(stack_ptr);
 
     if(stack_index==0){
-        pop_udr_stack(stack_ptr);
-        //work_stack = pop_udr_stack(stack_ptr);
+        pop_udr_stack(this_bvm, stack_ptr);
+        //work_stack = pop_udr_stack(this_bvm, stack_ptr);
 
-        //temp = pop_udr_stack(work_stack);
+        //temp = pop_udr_stack(this_bvm, work_stack);
         //(mword*)c(temp,0) = nil;
         //_del(temp);
     }
     else{
-        length = _len(work_stack);
+        length = _len(this_bvm, work_stack);
         if( length > stack_index+1 ){
-            zapped = _list_cut(work_stack,   stack_index);
-            tail   = _list_cut(zapped,      1);
+            zapped = _list_cut(this_bvm, work_stack,   stack_index);
+            tail   = _list_cut(this_bvm, zapped,      1);
             (mword*)c(icar(zapped),0) = nil;
             //_dump(zapped);
             //die;
@@ -156,7 +156,7 @@ mword *remove_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_
             _append_direct(this_bvm, work_stack,tail);
         }
         else if( length > stack_index ){
-            zapped = _list_cut(work_stack, stack_index);
+            zapped = _list_cut(this_bvm, work_stack, stack_index);
             (mword*)c(zapped,0) = nil;
             //_del(zapped);
         }
@@ -175,14 +175,14 @@ mword *remove_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword stack_
 
 // same as pop_udr_stack except calls mc_free if PACMAN tag
 //
-void zap_udr_stack(mword *stack_ptr){ // zap_udr_stack#
+void zap_udr_stack(bvm_cache *this_bvm, mword *stack_ptr){ // zap_udr_stack#
 
     mword *free_ptr = (mword*)icar(stack_ptr);
 
     mword *tag = (mword*)icar(icdr(icar(icar(stack_ptr))));
     mword *temp = (mword*)icar(icar(icar(stack_ptr)));
 
-    (mword*)*stack_ptr = _pop((mword*)icar(stack_ptr));
+    (mword*)*stack_ptr = _pop(this_bvm, (mword*)icar(stack_ptr));
 
     //_dump(stack_ptr);
 
@@ -192,10 +192,10 @@ void zap_udr_stack(mword *stack_ptr){ // zap_udr_stack#
 
     if(is_tptr(tag) && tageq(tag,BABEL_TAG_PACMAN,TAG_SIZE)){
         //printf("MATCH\n");
-        mc_free(temp);
+        mc_free(this_bvm, temp);
     }
 
-    free_lumbar(free_ptr);
+    free_lumbar(this_bvm, free_ptr);
 
 }
 
@@ -210,18 +210,18 @@ inline mword *zap_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword st
     mword *work_stack = (mword*)car(stack_ptr);
 
     if(stack_index==0){
-        pop_udr_stack(stack_ptr);
-        //work_stack = pop_udr_stack(stack_ptr);
+        pop_udr_stack(this_bvm, stack_ptr);
+        //work_stack = pop_udr_stack(this_bvm, stack_ptr);
 
-        //temp = pop_udr_stack(work_stack);
+        //temp = pop_udr_stack(this_bvm, work_stack);
         //(mword*)c(temp,0) = nil;
         //_del(temp);
     }
     else{
-        length = _len(work_stack);
+        length = _len(this_bvm, work_stack);
         if( length > stack_index+1 ){
-            zapped = _list_cut(work_stack,   stack_index);
-            tail   = _list_cut(zapped,      1);
+            zapped = _list_cut(this_bvm, work_stack,   stack_index);
+            tail   = _list_cut(this_bvm, zapped,      1);
             (mword*)c(icar(zapped),0) = nil;
             //_dump(zapped);
             //die;
@@ -229,7 +229,7 @@ inline mword *zap_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword st
             _append_direct(this_bvm, work_stack,tail);
         }
         else if( length > stack_index ){
-            zapped = _list_cut(work_stack, stack_index);
+            zapped = _list_cut(this_bvm, work_stack, stack_index);
             (mword*)c(zapped,0) = nil;
             //_del(zapped);
         }
@@ -273,7 +273,7 @@ bvm_cache *zap(bvm_cache *this_bvm){ // zap#
 */
 bvm_cache *sel(bvm_cache *this_bvm){ // sel#
 
-    mword *temp = pop_udr_stack(this_bvm->dstack_ptr);
+    mword *temp = pop_udr_stack(this_bvm, this_bvm->dstack_ptr);
 
     if(!is_false(icar(temp))){
         popd(this_bvm);
@@ -396,14 +396,14 @@ bvm_cache *take(bvm_cache *this_bvm){ // take#
 //        while(!is_nil(this_bvm->dstack_ptr)){
         while(!dstack_empty(this_bvm)){
             list_entry = dstack_get(this_bvm,0);
-            result = consa2(this_bvm, list_entry, result);
+            result = consa(this_bvm, list_entry, result);
             popd(this_bvm);
         }
     }
     else{
         for(i=0;i<count;i++){
             list_entry = dstack_get(this_bvm,0);
-            result = consa2(this_bvm, list_entry, result);
+            result = consa(this_bvm, list_entry, result);
             popd(this_bvm);
         }
     }
@@ -424,9 +424,9 @@ bvm_cache *take(bvm_cache *this_bvm){ // take#
 */
 bvm_cache *depth(bvm_cache *this_bvm){ // depth#
 
-    mword *result = _new2va( this_bvm, 1);
+    mword *result = _newva( this_bvm, 1);
 
-    *result = _len((mword*)icar(this_bvm->dstack_ptr));
+    *result = _len(this_bvm, (mword*)icar(this_bvm->dstack_ptr));
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -518,13 +518,13 @@ bvm_cache *nest(bvm_cache *this_bvm){ // nest#
 
     mword *nest_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *nest_rstack_entry = consa2(this_bvm, save_dstack,
-                                    consa2(this_bvm, save_ustack,
-                                        consa2(this_bvm, nest_return, nil)));
+    mword *nest_rstack_entry = consa(this_bvm, save_dstack,
+                                    consa(this_bvm, save_ustack,
+                                        consa(this_bvm, nest_return, nil)));
 
-    pushr(this_bvm, nest_rstack_entry, _hash8(C2B("/babel/tag/nest")));
+    pushr(this_bvm, nest_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/nest")));
 
-    this_bvm->code_ptr = consa2(this_bvm, nest_body,nil);
+    this_bvm->code_ptr = consa(this_bvm, nest_body,nil);
 
     icar(this_bvm->advance_type) = BVM_CONTINUE;
 

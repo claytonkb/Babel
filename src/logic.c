@@ -16,7 +16,7 @@
     mword opA = c( op0, 0 );                    \
     mword opB = c( op1, 0 );                    \
                                                 \
-    result = _new2va( this_bvm,  x );
+    result = _newva( this_bvm,  x );
 
 /* logic operator
 _Note: Babel has 16 logic operators F0-Ff, corresponding to each 
@@ -245,7 +245,7 @@ bvm_cache *cnot(bvm_cache *this_bvm){ // cnot#
 
 #define babel_cnot_operator(x)                  \
     mword opA = c( op0, 0 );                    \
-    result = _new2va( this_bvm,  x );
+    result = _newva( this_bvm,  x );
 
     babel_operator_typeA( 
             this_bvm, 
@@ -291,11 +291,11 @@ bvm_cache *notop(bvm_cache *this_bvm){ // notop#
 
 //#define babel_notop_operator(x)                 \
 //    mword opA = c( op0, 0 );                    \
-//    result = _newva( x );
+//    result = _newva(this_bvm,  x );
 
 #define babel_notop_operator(x)                 \
     mword *opA = op0;                    \
-    result = _new2va( this_bvm,  x );
+    result = _newva( this_bvm,  x );
 
     babel_operator_typeA( 
             this_bvm, 

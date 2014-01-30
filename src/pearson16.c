@@ -12,7 +12,7 @@
 //// init_hash key phash8
 //void phash8(void){
 //
-//    mword* result = _pearson16((mword*)TOS_1, (mword*)TOS_0, _arlen8((mword*)TOS_0));
+//    mword* result = _pearson16(this_bvm, (mword*)TOS_1, (mword*)TOS_0, _arlen8(this_bvm, (mword*)TOS_0));
 //
 //    zap();
 //    zap();
@@ -23,7 +23,7 @@
 //// init_hash key phash
 //void phash(void){
 //
-//    mword* result = _pearson16((mword*)TOS_1, (mword*)TOS_0, size((mword*)TOS_0)*MWORD_SIZE);
+//    mword* result = _pearson16(this_bvm, (mword*)TOS_1, (mword*)TOS_0, size((mword*)TOS_0)*MWORD_SIZE);
 //
 //    zap();
 //    zap();
@@ -66,7 +66,7 @@ bvm_cache *hash8(bvm_cache *this_bvm){ // hash8#
 
     mword *key = getd(this_bvm,0);
 
-    mword *result = _hash8(key);
+    mword *result = _hash8(this_bvm, key);
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -79,16 +79,16 @@ bvm_cache *hash8(bvm_cache *this_bvm){ // hash8#
 // and shift everything over.... UGH!
 // XXX
 //
-mword *_hash8(mword *key){ // _hash8#
+mword *_hash8(bvm_cache *this_bvm, mword *key){ // _hash8#
 
-    return _pearson16(_newlfi(HASH_SIZE,0), key, _arlen8(key)); //FIXME DEPRECATED _newlfi (see above)
+    return _pearson16(this_bvm, _newlfi(this_bvm, HASH_SIZE,0), key, _arlen8(this_bvm, key)); //FIXME DEPRECATED _newlfi (see above)
 
 }
 
 //// key hash
 //void hash(void){
 //
-//    mword* result = _pearson16(_newlfz(HASH_SIZE), (mword*)TOS_0, size((mword*)TOS_0)*MWORD_SIZE);
+//    mword* result = _pearson16(this_bvm, _newlfz(HASH_SIZE), (mword*)TOS_0, size((mword*)TOS_0)*MWORD_SIZE);
 //
 //    zap();
 //    push_alloc((mword*)result, HASH);
@@ -100,16 +100,16 @@ mword *_hash8(mword *key){ // _hash8#
 // This is a 16-byte version of Pearson's hash
 // It does NOT follow Pearson's recommendation for building wider hashes from 
 // the paper on his 8-bit hash function.
-mword *_pearson16(mword* sinit, mword *skey, mword strlen){
+mword *_pearson16(bvm_cache *this_bvm, mword* sinit, mword *skey, mword strlen){
 
     // sinit = TOS_1
     // skey = TOS_0
     char *init = (char*)(sinit); 
     char *key  = (char*)(skey);
 
-//    mword strlen = _arlen8((mword*)skey);
+//    mword strlen = _arlen8(this_bvm, (mword*)skey);
 
-    char *result = (char*)new_hash();
+    char *result = (char*)new_hash(this_bvm);
 
     int i;
     char temp;
@@ -151,7 +151,7 @@ mword *_pearson16(mword* sinit, mword *skey, mword strlen){
 
 
 //FIXME: Move this to HASH.C!!!
-mword *new_hash(void){ // new_hash#
+mword *new_hash(bvm_cache *this_bvm){ // new_hash#
 
     mword *ptr = malloc( MWORDS(HASH_SIZE+1) );
     if(ptr == NULL){
