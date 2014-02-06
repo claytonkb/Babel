@@ -109,7 +109,7 @@ mword *_pearson16(bvm_cache *this_bvm, mword* sinit, mword *skey, mword strlen){
 
 //    mword strlen = _arlen8(this_bvm, (mword*)skey);
 
-    char *result = (char*)new_hash(this_bvm);
+    char *result = (char*)_newlfi(this_bvm, HASH_SIZE, 0); //new_hash(this_bvm);
 
     int i;
     char temp;
@@ -150,20 +150,23 @@ mword *_pearson16(bvm_cache *this_bvm, mword* sinit, mword *skey, mword strlen){
 }
 
 
-//FIXME: Move this to HASH.C!!!
+//FIXME: DEPRECATED!!!
 mword *new_hash(bvm_cache *this_bvm){ // new_hash#
 
-    mword *ptr = malloc( MWORDS(HASH_SIZE+1) );
-    if(ptr == NULL){
-        error("malloc returned NULL");
-    }
+//    mword *ptr = malloc( MWORDS(HASH_SIZE+1) );
+//    if(ptr == NULL){
+//        error("malloc returned NULL");
+//    }
+//
+//    ptr[0] = HASH_SIZE * MWORD_SIZE;
+//    ptr[1] = 0;
+//    ptr[2] = 0;
+//    ptr[3] = 0;
+//    ptr[4] = 0;
+//    return ptr+16
+    fatal("DEPRECATED");
 
-    ptr[0] = HASH_SIZE * MWORD_SIZE;
-    ptr[1] = 0;
-    ptr[2] = 0;
-    ptr[3] = 0;
-    ptr[4] = 0;
-    return ptr+1;
+    return _newlfi(this_bvm,HASH_SIZE,0);
 
 }
 

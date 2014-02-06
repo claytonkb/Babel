@@ -28,8 +28,41 @@
 //
 void init_nil(bvm_cache *this_bvm){ // init_nil#
 
-    nil = new_tptr(this_bvm, BABEL_TAG_INTERP_NIL, NULL);
+//    nil = new_tptr(this_bvm, BABEL_TAG_INTERP_NIL, NULL);
+//    set_tptr(nil,nil);
+
+    mword *temp = malloc( MWORDS(TPTR_SIZE) ); // XXX WAIVER XXX
+    temp[0]=0;
+    nil=temp+1;
+
+    int i;
+    for(i=0; i<HASH_SIZE; i++){
+        nil[i] = BABEL_TAG_INTERP_NIL[i];
+    }
+
+    nil[HASH_SIZE  ] = -1*MWORD_SIZE;
     set_tptr(nil,nil);
+
+}
+
+//
+//
+void flag_init(bvm_cache *this_bvm){ // flag_init#
+
+    bvm_flags *f = malloc(sizeof(bvm_flags)); // XXX WAIVER XXX
+
+    f->MC_ALLOC_BLOCKING     = FLAG_CLR;
+    f->MC_GC_BLOCKING        = FLAG_CLR;
+    f->MC_GC_PENDING         = FLAG_CLR;
+    f->BVM_INSTR_IN_PROGRESS = FLAG_CLR;
+    f->BVM_INCOHERENT        = FLAG_IGN;
+    f->BVM_CACHE_VALID       = FLAG_IGN;
+    f->BVM_CACHE_DIRTY       = FLAG_IGN;
+    f->BVM_CLEAN             = FLAG_IGN;
+    f->NO_ASYNC              = FLAG_IGN;
+    f->NO_EXCEPT             = FLAG_IGN;
+
+    this_bvm->flags = f;
 
 }
 
@@ -104,7 +137,7 @@ void init_srand(bvm_cache *this_bvm){
     // FIXME: strlen... get rid
     // This needs to be enhanced to look for existing srand...
     //mword *time_hash;// = new_hash(this_bvm);
-    mword *hash_init = new_hash(this_bvm);
+    mword *hash_init = _newlfi(this_bvm, HASH_SIZE, 0); //new_hash(this_bvm);
     mword *epoch = get_sym( this_bvm, "epoch" );
     mword *time_hash = _pearson16(this_bvm,  hash_init, epoch, _arlen8(this_bvm, epoch) );
     init_by_array( time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
@@ -140,12 +173,22 @@ void init_argv(bvm_cache *this_bvm, int argc, char **argv){
 
 }
 
+void init_symbolic_constants(bvm_cache *this_bvm){
+
+    BABEL_SYM_STEPS         = _hash8(this_bvm, C2B("steps"));
+    BABEL_SYM_THREAD_ID     = _hash8(this_bvm, C2B("thread_id"));
+    BABEL_SYM_ADVANCE_TYPE  = _hash8(this_bvm, C2B("advance_type"));
+    BABEL_SYM_SOFT_ROOT     = _hash8(this_bvm, C2B("soft_root"));
+    BABEL_SYM_JUMP_TABLE    = _hash8(this_bvm, C2B("jump_table"));
+
+}
 
 //  Initializes the root Babel Virtual Machine (BVM)
-//
+//  and interpreter-only state...
 bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){ // interp_init#
 
     mc_init(this_bvm);
+    flag_init(this_bvm);
     init_nil(this_bvm);    //initialize nil (global constant)
 
 //    mword *load_bbl = malloc(MWORDS(BBL_SIZE));
@@ -184,6 +227,8 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
     init_srand(this_bvm);
 
     init_argv(this_bvm, argc, argv);
+
+    init_symbolic_constants(this_bvm);
 
     mword *jump_table    = init_interp_jump_table(this_bvm);
 

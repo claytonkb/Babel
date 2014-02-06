@@ -36,7 +36,6 @@
 
     loop))
 
-
 (strcat (code <- '' ->  (code .) each))
 (strne  (code arcmp))
 (streq  (code strne ! not))
@@ -57,7 +56,8 @@
 (bvm_dstack_ptr (code cdr car car))
 (bvm_ustack_ptr (code cdr car cdr car))
 (bvm_rstack_ptr (code car cdr ))
-(bvm_sym_table  (code cdr cdr cdr car car))
+-- (bvm_sym_table  (code cdr cdr cdr car car))
+(bvm_sym_table  (code cdr cdr cdr))
 
 
 -- FIXME: jump_table needs to be set to nil before unload...

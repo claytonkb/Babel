@@ -147,6 +147,7 @@
     (insha          (oper 0x152))
     (exha           (oper 0x154))
     (keysha         (oper 0x156))
+    (entsha         (oper 0x156))
 
     (inskha         (oper 0x162))
 
@@ -269,5 +270,8 @@
     (bvmsym         (oper 0x221))
     (hibernate      (oper 0x222))
     (bvm_step       (oper 0x223))
-    (rawmem         (oper 0x224)))
+    (rawmem         (oper 0x224))
+    (set_ith        (oper 0x225))
+    (set_car        (oper 0x226))
+    (set_cdr        (oper 0x227)))
 

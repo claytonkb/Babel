@@ -16,6 +16,17 @@
 #include "tptr.h"
 #include "mem.h"
 
+// Updates the payload of a hash-entry
+//
+void sym_update(bvm_cache *this_bvm, mword *hash, mword *new_payload){
+
+    mword *entry = _luha(this_bvm, get_tptr(this_bvm->sym_table), hash);
+    mword *old_payload = _cdri(this_bvm, entry, 2); //FIXME: Naked constant
+    (mword*)icar(old_payload) = new_payload;
+
+}
+
+
 /* hash operator
 **newha**
 */
@@ -40,8 +51,6 @@ bvm_cache *keysha(bvm_cache *this_bvm){ // newha#
     popd(this_bvm);
 
     mword *result = _entha(this_bvm, hard_detag(this_bvm, hash_table));
-
-
 
     pushd(this_bvm, result, IMMORTAL);
 
@@ -84,17 +93,14 @@ mword *rentha(bvm_cache *this_bvm, mword *hash_table, mword level){ // rentha#
 
         if(is_nil(list0)){
             if(is_nil(list1)){
-
                 return nil;
             }
             else{
-
                 return list1;
             }
         }
         else{
             if(is_nil(list1)){
-
                 return list0;
             }
             else{
@@ -113,10 +119,8 @@ mword *rentha(bvm_cache *this_bvm, mword *hash_table, mword level){ // rentha#
         return consa(this_bvm, hard_detag(this_bvm, hash_table),nil);
     }
     else{
-
-        fatal("unexpected element in hash-table");
+        fatal("unexpected element in hash-table"); //FIXME: except, not fatal
     }
-
 
 }
 
@@ -409,6 +413,10 @@ bvm_cache *luha(bvm_cache *this_bvm){ // luha#
     popd(this_bvm);
     popd(this_bvm);
 
+//    mword *result = HASH_ENTRY_PAY( 
+//                        this_bvm,
+//                        _luha(this_bvm, get_tptr(hash_table), hash) );
+
     mword *result = _luha(this_bvm, get_tptr(hash_table), hash);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -416,6 +424,7 @@ bvm_cache *luha(bvm_cache *this_bvm){ // luha#
     return this_bvm;
 
 }
+
 
 //
 //
@@ -454,7 +463,11 @@ static mword *rluha(bvm_cache *this_bvm, mword *hash_table, mword *hash, mword l
         return rluha(this_bvm, (mword*)c(hash_table,cons_side), hash, level+1);
     }
     else if(is_tptr(next_level)){ // XXX ASSUMES well-formed hash-entry
-        return (mword*)car(cdr(cdr(next_level)));
+        //_dump(detag(this_bvm, next_level));
+        //return (mword*)car(cdr(cdr(next_level)));
+        //return _ith(this_bvm, detag(this_bvm, next_level), 2);
+        //return HASH_ENTRY_PAY(this_bvm, next_level);
+        return next_level;
     }
 
 }

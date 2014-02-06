@@ -717,6 +717,9 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     hibernate,
     bvm_step,
     readmem,
+    set_ith,
+    set_car,
+    set_cdr,
 
 };
 

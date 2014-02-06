@@ -139,7 +139,7 @@ bvm_cache *unload(bvm_cache *this_bvm){ // unload#
 // space, there is no reason unload() should require 2N space to
 // unload an object of size N. Future perf enhancement will implement
 // a binary tree to store the address translations.
-mword *_unload(bvm_cache *this_bvm, mword *bs){//, mword offset){
+mword *_unload(bvm_cache *this_bvm, mword *bs){ // _unload#
 
     mword bs_size     = _mu   (this_bvm, bs);
     mword num_arrays  = _nin  (this_bvm, bs);

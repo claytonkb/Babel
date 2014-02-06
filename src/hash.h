@@ -6,7 +6,6 @@
 
 #include "babel.h"
 
-
 //#include "list.h"
 
 //#define HASH_LEVEL_SIZE     (1<<BITS_PER_BYTE)
@@ -16,12 +15,16 @@
 //#define HASH_ENTRY_SIZE 5
 //
 //#define HASH_ENTRY_REF(x) ((mword*)c(x,0))
-//#define HASH_ENTRY_VAL(x) ((mword*)c(x,1))
 //#define HASH_ENTRY_KEY(x) ((mword*)c(x,2))
 //#define HASH_ENTRY_CNT(x) ((mword*)c(x,3))
 //#define HASH_ENTRY_BND(x) ((mword*)c(x,4))
 
 //mword *new_hash_entry(mword *hash, mword *key, mword *val, mword ref_count, mword bounding);
+
+#define HASH_ENTRY_HKEY(x,y) ( _ith(x, detag(x, y), 0) )
+#define HASH_ENTRY_KEY(x,y)  ( _ith(x, detag(x, y), 1) )
+#define HASH_ENTRY_PAY(x,y)  ( _ith(x, detag(x, y), 2) )
+//#define HASH_ENTRY_PAY(x,y)  ( is_nil(y) ? nil : _ith(x, detag(x, y), 2) )
 
 // hash_insert#
 #define hash_insert(hash_table, key, payload)       \
@@ -32,11 +35,13 @@
                                         C2B(key),   \
                                         payload ) );
 
+void sym_update(bvm_cache *this_bvm, mword *hash, mword *new_payload);
 
 mword *new_hash_table(bvm_cache *this_bvm);
 void _insha(bvm_cache *this_bvm, mword *hash_table, mword *hash, mword *key, mword *entry);
 
 mword *new_hash_table_entry(bvm_cache *this_bvm, mword *hash, mword *key, mword *payload);
+
 //static void rinsha(mword *hash_table, mword *hash, mword *key, mword *entry, mword level);
 static void rinsha(bvm_cache *this_bvm, mword *hash_table, mword *hash, mword *key, mword *entry, mword level);
 

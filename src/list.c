@@ -20,6 +20,8 @@ bvm_cache *insls(bvm_cache *this_bvm){ // insls#
 
     mword *src_list  = dstack_get(this_bvm,0);
     mword *dest_list = dstack_get(this_bvm,1); // XXX: User-dependent
+
+    popd(this_bvm);
     popd(this_bvm);
 
     mword *end_src_list   = _list_end(this_bvm, src_list);
@@ -482,12 +484,28 @@ bvm_cache *ith(bvm_cache *this_bvm){ // ith#
 
 //
 //
-mword *_ith(bvm_cache *this_bvm, mword *list, mword i){ // _ith#
+mword *_cdri(bvm_cache *this_bvm, mword *list, mword i){ // _cdri#
 
     while(i > 0){
         i--;
         list = (mword*)cdr(list);
     }
+
+    return list;
+
+}
+
+
+//
+//
+mword *_ith(bvm_cache *this_bvm, mword *list, mword i){ // _ith#
+
+//    while(i > 0){
+//        i--;
+//        list = (mword*)cdr(list);
+//    }
+
+    list = _cdri(this_bvm, list, i);
 
     return (mword*)car(list);
 
@@ -706,6 +724,67 @@ mword *_append_direct(bvm_cache *this_bvm, mword *head_list, mword *tail_list){ 
     (mword *)icdr(endls) = tail_list;
 
     return head_list;
+
+}
+
+
+/* list operator
+**set_ith**
+*/
+bvm_cache *set_ith(bvm_cache *this_bvm){ // set_ith#
+
+    mword index     = icar(dstack_get(this_bvm,0));
+    mword *src      = dstack_get(this_bvm,1);
+    mword *dest     = dstack_get(this_bvm,2);
+
+    popd(this_bvm);
+    popd(this_bvm);
+    popd(this_bvm);
+
+    mword *temp_cons = _cdri(this_bvm,dest,index);
+
+    (mword*)c(temp_cons,0) = src;
+
+//    _dump(temp_cons);
+//    die;
+
+    return this_bvm;
+
+}
+
+
+/* list operator
+**set_car**
+*/
+bvm_cache *set_car(bvm_cache *this_bvm){ // set_car#
+
+    mword *src      = dstack_get(this_bvm,0);
+    mword *dest     = dstack_get(this_bvm,1);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    (mword*)c(dest,0) = src;
+
+    return this_bvm;
+
+}
+
+
+/* list operator
+**set_cdr**
+*/
+bvm_cache *set_cdr(bvm_cache *this_bvm){ // set_cdr#
+
+    mword *src      = dstack_get(this_bvm,0);
+    mword *dest     = dstack_get(this_bvm,1);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    (mword*)c(dest,1) = src;
+
+    return this_bvm;
 
 }
 

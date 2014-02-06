@@ -97,7 +97,7 @@ bvm_cache *lusym(bvm_cache *this_bvm){ // lusym#
 
     pushd(this_bvm, 
 //            (mword*)get_sym(this_bvm, (char*)_b2c(this_bvm, symbol)), 
-            _luha(this_bvm,  get_tptr(this_bvm->sym_table), _hash8(this_bvm, symbol)),
+            HASH_ENTRY_PAY( this_bvm, _luha(this_bvm,  get_tptr(this_bvm->sym_table), _hash8(this_bvm, symbol)) ),
             IMMORTAL);
 
     return this_bvm;

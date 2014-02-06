@@ -45,13 +45,18 @@
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 551
+#define NUM_INTERP_OPCODES 554
+
+#define FLAG_IGN    ((mword)-1)
+#define FLAG_SET    1
+#define FLAG_CLR    0
 
 // TYPEDEFS
 typedef void(*std_fn_ptr)(void);
 
 typedef unsigned mword; // mword#
 typedef signed   smword;
+
 
 typedef struct { // alloc_bank#
 
@@ -60,12 +65,30 @@ typedef struct { // alloc_bank#
 
 } alloc_bank; 
 
+
 typedef struct { // mem_context#
 
     alloc_bank *primary;
     alloc_bank *secondary;
 
-} mem_context; 
+} mem_context;
+
+
+typedef struct { // bvm_flags#
+
+    mword MC_ALLOC_BLOCKING;
+    mword MC_GC_BLOCKING;
+    mword MC_GC_PENDING;
+    mword BVM_INSTR_IN_PROGRESS;
+    mword BVM_INCOHERENT;
+    mword BVM_CACHE_VALID;
+    mword BVM_CACHE_DIRTY;
+    mword BVM_CLEAN;
+    mword NO_ASYNC;
+    mword NO_EXCEPT;
+
+} bvm_flags;
+
 
 typedef struct { // bvm_cache#
 
@@ -80,15 +103,18 @@ typedef struct { // bvm_cache#
     mword *self;
 
     mword *thread_id;
-    mword *steps;
+    mword *steps;    
     mword *advance_type;
-    mem_context *mem;
 
-    mword *flags;
+    //interp ONLY (no save/restore):
+    mem_context *mem;
+    bvm_flags   *flags;
 
 } bvm_cache;
 
+
 typedef bvm_cache *(*babel_op)(bvm_cache *); // babel_op#
+
 
 //bvm_cache *interp_init(int argc, char **argv);
 //bvm_cache *interp_init(bvm_cache *root_bvm, int argc, char **argv);
@@ -101,8 +127,8 @@ void temp_rbs2gv(mword *bs);
 
 #define bfree(x)  free((mword*)(x)-1)
 
-// Memory size is 32MB
-#define MEM_SIZE (1<<16)          // MEM_SIZE#
+// Memory size is 64MB
+#define MEM_SIZE (1<<26)          // MEM_SIZE#
 
 //#define ALLOC_ENTRY_IN_USE 1    // ALLOC_ENTRY_IN_USE#
 //#define ALLOC_ENTRY_FREE   0    // ALLOC_ENTRY_FREE#
@@ -123,13 +149,7 @@ void temp_rbs2gv(mword *bs);
 // GLOBALS
 mword *nil; // nil#
 mword *empty_string;
-//mem_context *mem;
-
-//mword*      internal_global_VM; //Interpreter-visible machine pointer
-//mword*      global_VM;          //Machine pointer
-////mword       global_machine_page_size;
-//jmp_buf     exception_env;
-//int         exception_type;
+mword null_hash[HASH_SIZE];// = { 0x88e9045b, 0x0b7c30af, 0x831422c3, 0x01ab0dc1, };
 
 // Operating-system compatibility
 #define WINDOWS
@@ -225,7 +245,8 @@ mword *empty_string;
 //                     || !is_leaf(x) && is_nil(car(x)) )
 
 //#define get_sym(x,y)   ( _luha(this_bvm,  (mword*)car(x->sym_table), _hash8(this_bvm, C2B(y))) )   // get_sym#
-#define get_sym(x,y)   ( _luha(this_bvm,  get_tptr(x->sym_table), _hash8(this_bvm, C2B(y))) )   // get_sym#
+#define get_sym(x,y)   ( HASH_ENTRY_PAY( x, _luha(x,  get_tptr(x->sym_table), _hash8(x, C2B(y))) ) )   // get_sym#
+//#define get_sym(x,y)   ( _luha(x,  get_tptr(x->sym_table), _hash8(x, C2B(y))) )  // get_sym#
 #define set_sym(x,y,z) hash_insert( x->sym_table, (y), (z) ) // set_sym#
 
 #define pushd(x,y,z) push_udr_stack(this_bvm, x->dstack_ptr, new_dstack_entry(this_bvm, y,z)) // pushd#
@@ -437,20 +458,21 @@ mword *empty_string;
 
 //Uncomment to turn on tracing in bvm_interp():
 //#define BVM_TRACE
+//#define BVM_OP_TRACE
 
-#define DIE_CODE 1
-#define QUOTEME(x) #x
-#define d(x) printf("%s %08x\n", QUOTEME(x), x);  // d#
-#define _mem(x)  int _i; printf("%08x\n", s(x)); for(_i=0; _i<alloc_size(x)-1; _i++){ printf("%08x\n", c(x,_i)); } // _mem#
-#define _dump(x) printf("%s\n", _bs2gv(this_bvm, x));  // _dump#
-#define _dumpd(x) printf("%s\n", _bs2gv(this_bvm, x->dstack_ptr));  // _dumpd#
-#define die      fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);  // die#
-#define warn(x)  fprintf(stderr, "WARNING: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__);  // warn#
-#define error(x) fprintf(stderr, "ERROR: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); // error#
-#define trace    printf("%s in %s line %d\n", __func__, __FILE__, __LINE__);   // trace#
-#define err_trace fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);   // err_trace#
-#define fatal(x) fprintf(stderr, "FATAL: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); die;  // fatal#
-#define enhance(x) fprintf(stderr, "ENHANCEMENT: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // enhance#
+#define DIE_CODE    1
+#define QUOTEME(x)  #x
+#define d(x)        printf("%s %08x\n", QUOTEME(x), x);  // d#
+#define _mem(x)     int _i; printf("%08x\n", s(x)); for(_i=0; _i<alloc_size(x)-1; _i++){ printf("%08x\n", c(x,_i)); } // _mem#
+#define _dump(x)    printf("%s\n", _bs2gv(this_bvm, x));  // _dump#
+#define _dumpd(x)   printf("%s\n", _bs2gv(this_bvm, x->dstack_ptr));  // _dumpd#
+#define die         fprintf(stderr, "Died at %s line %d\n", __FILE__, __LINE__); exit(DIE_CODE);  // die#
+#define warn(x)     fprintf(stderr, "WARNING: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__);  // warn#
+#define error(x)    fprintf(stderr, "ERROR: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); // error#
+#define fatal(x)    fprintf(stderr, "FATAL: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); die;  // fatal#
+#define trace       printf("%s in %s line %d\n", __func__, __FILE__, __LINE__);   // trace#
+#define err_trace   fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);   // err_trace#
+#define enhance(x)  fprintf(stderr, "ENHANCEMENT: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // enhance#
 
 #include "interp.h"
 #include "bvm.h"

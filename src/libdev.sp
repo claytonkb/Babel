@@ -18,17 +18,64 @@
 
 (collect (code -1 take))
 
-(vals (code (code 
-        keysha 
+-- pays
+-- Extracts all payloads from a hash table
+(pays (code (code 
+        entsha 
         (code 2 ith) 
         each 
         collect !)
     nest))
 
+-- keys
+-- Extracts all string keys from a hash table
 (keys (code (code 
-        keysha 
+        entsha 
         (code 1 ith) 
         each 
         collect !)
-    nest)))
+    nest))
+
+-- hkeys
+-- Extracts all hashed keys from a hash table
+(hkeys (code (code 
+        entsha 
+        (code 0 ith) 
+        each 
+        collect !)
+    nest))
+
+-- mkhash
+-- Constructs a hash from a list-of-lists:
+--
+--      (list   (list "key0" payload0)
+--              (list "key1" payload1)
+--              (list "key2" payload2))
+--
+(mkhash (code 
+    <- newha ->
+    (code 
+        <- dup ->
+        dup 1 ith
+        <- 0 ith ->
+        inskha)
+    each))
+
+-- mkhash_hkey
+-- Same as mkhash but discards the string key
+(mkhash_hkey (code 
+    <- newha ->
+    (code 
+        <- dup ->
+        dup 1 ith
+        <- 0 ith hash8 ->
+        insha)
+    each))
+
+(ins_ith (code 
+    <->
+    <- <- (code cdr) -> 
+    1 - 
+    times ->
+    ins)))
 

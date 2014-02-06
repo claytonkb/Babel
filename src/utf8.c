@@ -14,6 +14,7 @@
   Clayton Bauman: Some modifications have been made from Bezanson's original code
 */
 
+#include "babel.h"
 #include "utf8.h"
 
 static const uint32_t offsetsFromUTF8[6] = {
@@ -439,20 +440,21 @@ int u8_is_locale_utf8(char *locale)
 
 int u8_vprintf(char *fmt, va_list ap)
 {
+    fatal("this function uses malloc");
     int cnt, sz=0;
     char *buf;
     uint32_t *wcs;
 
     sz = 512;
-    buf = (char*)malloc(sz);
+    buf = (char*)malloc(sz); // XXX NOT IN USE XXX
  try_print:
     cnt = vsnprintf(buf, sz, fmt, ap);
     if (cnt >= sz) {
-        buf = (char*)malloc(cnt - sz + 1);
+        buf = (char*)malloc(cnt - sz + 1); // XXX NOT IN USE XXX
         sz = cnt + 1;
         goto try_print;
     }
-    wcs = (uint32_t*)malloc((cnt+1) * sizeof(uint32_t));
+    wcs = (uint32_t*)malloc((cnt+1) * sizeof(uint32_t)); // XXX NOT IN USE XXX
     cnt = u8_toucs(wcs, cnt+1, buf, cnt);
     printf("%ls", (wchar_t*)wcs);
     return cnt;

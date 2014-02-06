@@ -11,6 +11,10 @@ mword *_list_cut(bvm_cache *this_bvm, mword *list, mword index);
 mword *_append(bvm_cache *this_bvm, mword *lists);
 mword *_append_direct(bvm_cache *this_bvm, mword *head_list, mword *tail_list);
 bvm_cache *append(bvm_cache *this_bvm);
+bvm_cache *set_ith(bvm_cache *this_bvm);
+bvm_cache *set_car(bvm_cache *this_bvm);
+bvm_cache *set_cdr(bvm_cache *this_bvm);
+mword *_cdri(bvm_cache *this_bvm, mword *list, mword i);
 
 bvm_cache *insls(bvm_cache *this_bvm);
 

@@ -49,7 +49,8 @@ mword *new_tptr(bvm_cache *this_bvm, const mword *hash, mword *bs){ // new_tptr#
 //
 mword *tptr_extract_hash(bvm_cache *this_bvm, mword *tptr){ // tptr_extract_hash#
 
-    mword *ptr = new_hash(this_bvm);
+    //mword *ptr = new_hash(this_bvm);
+    mword *ptr = _newlfi(this_bvm, HASH_SIZE, 0);
     int i;
 
     for(i=0; i<HASH_SIZE; i++){

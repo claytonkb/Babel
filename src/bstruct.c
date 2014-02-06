@@ -521,6 +521,8 @@ mword rbbl2str(bvm_cache *this_bvm, mword *bs, char *buffer){ // rbbl2str#
     #define INTE_CLOSE ") "
     #define LEAF_OPEN  "(val "
     #define LEAF_CLOSE ") "
+    #define TPTR_OPEN  "(tag "
+    #define TPTR_CLOSE ") "
 
     if(is_inte(bs)){
 
@@ -535,7 +537,7 @@ mword rbbl2str(bvm_cache *this_bvm, mword *bs, char *buffer){ // rbbl2str#
         buf_size += sprintf(buffer+buf_size, INTE_CLOSE);
 
     }
-    else{ // is_leaf
+    else if(is_leaf(bs)){ // is_leaf
 
         //buf_size += sprintf(buffer+buf_size, "{ ");
         buf_size += sprintf(buffer+buf_size, LEAF_OPEN);
@@ -548,6 +550,21 @@ mword rbbl2str(bvm_cache *this_bvm, mword *bs, char *buffer){ // rbbl2str#
         buf_size += sprintf(buffer+buf_size, LEAF_CLOSE);
 
     }
+    else{ // is_tptr
+
+        //buf_size += sprintf(buffer+buf_size, "{ ");
+        buf_size += sprintf(buffer+buf_size, TPTR_OPEN);
+
+        for(i=0; i<HASH_SIZE; i++){
+            buf_size += sprintf(buffer+buf_size, "08x%x ", *(mword *)(bs+i));
+        }
+        buf_size += rbbl2str(this_bvm, get_tptr(bs), buffer+buf_size);
+
+        //buf_size += sprintf(buffer+buf_size, "} ");
+        buf_size += sprintf(buffer+buf_size, TPTR_CLOSE);
+
+    }
+
 
     return buf_size;
 

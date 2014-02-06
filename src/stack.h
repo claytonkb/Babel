@@ -6,10 +6,11 @@
 
 void free_lumbar(bvm_cache *this_bvm, mword *stack_entry);
 
+//FIXME: YUCK!
 mword *new_dstack_entry(bvm_cache *this_bvm, mword *operand, mword alloc_type);
+mword *new_dstack_entry2(bvm_cache *this_bvm, mword *operand, mword *alloc_type);
 
 //mword *new_dstack_entry2(mword *operand, mword *alloc_type);
-mword *new_dstack_entry2(bvm_cache *this_bvm, mword *operand, mword *alloc_type);
 
 void push_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword *stack_entry);
 mword *pop_udr_stack(bvm_cache *this_bvm, mword *stack_ptr);
