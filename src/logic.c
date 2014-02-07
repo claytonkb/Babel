@@ -261,9 +261,14 @@ bvm_cache *cnot(bvm_cache *this_bvm){ // cnot#
 */
 bvm_cache *andop(bvm_cache *this_bvm){ // andop#
 
+#define babel_andop_operator(x)                 \
+    mword *opA = op0;                    \
+    mword *opB = op1;                    \
+    result = _newva( this_bvm,  x );
+
     babel_operator_typeB( 
             this_bvm, 
-            babel_logic_operator( !is_false(opA) && !is_false(opB) ) );
+            babel_andop_operator( !is_false(opA) && !is_false(opB) ) );
 
 }
 
@@ -275,9 +280,14 @@ bvm_cache *andop(bvm_cache *this_bvm){ // andop#
 */
 bvm_cache *orop(bvm_cache *this_bvm){ // orop#
 
+#define babel_orop_operator(x)                 \
+    mword *opA = op0;                    \
+    mword *opB = op1;                    \
+    result = _newva( this_bvm,  x );
+
     babel_operator_typeB( 
             this_bvm, 
-            babel_logic_operator( !is_false(opA) || !is_false(opB) ) );
+            babel_orop_operator( !is_false(opA) || !is_false(opB) ) );
 
 }
 
@@ -290,7 +300,7 @@ bvm_cache *orop(bvm_cache *this_bvm){ // orop#
 bvm_cache *notop(bvm_cache *this_bvm){ // notop#
 
 //#define babel_notop_operator(x)                 \
-//    mword opA = c( op0, 0 );                    \
+// z  mword opA = c( op0, 0 );                    \
 //    result = _newva(this_bvm,  x );
 
 #define babel_notop_operator(x)                 \

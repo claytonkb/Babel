@@ -99,48 +99,6 @@ mword *mc_alloc(bvm_cache *this_bvm, mword sfield){
 }
 
 
-//// mc_alloc
-////
-//mword *mc_alloc(bvm_cache *this_bvm, mword sfield){
-//
-//trace;
-//    // mc_alloc is non-reentrant... this is enforced with 
-//    // the MC_ALLOC_BLOCKING flag
-//    if(this_bvm->flags->MC_ALLOC_BLOCKING == FLAG_SET){
-//        fatal("allocation failed");
-//    }
-//
-//    this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_SET;
-//
-//    alloc_bank *b = this_bvm->mem->primary;
-//
-//    mword mc_size = mc_alloc_size(sfield)+1;
-//
-//    if(b->alloc_ptr-mc_size < b->base_ptr){
-//        mc_swap_banks(this_bvm);
-//        if(this_bvm->flags->BVM_INSTR_IN_PROGRESS == FLAG_SET){
-//trace;
-//            this_bvm->flags->MC_GC_PENDING = FLAG_SET;
-//        }
-//        else{
-//trace;
-//            mc_copy_collect(this_bvm);
-//        }
-//    }
-//trace;
-//    b->alloc_ptr -= mc_size;
-//
-//    mword *return_ptr = b->alloc_ptr+1;
-//
-//    s(return_ptr) = sfield;
-//
-//    this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
-//
-//    return return_ptr;
-//
-//}
-//
-
 // mc_copy_collect
 //
 mword mc_copy_collect(bvm_cache *this_bvm){
@@ -155,7 +113,7 @@ mword mc_copy_collect(bvm_cache *this_bvm){
 
     //mc_swap_banks(this_bvm);
 
-    flush_bvm_cache2(this_bvm);
+    flush_bvm_cache(this_bvm);
 
     this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
 
@@ -200,32 +158,6 @@ void mc_reset_bank(bvm_cache *this_bvm, alloc_bank *b){
 mword mc_bank_usage(bvm_cache *this_bvm, alloc_bank *b){
 
     return (TOP_OF_ALLOC_BANK(b) - b->alloc_ptr);
-
-}
-
-
-//
-//
-bvm_cache *flush_bvm_cache2(bvm_cache *this_bvm){ // flush_bvm_cache2#
-
-    mword *self = this_bvm->self;
-    (mword*)bvm_code_ptr(self)      = this_bvm->code_ptr;
-    (mword*)bvm_rstack_ptr(self)    = this_bvm->rstack_ptr;
-    (mword*)bvm_dstack_ptr(self)    = this_bvm->dstack_ptr;
-    (mword*)bvm_ustack_ptr(self)    = this_bvm->ustack_ptr;
-    (mword*)bvm_sym_table(self)     = this_bvm->sym_table;
-
-//sym_update(this_bvm, BABEL_SYM_JUMP_TABLE  , this_bvm->jump_table);
-////sym_update(this_bvm, BABEL_SYM_STEPS       , this_bvm->steps);
-////sym_update(this_bvm, BABEL_SYM_ADVANCE_TYPE, this_bvm->advance_type);
-////sym_update(this_bvm, BABEL_SYM_THREAD_ID   , this_bvm->thread_id);
-//
-    set_sym(this_bvm, "jump_table",   this_bvm->jump_table);
-    set_sym(this_bvm, "steps",        this_bvm->steps);
-    set_sym(this_bvm, "advance_type", this_bvm->advance_type);
-    set_sym(this_bvm, "thread_id",    this_bvm->thread_id);
-
-    return this_bvm;
 
 }
 
@@ -292,6 +224,48 @@ void mc_reclamate(bvm_cache *this_bvm){
 
 }
 
+
+//// mc_alloc
+////
+//mword *mc_alloc(bvm_cache *this_bvm, mword sfield){
+//
+//trace;
+//    // mc_alloc is non-reentrant... this is enforced with 
+//    // the MC_ALLOC_BLOCKING flag
+//    if(this_bvm->flags->MC_ALLOC_BLOCKING == FLAG_SET){
+//        fatal("allocation failed");
+//    }
+//
+//    this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_SET;
+//
+//    alloc_bank *b = this_bvm->mem->primary;
+//
+//    mword mc_size = mc_alloc_size(sfield)+1;
+//
+//    if(b->alloc_ptr-mc_size < b->base_ptr){
+//        mc_swap_banks(this_bvm);
+//        if(this_bvm->flags->BVM_INSTR_IN_PROGRESS == FLAG_SET){
+//trace;
+//            this_bvm->flags->MC_GC_PENDING = FLAG_SET;
+//        }
+//        else{
+//trace;
+//            mc_copy_collect(this_bvm);
+//        }
+//    }
+//trace;
+//    b->alloc_ptr -= mc_size;
+//
+//    mword *return_ptr = b->alloc_ptr+1;
+//
+//    s(return_ptr) = sfield;
+//
+//    this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
+//
+//    return return_ptr;
+//
+//}
+//
 
 // Clayton Bauman 2013
 

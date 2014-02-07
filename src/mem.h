@@ -26,7 +26,6 @@ mword mc_copy_collect(bvm_cache *this_bvm);
 void mc_swap_banks(bvm_cache *this_bvm);
 mc_dump_core(bvm_cache *this_bvm);
 mc_log(bvm_cache *this_bvm);
-bvm_cache *flush_bvm_cache2(bvm_cache *this_bvm);
 
 #endif //MEM_H
 
