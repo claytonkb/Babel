@@ -97,6 +97,26 @@ bvm_cache *exec(bvm_cache *this_bvm){ // exec#
 
 //
 //
+void dec_bvm_steps(bvm_cache *this_bvm){
+
+    icar(this_bvm->steps)--;
+    this_bvm->flags->BVM_CACHE_DIRTY = FLAG_SET;
+
+}
+
+
+//
+//
+void set_bvm_advance_type(bvm_cache *this_bvm, mword advance_type){
+
+    icar(this_bvm->advance_type) = advance_type;
+    this_bvm->flags->BVM_CACHE_DIRTY = FLAG_SET;
+
+}
+
+
+//
+//
 bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
 
     bvm_cache *discard;
@@ -142,7 +162,9 @@ d(opcode);
         this_bvm->flags->BVM_INSTR_IN_PROGRESS = FLAG_CLR;
 
         if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
+            flush_bvm_cache(this_bvm);
             mc_copy_collect(this_bvm);
+            update_bvm_cache(this_bvm);
         }
 
         if(icar(this_bvm->advance_type) == BVM_ADVANCE){
@@ -153,10 +175,12 @@ d(opcode);
             break;
         }
         else{
-            icar(this_bvm->advance_type) = BVM_ADVANCE;
+            //icar(this_bvm->advance_type) = BVM_ADVANCE;
+            set_bvm_advance_type(this_bvm, BVM_ADVANCE);
         }
 
-        icar(this_bvm->steps)--;
+        //icar(this_bvm->steps)--;
+        dec_bvm_steps(this_bvm);
 
     }
 
@@ -279,10 +303,8 @@ mword *_bvm_init(bvm_cache *this_bvm, mword *bvm_to_load){ // _bvm_init#
 
     if(tageq(bvm_to_load,BABEL_TAG_SYM_BVM,TAG_SIZE)){
 
-
         mword *base_hash_table  = new_hash_table(this_bvm);
         mword *sym_table        = new_hash_table(this_bvm);
-
 
         _insha(this_bvm,  base_hash_table,      
                 _hash8(this_bvm, C2B("/babel/tag/sym_table")),
@@ -291,9 +313,7 @@ mword *_bvm_init(bvm_cache *this_bvm, mword *bvm_to_load){ // _bvm_init#
                                        nil,   
                                        sym_table ) );
 
-
         for(i=0; i<load_length; i++){
-
 
             mword *payload = (mword*)icar(list);
             mword *hash = _ith(this_bvm, payload,0);
@@ -386,16 +406,16 @@ bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
         if(tageq(new_bvm_cache.self,BABEL_TAG_SPARSE_BVM,TAG_SIZE)){
 
             //FIXME: Assumes we want to clone:
-            set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
-            set_sym(new_bvm_ptr, "epoch",  (mword*)get_sym(this_bvm, "epoch") );
+//            set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
+//            set_sym(new_bvm_ptr, "epoch",  (mword*)get_sym(this_bvm, "epoch") );
             set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
             //set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
 
             set_sym(new_bvm_ptr, "parent_bvm",     this_bvm->self );
-            set_sym(new_bvm_ptr, "thread_id",      _newva( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+//            set_sym(new_bvm_ptr, "thread_id",      _newva( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
             set_sym(new_bvm_ptr, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
-            set_sym(new_bvm_ptr, "soft_root",      nil );
-            set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
+//            set_sym(new_bvm_ptr, "soft_root",      nil );
+//            set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
 
         }
 
@@ -404,7 +424,11 @@ bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
     set_sym( new_bvm_ptr, "steps", _newva( this_bvm, (mword)1) );
 
     flush_bvm_cache(this_bvm);
+trace;
     update_bvm_cache(new_bvm_ptr);
+
+    new_bvm_ptr->jump_table = this_bvm->jump_table;
+    new_bvm_ptr->thread_id = this_bvm->thread_id;
 
     bvm_interp(new_bvm_ptr);
 
@@ -412,9 +436,15 @@ bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
 
     this_bvm->self    = get_sym(new_bvm_ptr, "parent_bvm"); //(mword*)bvm_jump_table(self);
 
+trace;
     update_bvm_cache(this_bvm); // Technically, this is not necessary
                                 // but it doesn't hurt
 
+    this_bvm->mem   = new_bvm_ptr->mem;
+    this_bvm->flags = new_bvm_ptr->flags;
+    this_bvm->jump_table = new_bvm_ptr->jump_table;
+    this_bvm->thread_id = new_bvm_ptr->thread_id;
+    
     //FIXME - push stack of new_bvm_cache onto this_bvm when bvm_interp returns
     //push_alloc(this_bvm, new_bvm_cache.stack_ptr, BVMEXEC);
 
@@ -451,19 +481,26 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
         //set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
 
         set_sym(new_bvm_ptr, "parent_bvm",     this_bvm->self );
-        set_sym(new_bvm_ptr, "steps",          _newva( this_bvm, (mword)-1) );
-        set_sym(new_bvm_ptr, "thread_id",      _newva( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+//        set_sym(new_bvm_ptr, "steps",          _newva( this_bvm, (mword)-1) );
+//        set_sym(new_bvm_ptr, "thread_id",      _newva( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
         set_sym(new_bvm_ptr, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
-        set_sym(new_bvm_ptr, "soft_root",      nil );
-        set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
+//        set_sym(new_bvm_ptr, "soft_root",      nil );
+//        set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
     }
 //    else{
 //        fatal("Unrecognized BVM");
 //    }
 //trace;
+
+    set_sym(new_bvm_ptr, "steps",          _newva( this_bvm, (mword)-1) );
+
     flush_bvm_cache(this_bvm);
+trace;
     update_bvm_cache(&new_bvm);
 //trace;
+    new_bvm.jump_table = this_bvm->jump_table;
+    new_bvm.thread_id = this_bvm->thread_id;
+
     bvm_interp(&new_bvm);
 
 //trace;
@@ -471,13 +508,14 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
 
     this_bvm->self    = get_sym(new_bvm_ptr, "parent_bvm"); //(mword*)bvm_jump_table(self);
 
-//trace;
+trace;
     update_bvm_cache(this_bvm); // Technically, this is not necessary
                                 // but it doesn't hurt
 //trace;
     this_bvm->mem   = new_bvm.mem;
-//trace;
     this_bvm->flags = new_bvm.flags;
+    this_bvm->jump_table = new_bvm.jump_table;
+    this_bvm->jump_table = new_bvm.thread_id;
 
 //trace;
     //FIXME - push stack of new_bvm onto this_bvm when bvm_interp returns
@@ -487,142 +525,6 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
 
 }
 
-
-
-//// This is a temporary operator to enable the REPL
-////
-//bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
-//
-//    //Check for existence of sym_table
-//    //if !exists -> initialize BVM
-//    //else if exists -> don't reinitialize, already done
-//trace;
-//    bvm_cache new_bvm_cache;
-//    bvm_cache *new_bvm_ptr = &new_bvm_cache;
-//
-//    this_bvm->flags->MC_GC_BLOCKING = FLAG_SET;
-//
-//    mword *op_bvm = dstack_get(this_bvm,0);
-//    popd(this_bvm);
-//
-//    new_bvm_ptr->self      = op_bvm;
-//    new_bvm_ptr->sym_table = (mword*)bvm_sym_table(new_bvm_cache.self);
-//
-//    mword *op_bvm_sym_table = (mword*)bvm_sym_table(op_bvm);
-//           op_bvm_sym_table = hard_detag(this_bvm, op_bvm_sym_table);
-//
-//    new_bvm_ptr->mem   = this_bvm->mem;
-//    new_bvm_ptr->flags = this_bvm->flags;
-//
-//    flush_bvm_cache(this_bvm);
-//
-//    if(is_nil(car(op_bvm_sym_table)) && is_nil(cdr(op_bvm_sym_table))){ // sym_table is uninitialized
-//
-//        if(tageq(new_bvm_cache.self,BABEL_TAG_SPARSE_BVM,TAG_SIZE)){
-//
-//            //FIXME: Assumes we want to clone:
-//            set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
-//            set_sym(new_bvm_ptr, "epoch",  (mword*)get_sym(this_bvm, "epoch") );
-//            set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
-//            set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
-//
-//            set_sym(new_bvm_ptr, "thread_id",      _newva( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
-//            set_sym(new_bvm_ptr, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
-//            set_sym(new_bvm_ptr, "soft_root",      nil );
-//            set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
-//
-//        }
-//
-//    }
-//
-//    set_sym( new_bvm_ptr, "steps", _newva( this_bvm, (mword)1) );
-//
-//    this_bvm->flags->MC_GC_BLOCKING = FLAG_CLR;
-//
-//    update_bvm_cache(new_bvm_ptr);
-//
-//    bvm_interp(new_bvm_ptr);
-//
-//    flush_bvm_cache(new_bvm_ptr);
-//    update_bvm_cache(this_bvm); // Technically, this is not necessary
-//                                // but it doesn't hurt
-//
-//    //FIXME - push stack of new_bvm_cache onto this_bvm when bvm_interp returns
-//    //push_alloc(this_bvm, new_bvm_cache.stack_ptr, BVMEXEC);
-//
-//    return this_bvm;
-//
-//}
-//
-//
-//
-///* bvm operator
-//**babel**
-//> This operator "execs" a loaded BVM on TOS
-//*/
-//bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
-//
-//
-//
-//
-//
-//    bvm_cache new_bvm;
-//    bvm_cache *new_bvm_ptr = &new_bvm;
-//
-//    this_bvm->flags->MC_GC_BLOCKING = FLAG_SET;
-//
-//    new_bvm.self = dstack_get(this_bvm,0);
-//    popd(this_bvm);
-//
-//
-//    new_bvm_ptr->sym_table = (mword*)bvm_sym_table(new_bvm.self);
-//
-//    //Memory context is global across all BVM's in this thread...
-//
-//
-//    new_bvm_ptr->mem   = this_bvm->mem;
-//    new_bvm_ptr->flags = this_bvm->flags;
-//
-//    flush_bvm_cache(this_bvm);
-//
-//    if(tageq(new_bvm.self,BABEL_TAG_SPARSE_BVM,TAG_SIZE)){
-//        //FIXME: Assumes we want to clone:
-//
-//
-//
-//        set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
-//        set_sym(new_bvm_ptr, "epoch",  (mword*)get_sym(this_bvm, "epoch") );
-//        set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
-//        set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
-//
-//        set_sym(new_bvm_ptr, "steps",          _newva( this_bvm, (mword)-1) );
-//        set_sym(new_bvm_ptr, "thread_id",      _newva( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
-//        set_sym(new_bvm_ptr, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
-//        set_sym(new_bvm_ptr, "soft_root",      nil );
-//        set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
-//    }
-////    else{
-////        fatal("Unrecognized BVM");
-////    }
-//
-//
-//    this_bvm->flags->MC_GC_BLOCKING = FLAG_CLR;
-//
-//    update_bvm_cache(&new_bvm);
-//
-//    bvm_interp(&new_bvm);
-//
-//    flush_bvm_cache(&new_bvm);
-//    update_bvm_cache(this_bvm); // Technically, this is not necessary
-//                                // but it doesn't hurt
-//
-//    //FIXME - push stack of new_bvm onto this_bvm when bvm_interp returns
-//    //push_alloc(this_bvm, new_bvm.stack_ptr, BVMEXEC);
-//
-//    return this_bvm;
-//
-//}
-//
 
 /* bvm operator
 **hibernate**
@@ -762,22 +664,55 @@ bvm_cache *boilerplate(bvm_cache *this_bvm){
 //
 bvm_cache *update_bvm_cache(bvm_cache *this_bvm){ // update_bvm_cache#
 
+    if(this_bvm->flags->BVM_CACHE_DIRTY == FLAG_SET){
+        fatal("cache update failed");
+    }    
+
     mword *self = this_bvm->self;
 
-    this_bvm->code_ptr      = (mword*)bvm_code_ptr(self);
-    this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(self);
-    this_bvm->dstack_ptr    = (mword*)bvm_dstack_ptr(self);
-    this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(self);
-    this_bvm->sym_table     = (mword*)bvm_sym_table(self);
+//    this_bvm->code_ptr      = (mword*)bvm_code_ptr(self);
+//    this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(self);
+//    this_bvm->dstack_ptr    = (mword*)bvm_dstack_ptr(self);
+//    this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(self);
+//    this_bvm->sym_table     = (mword*)bvm_sym_table(self);
+
+    mword *temp;
+
+    temp = (mword*)bvm_code_ptr(self);
+    write_bvm_cache(this_bvm, &this_bvm->code_ptr, &temp);
+
+    temp = (mword*)bvm_rstack_ptr(self);
+    write_bvm_cache(this_bvm, &this_bvm->rstack_ptr, &temp);
+
+    temp = (mword*)bvm_dstack_ptr(self);
+    write_bvm_cache(this_bvm, &this_bvm->dstack_ptr, &temp);
+
+    temp = (mword*)bvm_ustack_ptr(self);
+    write_bvm_cache(this_bvm, &this_bvm->ustack_ptr, &temp);
+
+    temp = (mword*)bvm_sym_table(self);
+    write_bvm_cache(this_bvm, &this_bvm->sym_table, &temp);
 
 //mword *test = get_sym(this_bvm, "thread_id"); //(mword*)bvm_jump_table(self);
 //_dump(test);
 //die;
 
-    this_bvm->jump_table    = get_sym(this_bvm, "jump_table"); //(mword*)bvm_jump_table(self);
-    this_bvm->steps         = get_sym(this_bvm, "steps");
-    this_bvm->advance_type  = get_sym(this_bvm, "advance_type");
-    this_bvm->thread_id     = get_sym(this_bvm, "thread_id");
+//    this_bvm->jump_table    = get_sym(this_bvm, "jump_table"); //(mword*)bvm_jump_table(self);
+
+    temp = get_sym(this_bvm, "steps");
+    write_bvm_cache(this_bvm, &this_bvm->steps, &temp);
+
+    temp = get_sym(this_bvm, "advance_type");
+    write_bvm_cache(this_bvm, &this_bvm->advance_type, &temp);
+
+    this_bvm->flags->BVM_CACHE_DIRTY = FLAG_CLR;
+
+//    temp = get_sym(this_bvm, "thread_id");
+//    write_bvm_cache(this_bvm, &this_bvm->thread_id, &temp);
+
+//    this_bvm->steps         = get_sym(this_bvm, "steps");
+//    this_bvm->advance_type  = get_sym(this_bvm, "advance_type");
+//    this_bvm->thread_id     = get_sym(this_bvm, "thread_id");
 
     return this_bvm;
 
@@ -786,10 +721,66 @@ bvm_cache *update_bvm_cache(bvm_cache *this_bvm){ // update_bvm_cache#
 
 //
 //
-bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){ // flush_bvm_cache#
+bvm_cache *init_bvm_cache(bvm_cache *this_bvm){ // init_bvm_cache#
 
     mword *self = this_bvm->self;
 
+//    this_bvm->code_ptr      = (mword*)bvm_code_ptr(self);
+//    this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(self);
+//    this_bvm->dstack_ptr    = (mword*)bvm_dstack_ptr(self);
+//    this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(self);
+//    this_bvm->sym_table     = (mword*)bvm_sym_table(self);
+
+    mword *temp;
+
+    temp = (mword*)bvm_code_ptr(self);
+    write_bvm_cache(this_bvm, &this_bvm->code_ptr, &temp);
+
+    temp = (mword*)bvm_rstack_ptr(self);
+    write_bvm_cache(this_bvm, &this_bvm->rstack_ptr, &temp);
+
+    temp = (mword*)bvm_dstack_ptr(self);
+    write_bvm_cache(this_bvm, &this_bvm->dstack_ptr, &temp);
+
+    temp = (mword*)bvm_ustack_ptr(self);
+    write_bvm_cache(this_bvm, &this_bvm->ustack_ptr, &temp);
+
+    temp = (mword*)bvm_sym_table(self);
+    write_bvm_cache(this_bvm, &this_bvm->sym_table, &temp);
+
+//mword *test = get_sym(this_bvm, "thread_id"); //(mword*)bvm_jump_table(self);
+//_dump(test);
+//die;
+
+//    this_bvm->jump_table    = get_sym(this_bvm, "jump_table"); //(mword*)bvm_jump_table(self);
+
+    temp = get_sym(this_bvm, "steps");
+    write_bvm_cache(this_bvm, &this_bvm->steps, &temp);
+
+    temp = get_sym(this_bvm, "advance_type");
+    write_bvm_cache(this_bvm, &this_bvm->advance_type, &temp);
+
+//    temp = get_sym(this_bvm, "thread_id");
+//    write_bvm_cache(this_bvm, &this_bvm->thread_id, &temp);
+
+//    this_bvm->steps         = get_sym(this_bvm, "steps");
+//    this_bvm->advance_type  = get_sym(this_bvm, "advance_type");
+//    this_bvm->thread_id     = get_sym(this_bvm, "thread_id");
+
+    this_bvm->flags->BVM_CACHE_DIRTY = FLAG_CLR;
+
+    return this_bvm;
+
+}
+
+
+
+
+//
+//
+bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){ // flush_bvm_cache#
+
+    mword *self = this_bvm->self;
     (mword*)bvm_code_ptr(self)      = this_bvm->code_ptr;
     (mword*)bvm_rstack_ptr(self)    = this_bvm->rstack_ptr;
     (mword*)bvm_dstack_ptr(self)    = this_bvm->dstack_ptr;
@@ -801,14 +792,64 @@ bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){ // flush_bvm_cache#
 //sym_update(this_bvm, BABEL_SYM_ADVANCE_TYPE, this_bvm->advance_type);
 //sym_update(this_bvm, BABEL_SYM_THREAD_ID   , this_bvm->thread_id);
 
-    set_sym(this_bvm, "jump_table",   this_bvm->jump_table);
+    this_bvm->flags->MC_GC_BLOCKING = FLAG_SET;
+
+//    set_sym(this_bvm, "jump_table",   this_bvm->jump_table);
     set_sym(this_bvm, "steps",        this_bvm->steps);
     set_sym(this_bvm, "advance_type", this_bvm->advance_type);
-    set_sym(this_bvm, "thread_id",    this_bvm->thread_id);
+//    set_sym(this_bvm, "thread_id",    this_bvm->thread_id);
+
+    this_bvm->flags->MC_GC_BLOCKING = FLAG_CLR;
+    this_bvm->flags->BVM_CACHE_DIRTY = FLAG_CLR;
+    
+    return this_bvm;
+
+}
+
+
+//
+//
+bvm_cache *init_flush_bvm_cache(bvm_cache *this_bvm){ // init_flush_bvm_cache#
+
+    mword *self = this_bvm->self;
+    (mword*)bvm_code_ptr(self)      = this_bvm->code_ptr;
+    (mword*)bvm_rstack_ptr(self)    = this_bvm->rstack_ptr;
+    (mword*)bvm_dstack_ptr(self)    = this_bvm->dstack_ptr;
+    (mword*)bvm_ustack_ptr(self)    = this_bvm->ustack_ptr;
+    (mword*)bvm_sym_table(self)     = this_bvm->sym_table;
+
+//sym_update(this_bvm, BABEL_SYM_JUMP_TABLE  , this_bvm->jump_table);
+sym_update(this_bvm, BABEL_SYM_STEPS       , this_bvm->steps);
+sym_update(this_bvm, BABEL_SYM_ADVANCE_TYPE, this_bvm->advance_type);
+//sym_update(this_bvm, BABEL_SYM_THREAD_ID   , this_bvm->thread_id);
+
+//    this_bvm->flags->MC_GC_BLOCKING = FLAG_SET;
+//
+////    set_sym(this_bvm, "jump_table",   this_bvm->jump_table);
+//    set_sym(this_bvm, "steps",        this_bvm->steps);
+//    set_sym(this_bvm, "advance_type", this_bvm->advance_type);
+////    set_sym(this_bvm, "thread_id",    this_bvm->thread_id);
+//
+//    this_bvm->flags->MC_GC_BLOCKING = FLAG_CLR;
+    this_bvm->flags->BVM_CACHE_DIRTY = FLAG_CLR;
+    
+    return this_bvm;
+
+}
+
+
+//
+//
+bvm_cache *write_bvm_cache(bvm_cache *this_bvm, void *field, void *value){ // write_bvm_cache#
+
+    *field = *value;    
+
+    this_bvm->flags->BVM_CACHE_DIRTY = FLAG_SET;
 
     return this_bvm;
 
 }
+
 
 ////#ifdef DEBUG
 ////
@@ -902,6 +943,141 @@ bvm_cache *flush_bvm_cache(bvm_cache *this_bvm){ // flush_bvm_cache#
 ////    return count;
 //
 //}
+
+//// This is a temporary operator to enable the REPL
+////
+//bvm_cache *bvm_step(bvm_cache *this_bvm){ // bvm_step#
+//
+//    //Check for existence of sym_table
+//    //if !exists -> initialize BVM
+//    //else if exists -> don't reinitialize, already done
+//trace;
+//    bvm_cache new_bvm_cache;
+//    bvm_cache *new_bvm_ptr = &new_bvm_cache;
+//
+//    this_bvm->flags->MC_GC_BLOCKING = FLAG_SET;
+//
+//    mword *op_bvm = dstack_get(this_bvm,0);
+//    popd(this_bvm);
+//
+//    new_bvm_ptr->self      = op_bvm;
+//    new_bvm_ptr->sym_table = (mword*)bvm_sym_table(new_bvm_cache.self);
+//
+//    mword *op_bvm_sym_table = (mword*)bvm_sym_table(op_bvm);
+//           op_bvm_sym_table = hard_detag(this_bvm, op_bvm_sym_table);
+//
+//    new_bvm_ptr->mem   = this_bvm->mem;
+//    new_bvm_ptr->flags = this_bvm->flags;
+//
+//    flush_bvm_cache(this_bvm);
+//
+//    if(is_nil(car(op_bvm_sym_table)) && is_nil(cdr(op_bvm_sym_table))){ // sym_table is uninitialized
+//
+//        if(tageq(new_bvm_cache.self,BABEL_TAG_SPARSE_BVM,TAG_SIZE)){
+//
+//            //FIXME: Assumes we want to clone:
+//            set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
+//            set_sym(new_bvm_ptr, "epoch",  (mword*)get_sym(this_bvm, "epoch") );
+//            set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
+//            set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
+//
+//            set_sym(new_bvm_ptr, "thread_id",      _newva( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+//            set_sym(new_bvm_ptr, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
+//            set_sym(new_bvm_ptr, "soft_root",      nil );
+//            set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
+//
+//        }
+//
+//    }
+//
+//    set_sym( new_bvm_ptr, "steps", _newva( this_bvm, (mword)1) );
+//
+//    this_bvm->flags->MC_GC_BLOCKING = FLAG_CLR;
+//
+//    update_bvm_cache(new_bvm_ptr);
+//
+//    bvm_interp(new_bvm_ptr);
+//
+//    flush_bvm_cache(new_bvm_ptr);
+//    update_bvm_cache(this_bvm); // Technically, this is not necessary
+//                                // but it doesn't hurt
+//
+//    //FIXME - push stack of new_bvm_cache onto this_bvm when bvm_interp returns
+//    //push_alloc(this_bvm, new_bvm_cache.stack_ptr, BVMEXEC);
+//
+//    return this_bvm;
+//
+//}
+//
+//
+//
+///* bvm operator
+//**babel**
+//> This operator "execs" a loaded BVM on TOS
+//*/
+//bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
+//
+//
+//
+//
+//
+//    bvm_cache new_bvm;
+//    bvm_cache *new_bvm_ptr = &new_bvm;
+//
+//    this_bvm->flags->MC_GC_BLOCKING = FLAG_SET;
+//
+//    new_bvm.self = dstack_get(this_bvm,0);
+//    popd(this_bvm);
+//
+//
+//    new_bvm_ptr->sym_table = (mword*)bvm_sym_table(new_bvm.self);
+//
+//    //Memory context is global across all BVM's in this thread...
+//
+//
+//    new_bvm_ptr->mem   = this_bvm->mem;
+//    new_bvm_ptr->flags = this_bvm->flags;
+//
+//    flush_bvm_cache(this_bvm);
+//
+//    if(tageq(new_bvm.self,BABEL_TAG_SPARSE_BVM,TAG_SIZE)){
+//        //FIXME: Assumes we want to clone:
+//
+//
+//
+//        set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
+//        set_sym(new_bvm_ptr, "epoch",  (mword*)get_sym(this_bvm, "epoch") );
+//        set_sym(new_bvm_ptr, "argv",   (mword*)get_sym(this_bvm, "argv")  );
+//        set_sym(new_bvm_ptr, "env",    (mword*)get_sym(this_bvm, "env")   );
+//
+//        set_sym(new_bvm_ptr, "steps",          _newva( this_bvm, (mword)-1) );
+//        set_sym(new_bvm_ptr, "thread_id",      _newva( this_bvm,  icar( get_sym(this_bvm, "thread_id") ) + 1 ) );
+//        set_sym(new_bvm_ptr, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
+//        set_sym(new_bvm_ptr, "soft_root",      nil );
+//        set_sym(new_bvm_ptr, "jump_table",     get_sym(this_bvm, "jump_table") );
+//    }
+////    else{
+////        fatal("Unrecognized BVM");
+////    }
+//
+//
+//    this_bvm->flags->MC_GC_BLOCKING = FLAG_CLR;
+//
+//    update_bvm_cache(&new_bvm);
+//
+//    bvm_interp(&new_bvm);
+//
+//    flush_bvm_cache(&new_bvm);
+//    update_bvm_cache(this_bvm); // Technically, this is not necessary
+//                                // but it doesn't hurt
+//
+//    //FIXME - push stack of new_bvm onto this_bvm when bvm_interp returns
+//    //push_alloc(this_bvm, new_bvm.stack_ptr, BVMEXEC);
+//
+//    return this_bvm;
+//
+//}
+//
 
 // Clayton Bauman 2011
 

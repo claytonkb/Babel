@@ -33,6 +33,11 @@ bvm_cache *bvmsym(bvm_cache *this_bvm);
 bvm_cache *hibernate(bvm_cache *this_bvm);
 mword *_bvm_init(bvm_cache *this_bvm, mword *bvm_to_load);
 bvm_cache *bvm_step(bvm_cache *this_bvm);
+bvm_cache *write_bvm_cache(bvm_cache *this_bvm, void *field, void *value);
+bvm_cache *init_flush_bvm_cache(bvm_cache *this_bvm);
+void dec_bvm_steps(bvm_cache *this_bvm);
+void set_bvm_advance_type(bvm_cache *this_bvm, mword advance_type);
+bvm_cache *init_bvm_cache(bvm_cache *this_bvm);
 
 //#include "list.h"
 //

@@ -243,12 +243,17 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
 //    d(*z);
 
     set_sym(this_bvm, "steps",          _newva( this_bvm, (mword)-1) );
-    set_sym(this_bvm, "thread_id",      _newva( this_bvm, 0) );
+//    set_sym(this_bvm, "thread_id",      _newva( this_bvm, 0) );
     set_sym(this_bvm, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
-    set_sym(this_bvm, "soft_root",      nil );
-    set_sym(this_bvm, "jump_table",     jump_table );
+//    set_sym(this_bvm, "soft_root",      nil );
+//    set_sym(this_bvm, "jump_table",     jump_table );
 
     update_bvm_cache(this_bvm);
+
+    write_bvm_cache(this_bvm, &this_bvm->jump_table, &jump_table);
+
+    mword *thread_id = _newva(this_bvm, 0);
+    write_bvm_cache(this_bvm, &this_bvm->thread_id, &thread_id);
 
 //    this_bvm->code_ptr      = (mword*)bvm_code_ptr(this_bvm->self);
 //    this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(this_bvm->self);

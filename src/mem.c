@@ -112,8 +112,9 @@ mword mc_copy_collect(bvm_cache *this_bvm){
     this_bvm->flags->MC_GC_BLOCKING = FLAG_SET;
 
     //mc_swap_banks(this_bvm);
-
-    flush_bvm_cache(this_bvm);
+//trace;
+//    flush_bvm_cache(this_bvm);
+//trace;
 
     this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
 
@@ -123,7 +124,7 @@ trace;
 mword usage = mc_bank_usage(this_bvm, this_bvm->mem->primary);
 d(usage);
 
-    update_bvm_cache(this_bvm);
+    //init_bvm_cache(this_bvm);
 
     this_bvm->flags->MC_GC_BLOCKING = FLAG_CLR;
     this_bvm->flags->MC_GC_PENDING  = FLAG_CLR;
