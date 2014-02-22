@@ -36,6 +36,7 @@
                                         payload ) );
 
 void sym_update(bvm_cache *this_bvm, mword *hash, mword *new_payload);
+void sym_update_val(bvm_cache *this_bvm, mword *hash, mword new_payload);
 
 mword *new_hash_table(bvm_cache *this_bvm);
 void _insha(bvm_cache *this_bvm, mword *hash_table, mword *hash, mword *key, mword *entry);

@@ -31,7 +31,7 @@
 > C-style unsigned shift-left  
 > `{a} {b}| -> {a<<b}|`  
 */
-bvm_cache *cushl(bvm_cache *this_bvm){
+bvm_cache *cushl(bvm_cache *this_bvm){ // *cushl#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -44,7 +44,7 @@ bvm_cache *cushl(bvm_cache *this_bvm){
 > C-style unsigned shift-right
 > `{a} {b}| -> {a>>b}|`  
 */
-bvm_cache *cushr(bvm_cache *this_bvm){
+bvm_cache *cushr(bvm_cache *this_bvm){ // *cushr#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -59,7 +59,7 @@ bvm_cache *cushr(bvm_cache *this_bvm){
 > Performs an arithmetic shift-right which is suitable for dividing
 > a signed (integer) value by a power of 2  
 */
-bvm_cache *cashr(bvm_cache *this_bvm){
+bvm_cache *cashr(bvm_cache *this_bvm){ // *cashr#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -72,7 +72,7 @@ bvm_cache *cashr(bvm_cache *this_bvm){
 > C-style unsigned rotate-left
 > `{a} {b}| -> {a rol b}|`  
 */
-bvm_cache *curol(bvm_cache *this_bvm){
+bvm_cache *curol(bvm_cache *this_bvm){ // *curol#
 
     mword *op0 = dstack_get(this_bvm,0);
     mword *op1 = dstack_get(this_bvm,1);
@@ -97,7 +97,7 @@ bvm_cache *curol(bvm_cache *this_bvm){
 > C-style unsigned rotate-right
 > `{a} {b}| -> {a ror b}|`  
 */
-bvm_cache *curor(bvm_cache *this_bvm){
+bvm_cache *curor(bvm_cache *this_bvm){ // *curor#
 
     mword *op0 = dstack_get(this_bvm,0);
     mword *op1 = dstack_get(this_bvm,1);

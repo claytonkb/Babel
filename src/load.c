@@ -38,7 +38,7 @@ bvm_cache *load(bvm_cache *this_bvm){ // load#
 //                  XXX MC ENHANCEMENT XXX
 ///////////////////////////////////////////////////////////////////
 
-mword *_load(bvm_cache *this_bvm, mword *bs, mword size){
+mword *_load(bvm_cache *this_bvm, mword *bs, mword size){ // *_load#
 
 //    size = MWORDS(size);
 //
@@ -72,7 +72,7 @@ mword *_load(bvm_cache *this_bvm, mword *bs, mword size){
 
 //_rload
 //
-void _rload(bvm_cache *this_bvm, mword *tree, mword offset){
+void _rload(bvm_cache *this_bvm, mword *tree, mword offset){ // _rload#
 
     int i;
 
@@ -142,15 +142,20 @@ bvm_cache *unload(bvm_cache *this_bvm){ // unload#
 mword *_unload(bvm_cache *this_bvm, mword *bs){ // _unload#
 
     mword bs_size     = _mu   (this_bvm, bs);
+
     mword num_arrays  = _nin  (this_bvm, bs);
+
           num_arrays += _nlf  (this_bvm, bs);
+
           num_arrays += _ntag (this_bvm, bs);
+
 
 //    mword *dest      = _newlf(this_bvm, bs_size);
 //    mword *LUT_abs   = _newin(this_bvm, num_arrays);
 //    mword *LUT_rel   = _newin(this_bvm, num_arrays);
 
     mword *dest      = newleaf(bs_size);
+
 //trace;
 
 //    mword *LUT_abs   = newinte(num_arrays);
@@ -169,6 +174,7 @@ mword *_unload(bvm_cache *this_bvm, mword *bs){ // _unload#
     free(LUT_abs);
     free(LUT_rel);
 
+
     return dest;
 
 }
@@ -180,7 +186,7 @@ mword _runload(bvm_cache *this_bvm,
         mword *LUT_rel, 
         mword *dest, 
         mword *offset,
-        mword *LUT_offset){
+        mword *LUT_offset){ // #
 
     int i;
     mword rel_offset;
@@ -245,7 +251,7 @@ mword _runload(bvm_cache *this_bvm,
 }
 
 //
-mword get_rel_offset(bvm_cache *this_bvm, mword *LUT_abs, mword *LUT_rel, mword *entry){
+mword get_rel_offset(bvm_cache *this_bvm, mword *LUT_abs, mword *LUT_rel, mword *entry){ // get_rel_offset#
 
     int i=0;
     int LUT_size = size(LUT_abs);

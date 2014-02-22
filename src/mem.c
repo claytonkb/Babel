@@ -40,59 +40,90 @@ implementation is bug-free. Gradually, the GC will be made more
 #include "tptr.h"
 #include "string.h"
 
-// mc_init
+
+// mc_new
 //
-void mc_init(bvm_cache *this_bvm){
+void mc_new(bvm_cache *this_bvm){ // mc_new#
 
-    mem_context *m = malloc(sizeof(mem_context));
+    mem_context *m = sys_alloc(sizeof(mem_context)); // XXX WAIVER XXX
 
-    m->primary   = malloc(sizeof(alloc_bank));
-    m->secondary = malloc(sizeof(alloc_bank));
+    m->primary   = sys_alloc(sizeof(alloc_bank)); // XXX WAIVER XXX
+    m->secondary = sys_alloc(sizeof(alloc_bank)); // XXX WAIVER XXX
 
-    m->primary->base_ptr   = malloc(MWORDS(MEM_SIZE>>1));
-    m->secondary->base_ptr = malloc(MWORDS(MEM_SIZE>>1));
+    m->primary->base_ptr   = sys_alloc(MWORDS(MEM_SIZE>>1)); // XXX WAIVER XXX
+    m->secondary->base_ptr = sys_alloc(MWORDS(MEM_SIZE>>1)); // XXX WAIVER XXX
 
     m->primary->alloc_ptr   = TOP_OF_ALLOC_BANK(m->primary  );
     m->secondary->alloc_ptr = TOP_OF_ALLOC_BANK(m->secondary);
 
-    this_bvm->mem = m; // Sets the global memory context
+    this_bvm->interp->mem = m; // Sets the global memory context
 
 }
 
 
 //
 //
-mword *mc_alloc(bvm_cache *this_bvm, mword sfield){
+void *sys_alloc(int size){ // *sys_alloc#
+
+    void *attempt = malloc(size);
+    if(attempt == NULL){ // malloc failed
+        fatal("malloc failed");
+    }
+
+    return attempt;
+
+}
+
+
+//
+//
+mword *mc_alloc(bvm_cache *this_bvm, mword sfield){ // *mc_alloc#
 
     // mc_alloc is non-reentrant... this is enforced with 
     // the MC_ALLOC_BLOCKING flag
     if(this_bvm->flags->MC_ALLOC_BLOCKING == FLAG_SET){
-        fatal("allocation failed");
+        cat_except(this_bvm);
     }
-
     this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_SET;
 
-    alloc_bank *b = this_bvm->mem->primary;
+    alloc_bank *b = this_bvm->interp->mem->primary;
+
 
     mword mc_size = mc_alloc_size(sfield)+1;
 
-    if(b->alloc_ptr-mc_size < (b->base_ptr+1000)){
+//d(mc_size);
+
+    if(b->alloc_ptr-mc_size < (b->base_ptr)){
+
+        if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
+            cat_except(this_bvm);
+        }
         mc_swap_banks(this_bvm);
-        if(this_bvm->flags->BVM_INSTR_IN_PROGRESS == FLAG_SET){
-            this_bvm->flags->MC_GC_PENDING = FLAG_SET;
-        }
-        else{
-            mc_copy_collect(this_bvm);
-        }
+        b = this_bvm->interp->mem->primary;
+
+//        if(this_bvm->flags->BVM_INSTR_IN_PROGRESS == FLAG_SET){
+        this_bvm->flags->MC_GC_PENDING = FLAG_SET;
+
+//        }
+//        else{
+//            mc_copy_collect(this_bvm);
+//        }
     }
+
 
     b->alloc_ptr -= mc_size;
 
+
     mword *return_ptr = b->alloc_ptr+1;
+
 
     s(return_ptr) = sfield;
 
+
     this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
+
+//mword usage = mc_bank_usage(this_bvm, this_bvm->interp->mem->primary);
+//d(usage);
 
     return return_ptr;
 
@@ -101,7 +132,7 @@ mword *mc_alloc(bvm_cache *this_bvm, mword sfield){
 
 // mc_copy_collect
 //
-mword mc_copy_collect(bvm_cache *this_bvm){
+bvm_cache *mc_copy_collect(bvm_cache *this_bvm){ // mc_copy_collect#
 
     // mc_copy_collect is non-reentrant... this is enforced with 
     // the MC_GC_BLOCKING flag
@@ -111,43 +142,44 @@ mword mc_copy_collect(bvm_cache *this_bvm){
 
     this_bvm->flags->MC_GC_BLOCKING = FLAG_SET;
 
-    //mc_swap_banks(this_bvm);
-//trace;
-//    flush_bvm_cache(this_bvm);
-//trace;
+    bvm_flush_cache(this_bvm);
 
-    this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
+    this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;//trace;
 
     this_bvm->self = _cp(this_bvm, this_bvm->self);
 
 trace;
-mword usage = mc_bank_usage(this_bvm, this_bvm->mem->primary);
+mword usage = mc_bank_usage(this_bvm, this_bvm->interp->mem->primary);
 d(usage);
 
     //init_bvm_cache(this_bvm);
 
+    bvm_update_cache(this_bvm);
+
     this_bvm->flags->MC_GC_BLOCKING = FLAG_CLR;
     this_bvm->flags->MC_GC_PENDING  = FLAG_CLR;
 
+    return this_bvm;
+    
 }
 
 
 //
 //
-void mc_swap_banks(bvm_cache *this_bvm){
+void mc_swap_banks(bvm_cache *this_bvm){ // mc_swap_banks#
 
-    mc_reset_bank(this_bvm, this_bvm->mem->secondary);
+    mc_reset_bank(this_bvm, this_bvm->interp->mem->secondary);
 
-    alloc_bank *temp            = this_bvm->mem->primary;
-    this_bvm->mem->primary      = this_bvm->mem->secondary;
-    this_bvm->mem->secondary    = temp;
+    alloc_bank *temp                    = this_bvm->interp->mem->primary;
+    this_bvm->interp->mem->primary      = this_bvm->interp->mem->secondary;
+    this_bvm->interp->mem->secondary    = temp;
 
 }
 
 
 // mc_reset_bank
 //
-void mc_reset_bank(bvm_cache *this_bvm, alloc_bank *b){
+void mc_reset_bank(bvm_cache *this_bvm, alloc_bank *b){ // mc_reset_bank#
 
     b->alloc_ptr = TOP_OF_ALLOC_BANK(b);
 
@@ -156,7 +188,7 @@ void mc_reset_bank(bvm_cache *this_bvm, alloc_bank *b){
 
 // mc_bank_usage
 //
-mword mc_bank_usage(bvm_cache *this_bvm, alloc_bank *b){
+mword mc_bank_usage(bvm_cache *this_bvm, alloc_bank *b){ // mc_bank_usage#
 
     return (TOP_OF_ALLOC_BANK(b) - b->alloc_ptr);
 
@@ -172,8 +204,8 @@ mc_dump_core(bvm_cache *this_bvm){
     fprintf(stderr,"PRIMARY\n");
 
     for(
-        i=this_bvm->mem->primary->alloc_ptr;
-        i<this_bvm->mem->primary->base_ptr;
+        i=this_bvm->interp->mem->primary->alloc_ptr;
+        i<this_bvm->interp->mem->primary->base_ptr;
         i++
     ){ 
 
@@ -184,8 +216,8 @@ mc_dump_core(bvm_cache *this_bvm){
     fprintf(stderr,"SECONDARY\n");
 
     for(
-        i=this_bvm->mem->secondary->alloc_ptr;
-        i<this_bvm->mem->secondary->base_ptr;
+        i=this_bvm->interp->mem->secondary->alloc_ptr;
+        i<this_bvm->interp->mem->secondary->base_ptr;
         i++
     ){ 
 
@@ -207,21 +239,21 @@ mc_log(bvm_cache *this_bvm){
 
 // mc_destroy
 //
-void mc_destroy(bvm_cache *this_bvm){
+void mc_destroy(bvm_cache *this_bvm){ // mc_destroy#
 
 }
 
 
 // mc_free
 //
-void mc_free(bvm_cache *this_bvm, mword *p){
+void mc_free(bvm_cache *this_bvm, mword *p){ // mc_free#
 
 }
 
 
 // mc_reclamate
 //
-void mc_reclamate(bvm_cache *this_bvm){
+void mc_reclamate(bvm_cache *this_bvm){ // mc_reclamate#
 
 }
 

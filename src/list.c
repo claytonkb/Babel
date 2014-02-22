@@ -42,6 +42,12 @@ inline mword *_unshift(bvm_cache *this_bvm, mword *list, mword *bs){ // _unshift
     mword *endls = _list_end(this_bvm, list);
     (mword*)c(endls,1) = consa(this_bvm,  bs, nil );
 
+//trace;
+//    mword *endls = _list_end(this_bvm, list);
+//trace;
+//    (mword*)c(endls,1) = bs;
+//trace;
+
     return list;
 
 }
@@ -129,6 +135,7 @@ bvm_cache *cdrindex(bvm_cache *this_bvm){ // cdrindex#
 
     //FIXME: Exception if used on leaf-array
     mword *result = (mword*)cdr(dstack_get(this_bvm,0));
+
     popd(this_bvm);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -183,7 +190,7 @@ bvm_cache *consls(bvm_cache *this_bvm){ // consls#
 
 //
 //
-mword *_consls(bvm_cache *this_bvm, mword *car_field, mword *cdr_field){ // XXX DEPRECATE
+mword *_consls(bvm_cache *this_bvm, mword *car_field, mword *cdr_field){ // XXX DEPRECATE // *_consls#
 
     mword *temp_cons = new_cons;
 
@@ -232,7 +239,7 @@ bvm_cache *uncons(bvm_cache *this_bvm){ // uncons#
 
 //
 //
-bvm_cache *list_end(bvm_cache *this_bvm){
+bvm_cache *list_end(bvm_cache *this_bvm){ // *list_end#
 
 }
 
@@ -248,7 +255,7 @@ mword *_list_end(bvm_cache *this_bvm, mword *list){ // _list_end#
     
 }
 
-mword *_list_next_to_end(bvm_cache *this_bvm, mword *list){
+mword *_list_next_to_end(bvm_cache *this_bvm, mword *list){ // *_list_next_to_end#
 
     while(!is_nil(cdr(cdr(list)))){
         list = (mword*)cdr(list);
@@ -522,7 +529,7 @@ mword *_ith(bvm_cache *this_bvm, mword *list, mword i){ // _ith#
 > Traverses list X according to the sequence of offsets specified
 > in list Y. Performs an iterated ith.  
 */
-bvm_cache *walk(bvm_cache *this_bvm){
+bvm_cache *walk(bvm_cache *this_bvm){ // *walk#
 
     fatal("stack fix not done");
     mword *result = _walk(this_bvm, TOS_1(this_bvm),TOS_0(this_bvm));
@@ -537,7 +544,7 @@ bvm_cache *walk(bvm_cache *this_bvm){
 }
 
 //
-mword *_walk(bvm_cache *this_bvm, mword *bs, mword *walk_list){
+mword *_walk(bvm_cache *this_bvm, mword *bs, mword *walk_list){ // *_walk#
 
     if (is_nil(walk_list)) return bs;
 

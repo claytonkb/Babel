@@ -720,6 +720,11 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     set_ith,
     set_car,
     set_cdr,
+    detag_op,
+    bvm_flush_cache,
+    bvm_update_cache,
+    mc_copy_collect,
+    bvm_root,
 
 };
 

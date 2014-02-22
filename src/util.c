@@ -20,9 +20,44 @@
 #include <windows.h>
 #endif
 
+
 //
 // babel_operator
-bvm_cache *randop(bvm_cache *this_bvm){
+bvm_cache *bvm_root(bvm_cache *this_bvm){ // *bvm_root#
+
+    pushd(this_bvm, this_bvm->self, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+
+//
+//
+bvm_cache *endian(bvm_cache *this_bvm){ // *endian#
+
+    fatal("unimplemented");
+    mword test = 1;
+    char *test_addr = (char *)&test;
+    mword *result = new_atom;
+
+    if(*test_addr){
+        *result = LITTLE_ENDIAN;
+    }
+    else{
+        *result = BIG_ENDIAN;
+    }
+
+    push_alloc(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+
+//
+// babel_operator
+bvm_cache *randop(bvm_cache *this_bvm){ // *randop#
 
     mword num_mwords = icar(dstack_get(this_bvm,0));
     mword *result    = _newlf(this_bvm, num_mwords);
@@ -43,7 +78,7 @@ bvm_cache *randop(bvm_cache *this_bvm){
 
 //
 // babel_operator
-bvm_cache *sleepop(bvm_cache *this_bvm){
+bvm_cache *sleepop(bvm_cache *this_bvm){ // *sleepop#
 
 //    fatal("stack fix not done");
     DWORD seconds = (DWORD)car(dstack_get(this_bvm,0));
@@ -60,7 +95,7 @@ bvm_cache *sleepop(bvm_cache *this_bvm){
 
 //
 // babel_operator
-bvm_cache *argvop(bvm_cache *this_bvm){
+bvm_cache *argvop(bvm_cache *this_bvm){ // *argvop#
 
     mword *result = new_atom;
 //    (mword *)*result = this_bvm->argv;
@@ -73,7 +108,7 @@ bvm_cache *argvop(bvm_cache *this_bvm){
 
 // FIXME: move to bstruct.c ...
 // babel_operator
-bvm_cache *mword_sizeop(bvm_cache *this_bvm){
+bvm_cache *mword_sizeop(bvm_cache *this_bvm){ // *mword_sizeop#
 
     fatal("stack fix not done");
 
@@ -99,6 +134,49 @@ bvm_cache *lusym(bvm_cache *this_bvm){ // lusym#
 //            (mword*)get_sym(this_bvm, (char*)_b2c(this_bvm, symbol)), 
             HASH_ENTRY_PAY( this_bvm, _luha(this_bvm,  get_tptr(this_bvm->sym_table), _hash8(this_bvm, symbol)) ),
             IMMORTAL);
+
+    return this_bvm;
+
+}
+
+
+//
+//
+bvm_cache *bvm_dump_cache(bvm_cache *this_bvm){ // bvm_dump_cache#
+
+    d(this_bvm->self);
+
+    d(this_bvm->code_ptr);
+    d(this_bvm->rstack_ptr);
+
+    d(this_bvm->dstack_ptr);
+    d(this_bvm->ustack_ptr);
+
+    d(this_bvm->sym_table);
+    d(this_bvm->soft_root);
+
+    d(this_bvm->thread_id);
+    d(this_bvm->steps);
+    d(this_bvm->advance_type);
+
+    d(this_bvm->mask_table);
+
+    d(this_bvm->flags);
+
+    d(this_bvm->interp);
+
+    d(this_bvm->interp->cat_ex);
+    d(this_bvm->interp->argc);
+    d(this_bvm->interp->argv);
+    d(this_bvm->interp->envp);
+    d(this_bvm->interp->interp_argv);
+    d(this_bvm->interp->mem);
+    d(this_bvm->interp->nil);
+    d(this_bvm->interp->jump_table);
+    d(this_bvm->interp->empty_string);
+    d(this_bvm->interp->utc_epoch);
+    d(this_bvm->interp->srand);
+    d(this_bvm->interp->null_hash);
 
     return this_bvm;
 

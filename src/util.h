@@ -4,6 +4,8 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+bvm_cache *bvm_root(bvm_cache *this_bvm);
+bvm_cache *endian(bvm_cache *this_bvm);
 bvm_cache *argvop(bvm_cache *this_bvm);
 bvm_cache *randop(bvm_cache *this_bvm);
 bvm_cache *fnord(bvm_cache *this_bvm);
@@ -12,6 +14,7 @@ bvm_cache *sleepop(bvm_cache *this_bvm);
 bvm_cache *lusym(bvm_cache *this_bvm);
 bvm_cache *dev(bvm_cache *this_bvm);
 bvm_cache *readmem(bvm_cache *this_bvm);
+bvm_cache *bvm_dump_cache(bvm_cache *this_bvm);
 
 #endif //UTIL_H
 

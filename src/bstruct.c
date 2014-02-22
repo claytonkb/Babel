@@ -16,6 +16,7 @@
 #include "tptr.h"
 #include "string.h"
 #include "mem.h"
+#include "util.h"
 
 /* bstruct operator
 **unload**
@@ -60,7 +61,7 @@ void rclean(bvm_cache *this_bvm, mword *bs){ // rclean#
 
     s(bs) = s(bs) & ~CTL_MASK; //Mark clean
 
-//_mem(bs);
+//_mema(bs);
 
     if( is_inte(bs) ){
 //trace;
@@ -160,11 +161,11 @@ mword _mu(bvm_cache *this_bvm, mword *bs){ // _mu#
 //
 mword _rmu(bvm_cache *this_bvm, mword *bs, void *v){ // _rmu#
 
-    if( is_tptr(bs) ){
-        *v += HASH_SIZE;
-    }
+//    if( is_tptr(bs) ){
+//        *v += HASH_SIZE;
+//    }
 
-    *v += size(bs)+1;
+    *v += alloc_size(bs)+1;
 
     return 1;
 
@@ -803,7 +804,7 @@ bvm_cache *set(bvm_cache *this_bvm){ // set#
 }
 
 //
-void _wrcxr(bvm_cache *this_bvm, mword *dest, mword *src, mword offset){
+void _wrcxr(bvm_cache *this_bvm, mword *dest, mword *src, mword offset){ // _wrcxr#
 
     mword dest_size = size(dest);
 
@@ -838,7 +839,7 @@ void _wrcxr(bvm_cache *this_bvm, mword *dest, mword *src, mword offset){
 > Writes N entries of Y from offset B into X at offset A.
 > X and Y may be the same array.
 */
-bvm_cache *move(bvm_cache *this_bvm){ 
+bvm_cache *move(bvm_cache *this_bvm){  // *move#
 
     mword size       = icar(dstack_get(this_bvm,0));
     mword src_index  = icar(dstack_get(this_bvm,1));
@@ -898,7 +899,7 @@ bvm_cache *move8(bvm_cache *this_bvm){  // move8#
 // TOS_1 dest
 // TOS_2 src
 // babel_operator
-bvm_cache *paste8(bvm_cache *this_bvm){ 
+bvm_cache *paste8(bvm_cache *this_bvm){  // *paste8#
 
     fatal("DEPRECATED");
     _wrcxr8(this_bvm, TOS_1(this_bvm),TOS_2(this_bvm),car(TOS_0(this_bvm)));
@@ -912,7 +913,7 @@ bvm_cache *paste8(bvm_cache *this_bvm){
 }
 
 // XXX DEPRECATED
-void _wrcxr8(bvm_cache *this_bvm, mword *dest, mword *src, mword offset){
+void _wrcxr8(bvm_cache *this_bvm, mword *dest, mword *src, mword offset){ // _wrcxr8#
 
     mword dest_size = _arlen8(this_bvm, dest);
 
@@ -949,7 +950,7 @@ void _wrcxr8(bvm_cache *this_bvm, mword *dest, mword *src, mword offset){
 > Traverses bstruct X according to the sequence of offsets specified 
 > in list Y. Performs an iterated `th`.  
 */
-bvm_cache *trav(bvm_cache *this_bvm){
+bvm_cache *trav(bvm_cache *this_bvm){ // *trav#
 
     // XXX BROKEN
     mword *result = _trav(this_bvm, dstack_get(this_bvm,1),dstack_get(this_bvm,0));
@@ -963,7 +964,7 @@ bvm_cache *trav(bvm_cache *this_bvm){
 }
 
 //
-mword *_trav(bvm_cache *this_bvm, mword *bs, mword *trav_list){
+mword *_trav(bvm_cache *this_bvm, mword *bs, mword *trav_list){ // *_trav#
 
     if(is_nil((mword*)cdr(trav_list))){// return bs;
         //return _cxr(bs, car(car(trav_list))); //FIXME cxr change
@@ -1015,7 +1016,7 @@ bvm_cache *cp(bvm_cache *this_bvm){ // cp#
 }
 
 //
-bvm_cache *ducp(bvm_cache *this_bvm){
+bvm_cache *ducp(bvm_cache *this_bvm){ // *ducp#
 
     fatal("XXX DEPRECATED");
     mword *temp = TOS_0(this_bvm);
@@ -1037,7 +1038,7 @@ bvm_cache *ducp(bvm_cache *this_bvm){
 > ... where Y is an array containing a pointer into every array and
 > href in X  
 */
-bvm_cache *span(bvm_cache *this_bvm){
+bvm_cache *span(bvm_cache *this_bvm){ // *span#
 
     fatal("stack fix not done");
     mword *result = _bs2ar(this_bvm, TOS_0(this_bvm));
@@ -1052,7 +1053,7 @@ bvm_cache *span(bvm_cache *this_bvm){
 
 //Creates an interior array with one pointer to each array
 //in a bstruct
-mword *_bs2ar(bvm_cache *this_bvm, mword *bs){ 
+mword *_bs2ar(bvm_cache *this_bvm, mword *bs){  // *_bs2ar#
 
     mword num_arrays  = _nin  (this_bvm, bs);
           num_arrays += _nlf  (this_bvm, bs);
@@ -1069,7 +1070,7 @@ mword *_bs2ar(bvm_cache *this_bvm, mword *bs){
 }
 
 //
-void rbs2ar(bvm_cache *this_bvm, mword *bs, mword *arr_list, mword *offset){
+void rbs2ar(bvm_cache *this_bvm, mword *bs, mword *arr_list, mword *offset){ // rbs2ar#
 
     int i;
 

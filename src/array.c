@@ -215,7 +215,7 @@ inline mword* val(bvm_cache *this_bvm, mword *leaf, mword index){ // val#
 >
 > Read `[a..b] as "from a to b"`   
 */
-bvm_cache *slice(bvm_cache *this_bvm){
+bvm_cache *slice(bvm_cache *this_bvm){ // *slice#
 
     //FIXME: There are lots of ways to break this code with
     //bad inputs
@@ -424,7 +424,7 @@ mword _arlen8(bvm_cache *this_bvm, mword *string){ // _arlen8#
 > Creates a new interior-array of size x and leaves it on TOS  
 > `{x}| -> {interior-array-of-size-x}|`    
 */
-bvm_cache *newin(bvm_cache *this_bvm){
+bvm_cache *newin(bvm_cache *this_bvm){ // *newin#
 
     mword *result = _newin(this_bvm, icar(dstack_get(this_bvm,0))); //FIXME: There is no checking...
 
@@ -442,7 +442,7 @@ bvm_cache *newin(bvm_cache *this_bvm){
 > Creates a new leaf-array of size x and leaves it on TOS  
 > `{x}| -> {leaf-array-of-size-x}|`    
 */
-bvm_cache *newlf(bvm_cache *this_bvm){
+bvm_cache *newlf(bvm_cache *this_bvm){ // *newlf#
 
     mword *result = _newlf(this_bvm, (mword)car(dstack_get(this_bvm,0))); //FIXME: There is no checking...
     popd(this_bvm);
@@ -460,7 +460,7 @@ bvm_cache *newlf(bvm_cache *this_bvm){
 > `{X} {y}| -> {X[0..y]}|`    
 > `[X] {y}| -> [X[0..y]]|`    
 */
-bvm_cache *trunc(bvm_cache *this_bvm){
+bvm_cache *trunc(bvm_cache *this_bvm){ // *trunc#
 
     fatal("stack fix not done");
     if((mword)car(TOS_0(this_bvm)) > size(TOS_1(this_bvm))){
@@ -478,7 +478,7 @@ bvm_cache *trunc(bvm_cache *this_bvm){
 
 //
 //
-void _trunc(bvm_cache *this_bvm, mword *operand, mword new_size){
+void _trunc(bvm_cache *this_bvm, mword *operand, mword new_size){ // _trunc#
 
     if(is_leaf(operand)){
         s(operand) = (new_size*MWORD_SIZE);
@@ -493,7 +493,7 @@ void _trunc(bvm_cache *this_bvm, mword *operand, mword new_size){
 
 //Returns an alignment word based on size8
 //
-mword alignment_word8(bvm_cache *this_bvm, mword size8){
+mword alignment_word8(bvm_cache *this_bvm, mword size8){ // alignment_word8#
 
     if(size8 % MWORD_SIZE == 0)
         return 0;
@@ -507,7 +507,7 @@ mword alignment_word8(bvm_cache *this_bvm, mword size8){
 
 // Decodes the alignment word
 //
-mword dec_alignment_word8(bvm_cache *this_bvm, mword alignment_word){
+mword dec_alignment_word8(bvm_cache *this_bvm, mword alignment_word){ // dec_alignment_word8#
 
     if(alignment_word == 0){
         return 0;
@@ -530,7 +530,7 @@ mword dec_alignment_word8(bvm_cache *this_bvm, mword alignment_word){
 > Concatenate two arrays of the same type. If you want more complex   
 > behavior, convert your arrays to lists, then use append/part  
 */
-bvm_cache *arcat(bvm_cache *this_bvm){
+bvm_cache *arcat(bvm_cache *this_bvm){ // *arcat#
 
     mword *result;
 
@@ -656,7 +656,7 @@ bvm_cache *arcat8(bvm_cache *this_bvm){ // arcat8#
 > TOS_1 from  
 > TOS_2 operand  
 */
-bvm_cache *slice8(bvm_cache *this_bvm){
+bvm_cache *slice8(bvm_cache *this_bvm){ // *slice8#
 
     fatal("stack fix not done");
     mword size8 = car(TOS_0(this_bvm))-car(TOS_1(this_bvm));

@@ -114,7 +114,7 @@ bvm_cache *cr(bvm_cache *this_bvm){ // cr#
 
 //FIXME: Probably broken, doesn't seem to work
 // --> Rename and back-propagate... UGH!!!!
-mword *_b2c(bvm_cache *this_bvm, mword *string){
+mword *_b2c(bvm_cache *this_bvm, mword *string){ // *_b2c#
 
     mword strsize = size(string);
     mword last_mword = c(string, strsize-1);
@@ -176,7 +176,6 @@ mword *_b2c(bvm_cache *this_bvm, mword *string){
 mword *_c2b(bvm_cache *this_bvm, char *string, mword max_safe_length){ // _c2b#
 
     mword length, char_length, last_mword;
-
     //strlen is unsafe, use memchr instead:
     void *null_term = memchr(string, 0, (size_t)max_safe_length);
 
@@ -198,7 +197,7 @@ mword *_c2b(bvm_cache *this_bvm, char *string, mword max_safe_length){ // _c2b#
 //    d(char_length)
 //    d(length)
 
-    mword *result = _newlf(this_bvm, length); //FIXME DEPRECATED _newlf (see above)
+    mword *result = _newlf(this_bvm, length);
 
     memcpy(result, string, char_length);
 

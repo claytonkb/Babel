@@ -100,7 +100,7 @@ mword *_hash8(bvm_cache *this_bvm, mword *key){ // _hash8#
 // This is a 16-byte version of Pearson's hash
 // It does NOT follow Pearson's recommendation for building wider hashes from 
 // the paper on his 8-bit hash function.
-mword *_pearson16(bvm_cache *this_bvm, mword* sinit, mword *skey, mword strlen){
+mword *_pearson16(bvm_cache *this_bvm, mword* sinit, mword *skey, mword strlen){ // *_pearson16#
 
     // sinit = TOS_1
     // skey = TOS_0

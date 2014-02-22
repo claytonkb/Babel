@@ -32,7 +32,7 @@
 > C-style not-equal  
 > `{a} {b}| -> {a != b}|`  
 */
-bvm_cache *cne(bvm_cache *this_bvm){
+bvm_cache *cne(bvm_cache *this_bvm){ // *cne#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -46,7 +46,7 @@ bvm_cache *cne(bvm_cache *this_bvm){
 > C-style equal  
 > `{a} {b}| -> {a == b}|`  
 */
-bvm_cache *ceq(bvm_cache *this_bvm){
+bvm_cache *ceq(bvm_cache *this_bvm){ // *ceq#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -60,7 +60,7 @@ bvm_cache *ceq(bvm_cache *this_bvm){
 > C-style unsigned less-than  
 > `{a} {b}| -> {a < b}|`  
 */
-bvm_cache *cult(bvm_cache *this_bvm){
+bvm_cache *cult(bvm_cache *this_bvm){ // *cult#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -74,7 +74,7 @@ bvm_cache *cult(bvm_cache *this_bvm){
 > C-style unsigned less-than-or-equal  
 > `{a} {b}| -> {a <= b}|`  
 */
-bvm_cache *cule(bvm_cache *this_bvm){
+bvm_cache *cule(bvm_cache *this_bvm){ // *cule#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -88,7 +88,7 @@ bvm_cache *cule(bvm_cache *this_bvm){
 > C-style unsigned greater-than  
 > `{a} {b}| -> {a > b}|`  
 */
-bvm_cache *cugt(bvm_cache *this_bvm){
+bvm_cache *cugt(bvm_cache *this_bvm){ // *cugt#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -102,7 +102,7 @@ bvm_cache *cugt(bvm_cache *this_bvm){
 > C-style unsigned greater-than-or-equal  
 > `{a} {b}| -> {a >= b}|`  
 */
-bvm_cache *cuge(bvm_cache *this_bvm){
+bvm_cache *cuge(bvm_cache *this_bvm){ // *cuge#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -116,7 +116,7 @@ bvm_cache *cuge(bvm_cache *this_bvm){
 > C-style integer less-than  
 > `{a} {b}| -> {a < b}|`  
 */
-bvm_cache *cilt(bvm_cache *this_bvm){
+bvm_cache *cilt(bvm_cache *this_bvm){ // *cilt#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -130,7 +130,7 @@ bvm_cache *cilt(bvm_cache *this_bvm){
 > C-style integer less-than-or-equal  
 > `{a} {b}| -> {a <= b}|`  
 */
-bvm_cache *cile(bvm_cache *this_bvm){
+bvm_cache *cile(bvm_cache *this_bvm){ // *cile#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -144,7 +144,7 @@ bvm_cache *cile(bvm_cache *this_bvm){
 > C-style integer greater-than  
 > `{a} {b}| -> {a > b}|`  
 */
-bvm_cache *cigt(bvm_cache *this_bvm){
+bvm_cache *cigt(bvm_cache *this_bvm){ // *cigt#
 
     babel_operator_typeB( 
             this_bvm, 
@@ -158,7 +158,7 @@ bvm_cache *cigt(bvm_cache *this_bvm){
 > C-style integer greater-than-or-equal  
 > `{a} {b}| -> {a >= b}|`  
 */
-bvm_cache *cige(bvm_cache *this_bvm){
+bvm_cache *cige(bvm_cache *this_bvm){ // *cige#
 
     babel_operator_typeB( 
             this_bvm, 

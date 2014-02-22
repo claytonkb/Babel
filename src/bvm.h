@@ -15,29 +15,57 @@
 #define eval_return(x) _ith(this_bvm, (mword*)icar(x),0) // eval_return#
 #define eval_type(x)   _ith(this_bvm, (mword*)icar(x),1) // eval_type#
 
-void bbl2gv(mword *tree);
-mword tree_bbl2gv(mword *tree);
-bvm_cache *babelop(bvm_cache *this_bvm);
+mword *bvm_init(bvm_cache *this_bvm, mword *bvm_to_load);
 bvm_cache *bvm_interp(bvm_cache *this_bvm);
+void dec_bvm_steps(bvm_cache *this_bvm);
+bvm_cache *bvm_update_cache(bvm_cache *this_bvm);
+bvm_cache *bvm_flush_cache(bvm_cache *this_bvm);
+bvm_cache *bvm_write_cache(bvm_cache *this_bvm, void *field, void *value);
+bvm_cache *bvm_cp_cache(bvm_cache *src_bvm, bvm_cache *dest_bvm);
+bvm_cache *bvm_new(bvm_cache *this_bvm);
+bvm_cache *bvm_new_fast(bvm_cache *this_bvm);
+bvm_cache *bvm_new_hiber_bvm(bvm_cache *this_bvm);
+bvm_cache *bvm_new_sparse_bvm(bvm_cache *this_bvm);
+bvm_cache *bvm_new_sym_table(bvm_cache *this_bvm);
+int bvm_sym_table_exists(bvm_cache *this_bvm);
+bvm_cache *bvm_step(bvm_cache *this_bvm);
+bvm_cache *babelop(bvm_cache *this_bvm);
+bvm_cache *exec(bvm_cache *this_bvm);
+bvm_cache *hibernate(bvm_cache *this_bvm);
 bvm_cache *bvmcode(bvm_cache *this_bvm);
 bvm_cache *bvmstack(bvm_cache *this_bvm);
-bvm_cache *rsvd(bvm_cache *this_bvm);
 bvm_cache *bvmustack(bvm_cache *this_bvm);
-bvm_cache *boilerplate(bvm_cache *this_bvm);
-bvm_cache *self(bvm_cache *this_bvm);
-bvm_cache *update_bvm_cache(bvm_cache *this_bvm);
-bvm_cache *flush_bvm_cache(bvm_cache *this_bvm);
-bvm_cache *exec(bvm_cache *this_bvm);
 bvm_cache *bvmrstack(bvm_cache *this_bvm);
 bvm_cache *bvmsym(bvm_cache *this_bvm);
-bvm_cache *hibernate(bvm_cache *this_bvm);
-mword *_bvm_init(bvm_cache *this_bvm, mword *bvm_to_load);
-bvm_cache *bvm_step(bvm_cache *this_bvm);
-bvm_cache *write_bvm_cache(bvm_cache *this_bvm, void *field, void *value);
-bvm_cache *init_flush_bvm_cache(bvm_cache *this_bvm);
-void dec_bvm_steps(bvm_cache *this_bvm);
+bvm_cache *self(bvm_cache *this_bvm);
+bvm_cache *rsvd(bvm_cache *this_bvm);
+bvm_cache *boilerplate(bvm_cache *this_bvm);
 void set_bvm_advance_type(bvm_cache *this_bvm, mword advance_type);
-bvm_cache *init_bvm_cache(bvm_cache *this_bvm);
+void bvm_new_argv(bvm_cache *this_bvm, int argc, char **argv);
+
+//void bbl2gv(mword *tree);
+//mword tree_bbl2gv(mword *tree);
+//bvm_cache *babelop(bvm_cache *this_bvm);
+//bvm_cache *bvm_interp(bvm_cache *this_bvm);
+//bvm_cache *bvmcode(bvm_cache *this_bvm);
+//bvm_cache *bvmstack(bvm_cache *this_bvm);
+//bvm_cache *rsvd(bvm_cache *this_bvm);
+//bvm_cache *bvmustack(bvm_cache *this_bvm);
+//bvm_cache *boilerplate(bvm_cache *this_bvm);
+//bvm_cache *self(bvm_cache *this_bvm);
+//bvm_cache *update_bvm_cache(bvm_cache *this_bvm);
+//bvm_cache *flush_bvm_cache(bvm_cache *this_bvm);
+//bvm_cache *exec(bvm_cache *this_bvm);
+//bvm_cache *bvmrstack(bvm_cache *this_bvm);
+//bvm_cache *bvmsym(bvm_cache *this_bvm);
+//bvm_cache *hibernate(bvm_cache *this_bvm);
+//mword *_bvm_init(bvm_cache *this_bvm, mword *bvm_to_load);
+//bvm_cache *bvm_step(bvm_cache *this_bvm);
+//bvm_cache *write_bvm_cache(bvm_cache *this_bvm, void *field, void *value);
+//bvm_cache *init_flush_bvm_cache(bvm_cache *this_bvm);
+//void dec_bvm_steps(bvm_cache *this_bvm);
+//void set_bvm_advance_type(bvm_cache *this_bvm, mword advance_type);
+//bvm_cache *init_bvm_cache(bvm_cache *this_bvm);
 
 //#include "list.h"
 //
@@ -69,5 +97,5 @@ bvm_cache *init_bvm_cache(bvm_cache *this_bvm);
 
 #endif //BVM_H
 
-// Clayton Bauman 2011
+// Clayton Bauman 2014
 

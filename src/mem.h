@@ -14,7 +14,8 @@
 //mword *_newtptr(bvm_cache *this_bvm);
 //mword *consa(bvm_cache *this_bvm, mword *car_field, mword *cdr_field);
 
-void mc_init(bvm_cache *this_bvm);
+void *sys_alloc(int size);
+void mc_new(bvm_cache *this_bvm);
 void mc_destroy(bvm_cache *this_bvm);
 mword *mc_alloc(bvm_cache *this_bvm, mword sfield);
 //mword *mc_2alloc(bvm_cache *this_bvm, mword sfield);
@@ -22,7 +23,7 @@ void mc_free(bvm_cache *this_bvm, mword *p);
 void mc_reclamate(bvm_cache *this_bvm);
 void mc_reset_bank(bvm_cache *this_bvm, alloc_bank *b);
 mword mc_bank_usage(bvm_cache *this_bvm, alloc_bank *b);
-mword mc_copy_collect(bvm_cache *this_bvm);
+bvm_cache *mc_copy_collect(bvm_cache *this_bvm);
 void mc_swap_banks(bvm_cache *this_bvm);
 mc_dump_core(bvm_cache *this_bvm);
 mc_log(bvm_cache *this_bvm);

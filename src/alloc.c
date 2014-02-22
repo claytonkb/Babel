@@ -12,7 +12,7 @@
 **free**  
 > Frees the array on TOS - NOT recursive. See del.  
 */
-bvm_cache *free_op(bvm_cache *this_bvm){
+bvm_cache *free_op(bvm_cache *this_bvm){ // *free_op#
 
     fatal("stack fix not done");
 //    bfree(TOS_0(this_bvm));
@@ -35,7 +35,7 @@ bvm_cache *free_op(bvm_cache *this_bvm){
 >
 > ... will crash the interpreter.  
 */
-bvm_cache *del(bvm_cache *this_bvm){
+bvm_cache *del(bvm_cache *this_bvm){ // *del#
 
     fatal("stack fix not done");
 //    _del(TOS_0(this_bvm));

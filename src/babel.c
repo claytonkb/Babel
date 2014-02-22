@@ -6,14 +6,14 @@
 
 //main
 //
-int main(int argc, char **argv, char **envp){
+int main(int argc, char **argv, char **envp){ // main#
 
     bvm_cache root_bvm;
     bvm_cache *this_bvm = &root_bvm;
 
-    interp_init(this_bvm, argc, argv, envp);
+    int running_time = babel_interp(this_bvm, argc, argv, envp);
 
-    bvm_interp(this_bvm);
+    //printf("babel finished %ds\n", running_time);
 
     return 0;
 

@@ -103,7 +103,7 @@ bvm_cache *slurp(bvm_cache *this_bvm){ // slurp#
 > 
 > X is the contents of the named file.  
 */
-bvm_cache *slurp_mword(bvm_cache *this_bvm){ // slurp_mword
+bvm_cache *slurp_mword(bvm_cache *this_bvm){ // slurp_mword // *slurp_mword#
 
     mword *filename = _b2c(this_bvm, dstack_get(this_bvm,0));
     popd(this_bvm);
@@ -226,7 +226,7 @@ bvm_cache *journal(bvm_cache *this_bvm){ // journal8#
 
 //
 //
-void _journal(bvm_cache *this_bvm, char *filename, mword *fileout){ // _journal
+void _journal(bvm_cache *this_bvm, char *filename, mword *fileout){ // _journal // _journal#
 
     FILE * pFile;
 
@@ -260,7 +260,7 @@ void _journal(bvm_cache *this_bvm, char *filename, mword *fileout){ // _journal
 > 
 > `{X} {"filename"}| -> |`  
 */
-bvm_cache *spit_mword(bvm_cache *this_bvm){ // spit_mword
+bvm_cache *spit_mword(bvm_cache *this_bvm){ // spit_mword // *spit_mword#
 
     _spit_mword(this_bvm, (char*)dstack_get(this_bvm,0), dstack_get(this_bvm,1));
     popd(this_bvm);

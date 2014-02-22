@@ -11,6 +11,8 @@
 //#define get_tptr2(x)   (mword*)(x+TPTR_PTR)
 #define set_tptr(x,y) (mword*)c((mword*)x,TPTR_PTR)=(mword*)y;
 
+bvm_cache *detag_op(bvm_cache *this_bvm);
+
 //mword *new_tptr(this_bvm, mword *hash, mword *list);
 mword *new_tptr(bvm_cache *this_bvm, const mword *hash, mword *bs);
 

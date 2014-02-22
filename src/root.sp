@@ -3,8 +3,10 @@
 -- This is the code and symbol-table for The Construct
 
 ((main (code 
-    'argv' lusym 
-    0 th 
+    self
+    'argv' hash8
+    luha
+    2 ith 0 ith
     slurp 
     load 
     babel)))

@@ -14,7 +14,7 @@
                     (list (list main)
                     nil)))
 
-        -- (rstack (list nil))
+--                    (rstack (list nil))
 
     (bvm_stack  (tag '/babel/tag/bvm_stack' 
                     (list dstack ustack)))

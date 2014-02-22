@@ -25,7 +25,7 @@
 
 //
 //
-void free_lumbar(bvm_cache *this_bvm, mword *stack_entry){
+void free_lumbar(bvm_cache *this_bvm, mword *stack_entry){ // free_lumbar#
 
     mc_free(this_bvm, (mword*)icdr(stack_entry));
     mc_free(this_bvm, stack_entry);
@@ -37,9 +37,12 @@ void free_lumbar(bvm_cache *this_bvm, mword *stack_entry){
 //
 mword *new_dstack_entry(bvm_cache *this_bvm, mword *operand, mword alloc_type){ // new_dstack_entry#
 
-    return
-        consa(this_bvm,  operand,
+    //return
+
+    mword *temp = consa(this_bvm,  operand,
             consa(this_bvm,  _newva(this_bvm,  alloc_type), nil )); //FIXME DEPRECATED _newva
+
+    return temp;
 
 }
 
@@ -528,7 +531,7 @@ bvm_cache *nest(bvm_cache *this_bvm){ // nest#
 
     this_bvm->code_ptr = consa(this_bvm, nest_body,nil);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;    
 
@@ -537,7 +540,7 @@ bvm_cache *nest(bvm_cache *this_bvm){ // nest#
 
 // XXX DEPRECATE
 //
-mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
+mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){ // *get_from_stack#
 
     fatal("Why are you here??")
 
@@ -548,7 +551,7 @@ mword *get_from_stack(bvm_cache *this_bvm, mword *stack_entry){
 
 // XXX DEPRECATE
 //
-void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
+void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){ // push_alloc#
 
     fatal("Why are you here??");
 
@@ -558,7 +561,7 @@ void push_alloc(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 
 // XXX DEPRECATE
 //
-void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
+void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type){ // push_alloc_rstack#
 
     fatal("Why are you here??");
 
@@ -566,7 +569,7 @@ void push_alloc_rstack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 
 // XXX DEPRECATE
 //
-void push_alloc_ustack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
+void push_alloc_ustack(bvm_cache *this_bvm, mword *operand, mword alloc_type){ // push_alloc_ustack#
 
     fatal("Why are you here??");
 
@@ -574,7 +577,7 @@ void push_alloc_ustack(bvm_cache *this_bvm, mword *operand, mword alloc_type){
 
 // XXX DEPRECATE
 //
-bvm_cache *hard_zap(bvm_cache *this_bvm){
+bvm_cache *hard_zap(bvm_cache *this_bvm){ // *hard_zap#
 
     fatal("Why are you here??");
 
@@ -584,7 +587,7 @@ bvm_cache *hard_zap(bvm_cache *this_bvm){
 
 
 // XXX DEPRECATE
-void free_stack_entry(bvm_cache *this_bvm){
+void free_stack_entry(bvm_cache *this_bvm){ // free_stack_entry#
 
     fatal("Why are you here??");
     
@@ -592,7 +595,7 @@ void free_stack_entry(bvm_cache *this_bvm){
 
 
 // XXX DEPRECATE
-mword *pop_rstack(bvm_cache *this_bvm){
+mword *pop_rstack(bvm_cache *this_bvm){ // *pop_rstack#
 
     fatal("Why are you here??");
 
@@ -603,7 +606,7 @@ mword *pop_rstack(bvm_cache *this_bvm){
 }
 
 // XXX DEPRECATE
-mword *pop_ustack(bvm_cache *this_bvm){
+mword *pop_ustack(bvm_cache *this_bvm){ // *pop_ustack#
 
     fatal("Why are you here??");
 

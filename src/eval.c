@@ -39,10 +39,10 @@ bvm_cache *eval(bvm_cache *this_bvm){ // eval#
 void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return){ // _eval#
 
     pushr(this_bvm, eval_return, _hash8(this_bvm, C2B("/babel/tag/eval")));
-
+    
     this_bvm->code_ptr = consa(this_bvm, eval_body,nil);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
 }
 
@@ -69,7 +69,7 @@ bvm_cache *loop(bvm_cache *this_bvm){ // loop#
 
     this_bvm->code_ptr = consa(this_bvm, loop_body,nil);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -88,7 +88,7 @@ bvm_cache *gotoop(bvm_cache *this_bvm){ // gotoop# goto#
 
     this_bvm->code_ptr = consa(this_bvm, goto_point,nil);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -114,8 +114,9 @@ bvm_cache *times(bvm_cache *this_bvm){ // times#
     popd(this_bvm); 
     popd(this_bvm);
 
-    if(c(iterations,0) == 0)
+    if(c(iterations,0) == 0){
         return this_bvm;
+    }
 
     mword *times_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
@@ -129,7 +130,7 @@ bvm_cache *times(bvm_cache *this_bvm){ // times#
 
     //_dump(this_bvm->code_ptr);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;    
+    this_bvm->advance_type = BVM_CONTINUE;    
 
     return this_bvm;
 
@@ -179,7 +180,7 @@ bvm_cache *each(bvm_cache *this_bvm){ // each#
 
     this_bvm->code_ptr = consa(this_bvm, each_body,nil);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -216,7 +217,7 @@ bvm_cache *ifte(bvm_cache *this_bvm){ // ifte#
 
     this_bvm->code_ptr = consa(this_bvm, cond_clause,nil);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;    
 
@@ -252,7 +253,7 @@ bvm_cache *whileop(bvm_cache *this_bvm){ // whileop# while#
 
     this_bvm->code_ptr = consa(this_bvm, cond_clause,nil);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;    
 
@@ -343,7 +344,7 @@ bvm_cache *next(bvm_cache *this_bvm){ // next#
 
     _next(this_bvm);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -636,7 +637,7 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
         fatal("unrecognized tag");
     }
 
-    icar(this_bvm->advance_type) = BVM_ADVANCE;
+    this_bvm->advance_type = BVM_ADVANCE;
 
     return this_bvm;
 
@@ -684,7 +685,7 @@ bvm_cache *last(bvm_cache *this_bvm){ // last#
         popr(this_bvm);
     }
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -722,7 +723,7 @@ bvm_cache *let(bvm_cache *this_bvm){ // let#
 
     this_bvm->code_ptr = consa(this_bvm, let_body,nil);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -759,7 +760,7 @@ bvm_cache *alt(bvm_cache *this_bvm){ // alt#
 
     this_bvm->code_ptr = consa(this_bvm, alt_body,nil);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -800,7 +801,7 @@ bvm_cache *cond(bvm_cache *this_bvm){ // cond#
     //this_bvm->code_ptr = consa(this_bvm, (mword*)icar(cond_list),nil);
     set_code_ptr(this_bvm,(mword*)icar(cond_list));
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;        
 
@@ -811,7 +812,7 @@ bvm_cache *cond(bvm_cache *this_bvm){ // cond#
 **eachar**
 Iterates across an array. See `each`.  
 */
-bvm_cache *eachar(bvm_cache *this_bvm){
+bvm_cache *eachar(bvm_cache *this_bvm){ // *eachar#
 
 // FIXME: Catch the empty-list condition...
 
@@ -889,7 +890,7 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
     this_bvm->code_ptr = consa(this_bvm, each_body,nil);
 
-    icar(this_bvm->advance_type) = BVM_CONTINUE;
+    this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;
 
@@ -899,7 +900,7 @@ bvm_cache *eachar(bvm_cache *this_bvm){
 
 //FIXME: Busted. See ifte to get it right.
 // babel_operator
-bvm_cache *ifop(bvm_cache *this_bvm){
+bvm_cache *ifop(bvm_cache *this_bvm){ // *ifop#
 
     fatal("unimplemented");
 //   { > 0 } { "greater than zero\n" << } if
@@ -932,12 +933,12 @@ bvm_cache *ifop(bvm_cache *this_bvm){
 **conjure**
 Attempts to call a function in the parent BVM.  
 */
-bvm_cache *conjure(bvm_cache *this_bvm){
+bvm_cache *conjure(bvm_cache *this_bvm){ // *conjure#
 
     fatal("stack fix not done");
     this_bvm->code_ptr = (mword*)cdr(this_bvm->code_ptr);
 
-    icar(this_bvm->advance_type) = BVM_RETURN;
+    this_bvm->advance_type = BVM_RETURN;
 
     return this_bvm;
 

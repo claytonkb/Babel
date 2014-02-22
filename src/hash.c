@@ -18,11 +18,22 @@
 
 // Updates the payload of a hash-entry
 //
-void sym_update(bvm_cache *this_bvm, mword *hash, mword *new_payload){
+void sym_update(bvm_cache *this_bvm, mword *hash, mword *new_payload){ // sym_update#
 
     mword *entry = _luha(this_bvm, get_tptr(this_bvm->sym_table), hash);
     mword *old_payload = _cdri(this_bvm, entry, 2); //FIXME: Naked constant
     (mword*)icar(old_payload) = new_payload;
+
+}
+
+
+// Updates the payload of a hash-entry
+//
+void sym_update_val(bvm_cache *this_bvm, mword *hash, mword new_payload){ // sym_update_val#
+
+    mword *entry = _luha(this_bvm, get_tptr(this_bvm->sym_table), hash);
+    mword *old_payload = _cdri(this_bvm, entry, 2); //FIXME: Naked constant
+    icar(icar(old_payload)) = new_payload;
 
 }
 

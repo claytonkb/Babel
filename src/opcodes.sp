@@ -273,5 +273,10 @@
     (rawmem         (oper 0x224))
     (set_ith        (oper 0x225))
     (set_car        (oper 0x226))
-    (set_cdr        (oper 0x227)))
+    (set_cdr        (oper 0x227))
+    (detag          (oper 0x228))
+    (flush_cache    (oper 0x229))
+    (update_cache   (oper 0x22a))
+    (copy_collect   (oper 0x22b))
+    (bvm_root       (oper 0x22c)))
 

@@ -27,7 +27,7 @@ two-bit LUT-based logic table._
 **F0**  
 > `{a} {b}| -> {0}|`  
 */
-bvm_cache *logicF0(bvm_cache *this_bvm){ // logicF0 
+bvm_cache *logicF0(bvm_cache *this_bvm){ // logicF0  // *logicF0#
 
     babel_operator_typeB( 
             this_bvm, 

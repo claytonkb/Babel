@@ -45,7 +45,7 @@
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 554
+#define NUM_INTERP_OPCODES 559
 
 #define FLAG_IGN    ((mword)-1)
 #define FLAG_SET    1
@@ -74,23 +74,47 @@ typedef struct { // mem_context#
 } mem_context;
 
 
-typedef struct { // bvm_flags#
+typedef struct { // interp_flags#
 
     mword MC_ALLOC_BLOCKING;
     mword MC_GC_BLOCKING;
     mword MC_GC_PENDING;
     mword BVM_INSTR_IN_PROGRESS;
     mword BVM_INCOHERENT;
-    mword BVM_CACHE_VALID;
+    mword BVM_CACHE_INVALID;
     mword BVM_CACHE_DIRTY;
+    mword BVM_CACHE_ONLY;
+    mword BVM_CACHE_BLOCKING;
+    mword BVM_SYMBOLS_DEFINED;
     mword BVM_CLEAN;
     mword NO_ASYNC;
     mword NO_EXCEPT;
 
-} bvm_flags;
+} interp_flags;
+
+
+typedef struct { // interp_state#
+
+    jmp_buf         *cat_ex;
+    int              argc;
+    char           **argv;
+    char           **envp;
+    mword           *interp_argv;
+    mem_context     *mem;
+    mword           *nil;
+    mword           *jump_table; // full jump_table
+    mword           *empty_string;
+    struct tm       *utc_epoch;
+    mword           *srand;
+    mword            null_hash[HASH_SIZE];
+    mword            thread_counter;
+
+} interp_state;
 
 
 typedef struct { // bvm_cache#
+
+    mword *self;
 
     mword *code_ptr;
     mword *rstack_ptr;
@@ -98,17 +122,18 @@ typedef struct { // bvm_cache#
     mword *dstack_ptr;
     mword *ustack_ptr;
 
-    mword *jump_table;
     mword *sym_table;
-    mword *self;
+    mword *soft_root;
 
-    mword *thread_id;
-    mword *steps;    
-    mword *advance_type;
+    mword thread_id;
+    mword steps;    
+    mword advance_type;
 
-    //interp ONLY (no save/restore):
-    mem_context *mem;
-    bvm_flags   *flags;
+    mword *mask_table; // de-privileged jump_table
+
+    interp_flags *flags;
+    
+    interp_state *interp;
 
 } bvm_cache;
 
@@ -128,7 +153,7 @@ void temp_rbs2gv(mword *bs);
 #define bfree(x)  free((mword*)(x)-1)
 
 // Memory size is 64MB
-#define MEM_SIZE (1<<16)          // MEM_SIZE#
+#define MEM_SIZE (1<<15)          // MEM_SIZE#
 
 //#define ALLOC_ENTRY_IN_USE 1    // ALLOC_ENTRY_IN_USE#
 //#define ALLOC_ENTRY_FREE   0    // ALLOC_ENTRY_FREE#
@@ -470,9 +495,11 @@ mword null_hash[HASH_SIZE];// = { 0x88e9045b, 0x0b7c30af, 0x831422c3, 0x01ab0dc1
 #define warn(x)     fprintf(stderr, "WARNING: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__);  // warn#
 #define error(x)    fprintf(stderr, "ERROR: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); // error#
 #define fatal(x)    fprintf(stderr, "FATAL: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); die;  // fatal#
+#define cat_except(x)  trace; longjmp(*(x->interp->cat_ex),1);
 #define trace       printf("%s in %s line %d\n", __func__, __FILE__, __LINE__);   // trace#
 #define err_trace   fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);   // err_trace#
 #define enhance(x)  fprintf(stderr, "ENHANCEMENT: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // enhance#
+#define _mema(x)     int _i; printf("%08x %08x\n", (mword)(x-1), s(x)); for(_i=0; _i<alloc_size(x)-1; _i++){ printf("%08x %08x\n", (mword)(x+_i), c(x,_i)); } // _mema#
 
 #include "interp.h"
 #include "bvm.h"

@@ -6,7 +6,6 @@
 #include "io.h"
 #include "bvm.h"
 #include "pearson16.h"
-//#include "debug.h"
 #include <time.h>
 #include "mt19937ar.h"
 #include "array.h"
@@ -22,158 +21,273 @@
 #include <stdarg.h>
 #include "ref.h"
 #include "mem.h"
-//#include "construct.sp.h"
+#include <windows.h>
 
 //
 //
-void init_nil(bvm_cache *this_bvm){ // init_nil#
+int babel_interp(bvm_cache *this_bvm, int argc, char **argv, char **envp){ // babel_interp#
 
-//    nil = new_tptr(this_bvm, BABEL_TAG_INTERP_NIL, NULL);
-//    set_tptr(nil,nil);
 
-    mword *temp = malloc( MWORDS(TPTR_SIZE) ); // XXX WAIVER XXX
-    temp[0]=0;
-    nil=temp+1;
+    clock_t wall_clock_time;
+    wall_clock_time = clock();
 
-    int i;
-    for(i=0; i<HASH_SIZE; i++){
-        nil[i] = BABEL_TAG_INTERP_NIL[i];
+    jmp_buf cat_ex;
+
+    int val;
+    val = setjmp(cat_ex);
+
+    if(val){
+        fprintf(stderr,"CATASTROPHIC EXCEPTION: babel\n");
+        die;
     }
 
-    nil[HASH_SIZE  ] = -1*MWORD_SIZE;
-    set_tptr(nil,nil);
+//  /* code here */
+//
+//  longjmp (this_bvm->interp->cat_ex,101);   /* signaling an error */
+
+    interp_init(this_bvm, argc, argv, envp, &cat_ex);
+
+    bvm_interp(this_bvm);
+
+    wall_clock_time = (clock() - wall_clock_time) / CLOCKS_PER_SEC;
+
+    return wall_clock_time;
 
 }
 
-//
-//
-void flag_init(bvm_cache *this_bvm){ // flag_init#
 
-    bvm_flags *f = malloc(sizeof(bvm_flags)); // XXX WAIVER XXX
+//  Initializes the root Babel Virtual Machine (BVM)
+//  and interpreter-only state...
+bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp, jmp_buf *cat_ex){ // interp_init#
+
+    // Initialize this_bvm->interp ...
+    interp_new(this_bvm, argc, argv, envp, cat_ex);
+
+    // Load the Construct ...
+    mword *load_bbl = mc_alloc(this_bvm, MWORDS(BBL_SIZE));
+    memcpy(load_bbl, bbl, MWORDS(BBL_SIZE));
+    this_bvm->self = _load(this_bvm, (mword*)load_bbl,BBL_SIZE);
+
+    // Initialize symbolic constants
+    interp_init_symbolic_constants(this_bvm);
+
+    // Initialize the BVM
+    bvm_new_sparse_bvm(this_bvm);
+
+    return this_bvm;
+
+    //TODO: Configure root BVM resource limits
+
+}
+
+
+//
+//
+bvm_cache *interp_new(bvm_cache *this_bvm, int argc, char **argv, char **envp, jmp_buf *cat_ex){ // interp_new#
+
+    this_bvm->interp = sys_alloc(sizeof(interp_state)); // XXX WAIVER XXX
+
+    this_bvm->interp->cat_ex    = cat_ex;
+    this_bvm->interp->argc      = argc;
+    this_bvm->interp->argv      = argv;
+    this_bvm->interp->envp      = envp;
+
+    mc_new(this_bvm);
+
+    interp_new_flags(this_bvm);
+    interp_new_nil(this_bvm);
+    interp_new_jump_table(this_bvm);
+    interp_new_empty_string(this_bvm);
+    interp_new_epoch(this_bvm);
+    interp_new_srand(this_bvm);
+    interp_new_null_hash(this_bvm);
+    interp_new_stdin_capture(this_bvm);
+    interp_capture_argv(this_bvm);
+
+    return this_bvm;
+
+}
+
+
+//
+//
+bvm_cache *interp_new_jump_table(bvm_cache *this_bvm){ // interp_new_jump_table#
+
+
+    #include "fixed_opcodes.h"
+
+    #define num_opcodes (sizeof(interp_fixed_opcodes)/sizeof(babel_op))
+
+    mword *temp = sys_alloc(MWORDS(num_opcodes+1)); //XXX WAIVER XXX
+
+    temp[0] = num_opcodes * MWORD_SIZE;
+    temp++;
+
+    int i;
+    for(i=0;i<num_opcodes;i++){
+        (mword*)temp[i] = (mword*)interp_fixed_opcodes[i];
+    }
+
+    this_bvm->interp->jump_table = temp;
+
+    return this_bvm;
+
+}
+
+
+//
+//
+bvm_cache *interp_new_flags(bvm_cache *this_bvm){ // interp_new_flags#
+
+
+    interp_flags *f = sys_alloc(sizeof(interp_flags)); // XXX WAIVER XXX
 
     f->MC_ALLOC_BLOCKING     = FLAG_CLR;
     f->MC_GC_BLOCKING        = FLAG_CLR;
     f->MC_GC_PENDING         = FLAG_CLR;
     f->BVM_INSTR_IN_PROGRESS = FLAG_CLR;
+    f->BVM_CACHE_DIRTY       = FLAG_CLR;
+    f->BVM_CACHE_INVALID     = FLAG_SET;
     f->BVM_INCOHERENT        = FLAG_IGN;
-    f->BVM_CACHE_VALID       = FLAG_IGN;
-    f->BVM_CACHE_DIRTY       = FLAG_IGN;
     f->BVM_CLEAN             = FLAG_IGN;
     f->NO_ASYNC              = FLAG_IGN;
     f->NO_EXCEPT             = FLAG_IGN;
 
     this_bvm->flags = f;
 
+    return this_bvm;
+
 }
 
+
 //
 //
-void capture_env(bvm_cache *this_bvm, char **envp){ // capture_env#
+bvm_cache *interp_new_nil(bvm_cache *this_bvm){ // interp_new_nil#
 
-    char** env;
-    mword *env_hash = new_hash_table(this_bvm);
 
-    char *split_point;
+    mword *temp = sys_alloc( MWORDS(TPTR_SIZE) ); // XXX WAIVER XXX
+    temp[0]=0;
+    this_bvm->interp->nil=temp+1;
 
-    mword *env_var_name;
-    mword *env_var_val;
-
-    for(env = envp; *env != NULL; env++){
-
-        split_point = strchr(*env,'=');
-
-        env_var_val = _c2b(this_bvm, split_point+1,OVERRUN_LIMIT);
-        *split_point = 0;
-        env_var_name = _c2b(this_bvm, *env,OVERRUN_LIMIT);
-
-       // hash_insert(env_hash, env_var_name, env_var_val);
-        _insha(this_bvm,  env_hash,                         
-                nil,                                
-                env_var_name,                           
-                new_hash_table_entry(this_bvm,   nil,         
-                                        env_var_name,   
-                                        env_var_val ) );
-
+    int i;
+    for(i=0; i<HASH_SIZE; i++){
+        this_bvm->interp->nil[i] = BABEL_TAG_INTERP_NIL[i];
     }
 
-//    mword *path = _luha(this_bvm,  get_tptr(env_hash), _hash8(this_bvm, C2B("PATH")) );
+    this_bvm->interp->nil[HASH_SIZE  ] = -1*MWORD_SIZE;
+    set_tptr(this_bvm->interp->nil,this_bvm->interp->nil);
 
-//mword *_luha(this_bvm, mword *hash_table, mword *hash){ // _luha#
-//    _dump(path);
+    nil = this_bvm->interp->nil;
 
-//    printf("%s\n", (char*)path);
-//    die;
-
-//    return env_hash;
-    set_sym( this_bvm, "env", env_hash );
-
-//    _dump(env_hash);
-//    die;
+    return this_bvm;
 
 }
 
 
 //
 //
-void gen_time_string(bvm_cache *this_bvm){
+bvm_cache *interp_new_empty_string(bvm_cache *this_bvm){ // interp_new_empty_string#
 
-    #define MAX_TIME_STRING_LENGTH 30
+    this_bvm->interp->empty_string = _newlfi(this_bvm, 1, 0);
+
+    return this_bvm;
+
+}
+
+
+//
+//
+bvm_cache *interp_new_null_hash(bvm_cache *this_bvm){ // interp_new_null_hash#
+
+
+    // XXX 32-bit NON-PORTABLE
+    this_bvm->interp->null_hash[0] = 0x01ab0dc1;
+    this_bvm->interp->null_hash[1] = 0x831422c3;
+    this_bvm->interp->null_hash[2] = 0x0b7c30af;
+    this_bvm->interp->null_hash[3] = 0x88e9045b;
+
+    return this_bvm;
+
+}
+
+
+//
+//
+bvm_cache *interp_new_epoch(bvm_cache *this_bvm){ // interp_new_epoch#
+
 
     time_t rawtime;
-    char time_string[MAX_TIME_STRING_LENGTH];
-    time( &rawtime );    
-    strcpy( time_string, ctime(&rawtime) );
-    //return _c2b(this_bvm, time_string, MAX_TIME_STRING_LENGTH);
+    struct tm *utc_epoch;
 
-    set_sym( this_bvm, "epoch", _c2b(this_bvm, time_string, MAX_TIME_STRING_LENGTH) );
+    time( &rawtime );
+    utc_epoch = gmtime( &rawtime );
+
+    //tm_sec	int	seconds after the minute	0-61*
+    //tm_min	int	minutes after the hour	    0-59
+    //tm_hour	int	hours since midnight	    0-23
+    //tm_mday	int	day of the month	        1-31
+    //tm_mon	int	months since January	    0-11
+    //tm_year	int	years since 1900	
+    //tm_wday	int	days since Sunday	        0-6
+    //tm_yday	int	days since January 1	    0-365
+
+    struct tm *bvm_utc_epoch = sys_alloc(sizeof(struct tm)); //&this_bvm->interp->utc_epoch;
+
+    bvm_utc_epoch->tm_sec  = utc_epoch->tm_sec;
+    bvm_utc_epoch->tm_min  = utc_epoch->tm_min;
+    bvm_utc_epoch->tm_hour = utc_epoch->tm_hour;
+    bvm_utc_epoch->tm_mday = utc_epoch->tm_mday;
+    bvm_utc_epoch->tm_mon  = utc_epoch->tm_mon;
+    bvm_utc_epoch->tm_year = utc_epoch->tm_year;
+    bvm_utc_epoch->tm_wday = utc_epoch->tm_wday;
+    bvm_utc_epoch->tm_yday = utc_epoch->tm_yday;
+
+    this_bvm->interp->utc_epoch = bvm_utc_epoch;
+
+    return this_bvm;
 
 }
 
 
+// must be called AFTER interp_new_epoch
 //
-//
-void init_srand(bvm_cache *this_bvm){
+void interp_new_srand(bvm_cache *this_bvm){ // interp_new_srand#
 
-    // FIXME: strlen... get rid
-    // This needs to be enhanced to look for existing srand...
-    //mword *time_hash;// = new_hash(this_bvm);
-    mword *hash_init = _newlfi(this_bvm, HASH_SIZE, 0); //new_hash(this_bvm);
-    mword *epoch = get_sym( this_bvm, "epoch" );
-    mword *time_hash = _pearson16(this_bvm,  hash_init, epoch, _arlen8(this_bvm, epoch) );
+
+    #define SRAND_STRING_SIZE 32
+
+    char srand_string[SRAND_STRING_SIZE];
+
+#ifdef WINDOWS
+    // Sleep for 10ms to ensure we get a unique clock() tick...
+    Sleep(10);
+//#elsif STAR_NIX ...
+#endif
+
+    sprintf(srand_string, "%d", clock());
+
+    mword *babel_srand_string = _c2b(this_bvm, srand_string, SRAND_STRING_SIZE);
+
+    mword *hash_init = _newlfi(this_bvm, HASH_SIZE, 0);
+
+    mword *time_hash = _pearson16(
+                            this_bvm,  
+                            hash_init, 
+                            babel_srand_string,
+                            _arlen8(this_bvm, babel_srand_string) );
+
     init_by_array( time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
-    set_sym( this_bvm, "srand", time_hash );
+    this_bvm->interp->srand = time_hash;
+
+    return time_hash;
 
 }
 
 
 //
 //
-void init_argv(bvm_cache *this_bvm, int argc, char **argv){
-
-    mword *temp_argv;
-
-    //initialize argv
-    //XXX This will change when we add CLI processing:
-    #define NUM_BABEL_INTERP_ARGS 1 
-    if(argc > NUM_BABEL_INTERP_ARGS){
-
-        temp_argv = _newin(this_bvm, argc-NUM_BABEL_INTERP_ARGS);
-
-        int i;
-        for( i = NUM_BABEL_INTERP_ARGS; i < argc; i++ ){
-            (mword*)c((mword*)temp_argv, i-NUM_BABEL_INTERP_ARGS)
-                = _c2b(this_bvm, argv[i], 100);
-        }
-
-    }
-
-//    this_bvm->argv = nil;
-    set_sym( this_bvm, "argv", temp_argv );
-
-}
-
-void init_symbolic_constants(bvm_cache *this_bvm){
+void interp_init_symbolic_constants(bvm_cache *this_bvm){ //interp_init_symbolic_constants#
 
     BABEL_SYM_STEPS         = _hash8(this_bvm, C2B("steps"));
     BABEL_SYM_THREAD_ID     = _hash8(this_bvm, C2B("thread_id"));
@@ -183,89 +297,17 @@ void init_symbolic_constants(bvm_cache *this_bvm){
 
 }
 
-//  Initializes the root Babel Virtual Machine (BVM)
-//  and interpreter-only state...
-bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){ // interp_init#
 
-    mc_init(this_bvm);
-    flag_init(this_bvm);
-    init_nil(this_bvm);    //initialize nil (global constant)
-
-//    mword *load_bbl = malloc(MWORDS(BBL_SIZE));
-//    memcpy(load_bbl, bbl, MWORDS(BBL_SIZE));
-
-    mword *load_bbl = mc_alloc(this_bvm, MWORDS(BBL_SIZE));
-    memcpy(load_bbl, bbl, MWORDS(BBL_SIZE));
-
-//    int i;
-//    for(i=0;i<BBL_SIZE;i++){
-//        printf("%08x\n", c(bbl,i));
-//        //printf("%08x\n", c((this_bvm->self-1),i));
-//    }
 //
-//    die;
-
-    this_bvm->self = _load(this_bvm, (mword*)load_bbl,BBL_SIZE);
-//    die;
 //
-//    int i;
-//    for(i=0;i<BBL_SIZE;i++){
-//        printf("%08x\n", c(bbl,i));
-//        //printf("%08x\n", c((this_bvm->self-1),i));
-//    }
-//
+bvm_cache *interp_new_stdin_capture(bvm_cache *this_bvm){ // interp_new_stdin_capture#
+
+// Check if user gave filename "-", indicating that input is coming on
+// STDIN.
+
+//    int c = fgetc(stdin);
+//    printf("%c\n",c);
 //    die;
-
-    this_bvm->sym_table = (mword*)bvm_sym_table(this_bvm->self);
-
-    capture_env(this_bvm, envp); // FIXME: DIES HERE 1/28/14
-
-    gen_time_string(this_bvm);
-
-    empty_string = _newlfi(this_bvm, 1,0);
-
-    init_srand(this_bvm);
-
-    init_argv(this_bvm, argc, argv);
-
-    init_symbolic_constants(this_bvm);
-
-    mword *jump_table    = init_interp_jump_table(this_bvm);
-
-    //this_bvm->mem = mc_init(this_bvm);
-
-//    mword *z = this_bvm->mem->primary->base_ptr;
-//    z[(MEM_SIZE>>1)-1] = 0xbabeface;
-//    d(z[(MEM_SIZE>>1)-1]);
-
-//    mword *z = this_bvm->mem->secondary->alloc_ptr;
-//    *z = 0xbabeface;
-//    d(*z);
-
-    set_sym(this_bvm, "steps",          _newva( this_bvm, (mword)-1) );
-//    set_sym(this_bvm, "thread_id",      _newva( this_bvm, 0) );
-    set_sym(this_bvm, "advance_type",   _newva( this_bvm, (mword)BVM_ADVANCE) );
-//    set_sym(this_bvm, "soft_root",      nil );
-//    set_sym(this_bvm, "jump_table",     jump_table );
-
-    update_bvm_cache(this_bvm);
-
-    write_bvm_cache(this_bvm, &this_bvm->jump_table, &jump_table);
-
-    mword *thread_id = _newva(this_bvm, 0);
-    write_bvm_cache(this_bvm, &this_bvm->thread_id, &thread_id);
-
-//    this_bvm->code_ptr      = (mword*)bvm_code_ptr(this_bvm->self);
-//    this_bvm->rstack_ptr    = (mword*)bvm_rstack_ptr(this_bvm->self);
-//    this_bvm->dstack_ptr    = (mword*)bvm_dstack_ptr(this_bvm->self);
-//    this_bvm->ustack_ptr    = (mword*)bvm_ustack_ptr(this_bvm->self);
-//    this_bvm->sym_table     = (mword*)bvm_sym_table(this_bvm->self);
-//    this_bvm->jump_table    = get_sym(this_bvm, "jump_table");
-//    this_bvm->steps         = get_sym(this_bvm, "steps");
-//    this_bvm->advance_type  = get_sym(this_bvm, "advance_type");
-//    this_bvm->thread_id     = get_sym(this_bvm, "thread_id");
-
-    return this_bvm;
 
     //TODO
     //- Check stdin
@@ -282,63 +324,56 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp){
     //            decoded by hand.
     //        unless user uses a switch to say "don't do this"
 
-    //TODO: Configure root BVM resource limits
-
 }
 
 
 //
-mword *init_interp_jump_table(bvm_cache *this_bvm){
-
-    #include "fixed_opcodes.h"
-
-//    printf("%d\n",sizeof(interp_fixed_opcodes)/sizeof(babel_op));
-//    die
-
-    #define num_opcodes (sizeof(interp_fixed_opcodes)/sizeof(babel_op))
-
-    mword *temp = malloc(MWORDS(num_opcodes+1)); //XXX WAIVER XXX
-    temp[0] = num_opcodes * MWORD_SIZE;
-    temp++;
-
-    int i;
-    for(i=0;i<num_opcodes;i++){
-        (mword*)temp[i] = (mword*)interp_fixed_opcodes[i];
-    }
-
-    return temp;
-
-//    this_bvm->jump_table = _newlf(this_bvm, num_opcodes);
 //
-//    int i;
-//    for(i=0;i<num_opcodes;i++){
-//        (mword*)this_bvm->jump_table[i] = (mword*)interp_fixed_opcodes[i];
-//    }
+bvm_cache *interp_capture_argv(bvm_cache *this_bvm){ // interp_capture_argv#
 
-}
+    // 1. babel
+    // 2. switches
+    // 3. - OR .bbl file name
 
+    char **argv = this_bvm->interp->argv;
+    int    argc = this_bvm->interp->argc;
 
-//
-// babel_operator
-bvm_cache *endian(bvm_cache *this_bvm){
+    mword *temp_argv;
 
-    fatal("stack fix not done");
-    mword test = 1;
-    char *test_addr = (char *)&test;
-    mword *result = new_atom;
+    //initialize argv
+    //XXX This will change when we add CLI processing:
+    #define NUM_BABEL_INTERP_ARGS 1 
 
-    if(*test_addr){
-        *result = LITTLE_ENDIAN;
+    if(argc > NUM_BABEL_INTERP_ARGS){
+
+        temp_argv = consa(
+                        this_bvm, 
+                        _c2b(this_bvm, argv[NUM_BABEL_INTERP_ARGS], 100), nil);
+
+        int i;
+        for( i = NUM_BABEL_INTERP_ARGS+1; i < argc; i++ ){
+
+            temp_argv = _unshift(this_bvm, temp_argv, _c2b(this_bvm, argv[i], 100));
+
+        }
+
     }
-    else{
-        *result = BIG_ENDIAN;
-    }
 
-    push_alloc(this_bvm, result, IMMORTAL);
+    this_bvm->interp->interp_argv = temp_argv;
 
     return this_bvm;
 
 }
+
+
+//
+//
+void interp_reset(void){ // interp_reset#
+
+
+
+}
+
 
 // Clayton Bauman 2013
 

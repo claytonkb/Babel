@@ -5,6 +5,7 @@
 #include "alloc.h"
 #include "pearson16.h"
 #include "mem.h"
+#include "stack.h"
 
 //tag-checking (equal, etc.)
 
@@ -91,21 +92,43 @@ mword *tptr_extract_ptr(bvm_cache *this_bvm, mword *tptr){ // tptr_extract_ptr#
 }
 
 
+//
+//
+bvm_cache *detag_op(bvm_cache *this_bvm){ // detag_op#
+
+    mword *op0 = dstack_get(this_bvm,0);
+    popd(this_bvm);
+
+    mword *result = get_tptr(op0);
+
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+#define MAX_DETAG_DEPTH 1024
 
 // Safely, recursively de-references a tag
-mword *detag(bvm_cache *this_bvm, mword *tptr){
+mword *detag(bvm_cache *this_bvm, mword *tptr){ // *detag#
+
+    static int livelock_detect=0;
 
     if(is_tptr(tptr)){
+        if(livelock_detect++ > MAX_DETAG_DEPTH){
+            cat_except(this_bvm);
+        }
         return detag(this_bvm, get_tptr(tptr));
     }
     else{
+        livelock_detect=0;
         return tptr;
     }
 
 }
 
 // Hard de-references a tag (recursive)
-mword *hard_detag(bvm_cache *this_bvm, mword *tptr){
+mword *hard_detag(bvm_cache *this_bvm, mword *tptr){ // *hard_detag#
 
     mword *temp = get_tptr(tptr);
 
