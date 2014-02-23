@@ -427,10 +427,51 @@ mword *_cp(bvm_cache *this_bvm, mword *bs){ // _cp#
 
     bs = _load(this_bvm, temp, size(temp));
 
-//    bfree(temp);
-    //free(temp-1);
-
     return bs;    
+
+}
+
+
+//
+// babel_operator
+mword *_bbl2str(bvm_cache *this_bvm, mword *operand){ // _bbl2str#
+
+////    mword *operand = get_from_stack( this_bvm, TOS_0( this_bvm ) ) ;
+//    mword *operand = dstack_get(this_bvm, 0);
+//    popd(this_bvm);
+
+    // Figure out buffer size
+    mword initial_buf_size = (16 * _mu(this_bvm, operand));
+
+    //matching free() below
+    char *buffer = malloc(initial_buf_size); // XXX WAIVER XXX
+
+    mword buf_size=0;
+
+    buf_size += rbbl2str(this_bvm, operand, buffer+buf_size);
+    //buf_size now contains the final string size of the entire graphviz string
+
+    rclean(this_bvm, operand);
+
+    mword last_mword = alignment_word8(this_bvm, buf_size);
+    mword length = (buf_size / MWORD_SIZE) + 1;
+
+    if(buf_size % MWORD_SIZE != 0){
+        length++;
+    }
+
+    mword *temp   = _newlf(this_bvm, length);
+    mword *result = temp;
+
+    memcpy(temp, buffer, buf_size);
+    c(temp,length-1) = last_mword;
+    free(buffer);
+
+    return result;
+
+//    pushd(this_bvm,result,MORTAL);
+//
+//    return this_bvm;
 
 }
 

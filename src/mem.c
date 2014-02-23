@@ -148,9 +148,13 @@ bvm_cache *mc_copy_collect(bvm_cache *this_bvm){ // mc_copy_collect#
 
     this_bvm->self = _cp(this_bvm, this_bvm->self);
 
-trace;
-mword usage = mc_bank_usage(this_bvm, this_bvm->interp->mem->primary);
-d(usage);
+//trace;
+    mword usage = mc_bank_usage(this_bvm, this_bvm->interp->mem->primary);
+//d(usage);
+
+    if(usage > (0.9 * (MEM_SIZE>>1))){
+        fatal("memory usage above redline");
+    }
 
     //init_bvm_cache(this_bvm);
 

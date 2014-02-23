@@ -725,6 +725,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     bvm_update_cache,
     mc_copy_collect,
     bvm_root,
+    bvm_dump_cache,
 
 };
 

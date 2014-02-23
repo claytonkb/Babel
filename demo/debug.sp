@@ -16,25 +16,41 @@
         dup
 
         prompt !
-
-        (list  -- multi-letter strings work...
-        (code dup 'b' streq !) (code zap save_bbl2str      !)
-        (code dup 'c' streq !) (code zap dump_code         !)
-        (code dup 'd' streq !) (code zap dump_dstack       !)
-        (code dup 'h' streq !) (code zap show_help_msg     !)
-        (code dup 'i' streq !) (code zap save_bvm          !)
-        (code dup 'l' streq !) (code zap show_listing      !)
-        (code dup 'm' streq !) (code zap show_mem          !)
-        (code dup 'q' streq !) (code zap last               )
-        (code dup 'r' streq !) (code zap dump_rstack       !)
-        (code dup 's' streq !) (code zap bvm_step           )
-        (code dup 't' streq !) (code zap bvm_step 
-                                         dump_dstack       !)
-        (code dup 'u' streq !) (code zap dump_ustack       !)
-        (code 1              ) (code zap                    ))
-        cond)
+        choose_command !)
 
     loop))
+
+(choose_command (code 
+
+    (list  -- multi-letter strings work...
+    (code dup 'b' streq !) (code zap save_bbl2str      !)
+    (code dup 'c' streq !) (code zap dump_code         !)
+    (code dup 'd' streq !) (code zap dump_dstack       !)
+    (code dup 'h' streq !) (code zap show_help_msg     !)
+    (code dup 'i' streq !) (code zap save_bvm          !)
+    (code dup 'l' streq !) (code zap show_listing      !)
+    (code dup 'm' streq !) (code zap show_mem          !)
+    (code dup 'q' streq !) (code zap last               )
+    (code dup 'r' streq !) (code zap dump_rstack       !)
+    (code dup 's' streq !) (code zap step_prog         !)
+    (code dup 't' streq !) (code zap step_prog         ! 
+                                     dump_dstack       !)
+    (code dup 'u' streq !) (code zap dump_ustack       !)
+    (code 1              ) (code zap                    ))
+    cond
+
+))
+
+(step_prog (code 
+    dup 
+    bvm_sym_table !
+    "steps" 1 cp inskha
+    babel))
+
+
+
+
+(bvm_sym_table  (code cdr cdr cdr car detag))
 
 (strcat (code <- '' ->  (code .) each))
 (strne  (code arcmp))
@@ -43,21 +59,27 @@
 
 (prompt (code 
     "\n> " <<
-    >>))
+    >> cp))
 
+
+--(load_program (code 
+--    1 argvn ! 
+--    slurp 
+--    load))
 
 (load_program (code 
-    1 argvn ! 
+    1 get_argv ! 
     slurp 
     load))
 
+(get_argv (code <- self 'argv' hash8 luha 2 ith -> ith))
 
 (bvm_code_ptr   (code car car car))
 (bvm_dstack_ptr (code cdr car car))
 (bvm_ustack_ptr (code cdr car cdr car))
 (bvm_rstack_ptr (code car cdr ))
 -- (bvm_sym_table  (code cdr cdr cdr car car))
-(bvm_sym_table  (code cdr cdr cdr))
+-- (bvm_sym_table  (code cdr cdr cdr))
 
 
 -- FIXME: jump_table needs to be set to nil before unload...

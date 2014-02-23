@@ -136,7 +136,15 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
     bvm_cache *discard;
     babel_op op_ptr;
 
+#ifdef BVM_OP_TRACE
+printf("babel begin\n");
+#endif
+
     while( this_bvm->steps ){
+
+#ifdef BVM_OP_TRACE_STEP
+int c = fgetc(stdin);
+#endif
 
         this_bvm->flags->BVM_INSTR_IN_PROGRESS = FLAG_SET;
 
@@ -153,8 +161,12 @@ bvm_cache *bvm_interp(bvm_cache *this_bvm){ // bvm_interp#
         if( is_inte(next_entry) ){
 
 #ifdef BVM_OP_TRACE
-printf("opcode push\n");
-_mem((mword*)icar(next_entry));    
+#ifdef BVM_OP_TRACE_BBL2STR
+printf("push: %s\n", (char*)_bbl2str(this_bvm, (mword*)icar(next_entry)));
+#else
+printf("push:\n");
+_mema((mword*)icar(next_entry));    
+#endif
 #endif
 
             pushd( this_bvm, (mword*)icar(next_entry), IMMORTAL );
@@ -189,14 +201,22 @@ d(opcode);
         }
         else{
             //icar(this_bvm->advance_type) = BVM_ADVANCE;
+#ifdef BVM_OP_TRACE
+printf("BVM_CONTINUE\n");
+#endif
             set_bvm_advance_type(this_bvm, BVM_ADVANCE);
         }
 
         dec_bvm_steps(this_bvm);
+        this_bvm->interp->global_tick_count++;
 
     }
 
     bvm_flush_cache(this_bvm);
+
+#ifdef BVM_OP_TRACE
+printf("babel end\n");
+#endif
 
     return this_bvm;
 
@@ -278,6 +298,7 @@ trace;
 
 trace;
         dec_bvm_steps(this_bvm);
+        this_bvm->interp->global_tick_count++;
 
     }
 

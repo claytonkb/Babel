@@ -78,7 +78,7 @@ bvm_cache *cr(bvm_cache *this_bvm){ // cr#
 
     if      ( is_leaf(operand)  ){
         size8 = _arlen8(this_bvm, operand) + NEWLINE_SIZE;
-        result = (char*)_newlf(this_bvm,  array8_size(this_bvm, size8) );
+        result = (char*)_newlfi(this_bvm,  array8_size(this_bvm, size8), 0);
     }
     else{ //Throw an exception
         error("cr: cannot concatenate to a non-leaf array");
@@ -123,7 +123,7 @@ mword *_b2c(bvm_cache *this_bvm, mword *string){ // *_b2c#
     last_mword = alignment_word8(this_bvm, dec_alignment_word8(this_bvm, last_mword)+1);
 
 //Just allocate an extra space in case we need it...
-    mword *cstr = _newlf(this_bvm, strsize+1); //FIXME DEPRECATED _newlf (see above)
+    mword *cstr = _newlfi(this_bvm, strsize+1,0);
 
     memcpy(cstr, string, char_length);
 
@@ -197,7 +197,7 @@ mword *_c2b(bvm_cache *this_bvm, char *string, mword max_safe_length){ // _c2b#
 //    d(char_length)
 //    d(length)
 
-    mword *result = _newlf(this_bvm, length);
+    mword *result = _newlfi(this_bvm, length,0);
 
     memcpy(result, string, char_length);
 
@@ -246,7 +246,7 @@ bvm_cache *ar2str(bvm_cache *this_bvm){ // ar2str#
         arlength++;
     }
 
-    result = _newlf(this_bvm, arlength);
+    result = _newlfi(this_bvm, arlength,0);
     memcpy(result, temp_buffer, utf8_length);
     free(temp_buffer);
 
@@ -279,7 +279,7 @@ bvm_cache *str2ar(bvm_cache *this_bvm){ // str2ar#
     mword length8 = _arlen8(this_bvm, op0);
     mword u8_length = (mword)u8_strlen((char *)op0, length8);
 
-    mword *result = _newlf(this_bvm, u8_length+1);
+    mword *result = _newlfi(this_bvm, u8_length+1, 0);
 
     mword length = u8_toucs((uint32_t *)result, u8_length+1, (char *)op0, length8);
 
@@ -301,7 +301,7 @@ bvm_cache *catoi(bvm_cache *this_bvm){ // catoi#
     popd(this_bvm);
 
     mword *cstr = _b2c(this_bvm, op0);
-    mword *result = _newlf(this_bvm, 1);
+    mword *result = _newlfi(this_bvm, 1,0);
     *result = (mword)atoi((char*)cstr);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -320,7 +320,7 @@ bvm_cache *dec2ci(bvm_cache *this_bvm){ // dec2ci#
     popd(this_bvm);
 
     mword *cstr = _b2c(this_bvm, op0);
-    mword *result = _newlf(this_bvm, 1);
+    mword *result = _newlfi(this_bvm, 1, 0);
     *result = (mword)atoi((char*)cstr);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -339,7 +339,12 @@ bvm_cache *hex2cu(bvm_cache *this_bvm){ // hex2cu#
     popd(this_bvm);
 
     mword *cstr = _b2c(this_bvm, op0);
-    unsigned long *result = (unsigned long *)_newlf(this_bvm, sizeof(unsigned long) / sizeof(mword) ); //XXX Hmmmmmmm
+    unsigned long *result = 
+        (unsigned long *)
+            _newlfi(
+                    this_bvm, 
+                    (sizeof(unsigned long) / sizeof(mword)),
+                    0);
     *result = strtoul ((char*)cstr,NULL,16);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -362,7 +367,7 @@ bvm_cache *hex2cu(bvm_cache *this_bvm){ // hex2cu#
         arlength++;                                     \
     }                                                   \
                                                         \
-    mword *result = _newlf(this_bvm, arlength);        \
+    mword *result = _newlfi(this_bvm, arlength,0);        \
                                                         \
     memcpy(result, buffer, size);                       \
     c(result,arlength-1) = alignment_word8(this_bvm, size);       \

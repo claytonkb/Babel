@@ -298,8 +298,11 @@ mword *_th(bvm_cache *this_bvm, mword *bs, mword entry){ // _th#
     if(is_leaf(bs)){
         return _newva(this_bvm, c(bs,entry%size(bs))); 
     }
+    if(is_tptr(bs)){
+        return nil; 
+    }
+
     
-    //we are assuming that we never get a tptr...
     return (mword*)c(bs,entry%size(bs));
 
 }

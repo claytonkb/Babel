@@ -278,5 +278,6 @@
     (flush_cache    (oper 0x229))
     (update_cache   (oper 0x22a))
     (copy_collect   (oper 0x22b))
-    (bvm_root       (oper 0x22c)))
+    (bvm_root       (oper 0x22c))
+    (dump_cache     (oper 0x22d)))
 

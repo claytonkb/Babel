@@ -104,6 +104,9 @@ bvm_cache *interp_new(bvm_cache *this_bvm, int argc, char **argv, char **envp, j
     interp_new_stdin_capture(this_bvm);
     interp_capture_argv(this_bvm);
 
+    this_bvm->interp->thread_counter=0;
+    this_bvm->interp->global_tick_count=0;
+
     return this_bvm;
 
 }
@@ -152,6 +155,8 @@ bvm_cache *interp_new_flags(bvm_cache *this_bvm){ // interp_new_flags#
     f->BVM_CLEAN             = FLAG_IGN;
     f->NO_ASYNC              = FLAG_IGN;
     f->NO_EXCEPT             = FLAG_IGN;
+    f->BVM_CACHE_ONLY        = FLAG_IGN;
+    f->BVM_SYMBOLS_DEFINED   = FLAG_IGN;
 
     this_bvm->flags = f;
 

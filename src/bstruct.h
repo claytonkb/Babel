@@ -46,7 +46,7 @@ mword _rlst(bvm_cache *this_bvm, mword *bs, void *v);
 
 mword *_cp(bvm_cache *this_bvm, mword *bs);
 
-
+mword *_bbl2str(bvm_cache *this_bvm, mword *operand);
 bvm_cache *bbl2str(bvm_cache *this_bvm);
 mword rbbl2str(bvm_cache *this_bvm, mword *bs, char *buffer);
 

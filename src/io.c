@@ -49,7 +49,7 @@ mword *_slurp(bvm_cache *this_bvm, mword *filename){ // _slurp#
 
     last_mword = alignment_word8(this_bvm, size);
 
-    buffer = _newlf(this_bvm, file_mword_size);
+    buffer = _newlfi(this_bvm, file_mword_size,0);
 
     if ((mword)buffer & (MWORD_SIZE-1)) { //FIXME: This shouldn't be here...
         error("expected memory to be MWORD_SIZE aligned");
@@ -360,7 +360,7 @@ bvm_cache *stdinln(bvm_cache *this_bvm){ // stdinln#
     int c, i=0;
     char buffer[(1<<16)]; //64K buffer (for now)
 
-    while(1){
+    while(1){ //FIXME unsafe
         c = fgetc(stdin);
         if(c == EOF || c == '\n'){
             break;
@@ -375,13 +375,15 @@ bvm_cache *stdinln(bvm_cache *this_bvm){ // stdinln#
         arlength++;
     }
 
-    mword *result = _newlf(this_bvm, arlength);
+    mword *result = _newlfi(this_bvm, arlength,0);
     memcpy(result, buffer, i);
-    free(buffer);
+    //free(buffer);
 
     c(result,arlength-1) = alignment_word8(this_bvm, i);
 
     pushd(this_bvm, result, IMMORTAL);
+
+//_dump(_ith(this_bvm,(mword* )icar(this_bvm->dstack_ptr),0));
 
     return this_bvm;
 

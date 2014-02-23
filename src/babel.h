@@ -45,7 +45,7 @@
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 559
+#define NUM_INTERP_OPCODES 560
 
 #define FLAG_IGN    ((mword)-1)
 #define FLAG_SET    1
@@ -108,6 +108,7 @@ typedef struct { // interp_state#
     mword           *srand;
     mword            null_hash[HASH_SIZE];
     mword            thread_counter;
+    mword            global_tick_count;
 
 } interp_state;
 
@@ -152,8 +153,7 @@ void temp_rbs2gv(mword *bs);
 
 #define bfree(x)  free((mword*)(x)-1)
 
-// Memory size is 64MB
-#define MEM_SIZE (1<<15)          // MEM_SIZE#
+#define MEM_SIZE (1<<20)          // MEM_SIZE#
 
 //#define ALLOC_ENTRY_IN_USE 1    // ALLOC_ENTRY_IN_USE#
 //#define ALLOC_ENTRY_FREE   0    // ALLOC_ENTRY_FREE#
@@ -484,6 +484,8 @@ mword null_hash[HASH_SIZE];// = { 0x88e9045b, 0x0b7c30af, 0x831422c3, 0x01ab0dc1
 //Uncomment to turn on tracing in bvm_interp():
 //#define BVM_TRACE
 //#define BVM_OP_TRACE
+//#define BVM_OP_TRACE_BBL2STR
+//#define BVM_OP_TRACE_STEP
 
 #define DIE_CODE    1
 #define QUOTEME(x)  #x

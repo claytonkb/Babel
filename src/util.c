@@ -145,14 +145,23 @@ bvm_cache *lusym(bvm_cache *this_bvm){ // lusym#
 bvm_cache *bvm_dump_cache(bvm_cache *this_bvm){ // bvm_dump_cache#
 
     d(this_bvm->self);
+    _mema(this_bvm->self);
 
     d(this_bvm->code_ptr);
+    _mema(this_bvm->code_ptr);
+
     d(this_bvm->rstack_ptr);
+    _mema(this_bvm->rstack_ptr);
 
     d(this_bvm->dstack_ptr);
+    _mema(this_bvm->rstack_ptr);
+
     d(this_bvm->ustack_ptr);
+    _mema(this_bvm->rstack_ptr);
 
     d(this_bvm->sym_table);
+    _mema(this_bvm->rstack_ptr);
+
     d(this_bvm->soft_root);
 
     d(this_bvm->thread_id);
@@ -162,6 +171,20 @@ bvm_cache *bvm_dump_cache(bvm_cache *this_bvm){ // bvm_dump_cache#
     d(this_bvm->mask_table);
 
     d(this_bvm->flags);
+
+    d(this_bvm->flags->MC_ALLOC_BLOCKING);
+    d(this_bvm->flags->MC_GC_BLOCKING);
+    d(this_bvm->flags->MC_GC_PENDING);
+    d(this_bvm->flags->BVM_INSTR_IN_PROGRESS);
+    d(this_bvm->flags->BVM_INCOHERENT);
+    d(this_bvm->flags->BVM_CACHE_INVALID);
+    d(this_bvm->flags->BVM_CACHE_DIRTY);
+    d(this_bvm->flags->BVM_CACHE_ONLY);
+    d(this_bvm->flags->BVM_CACHE_BLOCKING);
+    d(this_bvm->flags->BVM_SYMBOLS_DEFINED);
+    d(this_bvm->flags->BVM_CLEAN);
+    d(this_bvm->flags->NO_ASYNC);
+    d(this_bvm->flags->NO_EXCEPT);
 
     d(this_bvm->interp);
 
@@ -177,6 +200,8 @@ bvm_cache *bvm_dump_cache(bvm_cache *this_bvm){ // bvm_dump_cache#
     d(this_bvm->interp->utc_epoch);
     d(this_bvm->interp->srand);
     d(this_bvm->interp->null_hash);
+    d(this_bvm->interp->thread_counter);
+    d(this_bvm->interp->global_tick_count);
 
     return this_bvm;
 
