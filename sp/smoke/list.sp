@@ -6,6 +6,9 @@
 --    type 'h' in the debugger for help
 
 ((main (code
+    (list 'a' 'b' 'c' 'd' 'e' 'f')
+    3 ith zap
+    
     (list 1 2 3)
     dup
     car zap

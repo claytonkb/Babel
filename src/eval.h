@@ -24,6 +24,8 @@ bvm_cache *eachar(bvm_cache *this_bvm);
 bvm_cache *conjure(bvm_cache *this_bvm);
 void _eval(bvm_cache *this_bvm, mword *eval_body, mword *eval_return);
 bvm_cache *ifop(bvm_cache *this_bvm);
+bvm_cache *pass(bvm_cache *this_bvm);
+bvm_cache *fail(bvm_cache *this_bvm);
 
 
 #define EVAL_RSTACK_ENTRIES  1

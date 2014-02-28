@@ -6,6 +6,22 @@
 #ifndef INTERP_H
 #define INTERP_H
 
+
+#define OI_MASK_NONE (1<<0)
+#define OI_MASK_LEAF (1<<1)
+#define OI_MASK_INTE (1<<2)
+#define OI_MASK_TPTR (1<<3)
+
+typedef struct { // operand_info#
+
+    mword *data;
+    mword *default;
+    mword mask;
+    mword min_size;
+    mword max_size;
+
+} operand_info;
+
 mword *BABEL_SYM_STEPS;
 mword *BABEL_SYM_THREAD_ID;
 mword *BABEL_SYM_ADVANCE_TYPE;
@@ -38,6 +54,7 @@ void interp_init_symbolic_constants(bvm_cache *this_bvm);
 bvm_cache *interp_new_stdin_capture(bvm_cache *this_bvm);
 void interp_reset(void);
 bvm_cache *interp_capture_argv(bvm_cache *this_bvm);
+void get_operands(bvm_cache *this_bvm, operand_info **oinfo0, mword num_operands);
 
 #endif //INTERP_H
 

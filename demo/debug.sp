@@ -36,19 +36,28 @@
     (code dup 't' streq !) (code zap step_prog         ! 
                                      dump_dstack       !)
     (code dup 'u' streq !) (code zap dump_ustack       !)
+    (code dup 'z' streq !) (code zap    0xbabeface
+                                        dstack_inject  !)
     (code 1              ) (code zap                    ))
     cond
 
 ))
+
+(dstack_inject (code 
+    (list 0) cons (ptr nil) car cons
+    <- 
+        bvm_dstack_ptr !
+        dup
+        car 
+    ->
+    push
+    set_car))
 
 (step_prog (code 
     dup 
     bvm_sym_table !
     "steps" 1 cp inskha
     babel))
-
-
-
 
 (bvm_sym_table  (code cdr cdr cdr car detag))
 
@@ -323,7 +332,9 @@
     "reverse" "boilerplate" "paste8" "iter" "rsvd" "conjure" "self" 
     "cisub_assign" "ducp" "endian" "rsvd" "deref" "ifop" "ordop" "let" "split" 
     "lusym" "th" "move" "move8" "insls" "exec" "dev" "cond" "append" "newha" 
-    "bvmrstack" "bvmsym" "hibernate" "bvm_step"))
+    "bvmrstack" "bvmsym" "hibernate" "bvm_step" "rawmem" "set_ith" "set_car" 
+    "set_cdr" "detag" "flush_cache" "update_cache" "copy_collect" "bvm_root" 
+    "dump_cache" "sortlf" "shuf" "pass" "fail"))
 
 
 (help_msg (list 

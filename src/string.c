@@ -29,27 +29,6 @@
 ////m2b -> convert array to array-8 (always adds alignment_word = 0)
 ////b2m -> convert array-8 to array (simply truncates by 1)
 
-
-////void b2m(void){
-////
-////    if(size(TOS_0) < 1)
-////        return;
-////
-////    _trunc(this_bvm, (mword*)TOS_0, size(TOS_0)-1);
-////
-////}
-//
-//void b2c(void){
-//
-//    mword *result    = new_atom();
-//
-//    result = _b2c(this_bvm, (mword*)TOS_0);
-//
-//    zap();
-////    push_alloc(result, B2C);
-//
-//}
-
 //TODO: Move these def'ns to string.h:
 #ifdef WINDOWS
 #define NEWLINE0 0xd
@@ -140,36 +119,6 @@ mword *_b2c(bvm_cache *this_bvm, mword *string){ // *_b2c#
     
 }
 
-////
-//mword *_b2c(this_bvm, mword *string){
-//
-//    mword strsize = size(string);
-//    mword last_mword = c(string, strsize-1);
-//    mword char_length = _arlen8(this_bvm, string);
-//
-//    last_mword = alignment_word8(this_bvm, dec_alignment_word8(this_bvm, last_mword)+1);
-//
-//    mword *cstr = _newlf(this_bvm, strsize+1); //Just allocate an extra space in case we need it...
-//
-//    memcpy(cstr, string, char_length);
-//
-//    *((char*)cstr+char_length) = (char)0;
-//
-//    if(last_mword == 0){
-//        c(cstr, strsize) = last_mword;
-//    }
-//    else{
-//        c(cstr, strsize-1) = last_mword;
-//    }
-//
-//    return cstr;
-//    
-//}
-//
-//
-//void c2b(void){
-//
-//}
 
 // rename and back-propagate
 //
@@ -206,6 +155,7 @@ mword *_c2b(bvm_cache *this_bvm, char *string, mword max_safe_length){ // _c2b#
     return result;
 
 }
+
 
 // XXX ar2str & str2ar need to be cleaned up...
 /* string operator
@@ -433,6 +383,27 @@ bvm_cache *ordop(bvm_cache *this_bvm){ // ordop# ord#
     return this_bvm;
 
 }
+
+
+/* string operator
+**char**   
+> Creates a character from its UTF-8 encoding
+*/
+bvm_cache *charop(bvm_cache *this_bvm){ // charop# char#
+
+//    mword *result = dstack_get(this_bvm,0);
+//    popd(this_bvm);
+//
+//    char ord_value = (char)icar(result);
+//
+//    result = _newva( this_bvm, ord_value);
+//
+//    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
+
 
 // Clayton Bauman 2011
 

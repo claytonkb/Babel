@@ -14,6 +14,7 @@
 #include "pearson16.h"
 #include "string.h"
 #include "mem.h"
+#include "interp.h"
 
 /* flow-control operator
 **eval** (!)  
@@ -23,9 +24,21 @@
 */
 bvm_cache *eval(bvm_cache *this_bvm){ // eval#
 
-    mword *op0 = dstack_get(this_bvm,0);               
-
+    mword *op0 = dstack_get(this_bvm,0);
     popd(this_bvm); 
+
+//    operand_info oinfo;
+//    operand_info **oinfo_ptr;
+//    oinfo_ptr[0] = &oinfo;
+//
+//    oinfo.default = nil;
+//    oinfo.mask = OI_MASK_NONE | OI_MASK_INTE;
+//    oinfo.min_size = 0;
+//    oinfo.max_size = 0;
+//
+//    get_operands(this_bvm, oinfo_ptr, 1);
+//
+//    mword *op0 = oinfo.data;
 
     _eval(this_bvm, op0, (mword*)icdr(icar(this_bvm->code_ptr)));
 
@@ -152,7 +165,7 @@ bvm_cache *dieop(bvm_cache *this_bvm){ // dieop# die#
 /* flow-control operator
 **each** (...)
 > Iterates across a list  
-> `0 (code cuadd) (list 1 2 3 4) each --> Leaves 10 on TOS`  
+> `0 (1 2 3 4) {+} each --> Leaves 10 on TOS`  
 */
 bvm_cache *each(bvm_cache *this_bvm){ // each#
 
@@ -491,8 +504,6 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
             mword *cond_clause = _ith(this_bvm, rtos,3);
             this_bvm->code_ptr = consa(this_bvm, cond_clause,nil);
             
-    
-
         }
         else{
 
@@ -658,12 +669,13 @@ bvm_cache *last(bvm_cache *this_bvm){ // last#
 
     while(i<=rstack_depth){
 
-        if(i == rstack_depth) //no looping constructs: iter == fnord
+        if(i == rstack_depth){ //no looping constructs: iter == fnord
             return this_bvm;
+        }
 
         tag = (mword*)icar(rstack_get_tag(this_bvm, i));
 
-        if( tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)
+        if(    tageq(tag,BABEL_TAG_LOOP,TAG_SIZE)
             || tageq(tag,BABEL_TAG_TIMES,TAG_SIZE)
             || tageq(tag,BABEL_TAG_EACH,TAG_SIZE)
             || tageq(tag,BABEL_TAG_WHILE,TAG_SIZE)){
@@ -761,6 +773,42 @@ bvm_cache *alt(bvm_cache *this_bvm){ // alt#
     this_bvm->code_ptr = consa(this_bvm, alt_body,nil);
 
     this_bvm->advance_type = BVM_CONTINUE;
+
+    return this_bvm;
+
+}
+
+
+//
+//
+bvm_cache *pass(bvm_cache *this_bvm){ // pass#
+
+    mword *result = new_tptr(
+                        this_bvm,
+                        _hash8(this_bvm, C2B("/babel/tag/pass")), 
+                        nil);
+
+    pushd(this_bvm, result, IMMORTAL);    
+
+    //last(this_bvm);    
+
+    return this_bvm;
+
+}
+
+
+//
+//
+bvm_cache *fail(bvm_cache *this_bvm){ // fail#
+
+    mword *result = new_tptr(
+                        this_bvm,
+                        _hash8(this_bvm, C2B("/babel/tag/fail")), 
+                        nil);
+
+    pushd(this_bvm, result, IMMORTAL);    
+
+    //last(this_bvm);    
 
     return this_bvm;
 

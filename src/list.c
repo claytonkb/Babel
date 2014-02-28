@@ -810,8 +810,14 @@ bvm_cache *set_cdr(bvm_cache *this_bvm){ // set_cdr#
 **transpose**  
 > `(( 1  2  3  4 ) (  5  6  7  8  9 ) (  10 11 12 13 14 15 )) transpose`  
 > `TOS: ((1 5 10) (2 6 11) (3 7 12) (4 8 13) (nil 9 13) (nil nil 15))`  
+*/
 
-**sort**  
+/* list operator
+**sort**
+*/
+
+
+/* list operator
 **uniq**  
 **filter**
 > Equivalent to Perl's grep

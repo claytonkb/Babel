@@ -220,7 +220,6 @@ bvm_cache *interp_new_null_hash(bvm_cache *this_bvm){ // interp_new_null_hash#
 //
 bvm_cache *interp_new_epoch(bvm_cache *this_bvm){ // interp_new_epoch#
 
-
     time_t rawtime;
     struct tm *utc_epoch;
 
@@ -264,22 +263,31 @@ void interp_new_srand(bvm_cache *this_bvm){ // interp_new_srand#
     char srand_string[SRAND_STRING_SIZE];
 
 #ifdef WINDOWS
-    // Sleep for 10ms to ensure we get a unique clock() tick...
-    Sleep(10);
+    // Sleep for 1000ms to ensure we get a unique srand_string...
+    Sleep(1000);
 //#elsif STAR_NIX ...
 #endif
 
-    sprintf(srand_string, "%d", clock());
+    sprintf(srand_string, 
+            "%d%d%d%d%d%d", 
+            this_bvm->interp->utc_epoch->tm_sec,
+            this_bvm->interp->utc_epoch->tm_min,
+            this_bvm->interp->utc_epoch->tm_hour,
+            this_bvm->interp->utc_epoch->tm_mday,
+            this_bvm->interp->utc_epoch->tm_mon,
+            this_bvm->interp->utc_epoch->tm_year);
 
     mword *babel_srand_string = _c2b(this_bvm, srand_string, SRAND_STRING_SIZE);
 
     mword *hash_init = _newlfi(this_bvm, HASH_SIZE, 0);
 
-    mword *time_hash = _pearson16(
-                            this_bvm,  
-                            hash_init, 
-                            babel_srand_string,
-                            _arlen8(this_bvm, babel_srand_string) );
+    mword *time_hash = _hash8(this_bvm, babel_srand_string);
+
+//    mword *time_hash = _pearson16(
+//                            this_bvm,  
+//                            hash_init, 
+//                            babel_srand_string,
+//                            _arlen8(this_bvm, babel_srand_string) );
 
     init_by_array( time_hash, HASH_SIZE*(sizeof(mword)/sizeof(unsigned long)));
 
@@ -379,6 +387,68 @@ void interp_reset(void){ // interp_reset#
 
 }
 
+
+//
+//
+void get_operands(bvm_cache *this_bvm, operand_info **oinfo, mword num_operands){
+
+//    d(oinfo[0]->mask);
+//    die;
+
+    //FIXME: This is a perf-killer:
+    mword stack_depth = _len(this_bvm, (mword*)icar(this_bvm->dstack_ptr));
+
+    int i;
+
+    for(i=0;i<num_operands;i++){
+
+        if(i < stack_depth){
+
+            mword *stack_operand = dstack_get(this_bvm,0);
+            popd(this_bvm);
+
+            if(     ((oinfo[i]->mask & OI_MASK_LEAF) && is_leaf(stack_operand))
+                 || ((oinfo[i]->mask & OI_MASK_INTE) && is_inte(stack_operand))){
+
+                mword operand_size = size(stack_operand);
+
+                if(oinfo[i]->min_size){
+                    if(operand_size < oinfo[i]->min_size){
+                        fatal("bvm_fault");
+                    }
+                }
+
+                if(oinfo[i]->max_size){
+                    if(operand_size > oinfo[i]->max_size){
+                        fatal("bvm_fault");
+                    }
+                }
+
+                oinfo[i]->data = stack_operand;
+
+            }
+            else if((oinfo[i]->mask & OI_MASK_TPTR) && is_tptr(stack_operand)){
+                oinfo[i]->data = stack_operand;
+            }
+            else{
+                fatal("bvm_fault");
+            }
+    
+        }
+        else{ // i >= stack_depth
+die;
+            if(oinfo[i]->mask & OI_MASK_NONE){
+                oinfo[i]->data = oinfo[i]->default;                
+            }
+            else{
+                fatal("bvm_fault");
+            }
+
+        }
+
+    }
+
+}
 
 // Clayton Bauman 2013
 

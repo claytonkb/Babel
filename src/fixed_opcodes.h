@@ -726,6 +726,13 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     mc_copy_collect,
     bvm_root,
     bvm_dump_cache,
+    msortlf,
+    shuf,
+    pass,
+    fail,
+    newtptrop,
+    istptrop,
+    get_tag,
 
 };
 

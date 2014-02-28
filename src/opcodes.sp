@@ -279,5 +279,13 @@
     (update_cache   (oper 0x22a))
     (copy_collect   (oper 0x22b))
     (bvm_root       (oper 0x22c))
-    (dump_cache     (oper 0x22d)))
+    (dump_cache     (oper 0x22d))
+    (sortlf         (oper 0x22e))
+    (shuf           (oper 0x22f))
+
+    (pass           (oper 0x230))
+    (fail           (oper 0x231))
+    (newtptr        (oper 0x232))
+    (istptr         (oper 0x233))
+    (get_tag        (oper 0x234)))
 

@@ -64,7 +64,7 @@ bvm_cache *randop(bvm_cache *this_bvm){ // *randop#
 
     int i;
     for(i=0;i<num_mwords;i++){
-        c(result,i) = genrand_int32();
+        c(result,i) = genrand_int32(); // XXX 32-bit specific
     }
 
     popd(this_bvm);

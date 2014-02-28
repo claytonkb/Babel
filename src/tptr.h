@@ -13,6 +13,8 @@
 
 bvm_cache *detag_op(bvm_cache *this_bvm);
 
+bvm_cache *get_tag(bvm_cache *this_bvm);
+
 //mword *new_tptr(this_bvm, mword *hash, mword *list);
 mword *new_tptr(bvm_cache *this_bvm, const mword *hash, mword *bs);
 
@@ -24,6 +26,7 @@ mword *tptr_extract_ptr(bvm_cache *this_bvm, mword *tptr);
     //THIS tptr whereas tptr_extract_ptr is recursive
 mword *detag(bvm_cache *this_bvm, mword *tptr); 
 mword *hard_detag(bvm_cache *this_bvm, mword *tptr);
+bvm_cache *newtptrop(bvm_cache *this_bvm);
 
 #endif //TPTR_H
 

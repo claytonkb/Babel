@@ -7,7 +7,38 @@
 #include "mem.h"
 #include "stack.h"
 
-//tag-checking (equal, etc.)
+
+//
+//
+bvm_cache *get_tag(bvm_cache *this_bvm){ // get_tag#
+
+    mword *tptr = dstack_get(this_bvm,0);
+
+    popd(this_bvm);
+
+    pushd(this_bvm, tptr_extract_hash(this_bvm, tptr), IMMORTAL);
+
+    return this_bvm;    
+
+}
+
+
+//
+//
+bvm_cache *newtptrop(bvm_cache *this_bvm){ // newtptrop#
+
+    mword *hash = dstack_get(this_bvm,1);
+    mword *ptr  = dstack_get(this_bvm,0);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    pushd(this_bvm, new_tptr(this_bvm, hash, ptr), IMMORTAL);
+
+    return this_bvm;    
+
+}
+
 
 //
 //

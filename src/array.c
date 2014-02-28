@@ -13,6 +13,7 @@
 #include "alloc.h"
 #include "tptr.h"
 #include "mem.h"
+#include "mt19937ar.h"
 
 /* 
 **th**  
@@ -87,8 +88,6 @@ bvm_cache *arlen(bvm_cache *this_bvm){ // arlen#
 /* array operator
 **lf?** 
 > Tests if TOS is a leaf-array  
-> `{X}| -> {1}|`    
-> `[X]| -> {0}|`    
 */
 bvm_cache *islf(bvm_cache *this_bvm){ // islf#
 
@@ -104,8 +103,6 @@ bvm_cache *islf(bvm_cache *this_bvm){ // islf#
 /* array operator
 **in?**
 > Tests if TOS is an interior-array  
-> `{X}| -> {0}|`    
-> `[X]| -> {1}|`    
 */
 bvm_cache *isinte(bvm_cache *this_bvm){ // isinte#
 
@@ -117,6 +114,23 @@ bvm_cache *isinte(bvm_cache *this_bvm){ // isinte#
             babel_isinte_operator );
 
 }
+
+
+/* array operator
+**istptrop** 
+> Tests if TOS is a leaf-array  
+*/
+bvm_cache *istptrop(bvm_cache *this_bvm){ // istptrop#
+
+#define babel_istptrop_operator \
+    result = _newva( this_bvm,  is_tptr( op0 ) );
+
+    babel_operator_typeA( 
+            this_bvm, 
+            babel_istptrop_operator );
+
+}
+
 
 // creates a new leaf-array of given size
 //
@@ -794,7 +808,7 @@ mword *_ar2ls(bvm_cache *this_bvm, mword *arr){ // _ar2ls#
 
 /* array operator
 **perm**  
-> Permutes an array  
+> DEPRECATED 
 >
 > `['a' 'b' 'c' 'd'] [ 3 1 2 0 ] perm --> ['d' 'b' 'c' 'a']`    
 >
@@ -804,6 +818,8 @@ mword *_ar2ls(bvm_cache *this_bvm, mword *arr){ // _ar2ls#
 */
 bvm_cache *perm(bvm_cache *this_bvm){ // perm#
 
+    fatal("DEPRECATED");
+    
     mword *result;
 
     mword *src_array   = dstack_get(this_bvm,1);
@@ -819,7 +835,7 @@ bvm_cache *perm(bvm_cache *this_bvm){ // perm#
         result = _newlf(this_bvm, size(src_array));
     }
     else{ // FIXME: Throw exception
-        fatal("perm: !is_leaf && !is_inte");
+        fatal("!is_leaf && !is_inte");
     }
 
     _perm(this_bvm, src_array, result, perm_matrix);
@@ -849,6 +865,265 @@ void _perm(bvm_cache *this_bvm, mword *src, mword *dest, mword *perm_matrix){ //
 
 }
 
+
+/* array operator
+**shuf**  
+> Shuffles an array  
+*/
+bvm_cache *shuf(bvm_cache *this_bvm){ // shuf#
+
+    mword *result;
+
+    mword *src_array   = dstack_get(this_bvm,0);
+
+    _shuf(this_bvm, src_array);
+
+    return this_bvm;
+
+}
+
+
+//
+//
+void _shuf(bvm_cache *this_bvm, mword *src){ // _shuf#
+
+//To shuffle an array a of n elements (indices 0..n-1):
+//  for i from n − 1 downto 1 do
+//       j ← random integer with 0 ≤ j ≤ i
+//       exchange a[j] and a[i]
+
+    mword array_size = size(src);
+
+    mword rand_val;
+    mword temp;
+    int i;
+
+    for(i=array_size-1; i>0; i--){
+
+        //rand_val = genrand_int32() % (i+1); // XXX 32-bit specific
+        rand_val = rand_range(0,i);
+
+        temp = c(src,i);
+        c(src,i) = c(src,rand_val);
+        c(src,rand_val) = temp;
+
+    }
+
+}
+
+
+
+#define RAND_MAX 0xffffffff
+
+// This is an unbiased implementation of rand_range()
+//
+mword rand_range(mword min, mword max){
+
+    mword n = max - min + 1;
+    mword remainder = RAND_MAX % n;
+    mword x;
+
+    do{
+        x = genrand_int32();
+    } while (x >= RAND_MAX - remainder);
+
+    return min + x % n;
+
+}
+
+
+//
+//
+bvm_cache *msortlf(bvm_cache *this_bvm){
+
+    mword *unsorted_array = dstack_get(this_bvm,0);
+
+    _msortlf(this_bvm, unsorted_array);    
+
+    return this_bvm;
+
+}
+
+
+// In-place mergesort of leaf-array
+//
+void _msortlf(bvm_cache *this_bvm, mword *array){
+
+    _rmsortlf(this_bvm, 0, size(array), array);
+
+}
+
+
+//
+//
+void _rmsortlf(bvm_cache *this_bvm, mword left, mword right, mword *array){
+    
+    // base case, array is already sorted
+    if (right - left <= 1){
+        return;
+    }
+ 
+    // set up bounds to slice array into 
+    mword left_start  = left;
+    mword left_end    = (left+right)/2;
+    mword right_start = left_end;
+    mword right_end   = right;
+ 
+    // sort left half 
+    _rmsortlf(this_bvm, left_start, left_end, array);
+
+    // sort right half 
+    _rmsortlf(this_bvm, right_start, right_end, array);
+ 
+    // merge sorted halves back together 
+    _mergelf(this_bvm, array, left_start, left_end, right_start, right_end);
+
+}
+
+
+//
+//
+void _mergelf(bvm_cache *this_bvm, mword *array, mword left_start, mword left_end, mword right_start, mword right_end){
+
+    // calculate temporary array sizes 
+    mword left_length  = left_end  - left_start;
+    mword right_length = right_end - right_start;
+ 
+    // declare temporary arrays 
+    mword *left_half  = _newlf(this_bvm,left_length);
+    mword *right_half = _newlf(this_bvm,right_length);
+ 
+    mword r = 0; // right_half index 
+    mword l = 0; // left_half index 
+    mword i = 0; // array index 
+ 
+    // copy left half of array into left_half 
+    for (i = left_start; i < left_end; i++, l++){
+        left_half[l] = array[i];
+    }
+ 
+    // copy right half of array into right_half 
+    for (i = right_start; i < right_end; i++, r++){
+        right_half[r] = array[i];
+    }
+ 
+    // merge left_half and right_half back into array 
+    for ( i = left_start, r = 0, l = 0; l < left_length && r < right_length; i++){
+        if ( left_half[l] < right_half[r] ){ 
+            array[i] = left_half[l++]; 
+        }
+        else { 
+            array[i] = right_half[r++]; 
+        }
+    }
+ 
+    // copy over leftovers of whichever temporary array hasn't finished
+    for ( ; l < left_length; i++, l++){ 
+        array[i] = left_half[l];  
+    }
+
+    for ( ; r < right_length; i++, r++){ 
+        array[i] = right_half[r]; 
+    }
+
+} 
+
+
+//
+//
+bvm_cache *msortar(bvm_cache *this_bvm){
+
+    mword *unsorted_array = dstack_get(this_bvm,0);
+
+    _msortar(this_bvm, unsorted_array);    
+
+    return this_bvm;
+
+}
+
+
+// In-place mergesort of array
+//
+void _msortar(bvm_cache *this_bvm, mword *array){
+
+    _rmsortar(this_bvm, 0, size(array), array);
+
+}
+
+
+//
+//
+void _rmsortar(bvm_cache *this_bvm, mword left, mword right, mword *array){
+    
+    // base case, array is already sorted
+    if (right - left <= 1){
+        return;
+    }
+ 
+    // set up bounds to slice array into 
+    mword left_start  = left;
+    mword left_end    = (left+right)/2;
+    mword right_start = left_end;
+    mword right_end   = right;
+ 
+    // sort left half 
+    _rmsortar(this_bvm, left_start, left_end, array);
+
+    // sort right half 
+    _rmsortar(this_bvm, right_start, right_end, array);
+ 
+    // merge sorted halves back together 
+    _mergear(this_bvm, array, left_start, left_end, right_start, right_end);
+
+}
+
+
+//
+//
+void _mergear(bvm_cache *this_bvm, mword *array, mword left_start, mword left_end, mword right_start, mword right_end){
+
+    // calculate temporary array sizes 
+    mword left_length  = left_end  - left_start;
+    mword right_length = right_end - right_start;
+ 
+    // declare temporary arrays 
+    mword *left_half  = _newlf(this_bvm,left_length);
+    mword *right_half = _newlf(this_bvm,right_length);
+ 
+    mword r = 0; // right_half index 
+    mword l = 0; // left_half index 
+    mword i = 0; // array index 
+ 
+    // copy left half of array into left_half 
+    for (i = left_start; i < left_end; i++, l++){
+        left_half[l] = array[i];
+    }
+ 
+    // copy right half of array into right_half 
+    for (i = right_start; i < right_end; i++, r++){
+        right_half[r] = array[i];
+    }
+ 
+    // merge left_half and right_half back into array 
+    for ( i = left_start, r = 0, l = 0; l < left_length && r < right_length; i++){
+        if ( left_half[l] < right_half[r] ){ 
+            array[i] = left_half[l++]; 
+        }
+        else { 
+            array[i] = right_half[r++]; 
+        }
+    }
+ 
+    // copy over leftovers of whichever temporary array hasn't finished
+    for ( ; l < left_length; i++, l++){ 
+        array[i] = left_half[l];  
+    }
+
+    for ( ; r < right_length; i++, r++){ 
+        array[i] = right_half[r]; 
+    }
+
+} 
 
 
 // Clayton Bauman 2011
