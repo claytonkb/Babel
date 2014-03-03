@@ -102,7 +102,12 @@ inline mword *get_from_udr_stack(bvm_cache *this_bvm, mword *stack_ptr, mword st
 
 //    return _chain_deref( this_bvm->sym_table, (mword*)icar( _ith(this_bvm,  (mword*)icar( stack_ptr ), stack_index )) );
 //    return (mword*)icar( _ith(this_bvm,  (mword*)icar( stack_ptr ), stack_index ));
-    return _chain_deref( this_bvm, (mword*)icar( _ith(this_bvm,  (mword*)icar( stack_ptr ), stack_index )) );
+    if(_len(this_bvm, (mword*)icar( stack_ptr ))){
+        return _chain_deref( this_bvm, (mword*)icar( _ith(this_bvm,  (mword*)icar( stack_ptr ), stack_index )) );
+    }
+    else{
+        return nil;
+    }
 
 }
 

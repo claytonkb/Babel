@@ -334,7 +334,8 @@
     "lusym" "th" "move" "move8" "insls" "exec" "dev" "cond" "append" "newha" 
     "bvmrstack" "bvmsym" "hibernate" "bvm_step" "rawmem" "set_ith" "set_car" 
     "set_cdr" "detag" "flush_cache" "update_cache" "copy_collect" "bvm_root" 
-    "dump_cache" "sortlf" "shuf" "pass" "fail"))
+    "dump_cache" "sortlf" "shuf" "pass" "fail" "newtptr" "istptr" "get_tag" 
+    "seq" "alt" ))
 
 
 (help_msg (list 

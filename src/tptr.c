@@ -10,6 +10,24 @@
 
 //
 //
+bvm_cache *tageqop(bvm_cache *this_bvm){ // tageqop#
+
+    mword *tptrA = dstack_get(this_bvm,0);
+    mword *tptrB = dstack_get(this_bvm,1);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    pushd(this_bvm, 
+            _newva( this_bvm, tageq(tptrA, tptrB, TAG_SIZE) ), IMMORTAL);
+
+    return this_bvm;    
+
+}
+
+
+//
+//
 bvm_cache *get_tag(bvm_cache *this_bvm){ // get_tag#
 
     mword *tptr = dstack_get(this_bvm,0);

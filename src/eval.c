@@ -15,6 +15,7 @@
 #include "string.h"
 #include "mem.h"
 #include "interp.h"
+#include "load.h"
 
 /* flow-control operator
 **eval** (!)  
@@ -629,18 +630,104 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
     }
     else if(tageq(tag,BABEL_TAG_ALT,TAG_SIZE)){
 
-// If we reach this point, then we've 'failed'
+        mword *alt = dstack_get(this_bvm, 0);
 
-//        mword *walker = _ith(this_bvm, rtos,0);
-//
-//        while(!is_nil(walker)){
-//            (mword*)icar(icar(icar(walker))) = (mword*)icdr(icar(walker));
-//            walker = (mword*)icdr(walker);
-//        }
-//
-//        set_code_ptr(this_bvm, _ith(this_bvm, rtos,2));
-//
-//        sink = popr(this_bvm);
+        if( is_tptr(alt)
+            && tageq(alt,BABEL_TAG_PASS,TAG_SIZE) ){ // quit the alt...
+
+            set_code_ptr(this_bvm, _ith(this_bvm, rtos,1));
+            popr(this_bvm);
+
+        }
+        else{
+
+            icar(rtos) = icdr(icar(rtos));
+
+            mword *alt_list = _ith(this_bvm, rtos,0);
+
+            if( is_nil(alt_list) ){ // we've reached the end...
+
+                fail(this_bvm); // signal that we've eval'd all clauses without passing
+
+                mword *alt_save_restore_list = _ith(this_bvm, rtos,2);
+                int i;
+                int list_length = _len(this_bvm, alt_save_restore_list);
+                for(i=0;i<list_length;i++){
+                    mword *alt_save_restore_entry = _ith(this_bvm, alt_save_restore_list, i); // XXX perf: re-traversal
+                    mword *alt_restore_point      = _ith(this_bvm, alt_save_restore_entry, 0);
+                    mword *alt_save_restore       = _ith(this_bvm, alt_save_restore_entry, 1);
+                    alt_save_restore = _load(this_bvm, alt_save_restore, size(alt_save_restore));
+                    (mword*)c(alt_restore_point,0) = alt_save_restore;
+                }
+
+                set_code_ptr(this_bvm, _ith(this_bvm, rtos,1));
+                popr(this_bvm);
+
+            }
+            else{ // go to the next clause...
+
+                if( is_tptr(alt)
+                    && tageq(alt,BABEL_TAG_FAIL,TAG_SIZE) ){
+                    popd(this_bvm);
+                }
+
+                set_code_ptr(this_bvm,(mword*)_ith(this_bvm, alt_list,0));
+
+                mword *alt_save_restore_list = _ith(this_bvm, rtos,2);
+                int i;
+                int list_length = _len(this_bvm, alt_save_restore_list);
+                for(i=0;i<list_length;i++){
+                    mword *alt_save_restore_entry = _ith(this_bvm, alt_save_restore_list, i); // XXX perf: re-traversal
+                    mword *alt_restore_point      = _ith(this_bvm, alt_save_restore_entry, 0);
+                    mword *alt_save_restore       = _ith(this_bvm, alt_save_restore_entry, 1);
+                    alt_save_restore = _load(this_bvm, alt_save_restore, size(alt_save_restore));
+                    (mword*)c(alt_restore_point,0) = alt_save_restore;
+                }
+
+            }
+        }
+    }
+    else if(tageq(tag,BABEL_TAG_SEQ,TAG_SIZE)){
+
+        mword *seq = dstack_get(this_bvm, 0);
+
+        if( is_tptr(seq)
+            && tageq(seq,BABEL_TAG_FAIL,TAG_SIZE) ){ // quit the seq...
+
+            set_code_ptr(this_bvm, _ith(this_bvm, rtos,1));
+
+            mword *seq_restore_point = _ith(this_bvm, rtos,2);
+            mword *seq_save_restore  = _ith(this_bvm, rtos,3);
+            seq_save_restore = _load(this_bvm, seq_save_restore, size(seq_save_restore));
+            (mword*)c(seq_restore_point,0) = seq_save_restore;
+
+            popr(this_bvm);
+
+        }
+        else{
+
+            icar(rtos) = icdr(icar(rtos));
+
+            mword *seq_list = _ith(this_bvm, rtos,0);
+
+            if( is_nil(seq_list) ){ // we've reached the end...
+
+                pass(this_bvm); // signal that we've passed all clauses without failing
+                set_code_ptr(this_bvm, _ith(this_bvm, rtos,1));
+                popr(this_bvm);
+
+            }
+            else{ // go to the next clause...
+
+                if( is_tptr(seq)
+                    && tageq(seq,BABEL_TAG_PASS,TAG_SIZE) ){
+                    popd(this_bvm);
+                }
+
+                set_code_ptr(this_bvm,(mword*)_ith(this_bvm, seq_list,0));
+
+            }
+        }
 
     }
     else{
@@ -744,33 +831,47 @@ bvm_cache *let(bvm_cache *this_bvm){ // let#
 
 /* flow-control operator
 **alt**
-> Defines an alternation. Use in combination with the 
-> pass operator.
+> Defines an alternation.
+> See also: seq, pass, fail
 */
 bvm_cache *alt(bvm_cache *this_bvm){ // alt#
 
-    mword *alt_body = dstack_get(this_bvm,0);
-    mword *alt_list = dstack_get(this_bvm,1);
+    mword *alt_clause_list  = dstack_get(this_bvm, 0);
+    mword *alt_restore_list = dstack_get(this_bvm, 1);
 
     popd(this_bvm);
     popd(this_bvm);
 
-    mword *walker = alt_list;
-    while(!is_nil(walker)){
-        mword *alt_list_entry = consa(this_bvm,  (mword*)icar(walker), (mword*)car(icar(walker)) );
-        (mword*)icar(walker) = alt_list_entry;
-        walker = (mword*)icdr(walker);
+    if( is_nil(alt_clause_list)
+        || _len(this_bvm, alt_clause_list) < 1){
+        return this_bvm;
     }
 
     mword *alt_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    mword *alt_rstack_entry = consa(this_bvm, alt_list,
-                                    consa(this_bvm, alt_body,
-                                        consa(this_bvm, alt_return, nil)));
+    int i;
+    int list_length = _len(this_bvm, alt_restore_list);
+    mword *last_cons = nil;
+    for(i=0;i<list_length;i++){
+        mword *alt_restore_point = _ith(this_bvm, alt_restore_list, i);
+        mword *alt_save_restore  = (mword*)icar(alt_restore_point);
+        last_cons = 
+                consa( this_bvm,
+                    consa( this_bvm, alt_restore_point, 
+                    consa( this_bvm, _unload( this_bvm, alt_save_restore), nil)),
+                last_cons);
+    }
+
+//    _dump(last_cons);
+//    die;
+
+    mword *alt_rstack_entry = consa(this_bvm, alt_clause_list, 
+                                    consa(this_bvm, alt_return, 
+                                        consa(this_bvm, last_cons, nil)));
 
     pushr(this_bvm, alt_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/alt")));
 
-    this_bvm->code_ptr = consa(this_bvm, alt_body,nil);
+    set_code_ptr(this_bvm,(mword*)icar(alt_clause_list));
 
     this_bvm->advance_type = BVM_CONTINUE;
 
@@ -848,6 +949,57 @@ bvm_cache *cond(bvm_cache *this_bvm){ // cond#
 
     //this_bvm->code_ptr = consa(this_bvm, (mword*)icar(cond_list),nil);
     set_code_ptr(this_bvm,(mword*)icar(cond_list));
+
+    this_bvm->advance_type = BVM_CONTINUE;
+
+    return this_bvm;        
+
+}
+
+
+
+/* flow-control operator
+**seq** 
+> see also: alt, pass, fail
+*/
+bvm_cache *seq(bvm_cache *this_bvm){ // seq#
+
+    mword *seq_list          = dstack_get(this_bvm, 0);
+    mword *seq_restore_point = dstack_get(this_bvm, 1);
+
+    popd(this_bvm);
+    popd(this_bvm);
+
+    if( is_nil(seq_list)
+        || _len(this_bvm, seq_list) < 1){
+        return this_bvm;
+    }
+
+    mword *seq_return = (mword*)icdr(icar(this_bvm->code_ptr));
+
+    //mword *seq_select = _newva(this_bvm, COND_COND);
+
+//    mword *seq_rstack_entry = consa(this_bvm, (mword*)icdr(seq_list), 
+
+    mword *seq_save_restore = _unload(this_bvm, (mword*)icar(seq_restore_point));
+
+//    if(is_nil(seq_save_restore)){
+//        enhance("BVM save-restore unsupported");
+//    }
+//    else{
+//    }
+
+    mword *seq_rstack_entry = consa(this_bvm, seq_list, 
+                                    consa(this_bvm, seq_return, 
+                                        consa(this_bvm, seq_restore_point,
+                                            consa(this_bvm, seq_save_restore,  nil))));
+
+    pushr(this_bvm, seq_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/seq")));
+
+    //dup(this_bvm); // Perform this step before eval'ing each seq
+
+    //this_bvm->code_ptr = consa(this_bvm, (mword*)icar(seq_list),nil);
+    set_code_ptr(this_bvm,(mword*)icar(seq_list));
 
     this_bvm->advance_type = BVM_CONTINUE;
 

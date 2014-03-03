@@ -45,7 +45,7 @@
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 567
+#define NUM_INTERP_OPCODES 570
 
 #define FLAG_IGN    ((mword)-1)
 #define FLAG_SET    1
