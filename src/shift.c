@@ -5,7 +5,6 @@
 #include "shift.h"
 #include "stack.h"
 #include "list.h"
-//#include "bvm_opcodes.h"
 #include "array.h"
 #include "tptr.h"
 #include "mem.h"

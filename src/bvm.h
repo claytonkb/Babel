@@ -42,6 +42,7 @@ bvm_cache *rsvd(bvm_cache *this_bvm);
 bvm_cache *boilerplate(bvm_cache *this_bvm);
 void set_bvm_advance_type(bvm_cache *this_bvm, mword advance_type);
 void bvm_new_argv(bvm_cache *this_bvm, int argc, char **argv);
+bvm_cache *bvm_exit(bvm_cache *this_bvm);
 
 //void bbl2gv(mword *tree);
 //mword tree_bbl2gv(mword *tree);

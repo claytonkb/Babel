@@ -661,6 +661,8 @@ sub encode_ref{
         $offset,
         $sub_tree) = @_;
 
+    die;
+
     my $encoded;
     my ($car, $cdr);
 

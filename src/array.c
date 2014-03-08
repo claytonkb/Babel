@@ -221,7 +221,7 @@ inline mword* val(bvm_cache *this_bvm, mword *leaf, mword index){ // val#
 }
 
 
-/* > XXX: DEPRECATE (redundant to cut)
+/* > array operator
 **slice**
 > Puts a slice of an array on TOS  
 > `{X} {a} {b}| -> {X[a..b]}|`    

@@ -25,7 +25,7 @@
     dup
     dup
 
-    "================================================================================\n: " <<
+    "==============================================================================\n: " <<
     'c'
     choose_command ! 
 
@@ -148,7 +148,7 @@
     dup
 
     (code car isnil)
-        (code zap "  nil" <<)
+        (code zap "  nil\n" <<)
         (code 
         car
         (code 
@@ -166,7 +166,7 @@
     dup
 
     (code car isnil)
-        (code zap "  nil" <<)
+        (code zap "  nil\n" <<)
         (code 
         car
         (code 

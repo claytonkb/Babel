@@ -647,7 +647,12 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
             if( is_nil(alt_list) ){ // we've reached the end...
 
-                fail(this_bvm); // signal that we've eval'd all clauses without passing
+                if( !(is_tptr(alt)
+                    && tageq(alt,BABEL_TAG_FAIL,TAG_SIZE)) ){
+                    fail(this_bvm); // signal that we've eval'd all clauses without passing
+                }
+
+                bvm_flush_cache(this_bvm); // Needed due to dstack/ustack save-restore feature
 
                 mword *alt_save_restore_list = _ith(this_bvm, rtos,2);
                 int i;
@@ -659,6 +664,8 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
                     alt_save_restore = _load(this_bvm, alt_save_restore, size(alt_save_restore));
                     (mword*)c(alt_restore_point,0) = alt_save_restore;
                 }
+
+                bvm_update_cache(this_bvm); // Needed due to dstack/ustack save-restore feature
 
                 set_code_ptr(this_bvm, _ith(this_bvm, rtos,1));
                 popr(this_bvm);
@@ -673,6 +680,8 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
                 set_code_ptr(this_bvm,(mword*)_ith(this_bvm, alt_list,0));
 
+                bvm_flush_cache(this_bvm); // Needed due to dstack/ustack save-restore feature
+
                 mword *alt_save_restore_list = _ith(this_bvm, rtos,2);
                 int i;
                 int list_length = _len(this_bvm, alt_save_restore_list);
@@ -683,6 +692,8 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
                     alt_save_restore = _load(this_bvm, alt_save_restore, size(alt_save_restore));
                     (mword*)c(alt_restore_point,0) = alt_save_restore;
                 }
+
+                bvm_update_cache(this_bvm); // Needed due to dstack/ustack save-restore feature
 
             }
         }
@@ -696,10 +707,28 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
             set_code_ptr(this_bvm, _ith(this_bvm, rtos,1));
 
-            mword *seq_restore_point = _ith(this_bvm, rtos,2);
-            mword *seq_save_restore  = _ith(this_bvm, rtos,3);
-            seq_save_restore = _load(this_bvm, seq_save_restore, size(seq_save_restore));
-            (mword*)c(seq_restore_point,0) = seq_save_restore;
+//            mword *seq_restore_point = _ith(this_bvm, rtos,2);
+//            mword *seq_save_restore  = _ith(this_bvm, rtos,3);
+//            seq_save_restore = _load(this_bvm, seq_save_restore, size(seq_save_restore));
+//            (mword*)c(seq_restore_point,0) = seq_save_restore;
+
+            bvm_flush_cache(this_bvm); // Needed due to dstack/ustack save-restore feature
+
+            mword *seq_save_restore_list = _ith(this_bvm, rtos,2);
+            int i;
+            int list_length = _len(this_bvm, seq_save_restore_list);
+            for(i=0;i<list_length;i++){
+                mword *seq_save_restore_entry = _ith(this_bvm, seq_save_restore_list, i); // XXX perf: re-traversal
+                mword *seq_restore_point      = _ith(this_bvm, seq_save_restore_entry, 0);
+                mword *seq_save_restore       = _ith(this_bvm, seq_save_restore_entry, 1);
+                seq_save_restore = _load(this_bvm, seq_save_restore, size(seq_save_restore));
+                (mword*)c(seq_restore_point,0) = seq_save_restore;
+            }
+
+            bvm_update_cache(this_bvm); // Needed due to dstack/ustack save-restore feature
+
+//_dump(this_bvm->dstack_ptr);
+//die;
 
             popr(this_bvm);
 
@@ -712,7 +741,11 @@ bvm_cache *_next(bvm_cache *this_bvm){ // _next#
 
             if( is_nil(seq_list) ){ // we've reached the end...
 
-                pass(this_bvm); // signal that we've passed all clauses without failing
+                if( !( is_tptr(seq)
+                    && tageq(seq,BABEL_TAG_PASS,TAG_SIZE)) ){
+                    pass(this_bvm); // signal that we've passed all clauses without failing
+                }
+
                 set_code_ptr(this_bvm, _ith(this_bvm, rtos,1));
                 popr(this_bvm);
 
@@ -796,6 +829,7 @@ bvm_cache *last(bvm_cache *this_bvm){ // last#
 > Defines a lexical-variable scope. Inspired by Lisp's let but
 > only saves the old variables - does not initialize the new
 > variables.
+> Usage: list body let
 */
 bvm_cache *let(bvm_cache *this_bvm){ // let#
 
@@ -846,6 +880,16 @@ bvm_cache *alt(bvm_cache *this_bvm){ // alt#
         || _len(this_bvm, alt_clause_list) < 1){
         return this_bvm;
     }
+
+//    if( is_nil((mword*)icar(alt_restore_list)) ){
+//    
+//        alt_restore_list = consa(this_bvm, 
+//                                this_bvm->dstack_ptr, 
+//                                consa(this_bvm, 
+//                                    this_bvm->ustack_ptr, 
+//                                    (mword*)cdr(alt_restore_list) ));
+//
+//    }
 
     mword *alt_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
@@ -964,46 +1008,60 @@ bvm_cache *cond(bvm_cache *this_bvm){ // cond#
 */
 bvm_cache *seq(bvm_cache *this_bvm){ // seq#
 
-    mword *seq_list          = dstack_get(this_bvm, 0);
-    mword *seq_restore_point = dstack_get(this_bvm, 1);
+    mword *seq_clause_list  = dstack_get(this_bvm, 0);
+    mword *seq_restore_list = dstack_get(this_bvm, 1);
 
     popd(this_bvm);
     popd(this_bvm);
 
-    if( is_nil(seq_list)
-        || _len(this_bvm, seq_list) < 1){
+    if( is_nil(seq_clause_list)
+        || _len(this_bvm, seq_clause_list) < 1){
         return this_bvm;
     }
 
+//    if( is_nil((mword*)icar(seq_restore_list)) ){
+//    
+//        seq_restore_list = consa(this_bvm, 
+//                                this_bvm->dstack_ptr, 
+//                                consa(this_bvm, 
+//                                    this_bvm->ustack_ptr, 
+//                                    (mword*)cdr(seq_restore_list) ));
+//
+//    }
+
     mword *seq_return = (mword*)icdr(icar(this_bvm->code_ptr));
 
-    //mword *seq_select = _newva(this_bvm, COND_COND);
+    int i;
+    int list_length = _len(this_bvm, seq_restore_list);
+    mword *last_cons = nil;
+    for(i=0;i<list_length;i++){
+        mword *seq_restore_point = _ith(this_bvm, seq_restore_list, i);
+        mword *seq_save_restore  = (mword*)icar(seq_restore_point);
+        last_cons = 
+                consa( this_bvm,
+                    consa( this_bvm, seq_restore_point, 
+                    consa( this_bvm, _unload( this_bvm, seq_save_restore), nil)),
+                last_cons);
+    }
 
-//    mword *seq_rstack_entry = consa(this_bvm, (mword*)icdr(seq_list), 
-
-    mword *seq_save_restore = _unload(this_bvm, (mword*)icar(seq_restore_point));
-
-//    if(is_nil(seq_save_restore)){
-//        enhance("BVM save-restore unsupported");
-//    }
-//    else{
-//    }
-
-    mword *seq_rstack_entry = consa(this_bvm, seq_list, 
+    mword *seq_rstack_entry = consa(this_bvm, seq_clause_list, 
                                     consa(this_bvm, seq_return, 
-                                        consa(this_bvm, seq_restore_point,
-                                            consa(this_bvm, seq_save_restore,  nil))));
+                                        consa(this_bvm, last_cons, nil)));
 
     pushr(this_bvm, seq_rstack_entry, _hash8(this_bvm, C2B("/babel/tag/seq")));
 
-    //dup(this_bvm); // Perform this step before eval'ing each seq
-
-    //this_bvm->code_ptr = consa(this_bvm, (mword*)icar(seq_list),nil);
-    set_code_ptr(this_bvm,(mword*)icar(seq_list));
+    set_code_ptr(this_bvm,(mword*)icar(seq_clause_list));
 
     this_bvm->advance_type = BVM_CONTINUE;
 
     return this_bvm;        
+
+//    mword *seq_save_restore = _unload(this_bvm, (mword*)icar(seq_restore_list));
+//    
+//    mword *seq_rstack_entry = consa(this_bvm, seq_clause_list, 
+//                                    consa(this_bvm, seq_return, 
+//                                        consa(this_bvm, seq_restore_list,
+//                                            consa(this_bvm, seq_save_restore,  nil))));
 
 }
 

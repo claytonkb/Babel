@@ -234,6 +234,7 @@
 
     (perm           (oper 0x200))
     (add_assign     (oper 0x201))
+    (+=             (oper 0x201))
     (bvmstack       (oper 0x202))
     (stack          (oper 0x202))
     (bvmcode        (oper 0x203))
@@ -291,5 +292,6 @@
     (get_tag        (oper 0x234))
     (seq            (oper 0x235))
     (alt            (oper 0x236))
-    (tageq          (oper 0x237)))
+    (tageq          (oper 0x237))
+    (exit           (oper 0x238)))
 

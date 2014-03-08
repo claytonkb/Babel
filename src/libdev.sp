@@ -4,6 +4,12 @@
 
 (argvn (code <- 'argv' lusym -> th))
 
+(dump_stack (code 
+        (code depth)
+        (code depth take rev (code bbl2str nl <<) each)
+        (code "nil\n" <<)
+    ifte))
+
 (display (code 
     show 'display.dot' spit8
     cpf86 'Graphviz2.32\bin\dot.exe -Tsvg display.dot -o display.svg' 

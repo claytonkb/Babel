@@ -161,11 +161,20 @@ mword _mu(bvm_cache *this_bvm, mword *bs){ // _mu#
 //
 mword _rmu(bvm_cache *this_bvm, mword *bs, void *v){ // _rmu#
 
-//    if( is_tptr(bs) ){
-//        *v += HASH_SIZE;
-//    }
+    if( is_tptr(bs) ){
+        *v += TPTR_SIZE;
+    }
+    else if( is_leaf(bs) ){
+        *v += size(bs)+1;
+    }
+    else{ //if( is_inte(bs) ){
+        //*v += size(bs)+2; // Works with GC, but breaks _unload
+        *v += size(bs)+1; //FIXME: Breaks the garbage collector
+    }
 
-    *v += alloc_size(bs)+1;
+    //(s(x) == 0 ? TPTR_SIZE : size(x)+1)
+
+    //*v += mc_alloc_size(s(bs));
 
     return 1;
 

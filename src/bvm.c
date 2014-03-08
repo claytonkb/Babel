@@ -813,6 +813,18 @@ bvm_cache *self(bvm_cache *this_bvm){ // *self#
 
 }
 
+
+//
+// babel_operator
+bvm_cache *bvm_exit(bvm_cache *this_bvm){ // bvm_exit#
+
+    this_bvm->advance_type = BVM_RETURN;
+
+    return this_bvm;
+
+}
+
+
 //
 // babel_operator
 bvm_cache *rsvd(bvm_cache *this_bvm){ // *rsvd#

@@ -45,7 +45,7 @@
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 570
+#define NUM_INTERP_OPCODES 571
 
 #define FLAG_IGN    ((mword)-1)
 #define FLAG_SET    1
@@ -465,8 +465,8 @@ mword null_hash[HASH_SIZE];// = { 0x88e9045b, 0x0b7c30af, 0x831422c3, 0x01ab0dc1
     zapd(x);                                    \
     zapd(x);                                    \
                                                 \
-    push_udr_stack(this_bvm, x->dstack_ptr,               \
-            new_dstack_entry2(x, result,           \
+    push_udr_stack(this_bvm, x->dstack_ptr,     \
+            new_dstack_entry2(x, result,        \
                 mktptr2(BABEL_TAG_PACMAN)));    \
                                                 \
     return x;
