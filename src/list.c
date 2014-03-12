@@ -700,7 +700,7 @@ mword *_list_cut(bvm_cache *this_bvm, mword *list, mword index){ // _list_cut#
 bvm_cache *append(bvm_cache *this_bvm){ // append#
 
     mword *list = dstack_get(this_bvm,0);
-
+    popd(this_bvm);
     //mword *result = _append_direct(this_bvm, _ith(this_bvm, list,0), _ith(this_bvm, list,1));
     mword *result = _append(this_bvm, list);
 

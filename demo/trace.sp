@@ -75,6 +75,7 @@
     dup 
     bvm_sym_table !
     "steps" 1 cp inskha
+    <- nil ->
     babel))
 
 (bvm_sym_table  (code cdr cdr cdr car detag))
@@ -319,7 +320,7 @@
     "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" 
     "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" 
     "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" 
-    "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "fnord" "rsvd" "babelop" "rsvd" 
+    "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "fnord" "rsvd" "babel" "rsvd" 
     "rsvd" "rsvd" "rsvd" "mword_sizeop" "arlen8" "free_op" "rmha" "arlen" 
     "arcat8" "rsvd" "rsvd" "arcat" "mu" "nva" "npt" "nlf" "nin" "load" 
     "unload" "bs2gv" "slice8" "rsvd" "rsvd" "slice" "rsvd" "rsvd" "rsvd" 

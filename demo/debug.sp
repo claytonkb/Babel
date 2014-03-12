@@ -26,6 +26,7 @@
     (code dup 'b' streq !) (code zap save_bbl2str      !)
     (code dup 'c' streq !) (code zap dump_code         !)
     (code dup 'd' streq !) (code zap dump_dstack       !)
+    (code dup 'e' streq !) (code zap reset              )
     (code dup 'h' streq !) (code zap show_help_msg     !)
     (code dup 'i' streq !) (code zap save_bvm          !)
     (code dup 'l' streq !) (code zap show_listing      !)
@@ -57,6 +58,7 @@
     dup 
     bvm_sym_table !
     "steps" 1 cp inskha
+    <- nil ->
     babel))
 
 (bvm_sym_table  (code cdr cdr cdr car detag))
@@ -301,7 +303,7 @@
     "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" 
     "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" 
     "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" 
-    "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "fnord" "rsvd" "babelop" "rsvd" 
+    "rsvd" "rsvd" "rsvd" "rsvd" "rsvd" "fnord" "rsvd" "babel" "rsvd" 
     "rsvd" "rsvd" "rsvd" "mword_sizeop" "arlen8" "free_op" "rmha" "arlen" 
     "arcat8" "rsvd" "rsvd" "arcat" "mu" "nva" "npt" "nlf" "nin" "load" 
     "unload" "bs2gv" "slice8" "rsvd" "rsvd" "slice" "rsvd" "rsvd" "rsvd" 

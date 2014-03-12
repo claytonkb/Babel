@@ -738,6 +738,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     alt,
     tageqop,
     bvm_exit,
+    interp_reset,
 
 };
 

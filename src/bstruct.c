@@ -168,8 +168,8 @@ mword _rmu(bvm_cache *this_bvm, mword *bs, void *v){ // _rmu#
         *v += size(bs)+1;
     }
     else{ //if( is_inte(bs) ){
-        //*v += size(bs)+2; // Works with GC, but breaks _unload
-        *v += size(bs)+1; //FIXME: Breaks the garbage collector
+        *v += size(bs)+2; // Works with GC, but breaks _unload
+        //*v += size(bs)+1; //FIXME: Breaks the garbage collector
     }
 
     //(s(x) == 0 ? TPTR_SIZE : size(x)+1)
@@ -566,16 +566,16 @@ mword rbbl2str(bvm_cache *this_bvm, mword *bs, char *buffer){ // rbbl2str#
 //
 //    }
 
-    MARK_TRAVERSED(bs);
-
-    #define INTE_OPEN  "(ptr "
-    #define INTE_CLOSE ") "
-    #define LEAF_OPEN  "(val "
-    #define LEAF_CLOSE ") "
-    #define TPTR_OPEN  "(tag "
-    #define TPTR_CLOSE ") "
+    #define INTE_OPEN  "[ptr "
+    #define INTE_CLOSE "] "
+    #define LEAF_OPEN  "[val "
+    #define LEAF_CLOSE "] "
+    #define TPTR_OPEN  "[tag "
+    #define TPTR_CLOSE "] "
 
     if(is_inte(bs)){
+
+        MARK_TRAVERSED(bs);
 
         //buf_size += sprintf(buffer+buf_size, "[ ");
         buf_size += sprintf(buffer+buf_size, INTE_OPEN);
@@ -590,6 +590,8 @@ mword rbbl2str(bvm_cache *this_bvm, mword *bs, char *buffer){ // rbbl2str#
     }
     else if(is_leaf(bs)){ // is_leaf
 
+        MARK_TRAVERSED(bs);
+
         //buf_size += sprintf(buffer+buf_size, "{ ");
         buf_size += sprintf(buffer+buf_size, LEAF_OPEN);
 
@@ -603,11 +605,13 @@ mword rbbl2str(bvm_cache *this_bvm, mword *bs, char *buffer){ // rbbl2str#
     }
     else{ // is_tptr
 
+        MARK_TRAVERSED(bs);
+
         //buf_size += sprintf(buffer+buf_size, "{ ");
         buf_size += sprintf(buffer+buf_size, TPTR_OPEN);
 
         for(i=0; i<HASH_SIZE; i++){
-            buf_size += sprintf(buffer+buf_size, "08x%x ", *(mword *)(bs+i));
+            buf_size += sprintf(buffer+buf_size, "0x%08x ", *(mword *)(bs+i));
         }
         buf_size += rbbl2str(this_bvm, get_tptr(bs), buffer+buf_size);
 

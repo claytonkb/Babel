@@ -293,5 +293,6 @@
     (seq            (oper 0x235))
     (alt            (oper 0x236))
     (tageq          (oper 0x237))
-    (exit           (oper 0x238)))
+    (exit           (oper 0x238))
+    (reset          (oper 0x239)))
 

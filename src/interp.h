@@ -52,7 +52,7 @@ bvm_cache *interp_new_epoch(bvm_cache *this_bvm);
 void interp_new_srand(bvm_cache *this_bvm);
 void interp_init_symbolic_constants(bvm_cache *this_bvm);
 bvm_cache *interp_new_stdin_capture(bvm_cache *this_bvm);
-void interp_reset(void);
+bvm_cache *interp_reset(bvm_cache *this_bvm);
 bvm_cache *interp_capture_argv(bvm_cache *this_bvm);
 void get_operands(bvm_cache *this_bvm, operand_info **oinfo0, mword num_operands);
 

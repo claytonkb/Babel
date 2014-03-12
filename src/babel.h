@@ -45,7 +45,7 @@
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 571
+#define NUM_INTERP_OPCODES 572
 
 #define FLAG_IGN    ((mword)-1)
 #define FLAG_SET    1
@@ -487,6 +487,9 @@ mword null_hash[HASH_SIZE];// = { 0x88e9045b, 0x0b7c30af, 0x831422c3, 0x01ab0dc1
 //#define BVM_OP_TRACE_BBL2STR
 //#define BVM_OP_TRACE_STEP
 
+#define CAT_EXCEPT          1
+#define INTERP_RESET        2
+
 #define DIE_CODE    1
 #define QUOTEME(x)  #x
 #define d(x)        printf("%s %08x\n", QUOTEME(x), x);  // d#
@@ -497,7 +500,7 @@ mword null_hash[HASH_SIZE];// = { 0x88e9045b, 0x0b7c30af, 0x831422c3, 0x01ab0dc1
 #define warn(x)     fprintf(stderr, "WARNING: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__);  // warn#
 #define error(x)    fprintf(stderr, "ERROR: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); // error#
 #define fatal(x)    fprintf(stderr, "FATAL: %s in %s() at %s line %d\n", x, __func__, __FILE__, __LINE__); die;  // fatal#
-#define cat_except(x)  trace; longjmp(*(x->interp->cat_ex),1);
+#define cat_except(x)  trace; longjmp(*(x->interp->cat_ex),CAT_EXCEPT);
 #define trace       printf("%s in %s line %d\n", __func__, __FILE__, __LINE__);   // trace#
 #define err_trace   fprintf(stderr, "%s in %s line %d\n", __func__, __FILE__, __LINE__);   // err_trace#
 #define enhance(x)  fprintf(stderr, "ENHANCEMENT: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // enhance#

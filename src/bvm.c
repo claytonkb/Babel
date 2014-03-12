@@ -183,7 +183,13 @@ d(opcode);
             discard = op_ptr(this_bvm);
         }
         else{ // is_tptr(next_entry)
-            fatal("tptr detected in code_list");
+            if(is_nil(next_entry)){
+                //die;
+                pushd( this_bvm, nil, IMMORTAL );
+            }
+            else{
+                fatal("tptr detected in code_list");
+            }
         }
 
         this_bvm->flags->BVM_INSTR_IN_PROGRESS = FLAG_CLR;
@@ -269,7 +275,7 @@ d(opcode);
             op_ptr = (babel_op)this_bvm->interp->jump_table[ opcode % NUM_INTERP_OPCODES ];
             discard = op_ptr(this_bvm);
         }
-        else{ // is_tptr(next_entry)
+        else{ // is_tptr(next_entry)            
             fatal("tptr detected in code_list");
         }
 
@@ -612,9 +618,11 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
     bvm_cache new_bvm;
     bvm_cache *new_bvm_ptr = &new_bvm;
 
-    mword *self = dstack_get(this_bvm,0);
+    mword *new_stack = dstack_get(this_bvm,1);
+    mword *self      = dstack_get(this_bvm,0);
     new_bvm_ptr->self = self;
 
+    popd(this_bvm);
     popd(this_bvm);
 
     if(!tageq(new_bvm_ptr->self, BABEL_TAG_READY_BVM, TAG_SIZE)){
@@ -644,6 +652,10 @@ bvm_cache *babelop(bvm_cache *this_bvm){ // babelop# babel#
         new_bvm_ptr->flags->BVM_CACHE_DIRTY = FLAG_CLR;
         bvm_update_cache(new_bvm_ptr);
 
+    }
+
+    if(!is_nil(new_stack)){
+        rgive(new_bvm_ptr, new_stack);
     }
 
     bvm_flush_cache(this_bvm);

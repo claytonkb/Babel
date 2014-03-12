@@ -61,6 +61,26 @@ void mc_new(bvm_cache *this_bvm){ // mc_new#
 }
 
 
+// mc_destroy
+//
+void mc_destroy(bvm_cache *this_bvm){ // mc_destroy#
+
+    mem_context *m = this_bvm->interp->mem;
+
+    free(m->primary->alloc_ptr);
+    free(m->secondary->alloc_ptr);
+
+    free(m->primary->base_ptr);
+    free(m->secondary->base_ptr);
+
+    free(m->primary);
+    free(m->secondary);
+
+    free(m);
+
+}
+
+
 //
 //
 void *sys_alloc(int size){ // *sys_alloc#
@@ -152,7 +172,11 @@ bvm_cache *mc_copy_collect(bvm_cache *this_bvm){ // mc_copy_collect#
     mword usage = mc_bank_usage(this_bvm, this_bvm->interp->mem->primary);
 //d(usage);
 
-    if(usage > (0.9 * (MEM_SIZE>>1))){
+    #define MEM_REDLINE     (0.9 * (MEM_SIZE>>1))
+//    #define MEM_HIGHWATER   (2/3)*(MEM_SIZE>>1)
+//    #define MEM_LOWWATER    (2/3)*(MEM_SIZE>>1)
+
+    if(usage > MEM_REDLINE){
         fatal("memory usage above redline");
     }
 
@@ -237,13 +261,6 @@ mc_dump_core(bvm_cache *this_bvm){
 mc_log(bvm_cache *this_bvm){
 
     // add log file to bvm_cache...
-
-}
-
-
-// mc_destroy
-//
-void mc_destroy(bvm_cache *this_bvm){ // mc_destroy#
 
 }
 

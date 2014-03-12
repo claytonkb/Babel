@@ -36,14 +36,13 @@ int babel_interp(bvm_cache *this_bvm, int argc, char **argv, char **envp){ // ba
     int val;
     val = setjmp(cat_ex);
 
-    if(val){
+    if(val==CAT_EXCEPT){
         fprintf(stderr,"CATASTROPHIC EXCEPTION: babel\n");
         die;
     }
-
-//  /* code here */
-//
-//  longjmp (this_bvm->interp->cat_ex,101);   /* signaling an error */
+    else if(val==INTERP_RESET){
+        fprintf(stderr,"INTERP_RESET: babel\n");
+    }
 
     interp_init(this_bvm, argc, argv, envp, &cat_ex);
 
@@ -381,9 +380,12 @@ bvm_cache *interp_capture_argv(bvm_cache *this_bvm){ // interp_capture_argv#
 
 //
 //
-void interp_reset(void){ // interp_reset#
+bvm_cache *interp_reset(bvm_cache *this_bvm){ // interp_reset#
 
+    //Free the memory buffers
+    mc_destroy(this_bvm);
 
+    longjmp(*(this_bvm->interp->cat_ex),INTERP_RESET);
 
 }
 
