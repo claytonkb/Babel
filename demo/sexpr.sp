@@ -1,4 +1,12 @@
--- sexpr.sp
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+--                                                                          --
+--                           BPDL S-EXPR PARSER                             --
+--                                                                          --
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+
+-- TODO:
+-- Comments
+-- Whitespace (newlines)
 
 ((opcode_table  (ptr nil nil))
 
@@ -6,27 +14,57 @@
 
     create_opcode_table !
 
-    -- "{ ('1' '2' '3') {nl stdout8} each}"
+--    "((root {foo 2 3}) (foo (2)))"
+--
+--     '> ' << >>
 
-    '> ' << >>
+    load_file !
+    dos_clean !
+--give_str !
+--dump_stack ! die
 
     balanced_parse !
 
-    encode !
+    cdr
+
+    (code 
+        dup
+        <- 1 ith detag ".parse_tree" . ->
+        2 ith
+        set_sym ! ) 
+    each
+
+--    self bs2gv <<
+--die
+
+-- When you come across an identifier that is not an opcode,
+-- check to see if it has already been encoded. If it has,
+-- just insert a pointer to the .encoded. If it has not, then
+-- call encoded on that section, then insert the pointer. Do
+-- this recursively.
+
+    "root" encode_section !
 
     eval))
 
---die
---bs2gv << die
---dump_stack ! die
---))
+(load_file (code 1 get_argv ! >>> ))
+(get_argv  (code <- self 'argv' hash8 luha 2 ith -> ith))
 
-(give_str (code str2ar ar2ls rev give ))
+(set_sym   (code <- <- self -> -> inskha))
+(get_sym   (code <- self -> hash8 luha 2 ith))
+(ex_sym    (code <- self -> hash8 exha))
+
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+--                                                                          --
+--                      BALANCED EXPRESSION PARSER                          --
+--                                                                          --
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
 
 (balanced_parse (code 
     (code
         give_str !
-        trim_leading_ws !
+--        trim_leading_ws !
+        trim_comments_and_ws !
         (list
             (code dup lparen =) (code <- "list " give_str ! ->)
             (code dup lcurly =) (code <- "code " give_str ! ->))
@@ -34,7 +72,9 @@
         begin_balanced !)
     nest))
 
-(whitespace     (val 0x20))
+(give_str (code str2ar ar2ls rev give ))
+
+(space          (val 0x20))
 (dquote         (val 0x22))
 (squote         (val 0x27))
 (lbracket       (val 0x5b))
@@ -43,6 +83,9 @@
 (rparen         (val 0x29))
 (lcurly         (val 0x7b))
 (rcurly         (val 0x7d))
+(dos_newline    (val 0x0d))
+(newline        (val 0x0a))
+(dash           (val 0x2d))
 
 (is_close_bracket (code 
     dup dup
@@ -69,7 +112,8 @@
 
     (code depth 0 >)
     (code
-        trim_leading_ws !
+--        trim_leading_ws !
+        trim_comments_and_ws !
         (list 
             (code dup lbracket          =) (code begin_balanced !     -> cons <-)
             (code dup lparen            =) (code 
@@ -81,15 +125,65 @@
             (code dup is_close_bracket  !) (code zap                        last)
             (code dup dquote            =) (code zap get_dquote !     -> cons <-)
             (code dup squote            =) (code zap get_squote !     -> cons <-)
-            (code 1                      ) (code get_non_quote !      -> cons <-))
+            (code 1                      ) (code get_non_quote  !     -> cons <-))
         cond)
     while
     -> rev ))
 
+(is_babel_whitespace (code 
+    dup
+    space   = <-
+    newline = ->
+    or))
+
+(is_babel_comment (code 
+    2 take 
+    dup 
+    <- give   -> 
+       give
+    <- dash = ->
+       dash =
+    and))
+
+(trim_comments_and_ws (code
+    (code dup is_babel_whitespace !
+          <-  is_babel_comment    ! ->
+          cor)
+        (code 
+            trim_leading_ws !
+            trim_comment    !)
+    while))
+
+(trim_comment (code 
+    (code is_babel_comment !)
+        (code 
+            (code dup newline ~=)
+                (code zap)
+            while)
+        (code fnord)
+    ifte))
+
 (trim_leading_ws (code 
-    (code dup whitespace =)
+    (code dup is_babel_whitespace !)
         (code zap)
     while))
+
+-- NOTE: This will cause problems when quoting 
+-- DOS newline characters
+(dos_clean (code 
+    (code
+        give_str !
+        (code 
+            (code dup dos_newline =)
+                (code zap)
+                (code down)
+            ifte)
+        depth 1 -   -- 6 works, 5 does not
+        times
+        flip
+        collect !
+        ls2lf ar2str)
+    nest))
 
 (gather_non_squote (code
     nil <-
@@ -107,13 +201,23 @@
     zap
     -> rev))
 
+(is_generic_non_whitespace (code 
+    0 <-
+    (list rcurly rparen space lbracket rbracket)
+    (code 
+        <- dup -> 
+        = 
+        -> cor <- )
+    each
+    not))
+
 (gather_non_whitespace (code
     nil <-
     (code 
         dup dup dup dup dup
         rcurly     ~= <-
         rparen     ~= <-
-        whitespace ~= <-
+        space      ~= <-
         lbracket   ~= <-
         rbracket   ~= 
         -> -> -> ->
@@ -157,6 +261,19 @@
 (is_number_token (code "number" hash8 tageq))
 (is_string_token (code "string" hash8 tageq))
 
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+--                                                                          --
+--                               ENCODER                                    --
+--                                                                          --
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+
+(encode_section (code 
+    dup
+    get_parse_tree !
+    encode         !
+    dup
+    <- set_encoded ! ->))
+
 (encode (code
     pop
     (code car dup is_ident_token !)
@@ -171,7 +288,7 @@
                 (code dup "oper" streq !) (code zap encode_oper !)
                 (code dup "ref"  streq !) (code zap encode_ref  !)
                 (code dup "code" streq !) (code zap encode_code !)
-                (code 1                 ) (code die) !)
+                (code 1                 ) (code die              ))
             cond)
         (code die)
     ifte))
@@ -179,16 +296,29 @@
 -- FIXME: tag checking
 (encode_val (code 
     (code
-        (code detag) ...
-        collect !
-        ls2lf)
+        (code detag) each
+        (code depth 1 >)
+            (code 
+                depth 1 - take
+                (code cat) each) -- or ls2lf
+            (code fnord)
+        ifte)
     nest))
 
 (encode_ptr (code
     (code
         (code 
             (code dup istptr)
-                (code detag)
+                (code 
+                    (code dup is_ident_token ! )
+                        (code 
+                            detag
+                            (code dup is_encoded     !)
+                                (code get_encoded    !)
+                                (code encode_section !)
+                            ifte)
+                        (code detag)
+                    ifte)
                 (code encode !)
             ifte)
         each
@@ -200,7 +330,16 @@
     (code
         (code 
             (code dup istptr)
-                (code detag)
+                (code 
+                    (code dup is_ident_token ! )
+                        (code 
+                            detag
+                            (code dup is_encoded     !)
+                                (code get_encoded    !)
+                                (code encode_section !)
+                            ifte)
+                        (code detag)
+                    ifte)
                 (code encode !)
             ifte)
         each
@@ -218,8 +357,17 @@
         (code 
             (code dup istptr)
                 (code 
-                    (code dup is_ident_token !)
-                        (code detag lookup_opcode !)
+                    (code dup is_ident_token      !)
+                        (code 
+                            (code detag dup is_opcode !)
+                                (code lookup_opcode   !)
+                                (code 
+                                    (code dup is_encoded     !)
+                                        (code get_encoded    !)
+                                        (code encode_section !)
+                                    ifte
+                                    1 take bons)
+                            ifte)
                         (code detag 1 take bons)
                     ifte)
                 (code encode ! 1 take bons)
@@ -231,6 +379,37 @@
 (encode_hash (code die))
 (encode_oper (code die))
 (encode_ref  (code die))
+
+(is_encoded (code
+    ".encoded" .
+    ex_sym !))
+
+(get_encoded (code
+    ".encoded" .
+    get_sym !))
+
+(set_encoded (code
+    <- ".encoded" . ->
+    set_sym !))
+
+(get_parse_tree (code
+    ".parse_tree" .
+    get_sym !))
+
+(set_parse_tree (code
+    <- ".parse_tree" . ->
+    set_sym !))
+
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+--                                                                          --
+--                              OPCODE TABLE                                --
+--                                                                          --
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+
+(is_opcode (code 
+    hash8 
+    <- opcode_table car ->
+    exha))
 
 (lookup_opcode (code 
     hash8 

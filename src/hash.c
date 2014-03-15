@@ -218,7 +218,7 @@ mword *new_hash_table_entry(bvm_cache *this_bvm, mword *hash, mword *key, mword 
 > ... inserts the value 42 into my_hash with the key "foo". Does 
 > store the key in the hash.  
 */
-bvm_cache *inskha(bvm_cache *this_bvm){ // insha#
+bvm_cache *inskha(bvm_cache *this_bvm){ // inskha#
 
     mword *hash_table = dstack_get(this_bvm,2);
     mword *key        = dstack_get(this_bvm,1);

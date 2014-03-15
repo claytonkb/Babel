@@ -294,5 +294,6 @@
     (alt            (oper 0x236))
     (tageq          (oper 0x237))
     (exit           (oper 0x238))
-    (reset          (oper 0x239)))
+    (reset          (oper 0x239))
+    (flip           (oper 0x23a)))
 

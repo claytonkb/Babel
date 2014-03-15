@@ -430,7 +430,7 @@ mword _rlst(bvm_cache *this_bvm, mword *bs, void *v){ // _rlst#
 
 //
 //
-mword *_cp(bvm_cache *this_bvm, mword *bs){ // _cp#
+mword *_cp(bvm_cache *this_bvm, mword *bs){ // cp#
 
     mword *temp = _unload(this_bvm, bs);
 

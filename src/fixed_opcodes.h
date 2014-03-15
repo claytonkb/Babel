@@ -729,6 +729,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     msortlf,
     shuf,
 
+    //221
     pass,
     fail,
     newtptrop,
@@ -739,6 +740,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     tageqop,
     bvm_exit,
     interp_reset,
+    flip,
 
 };
 
