@@ -4,7 +4,7 @@ if(!-e 'bin'){
     mkdir 'bin';
 }
 
-system("perl sparse.pl src/construct.sp src/root.sp src/opcodes.sp src/libdev.sp");
+system("perl sparse.pl src/construct.sp src/root.sp src/opcodes.sp src/libdev.sp src/libparse.sp");
 system("perl tags.pl");
 
 `rm -f bin/babel.exe`;
