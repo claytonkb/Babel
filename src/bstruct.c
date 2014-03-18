@@ -168,8 +168,8 @@ mword _rmu(bvm_cache *this_bvm, mword *bs, void *v){ // _rmu#
         *v += size(bs)+1;
     }
     else{ //if( is_inte(bs) ){
-        *v += size(bs)+2; // Works with GC, but breaks _unload
-        //*v += size(bs)+1; //FIXME: Breaks the garbage collector
+        //*v += size(bs)+2; // Works with GC, but breaks _unload
+        *v += size(bs)+1; //FIXME: Breaks the garbage collector
     }
 
     //(s(x) == 0 ? TPTR_SIZE : size(x)+1)
@@ -1148,42 +1148,56 @@ void rbs2ar(bvm_cache *this_bvm, mword *bs, mword *arr_list, mword *offset){ // 
 
 }
 
-//// Returns a list of matches
-//mword *_find(bvm_cache *this_bvm, mword *addr){
-//
-//    mword *result = _rfind(this_bvm, bs);
-//    rclean(this_bvm, bs);
-//
-//    return size;
-//
-//}
-//
-//mword *_rfind(bvm_cache *this_bvm, mword *bs){
-//
-//    int i;
-//    mword count = 0;
-//
-//    if( TRAVERSED(bs) ){
-//        return 0;
-//    }
-//
-//    int num_elem = size(bs);
-//    count = num_elem + 1;
-//
-//    if(is_inte(bs)){
-//        MARK_TRAVERSED(bs);
-//        for(i=0; i<num_elem; i++){
-//            count += _rmu(this_bvm, (mword *)*(bs+i));
-//        }
-//    }
-//    else{
-//        MARK_TRAVERSED(bs);
-//    }
-//
-//    return count;
-//
-//}
+//////////////////////////////////////////////////////////////////////////////
+// XXX GC-bug workaround: GCWA XXX
+//////////////////////////////////////////////////////////////////////////////
 
+//
+//
+mword *_cp_GCWA(bvm_cache *this_bvm, mword *bs){ // cp_GCWA#
+
+    mword *temp = _unload_GCWA(this_bvm, bs);
+
+    bs = _load(this_bvm, temp, size(temp));
+
+    return bs;    
+
+}
+
+
+// _mu -> memory usage (mnemonic: *nix du)
+// _mu(this_bvm, x) = _nin(this_bvm, x) + _nlf(this_bvm, x) + _ntag(this_bvm, x)*(HASH_SIZE+1) + _nptr(this_bvm, x) + _nva(this_bvm, x)
+//
+mword _mu_GCWA(bvm_cache *this_bvm, mword *bs){ // _mu_GCWA#
+
+    mword counter=0;
+    _recurse(this_bvm, bs, _rmu_GCWA, &counter);
+    return counter;
+
+}
+
+//
+//
+mword _rmu_GCWA(bvm_cache *this_bvm, mword *bs, void *v){ // _rmu_GCWA#
+
+    if( is_tptr(bs) ){
+        *v += TPTR_SIZE;
+    }
+    else if( is_leaf(bs) ){
+        *v += size(bs)+1;
+    }
+    else{ //if( is_inte(bs) ){
+        *v += size(bs)+2; // Works with GC, but breaks _unload
+        //*v += size(bs)+1; //FIXME: Breaks the garbage collector
+    }
+
+    //(s(x) == 0 ? TPTR_SIZE : size(x)+1)
+
+    //*v += mc_alloc_size(s(bs));
+
+    return 1;
+
+}
 
 
 // Clayton Bauman 2012

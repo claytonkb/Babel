@@ -108,7 +108,6 @@ mword *mc_alloc(bvm_cache *this_bvm, mword sfield){ // *mc_alloc#
 
     alloc_bank *b = this_bvm->interp->mem->primary;
 
-
     mword mc_size = mc_alloc_size(sfield)+1;
 
 //d(mc_size);
@@ -166,7 +165,7 @@ bvm_cache *mc_copy_collect(bvm_cache *this_bvm){ // mc_copy_collect#
 
     this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;//trace;
 
-    this_bvm->self = _cp(this_bvm, this_bvm->self);
+    this_bvm->self = _cp_GCWA(this_bvm, this_bvm->self);
 
 //trace;
     mword usage = mc_bank_usage(this_bvm, this_bvm->interp->mem->primary);
@@ -277,6 +276,7 @@ void mc_free(bvm_cache *this_bvm, mword *p){ // mc_free#
 void mc_reclamate(bvm_cache *this_bvm){ // mc_reclamate#
 
 }
+
 
 
 //// mc_alloc

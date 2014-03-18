@@ -153,7 +153,7 @@ void temp_rbs2gv(mword *bs);
 
 #define bfree(x)  free((mword*)(x)-1)
 
-#define MEM_SIZE (1<<20)          // MEM_SIZE#
+#define MEM_SIZE (1<<22)          // MEM_SIZE#
 
 //#define ALLOC_ENTRY_IN_USE 1    // ALLOC_ENTRY_IN_USE#
 //#define ALLOC_ENTRY_FREE   0    // ALLOC_ENTRY_FREE#

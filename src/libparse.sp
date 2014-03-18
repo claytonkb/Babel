@@ -110,7 +110,7 @@
 (is_digit (code 
     str2ar dup 
     <- 0x30 >= ->
-    0x40 < 
+    0x3a < 
     cand ))
 
 (is_hex_digit (code 
@@ -118,7 +118,7 @@
 
     dup dup
     <- 0x30 >= ->
-    0x40 < 
+    0x3a < 
     cand 
     <->
 
@@ -138,7 +138,7 @@
 (is_nonzero (code 
     str2ar dup 
     <- 0x30 > ->
-    0x40 < 
+    0x3a < 
     cand ))
 
 (is_upper (code

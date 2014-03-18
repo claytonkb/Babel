@@ -1,6 +1,5 @@
 -- Babel Root Virtual Machine
 --
--- This is the code and symbol-table for The Construct
 
 --==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
 --                                                                          --
@@ -17,10 +16,10 @@
     self 'argv' 
     hash8 luha 
     2 ith 
---    cdr
 
---bbl2str << die
+    sp_file !))
 
+(sp_file (code 
     <- 
         ''
         construct
@@ -34,13 +33,6 @@
 
     dos_clean !
     balanced_parse !
-
---    (code depth 1 >)
---        (code 
---            collect !
---            append)
---        (code fnord)
---    ifte
 
     cdr
 
@@ -65,7 +57,7 @@
 --    (code 1 ith nl <<) each
 --    die
 
---    "root" get_encoded ! bs2gv << die
+--     '<<' lookup_opcode ! bs2gv << die
 --    eval
 
     nil
@@ -215,22 +207,6 @@
         ls2lf ar2str)
     nest))
 
---(gather_non_squote (code
---    nil <-
---    (code dup squote ~=)
---        (code -> cons <-)
---    while
---    zap
---    -> rev))
-
---(gather_non_dquote (code
---    nil <-
---    (code dup dquote ~=)
---        (code -> cons <-)
---    while
---    zap
---    -> rev))
-
 (gather_non_squote (code
     nil <-
     (code depth 0 >) -- Potential bug as we lookahead two chars
@@ -270,14 +246,15 @@
 (gather_non_whitespace (code
     nil <-
     (code 
-        dup dup dup dup dup
+        dup dup dup dup dup dup
         rcurly     ~= <-
         rparen     ~= <-
         space      ~= <-
+        newline    ~= <-
         lbracket   ~= <-
         rbracket   ~= 
-        -> -> -> ->
-        and and and and)
+        -> -> -> -> ->
+        and and and and and)
         (code -> cons <-)
     while
     -> rev))
@@ -497,7 +474,6 @@
                         (list 
                             (code dup lowercase_n =)(code zap "\n" down)
                             (code dup lowercase_t =)(code zap "\t" down)
-                            (code dup lowercase_t =)(code zap "\t" down)
                             (code 1                )(code down         ))
                         cond)
                     (code down)
@@ -658,7 +634,59 @@
     (list "inskha"         0x162)        (list "seq"            0x235)
     (list "ar2str"         0x180)        (list "alt"            0x236)
     (list "str2ar"         0x181)        (list "tageq"          0x237)
-    (list "cu2dec"         0x184)        (list "exit"           0x238)))
+    (list "cu2dec"         0x184)        (list "exit"           0x238)
+    (list '%'              0x035)
+    (list '+'              0x038)
+    (list '-'              0x039)
+    (list '*'              0x03a)
+    (list '/'              0x03b)
+    (list '<<'             0x1e0)
+    (list '>>'             0x1e3)
+    (list '%%'             0x140)
+    (list '#8'             0x108)
+    (list '#'              0x10b)
+    (list '##'             0x188)
+    (list '!'              0x130)
+    (list '<<<'            0x1c0)
+    (list '>>>'            0x1c1)
+    (list '<->'            0x19e)
+    (list '<-'             0x1f0)
+    (list '->'             0x1f1)
+    (list '='              0x011)
+    (list 'shl'            0x001)
+    (list 'rol'            0x005)
+    (list 'ror'            0x007)
+    (list 'shr'            0x006)
+    (list '~'              0x00c)
+    (list '~='             0x010)
+    (list '&'              0x021)
+    (list '^'              0x026)
+    (list '|'              0x027)
+    (list '~|'             0x028)
+    (list '~^'             0x029)
+    (list '~&'             0x02e)
+    (list '&&'             0x1e6)
+    (list '||'             0x1e7)
+    (list '~~'             0x1e8)
+    (list '=='             0x11f)
+    (list '%u'             0x184)
+    (list '%x'             0x185)
+    (list '%d'             0x186)
+    (list '$x'             0x195)
+    (list '$d'             0x196)
+    (list '.'              0x10c)
+    (list 'u+'             0x030)
+    (list 'u-'             0x031)
+    (list 'u*'             0x032)
+    (list 'u/'             0x033)))
+
+--    <           cilt            same as C
+--    >           cigt            same as C
+
+--    >=          cige            same as C
+--    <=          cile            same as C
+
+
 
 (construct (list 
 '((root      [tag "/babel/tag/sparse_bvm" '

@@ -195,6 +195,7 @@ d(opcode);
         this_bvm->flags->BVM_INSTR_IN_PROGRESS = FLAG_CLR;
 
         if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
+            //die;
             mc_copy_collect(this_bvm);
         }
 

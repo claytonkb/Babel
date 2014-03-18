@@ -263,5 +263,52 @@ mword get_rel_offset(bvm_cache *this_bvm, mword *LUT_abs, mword *LUT_rel, mword 
 
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// XXX GC-bug workaround: GCWA XXX
+//////////////////////////////////////////////////////////////////////////////
+
+// XXX: (perf) the LUT method is highly non-optimal with regard to
+// space, there is no reason unload() should require 2N space to
+// unload an object of size N. Future perf enhancement will implement
+// a binary tree to store the address translations.
+mword *_unload_GCWA(bvm_cache *this_bvm, mword *bs){ // _unload_GCWA#
+
+    mword bs_size     = _mu_GCWA (this_bvm, bs);
+
+    mword num_arrays  = _nin  (this_bvm, bs);
+
+          num_arrays += _nlf  (this_bvm, bs);
+
+          num_arrays += _ntag (this_bvm, bs);
+
+
+//    mword *dest      = _newlf(this_bvm, bs_size);
+//    mword *LUT_abs   = _newin(this_bvm, num_arrays);
+//    mword *LUT_rel   = _newin(this_bvm, num_arrays);
+
+    mword *dest      = newleaf(bs_size);
+
+//trace;
+
+//    mword *LUT_abs   = newinte(num_arrays);
+//    mword *LUT_rel   = newinte(num_arrays);
+
+    //free'd below...
+    mword *LUT_abs   = malloc(MWORDS(num_arrays)); // XXX WAIVER XXX
+    mword *LUT_rel   = malloc(MWORDS(num_arrays)); // XXX WAIVER XXX
+
+    mword offset     = 0;
+    mword LUT_offset = 0;
+
+    _runload(this_bvm, bs, LUT_abs, LUT_rel, dest, &offset, &LUT_offset);
+    rclean(this_bvm, bs);
+
+    free(LUT_abs);
+    free(LUT_rel);
+
+    return dest;
+
+}
+
 // Clayton Bauman 2011
 
