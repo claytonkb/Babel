@@ -1,13 +1,15 @@
 -- cp.sp
--- Strange Loop Conference 2013 ELC
 
-((main (code 
+((main 
+    {(('a' 'b' 'c')
+      ('d' 'e' 'f')
+      ('g' 'h' 'i'))
+    dup cp
 
-    (list 
-        (list 'a' 'b' 'c')
-        (list 'd' 'e' 'f')
-        (list 'g' 'h' 'i'))
-    cp
+    dump_stack !})
 
-    bvmstack
-    display !)))
+(dump_stack { 
+        { depth }
+        { depth take rev { bbl2str nl << } each }
+        { "nil\n" << }
+    ifte}))

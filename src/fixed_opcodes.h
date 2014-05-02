@@ -638,7 +638,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     rsvd,
     stdinln,
     rsvd,
-    rsvd,
+    ntag,
     andop,
     orop,
     notop,
@@ -729,7 +729,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     msortlf,
     shuf,
 
-    //221
+    //230
     pass,
     fail,
     newtptrop,
@@ -741,6 +741,7 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     bvm_exit,
     interp_reset,
     flip,
+    babelop2,
 
 };
 

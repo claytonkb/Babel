@@ -161,9 +161,10 @@ mword *_newlfi(bvm_cache *this_bvm, mword size, mword init){ // _newlfi#
 //
 mword *_newva(bvm_cache *this_bvm, mword value){ // _newva#
 
-    mword *ptr = mc_alloc(this_bvm, MWORDS(1));
+    mword *ptr = _newlfi(this_bvm,1,0);//mc_alloc(this_bvm, MWORDS(1));
 
     c(ptr,0) = value;
+
     return ptr;
 
 }
@@ -250,7 +251,7 @@ bvm_cache *slice(bvm_cache *this_bvm){ // *slice#
     else{
 
         if(is_leaf(array)){
-            result = _newlf(this_bvm, (mword)(end-start));
+            result = _newlfi(this_bvm, (mword)(end-start), 0);
         }
         else{
             result = _newin(this_bvm, end-start);
@@ -367,8 +368,8 @@ bvm_cache *cut(bvm_cache *this_bvm){ // cut#
         mword num_entries = size(src);
 
         if(is_leaf(src)){
-            result_pre  = _newlf(this_bvm, cut_point);
-            result_post = _newlf(this_bvm, num_entries-cut_point);
+            result_pre  = _newlfi(this_bvm, cut_point,0);
+            result_post = _newlfi(this_bvm, num_entries-cut_point,0);
         }
         else{
             result_pre = _newin(this_bvm, cut_point);
@@ -461,7 +462,7 @@ bvm_cache *newin(bvm_cache *this_bvm){ // *newin#
 */
 bvm_cache *newlf(bvm_cache *this_bvm){ // *newlf#
 
-    mword *result = _newlf(this_bvm, (mword)car(dstack_get(this_bvm,0))); //FIXME: There is no checking...
+    mword *result = _newlfi(this_bvm, (mword)car(dstack_get(this_bvm,0)),0); //FIXME: There is no checking...
     popd(this_bvm);
 
     pushd(this_bvm, result, IMMORTAL);
@@ -561,7 +562,7 @@ bvm_cache *arcat(bvm_cache *this_bvm){ // *arcat#
     mword size_right = size(right);
 
     if      ( is_leaf(right)  &&  is_leaf(left) ){
-        result = _newlf(this_bvm,  size_left + size_right );
+        result = _newlfi(this_bvm,  size_left + size_right, 0 );
     }
     else if ( is_inte(right)  &&  is_inte(left) ){
         result = _newin(this_bvm,  size_left + size_right );
@@ -632,7 +633,7 @@ bvm_cache *arcat8(bvm_cache *this_bvm){ // arcat8#
 //    d(array8_size(this_bvm, total_size));
 
     if      ( is_leaf(right)  &&  is_leaf(left) ){
-        result = (char*)_newlf(this_bvm,  array8_total_size );
+        result = (char*)_newlfi(this_bvm,  array8_total_size, 0 );
     }
     else{ //FIXME: Throw an exception
         fatal("arcat8: cannot concatenate interior array");
@@ -680,7 +681,7 @@ bvm_cache *slice8(bvm_cache *this_bvm){ // *slice8#
 
     char *result;
     if(is_leaf(TOS_2(this_bvm))){
-        result = (char*)_newlf(this_bvm, array8_size(this_bvm, size8));
+        result = (char*)_newlfi(this_bvm, array8_size(this_bvm, size8), 0);
     }
     else{
         error("slice8: cannot slice8 a non-leaf array");
@@ -796,7 +797,7 @@ mword *_ar2ls(bvm_cache *this_bvm, mword *arr){ // _ar2ls#
     }
     else{
         for(i=size(arr)-1;i>=0;i--){
-            entry = _newlf(this_bvm, 1);
+            entry = _newlfi(this_bvm, 1, 0);
             *entry = c(arr,i);
             last_cons = _consls(this_bvm, entry,last_cons);
         }
@@ -832,7 +833,7 @@ bvm_cache *perm(bvm_cache *this_bvm){ // perm#
         result = _newin(this_bvm, size(src_array));
     }
     else if(is_leaf(src_array)){
-        result = _newlf(this_bvm, size(src_array));
+        result = _newlfi(this_bvm, size(src_array),0);
     }
     else{ // FIXME: Throw exception
         fatal("!is_leaf && !is_inte");
@@ -990,8 +991,8 @@ void _mergelf(bvm_cache *this_bvm, mword *array, mword left_start, mword left_en
     mword right_length = right_end - right_start;
  
     // declare temporary arrays 
-    mword *left_half  = _newlf(this_bvm,left_length);
-    mword *right_half = _newlf(this_bvm,right_length);
+    mword *left_half  = _newlfi(this_bvm,left_length,0);
+    mword *right_half = _newlfi(this_bvm,right_length,0);
  
     mword r = 0; // right_half index 
     mword l = 0; // left_half index 
@@ -1087,8 +1088,8 @@ void _mergear(bvm_cache *this_bvm, mword *array, mword left_start, mword left_en
     mword right_length = right_end - right_start;
  
     // declare temporary arrays 
-    mword *left_half  = _newlf(this_bvm,left_length);
-    mword *right_half = _newlf(this_bvm,right_length);
+    mword *left_half  = _newlfi(this_bvm,left_length,0);
+    mword *right_half = _newlfi(this_bvm,right_length,0);
  
     mword r = 0; // right_half index 
     mword l = 0; // left_half index 

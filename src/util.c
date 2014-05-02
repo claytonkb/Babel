@@ -60,7 +60,7 @@ bvm_cache *endian(bvm_cache *this_bvm){ // *endian#
 bvm_cache *randop(bvm_cache *this_bvm){ // *randop#
 
     mword num_mwords = icar(dstack_get(this_bvm,0));
-    mword *result    = _newlf(this_bvm, num_mwords);
+    mword *result    = _newlfi(this_bvm, num_mwords,0);
 
     int i;
     for(i=0;i<num_mwords;i++){

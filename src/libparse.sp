@@ -77,7 +77,17 @@
        (code zap 0)
     ifte))
 
+-- string -> bool
+(is_signed_numeric (code 
+    str2ar ar2ls dup
+    (code 0 ith 0x2d =)
+        (code cdr )
+        (code fnord )
+    ifte
+    ls2lf ar2str 
+    is_numeric !))
 
+-- string -> bool
 (is_numeric (code 
     (code dup #8)
         (code

@@ -162,7 +162,8 @@ mword _mu(bvm_cache *this_bvm, mword *bs){ // _mu#
 mword _rmu(bvm_cache *this_bvm, mword *bs, void *v){ // _rmu#
 
     if( is_tptr(bs) ){
-        *v += TPTR_SIZE;
+        //*v += TPTR_SIZE;
+        *v += HASH_SIZE+1;
     }
     else if( is_leaf(bs) ){
         *v += size(bs)+1;
@@ -469,7 +470,7 @@ mword *_bbl2str(bvm_cache *this_bvm, mword *operand){ // _bbl2str#
         length++;
     }
 
-    mword *temp   = _newlf(this_bvm, length);
+    mword *temp   = _newlfi(this_bvm, length,0);
     mword *result = temp;
 
     memcpy(temp, buffer, buf_size);
@@ -513,7 +514,7 @@ bvm_cache *bbl2str(bvm_cache *this_bvm){ // bbl2str#
         length++;
     }
 
-    mword *temp   = _newlf(this_bvm, length);
+    mword *temp   = _newlfi(this_bvm, length,0);
     mword *result = temp;
 
     memcpy(temp, buffer, buf_size);
@@ -652,7 +653,7 @@ mword *_bs2gv(bvm_cache *this_bvm, mword *bs){ // _bs2gv#
     // Safety buffer of 2kb + (32 * _mu) XXX: WHY 100?? Ran into problems on this before!!
     //mword initial_buf_size = (1<<11) + (100 * _mu(this_bvm, bs));
 
-    mword initial_buf_size = 2<<16; //FIXME!!!!!!!
+    mword initial_buf_size = 1<<19; //FIXME!!!!!!!
 
     //matching free() below
     char *buffer = malloc(initial_buf_size); // XXX WAIVER XXX
@@ -678,7 +679,7 @@ mword *_bs2gv(bvm_cache *this_bvm, mword *bs){ // _bs2gv#
         length++;
     }
 
-    mword *result = _newlf(this_bvm, length); //FIXME DEPRECATED _newlf (see above)
+    mword *result = _newlfi(this_bvm, length, 0);
     memcpy(result, buffer, buf_size);
     c(result,length-1) = last_mword;
     free(buffer);
@@ -702,61 +703,30 @@ mword rbs2gv(bvm_cache *this_bvm, mword *bs, char *buffer){ // rbs2gv#
 
     int num_entries = size(bs);
 
-//    if( is_href(bs) ){
-//        buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"", (mword)bs);
-//        for(i=0; i<HASH_SIZE; i++){
-//            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(bs+i));
-//            if(i<(HASH_SIZE-1)){
-//                buf_size += sprintf(buffer+buf_size, "|");
-//            }
-//        }
-//        buf_size += sprintf(buffer+buf_size, "\"];\n");
-//
-//    }
-//    else if(is_inte(bs)){
+    if(is_tptr(bs)){ // is_tptr
 
-    if(is_tptr(bs) && !is_nil(bs)){ // is_tptr
-        //die;
+        if(!is_nil(bs)){
 
-//        //buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"{{", (mword)bs);
-//        buf_size += sprintf(buffer+buf_size, "s%08x [shape=record,label=\"", (mword)bs);
-//
-//        for(i=0; i<HASH_SIZE; i++){
-//            buf_size += sprintf(buffer+buf_size, "<h%d> %x", i, *(mword *)(bs+i));
-//            buf_size += sprintf(buffer+buf_size, "|");
-//        }
-//
-//        buf_size += sprintf(buffer+buf_size, " <f0> 0 |<f1> 1\"];\n");
-//
-//        for(i=0; i<2; i++){ //There are 2 pointers in a cons: car and cdr
-//            if(is_nil((mword *)scar(bs+HASH_SIZE+1+i))){
-//                continue;
-//            }
-//            buf_size += sprintf(buffer+buf_size, "\"s%08x\":f%d -> \"s%08x\":f0;\n", (mword)bs, i, *(mword *)(bs+HASH_SIZE+1+i));
-//            buf_size += rbs2gv(this_bvm, (mword *)*(bs+HASH_SIZE+1+i), buffer+buf_size);
-//        }
-//
+            buf_size += sprintf(buffer+buf_size, "s%08x [shape=record,label=\"", (mword)bs);
 
-        //buf_size += sprintf(buffer+buf_size, "s%08x [style=dashed,shape=record,label=\"{{", (mword)bs);
-        buf_size += sprintf(buffer+buf_size, "s%08x [shape=record,label=\"", (mword)bs);
-
-        for(i=0; i<HASH_SIZE; i++){
-            buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(bs+i));
-            if(i<(HASH_SIZE-1)){
-                buf_size += sprintf(buffer+buf_size, "|");
+            for(i=0; i<HASH_SIZE; i++){
+                buf_size += sprintf(buffer+buf_size, "<f%d> %x", i, *(mword *)(bs+i));
+                if(i<(HASH_SIZE-1)){
+                    buf_size += sprintf(buffer+buf_size, "|");
+                }
             }
+
+            buf_size += sprintf(buffer+buf_size, "\"];\n");
+
+            buf_size += sprintf(    buffer+buf_size, 
+                                    "\"s%08x\":f0 -> \"s%08x\":f0 [arrowhead=\"none\"];\n", 
+                                    (mword)bs, 
+                                    (mword *)(bs+HASH_SIZE+1));
+
+            MARK_TRAVERSED(bs);
+            buf_size += rbs2gv(this_bvm, (mword *)(bs+HASH_SIZE+1), buffer+buf_size);
+
         }
-
-        buf_size += sprintf(buffer+buf_size, "\"];\n");
-
-        buf_size += sprintf(    buffer+buf_size, 
-                                "\"s%08x\":f0 -> \"s%08x\":f0 [arrowhead=\"none\"];\n", 
-                                (mword)bs, 
-                                (mword *)(bs+HASH_SIZE+1));
-
-        MARK_TRAVERSED(bs);
-        buf_size += rbs2gv(this_bvm, (mword *)(bs+HASH_SIZE+1), buffer+buf_size);
-
     }
     else if(is_inte(bs)){
 

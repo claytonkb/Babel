@@ -1,5 +1,6 @@
 -- hello.sp
--- Babel's "Hello, world" in sparse-syntax:
 
-((main (code "Hello, world\n" << ))
+((main {foo348&$@*& <<})
+
+(foo348&$@*& [val "Hello, world\n"]))
 

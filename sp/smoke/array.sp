@@ -1,58 +1,76 @@
 -- array.sp
--- This program illustrates Babel's array operators
--- Use the debugger to explore this demo program
---    perl babel demo/array.sp
---    perl babel demo/debug.sp demo/array.sp.bbl
---    type 'h' in the debugger for help
+-- See below for test vectors
 
-((my_leaf       (val 0 1 2 3 4 5 6 7 8 9))
+((my_leaf       [val 0 1 2 3 4 5 6 7 8 9])
 
-(my_interior    (ptr 0 1 2 3 4 5 6 7 8 9))
+(my_interior    [ptr 0 1 2 3 4 5 6 7 8 9])
 
-(main (code
+(main {
 
     -- Converting an array to a list
     my_interior
-    ar2ls zap
+    ar2ls
 
     -- Array length
     my_interior 
-    arlen zap
+    arlen
 
     -- array-8 length
-    "Hello, world" arlen8 zap
+    "Hello, world" arlen8
 
     -- Cutting/catting an array
     my_leaf 
     3 cut cat 
-    zap
 
     -- leaf-array s-field, isleaf, etc.
     my_leaf dup dup
-    sfield zap
-    isleaf zap
-    isinte zap
+    sfield 
+    isleaf 
+    isinte 
 
     -- interior-array s-field, isleaf, etc.
     my_interior dup dup
-    sfield zap
-    isleaf zap
-    isinte zap
+    sfield 
+    isleaf 
+    isinte 
 
     -- Allocating a new leaf-array
     7 newlf 
-    zap
 
     -- Allocating a new interior-array
     7 newin 
-    zap
+    
 
     -- Comparing two leaf-arrays
-    a b == zap
-    b a == zap 
-    a a == zap ))
+    a b == 
+    b a ==  
+    a a ==  
 
-(a (val 1 3 5))
-(b (val 2 4 6))
+    dump_stack !})
 
+(dump_stack { 
+        { depth }
+        { depth take rev { bbl2str nl << } each }
+        { "nil\n" << }
+    ifte})
+
+(a [val 1 3 5])
+(b [val 2 4 6]))
+
+-- Test vectors:
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0xffffffff ]
+-- [ptr  nil  nil  nil  nil  nil  nil  nil ]
+-- [val 0x0 0x0 0x0 0x0 0x0 0x0 0x0 ]
+-- [val 0x0 ]
+-- [ptr [val 0x0 ] [val 0x1 ] [val 0x2 ] [val 0x3 ] [val 0x4 ] [val 0x5 ] [val 0x6 ] [val 0x7 ] [val 0x8 ] [val 0x9 ] ]
+-- [ptr [val 0x0 ] [val 0x1 ] [val 0x2 ] [val 0x3 ] [val 0x4 ] [val 0x5 ] [val 0x6 ] [val 0x7 ] [val 0x8 ] [val 0x9 ] ]
+-- [val 0x0 ]
+-- [val 0x0 0x1 0x2 0x3 0x4 0x5 0x6 0x7 0x8 0x9 ]
+-- [val 0x0 0x1 0x2 0x3 0x4 0x5 0x6 0x7 0x8 0x9 ]
+-- [val 0x0 0x1 0x2 0x3 0x4 0x5 0x6 0x7 0x8 0x9 ]
+-- [val 0xa ]
+-- [ptr [val 0x0 ] [ptr [val 0x1 ] [ptr [val 0x2 ] [ptr [val 0x3 ] [ptr [val 0x4 ] [ptr [val 0x5 ] [ptr [val 0x6 ] [ptr [val
+-- 0x7 ] [ptr [val 0x8 ] [ptr [val 0x9 ]  nil ] ] ] ] ] ] ] ] ] ]
 

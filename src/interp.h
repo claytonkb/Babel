@@ -22,11 +22,17 @@ typedef struct { // operand_info#
 
 } operand_info;
 
+mword *BABEL_SYM_CODE_PTR;
+mword *BABEL_SYM_RSTACK_PTR;
+mword *BABEL_SYM_DSTACK_PTR;
+mword *BABEL_SYM_USTACK_PTR;
+mword *BABEL_SYM_SOFT_ROOT;
+mword *BABEL_SYM_LOCAL_ROOT;
+mword *BABEL_SYM_ADVANCE_TYPE;
 mword *BABEL_SYM_STEPS;
 mword *BABEL_SYM_THREAD_ID;
-mword *BABEL_SYM_ADVANCE_TYPE;
-mword *BABEL_SYM_SOFT_ROOT;
 mword *BABEL_SYM_JUMP_TABLE;
+mword *BABEL_SYM_PARENT_BVM;
 
 //bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp);
 //mword *init_interp_jump_table(bvm_cache *this_bvm);

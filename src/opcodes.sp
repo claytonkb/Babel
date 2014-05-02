@@ -199,7 +199,7 @@
     (<<             (oper 0x1e0))
     (stdinln        (oper 0x1e3))
     (>>             (oper 0x1e3))
-    (nhref          (oper 0x1e5))
+    (ntag           (oper 0x1e5))
     (and            (oper 0x1e6))
     (&&             (oper 0x1e6))
     (or             (oper 0x1e7))
@@ -295,5 +295,6 @@
     (tageq          (oper 0x237))
     (exit           (oper 0x238))
     (reset          (oper 0x239))
-    (flip           (oper 0x23a)))
+    (flip           (oper 0x23a))
+    (babel2         (oper 0x23b)))
 

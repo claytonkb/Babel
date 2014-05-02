@@ -8,18 +8,51 @@
 --==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
 
 ((opcode_table  (ptr nil nil))
+ (sexpr_table   (ptr nil nil))
 
 (main (code 
 
     create_opcode_table !
+    create_sexpr_table  !
 
     self 'argv' 
     hash8 luha 
     2 ith 
 
-    sp_file !))
+--    run_sp_file !
 
-(sp_file (code 
+    (list
+        (code dup 0 ith '-a' streq !)(code 
+            cdr dup
+            create_bbc_file ! 
+            "root" get_encoded !
+            unload
+            <->
+            car ".bbc" .
+            spit )
+        (code dup 0 ith '-b' streq !)(code 
+            cdr dup
+            create_bbc_file2 ! 
+--            "root" get_encoded !
+--            unload
+            <->
+            car ".bbc" .
+            spit )
+        (code dup 0 ith '-c' streq !)(code run_bbc_file     !)
+        (code dup 0 ith '-e' streq !)(code dump_bbc_file3   !)
+        (code dup 0 ith '-f' streq !)(code dump_bbc_file2   !)
+        (code dup 0 ith '-g' streq !)(code dump_bbc_file    !)
+        (code dup 0 ith '-p' streq !)(code 
+            cdr car dup
+            patch_bbc_file !
+            <->
+            ".patched.bbc" .
+            spit)
+        (code dup 0 ith '-y' streq !)(code run_sym_bbc_file !)
+        (code 1                     )(code run_sp_file      !))
+    cond))
+
+(create_bbc_file (code 
     <- 
         ''
         construct
@@ -46,23 +79,342 @@
         each)
     each
 
+--    dump_symbols ! die
+
     "nil.encoded"
     nil
     set_sym !
 
-    "root" encode_section !
+    (code "macros.parse_tree" ex_sym !)
+        (code encode_macros !)
+        (code fnord)
+    ifte
 
---    self
---    entsha
+    "root" encode_section ! zap
+
+    (code "symbols.parse_tree" ex_sym !)
+        (code create_symbols !)
+        (code fnord)
+    ifte))
+
+(run_bbc_file (code 
+    1 ith 
+    slurp 
+    load 
+    <- nil ->
+    babel))
+
+(run_sym_bbc_file (code
+    1 ith 
+    slurp 
+    load 
+    <- nil ->
+    babel2))
+
+(hex08 (code 
+
+    %x
+    <- zero_pad cp dup ->
+
+    dup 
+
+    arlen8 dup
+
+    <- 
+        8 sw- !
+        <->
+        0 
+    ->
+
+    move8))
+
+(sw- (code <-> -))
+(zero_pad (val "00000000"))
+
+(quad_iter (code iter 4 * hex08 ! <<))
+
+(dump_bbc_file (code 
+    1 ith 
+    slurp 
+    load 
+    bs2gv
+    <<))
+
+(dump_bbc_file2 (code 
+    1 ith 
+    slurp 
+    (code quad_iter ! ' ' << hex08 ! nl <<) eachar))
+
+(dump_bbc_file3 (code 
+
+    1 ith 
+    "// " <<
+    dup << ".c\n" <<
+    slurp 
+
+    "// " << 
+    dup # %d nl
+
+    (list 
+        "\n#include " '"' "construct.sp.h" '"' "\n"
+        "const mword bbl[] = {\n")
+    (code .)
+    each
+    <<
+
+    (code 
+        (code iter 8 %)
+            (code fnord)
+            (code "\n" <<)
+        ifte
+        '0x' << 
+        hex08 ! << 
+        ', ' <<) 
+    eachar
+
+    "};\n\n" <<))
+
+(run_sp_file (code
+
+    <- 
+        ''
+        construct
+        (code .) each
+    ->
+
+    car >>> "\n" . .
+
+--    zap
+--    "((root (1 2 3)))"
+--    "((root {root 2 3}))"
+
+    <- "( " -> .
+    "\n)" .
+
+    dos_clean !
+    balanced_parse !
+
+    cdr
+
+    (code 
+        cdr
+        (code 
+            dup
+            <- 1 ith detag ".parse_tree" . ->
+            2 ith
+            set_sym ! ) 
+        each)
+    each
+
+    "nil.encoded"
+    nil
+    set_sym !
+
+    (code "macros.parse_tree" ex_sym !)
+        (code encode_macros !)
+        (code fnord)
+    ifte
+
+    "root" encode_section ! zap
+
+    (code "symbols.parse_tree" ex_sym !)
+        (code create_symbols !)
+        (code fnord)
+    ifte
+
+--    self entsha
 --    (code 1 ith nl <<) each
---    die
-
---     '<<' lookup_opcode ! bs2gv << die
---    eval
 
     nil
     "root" get_encoded !
+
+--     bs2gv << die
+
     babel))
+
+(dump_symbols (code
+    self entsha
+    (code 1 ith nl <<) each))
+
+(get_bvm (code "bvm" get_sym ! detag))
+
+(get_soft_root2 (code get_bvm ! "soft_root" luha 2 ith))
+
+(create_symbols2 (code 
+    "symbols" get_parse_tree !
+    cdr
+    (code 
+        <- get_soft_root2 ! ->
+        detag dup
+
+        get_encoded !
+        inskha)
+    each))
+
+(patch_bbc_file (code 
+
+    slurp 
+    load 
+
+    <- "main" ->
+    set_encoded !
+
+    "nil.encoded"
+    nil
+    set_sym !
+
+    "bvm"
+        "/babel/tag/sparse_bvm" hash8
+        newha
+        newtptr
+    set_sym !
+
+    "bvm" get_sym ! detag
+        "code_ptr"
+        "main" get_encoded ! 1 take
+    inskha 
+
+    "bvm" get_sym ! detag
+        "rstack_ptr"
+        (list nil)
+    inskha 
+
+    "bvm" get_sym ! detag
+        "dstack_ptr"
+        (list nil)
+    inskha 
+
+    "bvm" get_sym ! detag
+        "ustack_ptr"
+        (list nil)
+    inskha 
+
+    "bvm" get_sym ! detag
+        "soft_root"
+        newha 1 take
+    inskha 
+
+    "bvm" get_sym ! detag
+        "local_root"
+        (list nil)
+    inskha 
+
+    "bvm" get_sym ! detag
+        "advance_type"
+        0  1 take     -- BVM_ADVANCE
+    inskha 
+
+    "bvm" get_sym ! detag
+        "steps"
+        -1 1 take
+    inskha 
+
+    "bvm" get_sym ! detag
+        "thread_id"
+        1 1 take
+    inskha 
+
+    (code "symbols.parse_tree" ex_sym !)
+        (code create_symbols !)
+        (code fnord)
+    ifte
+
+    "bvm" get_sym ! 
+    unload))
+
+(create_bbc_file2 (code 
+
+--    <- '((root (main)))' ->
+    <- '' ->
+    (code >>> "\n" . .) each
+
+    <- "( " -> .
+    "\n)" .
+
+    dos_clean !
+    balanced_parse !
+
+    cdr
+
+    (code 
+        cdr
+        (code 
+            dup
+            <- 1 ith detag ".parse_tree" . ->
+            2 ith
+            set_sym ! ) 
+        each)
+    each
+
+    "nil.encoded"
+    nil
+    set_sym !
+
+    (code "macros.parse_tree" ex_sym !)
+        (code encode_macros !)
+        (code fnord)
+    ifte
+
+    "main" encode_section ! zap
+
+    "bvm"
+        "/babel/tag/sparse_bvm" hash8
+        newha
+        newtptr
+    set_sym !
+
+    "bvm" get_sym ! detag
+        "code_ptr"
+        "main" get_encoded ! 1 take
+    inskha 
+
+    "bvm" get_sym ! detag
+        "rstack_ptr"
+        (list nil)
+    inskha 
+
+    "bvm" get_sym ! detag
+        "dstack_ptr"
+        (list nil)
+    inskha 
+
+    "bvm" get_sym ! detag
+        "ustack_ptr"
+        (list nil)
+    inskha 
+
+    "bvm" get_sym ! detag
+        "soft_root"
+        newha 1 take
+    inskha 
+
+    "bvm" get_sym ! detag
+        "local_root"
+        (list nil)
+    inskha 
+
+    "bvm" get_sym ! detag
+        "advance_type"
+        0  1 take     -- BVM_ADVANCE
+    inskha 
+
+    "bvm" get_sym ! detag
+        "steps"
+        -1 1 take
+    inskha 
+
+    "bvm" get_sym ! detag
+        "thread_id"
+        1 1 take
+    inskha 
+
+    (code "symbols.parse_tree" ex_sym !)
+        (code create_symbols !)
+        (code fnord)
+    ifte
+
+    "bvm" get_sym ! 
+    unload))
 
 (load_file (code 1 get_argv ! >>> ))
 (get_argv  (code <- self 'argv' hash8 luha 2 ith -> ith))
@@ -70,6 +422,32 @@
 (set_sym   (code <- <- self -> -> inskha))
 (get_sym   (code <- self -> hash8 luha 2 ith))
 (ex_sym    (code <- self -> hash8 exha))
+
+(bvm_sym_table  (code cdr cdr cdr car detag))
+
+(create_soft_root (code
+    "root" get_encoded !
+    bvm_sym_table !
+    "soft_root"
+    newha
+    inskha))
+
+(get_soft_root (code 
+    "root" get_encoded !
+    bvm_sym_table !
+    "soft_root" luha 2 ith))
+
+(create_symbols (code 
+    create_soft_root !
+    "symbols" get_parse_tree !
+    cdr
+    (code 
+        <- get_soft_root ! ->
+        detag dup
+
+        get_encoded !
+        inskha)
+    each))
 
 --==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
 --                                                                          --
@@ -286,7 +664,7 @@
     (code dup dup is_hex !)
         (code $x <- "number" hash8 -> newtptr)
         (code 
-        (code is_numeric !)
+        (code is_signed_numeric !)
             (code $d <- "number" hash8 -> newtptr)
             (code    <- "ident"  hash8 -> newtptr)
         ifte)
@@ -312,30 +690,118 @@
 --                                                                          --
 --==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
 
+(view_stack (code 
+    (code depth)
+        (code 
+            collect ! dup
+            <- give ->
+            rev 
+            (code bbl2str nl <<) each)
+        (code "nil\n" <<)
+    ifte))
+
 (encode_section (code 
     dup
     get_parse_tree !
-    encode         !
-    dup
-    <- set_encoded ! ->))
 
-(encode (code
+    dup 0 ith detag
+
+    (code
+        dup
+        <- "list" streq ! ->
+        "code" streq !
+        or)
+        (code 
+
+            <- dup
+            nil 1 take    
+            set_encoded ! ->
+
+            encode3     !
+        
+            dup
+            <- set_encoded ! ->)
+
+        (code 
+            encode  !
+            dup
+            <- set_encoded ! ->)
+    ifte))
+
+--(encode_section (code 
+--    (code dup is_encoded     !)
+--        (code get_encoded    !)
+--        (code 
+--            (code dup get_parse_tree !)
+--                (code )
+--                (code )
+--            ifte
+--            dup
+--
+--            dup nl <<
+--
+--            nil 1 take    
+--            set_encoded !
+--
+--            get_parse_tree !
+--            encode2        !
+--         
+--            set_encoded !)
+--    ifte))
+
+--(encode_section (code 
+--    dup dup
+--
+--    nil 1 take    
+--    set_encoded !
+--
+--    get_parse_tree !
+--    encode         !
+--
+--    -- dup
+--    <- get_encoded ! dup ->
+--    0 paste ))
+
+(fatal (code "ERROR: " << << "\n" << die))
+
+(vsd (code view_stack ! die))
+
+(encode2 (code 
     pop
     (code car dup is_ident_token !)
         (code 
             detag
             (list 
-                (code dup "val"  streq !) (code zap encode_val  !)
-                (code dup "ptr"  streq !) (code zap encode_ptr  !)
-                (code dup "tag"  streq !) (code zap encode_tag  !)
-                (code dup "list" streq !) (code zap encode_list !)
-                (code dup "hash" streq !) (code zap encode_hash !)
-                (code dup "oper" streq !) (code zap encode_oper !)
-                (code dup "ref"  streq !) (code zap encode_ref  !)
-                (code dup "code" streq !) (code zap encode_code !)
-                (code 1                 ) (code die              ))
+                (code dup "list" streq !) (code zap encode_list   !)
+                (code dup "code" streq !) (code zap encode_code   !)
+                (code 1                 ) (code "unrecognized sexpr" fatal !))
             cond)
-        (code die)
+        (code "expected an identifier" fatal !)
+    ifte))
+
+(encode3 (code 
+    pop
+    (code car dup is_ident_token !)
+        (code 
+            detag
+            (list 
+                (code dup "list" streq !) (code zap encode_list2   !)
+                (code dup "code" streq !) (code zap encode_code2   !)
+                (code 1                 ) (code "unrecognized sexpr" fatal !))
+            cond)
+        (code "expected an identifier" fatal !)
+    ifte))
+
+(encode (code 
+    pop
+    (code car dup is_ident_token !)
+        (code 
+            detag
+            (code dup is_sexpr !)
+                (code lookup_sexpr ! eval)
+                (code "unrecognized sexpr" fatal !)
+            ifte)
+        (code "expected an identifier" fatal !)
     ifte))
 
 -- FIXME: tag checking
@@ -350,50 +816,47 @@
         ifte)
     nest))
 
-(encode_ptr (code
-    (code
-        (code 
-            (code dup istptr)
-                (code 
-                    (code dup is_ident_token ! )
-                        (code 
-                            detag
-                            (code dup is_encoded     !)
-                                (code get_encoded    !)
-                                (code encode_section !)
-                            ifte)
-                        (code detag)
-                    ifte)
-                (code encode !)
-            ifte)
-        each
-        collect !
-        bons)
-    nest))
-
 (encode_list (code 
     (code
-        (code 
-            (code dup istptr)
-                (code 
-                    (code dup is_ident_token ! )
-                        (code 
-                            detag
-                            (code dup is_encoded     !)
-                                (code get_encoded    !)
-                                (code encode_section !)
-                            ifte)
-                        (code detag)
-                    ifte)
-                (code encode !)
-            ifte)
+        encode_block
         each
         collect !)
     nest))
 
+(encode_list2 (code 
+    (code
+        encode_block
+        each
+        collect !)
+    nest
+
+    <- dup get_encoded ! dup ->
+    0 paste))
+
+--    <- dup get_encoded ! ->
+--    0 paste))
+
+(encode_ptr (code
+    encode_list !
+    bons))
+
+(encode_block (code 
+    (code dup istptr)
+        (code 
+            (code dup is_ident_token ! )
+                (code 
+                    detag
+                    (code dup is_encoded     !)
+                        (code get_encoded    !)
+                        (code encode_section !)
+                    ifte)
+                (code detag)
+            ifte)
+        (code encode !)
+    ifte))
+
 (encode_tag (code 
     give
-
     (code dup istptr)
         (code 
             (code dup is_ident_token ! )
@@ -407,39 +870,51 @@
             ifte)
         (code encode !)
     ifte
-
---dump_stack ! die
---    encode !
-
     <- detag hash8 ->
     newtptr))
 
+(encode_code_block (code 
+    (code dup istptr)
+        (code 
+            (code dup is_ident_token      !)
+                (code 
+                    (code detag dup is_opcode !)
+                        (code lookup_opcode   ! cp)
+                        (code 
+                            (code dup is_encoded     !)
+                                (code get_encoded    !)
+                                (code encode_section !)
+                            ifte
+                            1 take bons)
+                    ifte)
+                (code detag 1 take bons)
+            ifte)
+        (code encode ! 1 take bons)
+    ifte))
+
 (encode_code (code 
     (code
-        (code 
-            (code dup istptr)
-                (code 
-                    (code dup is_ident_token      !)
-                        (code 
-                            (code detag dup is_opcode !)
-                                (code lookup_opcode   !)
-                                (code 
-                                    (code dup is_encoded     !)
-                                        (code get_encoded    !)
-                                        (code encode_section !)
-                                    ifte
-                                    1 take bons)
-                            ifte)
-                        (code detag 1 take bons)
-                    ifte)
-                (code encode ! 1 take bons)
-            ifte)
+        encode_code_block
         each
         collect !)
     nest))
+--    view_stack ! die
 
-(encode_hash (code die))
-(encode_oper (code die))
+(encode_code2 (code 
+    (code
+        encode_code_block
+        each
+        collect !)
+    nest
+
+    <- dup get_encoded ! dup ->
+    0 paste))
+
+(encode_hash (code 
+    car 
+    detag
+    hash8 ))
+
 (encode_ref  (code die))
 
 (unescape_dquote (code 
@@ -506,6 +981,68 @@
 
 --==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
 --                                                                          --
+--                                MACROS                                    --
+--                                                                          --
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+
+(encode_macros (code 
+    "macros"
+    get_parse_tree !
+
+    cdr
+
+    (code 
+        detag dup
+        get_parse_tree !
+        encode         !
+        new_sexpr      !)
+    each))
+
+--    sexpr_table car
+--    entsha
+--    (code 1 ith nl <<) each die
+
+
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+--                                                                          --
+--                              SEXPR  TABLE                                --
+--                                                                          --
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+
+(is_sexpr (code 
+    hash8 
+    <- sexpr_table car ->
+    exha))
+
+(lookup_sexpr (code 
+    hash8 
+    <- sexpr_table car ->
+    luha detag
+    2 ith))
+
+(new_sexpr (code 
+    <- 
+        <- sexpr_table car -> 
+    ->
+    inskha))
+
+(create_sexpr_table (code 
+    sexpr_table
+    sexpr_list
+    mkhash ! 1 take
+    set ))
+
+(sexpr_list (list 
+    (list "val"  encode_val )
+    (list "ptr"  encode_ptr )
+    (list "tag"  encode_tag )
+    (list "list" encode_list)
+    (list "hash" encode_hash)
+    (list "ref"  encode_ref )
+    (list "code" encode_code)))
+
+--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
+--                                                                          --
 --                              OPCODE TABLE                                --
 --                                                                          --
 --==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--
@@ -556,7 +1093,7 @@
     (list "cxor"           0x026)        (list "journal8"       0x1c2)
     (list "logicF7"        0x027)        (list "stdout8"        0x1e0)
     (list "cor"            0x027)        (list "stdinln"        0x1e3)
-    (list "logicF8"        0x028)        (list "nhref"          0x1e5)
+    (list "logicF8"        0x028)        (list "ntag"           0x1e5)
     (list "cnor"           0x028)        (list "and"            0x1e6)
     (list "logicF9"        0x029)        (list "or"             0x1e7)
     (list "cxnor"          0x029)        (list "not"            0x1e8)
@@ -635,57 +1172,40 @@
     (list "ar2str"         0x180)        (list "alt"            0x236)
     (list "str2ar"         0x181)        (list "tageq"          0x237)
     (list "cu2dec"         0x184)        (list "exit"           0x238)
-    (list '%'              0x035)
-    (list '+'              0x038)
-    (list '-'              0x039)
-    (list '*'              0x03a)
-    (list '/'              0x03b)
-    (list '<<'             0x1e0)
-    (list '>>'             0x1e3)
-    (list '%%'             0x140)
-    (list '#8'             0x108)
-    (list '#'              0x10b)
-    (list '##'             0x188)
-    (list '!'              0x130)
-    (list '<<<'            0x1c0)
-    (list '>>>'            0x1c1)
-    (list '<->'            0x19e)
-    (list '<-'             0x1f0)
-    (list '->'             0x1f1)
-    (list '='              0x011)
-    (list 'shl'            0x001)
-    (list 'rol'            0x005)
-    (list 'ror'            0x007)
-    (list 'shr'            0x006)
-    (list '~'              0x00c)
-    (list '~='             0x010)
-    (list '&'              0x021)
-    (list '^'              0x026)
-    (list '|'              0x027)
-    (list '~|'             0x028)
-    (list '~^'             0x029)
-    (list '~&'             0x02e)
-    (list '&&'             0x1e6)
-    (list '||'             0x1e7)
-    (list '~~'             0x1e8)
-    (list '=='             0x11f)
-    (list '%u'             0x184)
-    (list '%x'             0x185)
-    (list '%d'             0x186)
-    (list '$x'             0x195)
-    (list '$d'             0x196)
-    (list '.'              0x10c)
-    (list 'u+'             0x030)
-    (list 'u-'             0x031)
-    (list 'u*'             0x032)
-    (list 'u/'             0x033)))
+                                         (list "reset"          0x239)
+                                         (list "flip"           0x23a)
+                                         (list "babel2"         0x23b)
+
+-- non-alpha synonyms:
+
+    (list '~'              0x00c)        (list '%'              0x035)
+    (list '~='             0x010)        (list '+'              0x038)
+    (list '&'              0x021)        (list '-'              0x039)
+    (list '^'              0x026)        (list '*'              0x03a)
+    (list '|'              0x027)        (list '/'              0x03b)
+    (list '~|'             0x028)        (list '<<'             0x1e0)
+    (list '~^'             0x029)        (list '>>'             0x1e3)
+    (list '~&'             0x02e)        (list '%%'             0x140)
+    (list '&&'             0x1e6)        (list '#8'             0x108)
+    (list '||'             0x1e7)        (list '#'              0x10b)
+    (list '~~'             0x1e8)        (list '##'             0x188)
+    (list '=='             0x11f)        (list '!'              0x130)
+    (list '%u'             0x184)        (list '<<<'            0x1c0)
+    (list '%x'             0x185)        (list '>>>'            0x1c1)
+    (list '%d'             0x186)        (list '<->'            0x19e)
+    (list '$x'             0x195)        (list '<-'             0x1f0)
+    (list '$d'             0x196)        (list '->'             0x1f1)
+    (list '.'              0x10c)        (list '='              0x011)
+    (list 'u+'             0x030)        (list 'shl'            0x001)
+    (list 'u-'             0x031)        (list 'rol'            0x005)
+    (list 'u*'             0x032)        (list 'ror'            0x007)
+    (list 'u/'             0x033)        (list 'shr'            0x006)))
 
 --    <           cilt            same as C
 --    >           cigt            same as C
 
 --    >=          cige            same as C
 --    <=          cile            same as C
-
 
 
 (construct (list 
@@ -696,8 +1216,8 @@
 
 '(bvm_stack [tag "/babel/tag/bvm_stack" (dstack ustack)])'
 
-'(dstack     (nil))'
-'(ustack     (nil))'
+'(dstack     [ptr nil nil])'
+'(ustack     [ptr nil nil])'
 
 '(jump_table [tag "/babel/tag/jump_table" nil])'
 
@@ -705,6 +1225,25 @@
 
 '(sym_table_hash_table [tag "/babel/tag/hash_table" symbol ])'
 
-'(symbol (nil)))')))
+ '(symbol [ptr nil nil]))')))
 
+--(construct (list 
+--'((root      [tag "/babel/tag/sparse_bvm" '
+--'(bvm_code bvm_stack jump_table sym_table) ])'
+--
+--'(bvm_code [tag "/babel/tag/bvm_code" ((main) nil)])'
+--
+--'(bvm_stack [tag "/babel/tag/bvm_stack" (dstack ustack)])'
+--
+--'(dstack     (nil))'
+--'(ustack     (nil))'
+--
+--'(jump_table [tag "/babel/tag/jump_table" nil])'
+--
+--'(sym_table [tag "/babel/tag/sym_table" sym_table_hash_table])'
+--
+--'(sym_table_hash_table [tag "/babel/tag/hash_table" symbol ])'
+--
+--'(symbol (nil)))')))
+--
 

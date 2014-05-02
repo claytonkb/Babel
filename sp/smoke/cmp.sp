@@ -1,63 +1,82 @@
 -- cmp.sp
--- This program illustrates Babel's arithmetic comparison 
--- operators
--- Use the debugger to explore this demo program
---    % perl babel demo/cmp.sp
---    % perl babel demo/debug.sp demo/cmp.sp.bbl
---    type 'h' in the debugger for help
+-- See below for test vectors
 
-((numbers (list 
-    (list 4 5)
-    (list 5 5)
-    (list 5 4)))
+((numbers        (( 4  5) ( 5  5) ( 5  4)))
+ (signed_numbers ((-4 -5) (-5 -5) (-5 -4)))
 
-(ops (list 
-    (code ~= )
-    (code =  )
-    (code u< )
-    (code u<=)
-    (code u> )
-    (code u>=)))
+(ops   ({~=  } {=   }
+        {cult} {cule}
+        {cugt} {cuge}))
 
-(signed_numbers (list 
-    (list -4 -5)
-    (list -5 -5)
-    (list -5 -4)))
+(signed_ops 
+       ({~=  } {=   } 
+        {cilt} {cile}
+        {cigt} {cige}))
 
-(signed_ops (list
-    (code ~= )
-    (code =  )
-    (code <  )
-    (code <= )
-    (code >  )
-    (code >= )))
+(dump_stack {
+    {depth}
+        {collect ! dup
+            <- give ->
+            rev 
+            {bbl2str nl <<} each}
+        {"nil\n" <<}
+    ifte})
 
-(main (code
+(collect    { -1 take })
 
-    ops
-    (code 
-        <- 
-        numbers
-        (code 
-            give
-            -> dup <-
-            !)
+(main 
+    {ops
+
+    {<- numbers
+        {give -> dup <- !}
         each
-        ->
-        clear)
+        -> zap}
     each
 
     signed_ops
-    (code 
-        <- 
-        signed_numbers
-        (code 
-            give
-            -> dup <-
-            !)
+    {<- signed_numbers
+        {give -> dup <- !}
         each
-        ->
-        clear)
+        -> zap}
     each
-    dev)))
 
+    dump_stack !}))
+
+-- Test vectors:
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x1 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x0 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x1 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x0 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+-- [val 0x0 ]
+-- [val 0x1 ]
+ 

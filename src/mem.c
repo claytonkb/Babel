@@ -94,6 +94,7 @@ void *sys_alloc(int size){ // *sys_alloc#
 
 }
 
+#define current_allocation(x) (TOP_OF_ALLOC_BANK(x) - x->alloc_ptr)
 
 //
 //
@@ -110,39 +111,23 @@ mword *mc_alloc(bvm_cache *this_bvm, mword sfield){ // *mc_alloc#
 
     mword mc_size = mc_alloc_size(sfield)+1;
 
-//d(mc_size);
+    mword ca = current_allocation(b);
 
-    if(b->alloc_ptr-mc_size < (b->base_ptr)){
-
-        if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
-            cat_except(this_bvm);
-        }
-        mc_swap_banks(this_bvm);
-        b = this_bvm->interp->mem->primary;
-
-//        if(this_bvm->flags->BVM_INSTR_IN_PROGRESS == FLAG_SET){
-        this_bvm->flags->MC_GC_PENDING = FLAG_SET;
-
-//        }
-//        else{
-//            mc_copy_collect(this_bvm);
-//        }
+    if((ca+mc_size) > (MEM_SIZE>>1)){
+        cat_except(this_bvm);
     }
-
+    else if(ca > MEM_REDLINE){
+        trace;
+        this_bvm->flags->MC_GC_PENDING = FLAG_SET;
+    }
 
     b->alloc_ptr -= mc_size;
 
-
     mword *return_ptr = b->alloc_ptr+1;
-
 
     s(return_ptr) = sfield;
 
-
     this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
-
-//mword usage = mc_bank_usage(this_bvm, this_bvm->interp->mem->primary);
-//d(usage);
 
     return return_ptr;
 
@@ -152,6 +137,8 @@ mword *mc_alloc(bvm_cache *this_bvm, mword sfield){ // *mc_alloc#
 // mc_copy_collect
 //
 bvm_cache *mc_copy_collect(bvm_cache *this_bvm){ // mc_copy_collect#
+
+    static counter = 1;
 
     // mc_copy_collect is non-reentrant... this is enforced with 
     // the MC_GC_BLOCKING flag
@@ -163,23 +150,19 @@ bvm_cache *mc_copy_collect(bvm_cache *this_bvm){ // mc_copy_collect#
 
     bvm_flush_cache(this_bvm);
 
-    this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;//trace;
+    mc_swap_banks(this_bvm);
 
-    this_bvm->self = _cp_GCWA(this_bvm, this_bvm->self);
+    this_bvm->self = _cp(this_bvm, this_bvm->self);
 
-//trace;
-    mword usage = mc_bank_usage(this_bvm, this_bvm->interp->mem->primary);
-//d(usage);
+    mword ca = current_allocation(this_bvm->interp->mem->primary);
 
-    #define MEM_REDLINE     (0.9 * (MEM_SIZE>>1))
-//    #define MEM_HIGHWATER   (2/3)*(MEM_SIZE>>1)
-//    #define MEM_LOWWATER    (2/3)*(MEM_SIZE>>1)
+trace;
+printf("%d times\n", counter++);
+d(ca);
 
-    if(usage > MEM_REDLINE){
-        fatal("memory usage above redline");
+    if(ca > MEM_HIGHWATER){ // FIXME: memory resizing
+        cat_except(this_bvm);
     }
-
-    //init_bvm_cache(this_bvm);
 
     bvm_update_cache(this_bvm);
 
@@ -195,6 +178,8 @@ bvm_cache *mc_copy_collect(bvm_cache *this_bvm){ // mc_copy_collect#
 //
 void mc_swap_banks(bvm_cache *this_bvm){ // mc_swap_banks#
 
+trace;
+
     mc_reset_bank(this_bvm, this_bvm->interp->mem->secondary);
 
     alloc_bank *temp                    = this_bvm->interp->mem->primary;
@@ -208,7 +193,13 @@ void mc_swap_banks(bvm_cache *this_bvm){ // mc_swap_banks#
 //
 void mc_reset_bank(bvm_cache *this_bvm, alloc_bank *b){ // mc_reset_bank#
 
-    b->alloc_ptr = TOP_OF_ALLOC_BANK(b);
+trace;
+
+//    mword *ptr = b->base_ptr;
+//    memset((char*)ptr,0,MWORDS(MEM_SIZE>>1));
+    
+//    b->base_ptr   = sys_alloc(MWORDS(MEM_SIZE>>1)); 
+    b->alloc_ptr  = TOP_OF_ALLOC_BANK(b);
 
 }
 
@@ -320,6 +311,46 @@ void mc_reclamate(bvm_cache *this_bvm){ // mc_reclamate#
 //
 //}
 //
+
+////    if((b->alloc_ptr-mc_size-MEM_HIGHWATER) < (b->base_ptr)){
+//    if(current_allocation(b) > MEM_REDLINE){
+//        cat_except(this_bvm);
+//    }
+//    else if(current_allocation(b) > MEM_HIGHWATER){
+//
+////        if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
+////            cat_except(this_bvm);
+////        }
+////
+////        mc_swap_banks(this_bvm);
+////        b = this_bvm->interp->mem->primary;
+//
+//        this_bvm->flags->MC_GC_PENDING = FLAG_SET;
+//
+//    }
+
+//    this_bvm->interp->mem->primary->base_ptr = sys_alloc(MWORDS(MEM_SIZE>>1));
+//
+//    mc_swap_banks(this_bvm);
+////
+//    this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;//trace;
+////
+//////    this_bvm->self = _cp_GCWA(this_bvm, this_bvm->self);
+////    this_bvm->self = _cp(this_bvm, this_bvm->self);
+////
+////trace;
+////    printf("%d times\n", counter++);
+////    mword usage = mc_bank_usage(this_bvm, this_bvm->interp->mem->primary);
+////d(usage);
+////
+////    if(usage > MEM_REDLINE){
+////        fatal("memory usage above redline");
+////    }
+////
+////    //init_bvm_cache(this_bvm);
+////
+
+
 
 // Clayton Bauman 2013
 

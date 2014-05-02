@@ -70,6 +70,7 @@ bvm_cache *nlf(bvm_cache *this_bvm);
 //mword _nlf(this_bvm, mword *bs);
 //mword _rnlf(this_bvm, mword *bs);
 
+bvm_cache *ntag(bvm_cache *this_bvm);
 //bvm_cache *nhref(bvm_cache *this_bvm);
 //mword _nhref(mword *bs);
 //mword _rnhref(mword *bs);

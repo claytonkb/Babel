@@ -1,42 +1,58 @@
 -- logic.sp
--- This program demonstrates Babel's C-style logic operators
--- Use the debugger to explore this demo program
---    % perl babel demo/logic.sp
---    % perl babel demo/debug.sp demo/logic.sp.bbl
---    type 'h' in the debugger for help
+-- Test vectors below
 
-((opsA (list
-    (code cand)
-    (code cor)
-    (code cxor)
-    (code cxnor)
-    (code cnor)
-    (code cnand)))
+((opsA 
+    ({cand}
+    {cor}
+    {cxor}
+    {cxnor}
+    {cnor}
+    {cnand}))
 
-(opsB (list 
-    (code cnot)
-    (code 4 cushl)
-    (code 4 cushr)
-    (code 4 curol)
-    (code 4 curor)
-    (code 4 cashr)))
+(opsB 
+    ({cnot}
+    {4 cushl}
+    {4 cushr}
+    {4 curol}
+    {4 curor}
+    {4 cashr}))
 
-(x (list 0x12345678 z))
-(z (val 0x87654321))
+(x (0x12345678 z))
+(z [val 0x87654321])
 
-(main (code 
-    opsA
-    (code 
-        <- x give -> 
-        !
-        zap)
+(main 
+    {opsA
+    {<- x give -> eval}
     each
 
     opsB
-    (code 
-        <- z -> 
-        !
-        zap)
+    {<- z -> eval}
     each
-    dev)))
+
+    dump_stack !})
+
+(dump_stack { 
+    {depth}
+        {collect ! dup
+            <- give ->
+            rev 
+            {bbl2str nl <<} each}
+        {"nil\n" <<}
+    ifte})
+
+(collect    { -1 take }))
+
+--Test vectors:
+--[val 0xf8765432 ]
+--[val 0x18765432 ]
+--[val 0x76543218 ]
+--[val 0x8765432 ]
+--[val 0x76543210 ]
+--[val 0x789abcde ]
+--[val 0xfddbbddf ]
+--[val 0x7abefefe ]
+--[val 0x6aaeeaa6 ]
+--[val 0x95511559 ]
+--[val 0x97755779 ]
+--[val 0x2244220 ]
 

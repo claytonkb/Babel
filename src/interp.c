@@ -22,6 +22,7 @@
 #include "ref.h"
 #include "mem.h"
 #include <windows.h>
+#include "cache.h"
 
 //
 //
@@ -68,14 +69,27 @@ bvm_cache *interp_init(bvm_cache *this_bvm, int argc, char **argv, char **envp, 
     this_bvm->self = _load(this_bvm, (mword*)load_bbl,BBL_SIZE);
 
     // Initialize symbolic constants
+    // FIXME: Move this down into interp_new()
     interp_init_symbolic_constants(this_bvm);
+
+// BVM_SYM:
+//    this_bvm->flags->BVM_CACHE_DIRTY  = FLAG_CLR;
+//    this_bvm->flags->BVM_CACHE_INVALID = FLAG_CLR;
+//
+//    bvm_sym_update_cache(this_bvm);
+//    bvm_interp(this_bvm);
+//    die;
 
     // Initialize the BVM
     bvm_new_sparse_bvm(this_bvm);
 
-    return this_bvm;
+// TODO:
+// bvm_sym_update_cache(this_bvm);
+// initialize parent_bvm?
 
     //TODO: Configure root BVM resource limits
+
+    return this_bvm;
 
 }
 
@@ -140,7 +154,6 @@ bvm_cache *interp_new_jump_table(bvm_cache *this_bvm){ // interp_new_jump_table#
 //
 //
 bvm_cache *interp_new_flags(bvm_cache *this_bvm){ // interp_new_flags#
-
 
     interp_flags *f = sys_alloc(sizeof(interp_flags)); // XXX WAIVER XXX
 
@@ -301,11 +314,17 @@ void interp_new_srand(bvm_cache *this_bvm){ // interp_new_srand#
 //
 void interp_init_symbolic_constants(bvm_cache *this_bvm){ //interp_init_symbolic_constants#
 
+    BABEL_SYM_CODE_PTR      = _hash8(this_bvm, C2B("code_ptr"));
+    BABEL_SYM_RSTACK_PTR    = _hash8(this_bvm, C2B("rstack_ptr"));
+    BABEL_SYM_DSTACK_PTR    = _hash8(this_bvm, C2B("dstack_ptr"));
+    BABEL_SYM_USTACK_PTR    = _hash8(this_bvm, C2B("ustack_ptr"));
+    BABEL_SYM_SOFT_ROOT     = _hash8(this_bvm, C2B("soft_root"));
+    BABEL_SYM_LOCAL_ROOT    = _hash8(this_bvm, C2B("local_root"));
+    BABEL_SYM_ADVANCE_TYPE  = _hash8(this_bvm, C2B("advance_type"));
     BABEL_SYM_STEPS         = _hash8(this_bvm, C2B("steps"));
     BABEL_SYM_THREAD_ID     = _hash8(this_bvm, C2B("thread_id"));
-    BABEL_SYM_ADVANCE_TYPE  = _hash8(this_bvm, C2B("advance_type"));
-    BABEL_SYM_SOFT_ROOT     = _hash8(this_bvm, C2B("soft_root"));
     BABEL_SYM_JUMP_TABLE    = _hash8(this_bvm, C2B("jump_table"));
+    BABEL_SYM_PARENT_BVM    = _hash8(this_bvm, C2B("parent_bvm"));
 
 }
 

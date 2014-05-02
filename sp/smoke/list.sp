@@ -1,38 +1,41 @@
 -- list.sp
--- This program illustrates Babel's list operators
--- Use the debugger to explore this demo program
---    % perl babel demo/list.sp
---    % perl babel demo/debug.sp demo/list.sp.bbl
---    type 'h' in the debugger for help
 
-((main (code
-    (list 'a' 'b' 'c' 'd' 'e' 'f')
-    3 ith zap
+((main {
+    ('a' 'b' 'c' 'd' 'e' 'f')
+    3 ith
     
-    (list 1 2 3)
+    (1 2 3)
     dup
-    car zap
-    cdr zap
+    <- car ->
+    cdr
 
-    1 (list 2 3)
+    1 (2 3)
     cons uncons
-    zap zap
 
-    (ptr 1 2 3)
+    [ptr 1 2 3]
     ar2ls bons
-    zap
 
-    (list 1 2 3)
+    (1 2 3)
     ls2lf ar2ls
-    zap
 
-    (list 2 3)
-    (list 1)
+    (2 3)
+    (1)
     push pop
-    zap zap
 
-    (list 1 2)
-    (list 3)
+    (1 2)
+    (3)
     unshift shift
-    zap zap)))
+
+    dump_stack !})
+
+(dump_stack { 
+    {depth}
+        {collect ! dup
+            <- give ->
+            rev 
+            {bbl2str nl <<} each}
+        {"nil\n" <<}
+    ifte})
+
+(collect    { -1 take }))
 

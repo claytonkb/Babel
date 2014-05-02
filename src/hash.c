@@ -283,7 +283,6 @@ void _insha(bvm_cache *this_bvm, mword *hash_table, mword *hash, mword *key, mwo
         key = _cp(this_bvm, key);
     }
 
-
     rinsha(this_bvm, (mword*)get_tptr(hash_table), hash, key, entry, 0); //XXX: was using tcar
 
 }

@@ -450,7 +450,7 @@ bvm_cache *ls2lf(bvm_cache *this_bvm){ // ls2lf#
 //
 mword *_ls2lf(bvm_cache *this_bvm, mword *list){ // _ls2lf#
 
-    mword *arr = _newlf(this_bvm, _len(this_bvm, list));
+    mword *arr = _newlfi(this_bvm, _len(this_bvm, list),0);
 
     int i=0;
     while(!is_nil(list)){

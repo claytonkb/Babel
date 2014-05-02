@@ -6,6 +6,10 @@
 
 #include "babel.h"
 
+#define MEM_REDLINE     ( 0.9 *(MEM_SIZE>>1))
+#define MEM_HIGHWATER   ((int)((float)(0.67)*(float)(MEM_SIZE>>1)))
+#define MEM_LOWWATER    ((int)((float)(0.33)*(float)(MEM_SIZE>>1)))
+
 //mword *_newlf(bvm_cache *this_bvm, mword size);
 //mword *_newlfi(bvm_cache *this_bvm, mword size, mword init);
 //mword *_newva(bvm_cache *this_bvm, mword value);

@@ -45,7 +45,7 @@
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 573
+#define NUM_INTERP_OPCODES 574
 
 #define FLAG_IGN    ((mword)-1)
 #define FLAG_SET    1
@@ -125,6 +125,7 @@ typedef struct { // bvm_cache#
 
     mword *sym_table;
     mword *soft_root;
+    mword *local_root;
 
     mword thread_id;
     mword steps;    
@@ -153,7 +154,7 @@ void temp_rbs2gv(mword *bs);
 
 #define bfree(x)  free((mword*)(x)-1)
 
-#define MEM_SIZE (1<<22)          // MEM_SIZE#
+#define MEM_SIZE (1<<26)          // MEM_SIZE#
 
 //#define ALLOC_ENTRY_IN_USE 1    // ALLOC_ENTRY_IN_USE#
 //#define ALLOC_ENTRY_FREE   0    // ALLOC_ENTRY_FREE#
@@ -218,6 +219,8 @@ mword null_hash[HASH_SIZE];// = { 0x88e9045b, 0x0b7c30af, 0x831422c3, 0x01ab0dc1
 
 #include "tags.h"
 #include "construct.sp.h"
+//#include "hello.sp.bbc.h"
+//#include "run2.sp.bbc.h"
 
 #define is_bvm(x) ( tagcmp((x),BABEL_TAG_BVM,MIN_TAG_SIZE) ) // is_bvm#
 #define is_ref(x) ( tageq((x),BABEL_TAG_REF,MIN_TAG_SIZE) ) // is_ref#

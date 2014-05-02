@@ -1,45 +1,54 @@
 -- mu.sp
--- This program illustrates Babel's memory operators
--- Use the debugger to explore this demo program
---    % perl babel demo/array.sp
---    % perl babel demo/debug.sp demo/array.sp.bbl
---    type 'h' in the debugger for help
+-- Test vectors below
 
-((main (code
+((main {
         -- Unloaded size of x:                 
         y unload #
-        dup
 
         -- Memory usage of x (words):          
         y mu 
 
-        =  -- same as size of unload? 
-        zap
+        y nin               -- Number of interior arrays in x
+        y nlf  +            -- Number of leaf arrays in x
+        y nva  +            -- Number of values in x
+        y npt  +            -- Number of pointers in x  
+        y ntag 5 * +        -- Number of tagged-pointers in x  
 
-        y nin       -- Number of interior arrays in x
-        y nlf +     -- Number of leaf arrays in x
-        y nva +     -- Number of values in x
-        y npt +     -- Number of pointers in x 
-
-        = )) -- Same as result of mu? (BROKEN, not sure why)
+    dump_stack !})
 
 (y 
-(ptr
-    (ptr
-        (ptr
-            (ptr 1)
-            (ptr 2))
+[tag "foo" [ptr
+    [ptr
+        [ptr
+            [ptr 1]
+            [ptr 2]]
 
-        (ptr
-            (ptr 3)
-            (ptr 4)))
+        [ptr
+            [ptr 3]
+            [ptr 4]]]
 
-    (ptr
-        (ptr
-            (ptr 5)
-            (ptr 6))
+    [ptr
+        [ptr
+            [ptr 5]
+            [ptr 6]]
 
-        (ptr
-            (ptr 7)
-            (ptr 8))))))
+        [ptr
+            [ptr 7]
+            [ptr 8]]]]])
+
+(dump_stack { 
+    {depth}
+        {collect ! dup
+            <- give ->
+            rev 
+            {bbl2str nl <<} each}
+        {"nil\n" <<}
+    ifte})
+
+(collect    { -1 take }))
+
+-- Test Vectors:
+-- [val 0x3c ]
+-- [val 0x3c ]
+-- [val 0x3c ]
 
