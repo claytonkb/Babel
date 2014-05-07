@@ -1,0 +1,82 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>C:\babel\2014May3\Babel\sp\smoke\mu.sp.html</title>
+<meta name="Generator" content="Vim/7.3">
+<meta name="plugin-version" content="vim7.3_v6">
+<meta name="syntax" content="sparse">
+<meta name="settings" content="use_css">
+<style type="text/css">
+<!--
+pre { font-family: monospace; color: #000000; background-color: #ffffff; }
+body { font-family: monospace; color: #000000; background-color: #ffffff; }
+.Constant { color: #ff00ff; }
+.Statement { color: #0000ff; }
+.Numeric { color: #600060; }
+.PreProc { color: #a020f0; }
+.Type { color: #2e8b57; font-weight: bold; }
+.Identifier { color: #008080; }
+.Comment { color: #008000; }
+-->
+</style>
+</head>
+<body>
+<pre>
+<span class="Comment">-- mu.sp</span>
+<span class="Comment">-- Test vectors below</span>
+
+((<span class="Identifier">main</span> {
+        <span class="Comment">-- Unloaded size of x:                 </span>
+        <span class="Identifier">y</span> <span class="Type">unload</span> <span class="PreProc">#</span>
+
+        <span class="Comment">-- Memory usage of x (words):          </span>
+        <span class="Identifier">y</span> <span class="Type">mu</span>
+
+        <span class="Identifier">y</span> <span class="Type">nin</span>               <span class="Comment">-- Number of interior arrays in x</span>
+        <span class="Identifier">y</span> <span class="Type">nlf</span>  +            <span class="Comment">-- Number of leaf arrays in x</span>
+        <span class="Identifier">y</span> <span class="Type">nva</span>  +            <span class="Comment">-- Number of values in x</span>
+        <span class="Identifier">y</span> <span class="Type">npt</span>  +            <span class="Comment">-- Number of pointers in x  </span>
+        <span class="Identifier">y</span> <span class="Identifier">ntag</span> <span class="Numeric">5</span> * +        <span class="Comment">-- Number of tagged-pointers in x  </span>
+
+    <span class="Identifier">dump_stack</span> !})
+
+(<span class="Identifier">y</span>
+[<span class="Statement">tag</span> <span class="Constant">&quot;foo&quot;</span> [<span class="Statement">ptr</span>
+    [<span class="Statement">ptr</span>
+        [<span class="Statement">ptr</span>
+            [<span class="Statement">ptr</span> <span class="Numeric">1</span>]
+            [<span class="Statement">ptr</span> <span class="Numeric">2</span>]]
+
+        [<span class="Statement">ptr</span>
+            [<span class="Statement">ptr</span> <span class="Numeric">3</span>]
+            [<span class="Statement">ptr</span> <span class="Numeric">4</span>]]]
+
+    [<span class="Statement">ptr</span>
+        [<span class="Statement">ptr</span>
+            [<span class="Statement">ptr</span> <span class="Numeric">5</span>]
+            [<span class="Statement">ptr</span> <span class="Numeric">6</span>]]
+
+        [<span class="Statement">ptr</span>
+            [<span class="Statement">ptr</span> <span class="Numeric">7</span>]
+            [<span class="Statement">ptr</span> <span class="Numeric">8</span>]]]]])
+
+(<span class="Identifier">dump_stack</span> {
+    {<span class="Type">depth</span>}
+        {<span class="Identifier">collect</span> ! <span class="Type">dup</span>
+            &lt;- <span class="Type">give</span> -&gt;
+            <span class="Type">rev</span>
+            {<span class="Type">bbl2str</span> <span class="Type">nl</span> &lt;&lt;} <span class="Type">each</span>}
+        {<span class="Constant">&quot;nil\n&quot;</span> &lt;&lt;}
+    <span class="Type">ifte</span>})
+
+(<span class="Identifier">collect</span>    { -<span class="Numeric">1</span> <span class="Type">take</span> }))
+
+<span class="Comment">-- Test Vectors:</span>
+<span class="Comment">-- [val 0x3c ]</span>
+<span class="Comment">-- [val 0x3c ]</span>
+<span class="Comment">-- [val 0x3c ]</span>
+
+</pre>
+</body>
+</html>

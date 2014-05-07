@@ -1,0 +1,114 @@
+@font-face
+{
+	font-family: 'CMUTypewriter';
+	src: url('fonts/cmu_typewriter/cmuntt.eot'),
+	     url('fonts/cmu_typewriter/cmuntt.woff') format('woff'),
+	     url('fonts/cmu_typewriter/cmuntt.ttf') format('truetype'),
+	     url('fonts/cmu_typewriter/cmuntt.svg') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
+
+.current_page { color: #c0c0c0; }
+
+.gen_stamp { color: #808080; }
+
+a:link, a:visited, a:active {
+    color: #003368;
+    text-decoration:none;
+}
+
+code{
+    font-family: "Courier New";
+	font-weight: bold;
+    font-size:80%;
+}
+
+h1{
+    font-family: Georgia;
+}
+
+h2{
+    font-family: Georgia;
+}
+
+#container{
+    width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/*#header{
+    font-family:Georgia;
+    width: 1200px;
+    height:     165px;
+    line-height:165px;
+    background-image: url(images/sacred_scarab.jpg);
+    text-align:left;
+    font-size:400%;
+    color: rgba(255,255,255,0.8);
+    top: 0;
+    position: fixed;
+}
+ 
+#header2{
+    width: 1200px;
+    height:     165px;
+    line-height:165px;
+    top: 0;
+}
+*/
+
+#header{
+    font-family:Georgia;
+    width: 1600px;
+    height:     100px;
+    line-height:100px;
+    background-image: url(images/sacred_scarab2.jpg);
+    text-align:left;
+    font-size:500%;
+    color: rgba(255,255,255,0.9);
+    top: 0;
+    left: 0;
+    position: fixed;
+}
+
+#header2{
+    width: 1200px;
+    height:     100px;
+    line-height:100px;
+    top: 0;
+}
+
+#leftnav{
+    background-color: #e0e0e0;
+    position: fixed;
+    font-family:Georgia;
+    /*border-right: 2px solid #000000;*/
+    margin-top:30px;
+    float: left;
+    width: 200px;
+    height: 200px;
+}
+
+#rightnav{
+    margin-top:30px;
+    float: right;
+    width: 300px;
+    height: 4000px;
+}
+
+#body{
+    font-family:CMUTypewriter;
+    padding-left:18%;
+    width: 800px;
+    margin-top:30px;
+    height: 4000px;
+}
+
+#footer{
+    clear: both;
+    color:#a0a0a0;
+    font-family: "Courier New";
+}
+

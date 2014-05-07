@@ -1,16 +1,3 @@
-<head>
-    <title>Babel Programming Language</title>
-</head>
-
-![](sacred_scarab.jpg)
-
-[**Contact Us**](babel_contact.html)  
-<a href="https://github.com/claytonkb/Babel" target="_blank">Babel on github</a>  
-<a href="http://rosettacode.org/wiki/Category:Babel" target="_blank">Babel at RosettaCode</a>  
-<a href="https://thestrangeloop.com/sessions/babel-an-untyped-stack-based-hll" target="_blank">Babel at Strange Loop 2013</a>  
-
-[Getting Started Guide](babel_gsg.html)
-
 Babel Guts
 ==========
 

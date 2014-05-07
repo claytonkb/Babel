@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>C:\babel\2014May3\Babel\sp\smoke\hash.sp.html</title>
+<meta name="Generator" content="Vim/7.3">
+<meta name="plugin-version" content="vim7.3_v6">
+<meta name="syntax" content="sparse">
+<meta name="settings" content="use_css">
+<style type="text/css">
+<!--
+pre { font-family: monospace; color: #000000; background-color: #ffffff; }
+body { font-family: monospace; color: #000000; background-color: #ffffff; }
+.Numeric { color: #600060; }
+.Type { color: #2e8b57; font-weight: bold; }
+.Constant { color: #ff00ff; }
+.Identifier { color: #008080; }
+.Comment { color: #008000; }
+-->
+</style>
+</head>
+<body>
+<pre>
+<span class="Comment">-- hash.sp</span>
+
+((<span class="Identifier">main</span>
+    {(  (<span class="Constant">&quot;cattle&quot;</span>  <span class="Constant">&quot;herd&quot;</span>      )
+        (<span class="Constant">&quot;eagles&quot;</span>  <span class="Constant">&quot;aerie&quot;</span>     )
+        (<span class="Constant">&quot;fish&quot;</span>    <span class="Constant">&quot;school&quot;</span>    )
+        (<span class="Constant">&quot;geese&quot;</span>   <span class="Constant">&quot;gaggle&quot;</span>    )
+        (<span class="Constant">&quot;gulls&quot;</span>   <span class="Constant">&quot;screech&quot;</span>   )
+        (<span class="Constant">&quot;trout&quot;</span>   <span class="Constant">&quot;hover&quot;</span>     ))
+    <span class="Identifier">mkhash</span> !
+
+    <span class="Identifier">lookup</span> !})
+
+(<span class="Identifier">lookup</span>
+    {{  <span class="Identifier">prompt</span> !
+        <span class="Type">luha</span>
+        <span class="Numeric">2</span> <span class="Type">ith</span> <span class="Type">nl</span> &lt;&lt;}
+    <span class="Type">loop</span>})
+
+(<span class="Identifier">prompt</span>
+    { <span class="Type">dup</span>
+    <span class="Constant">&quot;Enter a key&gt; &quot;</span> &lt;&lt;
+    &gt;&gt; <span class="Type">hash8</span> })
+
+(<span class="Identifier">remove</span>
+    {{<span class="Identifier">prompt</span> !
+        {<span class="Type">rmha</span>}
+            { <span class="Constant">&quot;Removed!&quot;</span>}
+            { <span class="Constant">&quot;Nothing removed...&quot;</span>}
+        <span class="Type">ifte</span>
+        <span class="Type">nl</span> &lt;&lt;}
+    <span class="Type">loop</span>})
+
+(<span class="Identifier">exists</span> { {
+        <span class="Identifier">prompt</span> !
+        {<span class="Type">exha</span>}
+            {<span class="Constant">&quot;Exists!&quot;</span>}
+            {<span class="Constant">&quot;Does not exist&quot;</span>}
+        <span class="Type">ifte</span>
+        <span class="Type">nl</span> &lt;&lt;}
+    <span class="Type">loop</span>})
+
+(<span class="Identifier">mkhash</span>
+    { &lt;- <span class="Type">newha</span> -&gt;
+    { &lt;- <span class="Type">dup</span> -&gt;
+        <span class="Type">dup</span> <span class="Numeric">1</span> <span class="Type">ith</span>
+        &lt;- <span class="Numeric">0</span> <span class="Type">ith</span> -&gt;
+        <span class="Type">inskha</span> }
+    <span class="Type">each</span> }))
+
+
+</pre>
+</body>
+</html>

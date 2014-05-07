@@ -639,15 +639,11 @@ trace;
 die;
 
     bvm_cp_cache(new_bvm_ptr, this_bvm);
-trace;
     this_bvm->self = get_sym_ptr(new_bvm_ptr, BABEL_SYM_PARENT_BVM);
-trace;
     bvm_update_cache(this_bvm);
-trace;
 
     bvm_sym_flush_cache(new_bvm_ptr);
-trace;
-die;
+
     return this_bvm;
 
 }

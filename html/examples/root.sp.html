@@ -1,0 +1,1263 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>C:\babel\2014May3\Babel\src\root.sp.html</title>
+<meta name="Generator" content="Vim/7.3">
+<meta name="plugin-version" content="vim7.3_v6">
+<meta name="syntax" content="sparse">
+<meta name="settings" content="use_css">
+<style type="text/css">
+<!--
+pre { font-family: monospace; color: #000000; background-color: #ffffff; }
+body { font-family: monospace; color: #000000; background-color: #ffffff; }
+.PreProc { color: #a020f0; }
+.Numeric { color: #600060; }
+.Constant { color: #ff00ff; }
+.Type { color: #2e8b57; font-weight: bold; }
+.Statement { color: #0000ff; }
+.Identifier { color: #008080; }
+.Comment { color: #008000; }
+-->
+</style>
+</head>
+<body>
+<pre>
+<span class="Comment">-- Babel Root Virtual Machine</span>
+<span class="Comment">--</span>
+
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--                           BPDL S-EXPR PARSER                             --</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+
+((<span class="Identifier">opcode_table</span>  (<span class="Statement">ptr</span> <span class="Statement">nil</span> <span class="Statement">nil</span>))
+ (<span class="Identifier">sexpr_table</span>   (<span class="Statement">ptr</span> <span class="Statement">nil</span> <span class="Statement">nil</span>))
+
+(<span class="Identifier">main</span> (<span class="Statement">code</span>
+
+    <span class="Identifier">create_opcode_table</span> !
+    <span class="Identifier">create_sexpr_table</span>  !
+
+    <span class="Type">self</span> <span class="Constant">'argv'</span>
+    <span class="Type">hash8</span> <span class="Type">luha</span>
+    <span class="Numeric">2</span> <span class="Type">ith</span>
+
+<span class="Comment">--    run_sp_file !</span>
+
+    (<span class="Statement">list</span>
+        (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Numeric">0</span> <span class="Type">ith</span> <span class="Constant">'-a'</span> <span class="Identifier">streq</span> !)(<span class="Statement">code</span>
+            <span class="Type">cdr</span> <span class="Type">dup</span>
+            <span class="Identifier">create_bbc_file</span> !
+            <span class="Constant">&quot;root&quot;</span> <span class="Identifier">get_encoded</span> !
+            <span class="Type">unload</span>
+            &lt;-&gt;
+            <span class="Type">car</span> <span class="Constant">&quot;.bbc&quot;</span> .
+            <span class="Type">spit</span> )
+        (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Numeric">0</span> <span class="Type">ith</span> <span class="Constant">'-b'</span> <span class="Identifier">streq</span> !)(<span class="Statement">code</span>
+            <span class="Type">cdr</span> <span class="Type">dup</span>
+            <span class="Identifier">create_bbc_file2</span> !
+<span class="Comment">--            &quot;root&quot; get_encoded !</span>
+<span class="Comment">--            unload</span>
+            &lt;-&gt;
+            <span class="Type">car</span> <span class="Constant">&quot;.bbc&quot;</span> .
+            <span class="Type">spit</span> )
+        (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Numeric">0</span> <span class="Type">ith</span> <span class="Constant">'-c'</span> <span class="Identifier">streq</span> !)(<span class="Statement">code</span> <span class="Identifier">run_bbc_file</span>     !)
+        (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Numeric">0</span> <span class="Type">ith</span> <span class="Constant">'-e'</span> <span class="Identifier">streq</span> !)(<span class="Statement">code</span> <span class="Identifier">dump_bbc_file3</span>   !)
+        (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Numeric">0</span> <span class="Type">ith</span> <span class="Constant">'-f'</span> <span class="Identifier">streq</span> !)(<span class="Statement">code</span> <span class="Identifier">dump_bbc_file2</span>   !)
+        (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Numeric">0</span> <span class="Type">ith</span> <span class="Constant">'-g'</span> <span class="Identifier">streq</span> !)(<span class="Statement">code</span> <span class="Identifier">dump_bbc_file</span>    !)
+        (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Numeric">0</span> <span class="Type">ith</span> <span class="Constant">'-p'</span> <span class="Identifier">streq</span> !)(<span class="Statement">code</span>
+            <span class="Type">cdr</span> <span class="Type">car</span> <span class="Type">dup</span>
+            <span class="Identifier">patch_bbc_file</span> !
+            &lt;-&gt;
+            <span class="Constant">&quot;.patched.bbc&quot;</span> .
+            <span class="Type">spit</span>)
+        (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Numeric">0</span> <span class="Type">ith</span> <span class="Constant">'-y'</span> <span class="Identifier">streq</span> !)(<span class="Statement">code</span> <span class="Identifier">run_sym_bbc_file</span> !)
+        (<span class="Statement">code</span> <span class="Numeric">1</span>                     )(<span class="Statement">code</span> <span class="Identifier">run_sp_file</span>      !))
+    <span class="Type">cond</span>))
+
+(<span class="Identifier">create_bbc_file</span> (<span class="Statement">code</span>
+    &lt;-
+        <span class="Constant">''</span>
+        <span class="Identifier">construct</span>
+        (<span class="Statement">code</span> .) <span class="Type">each</span>
+    -&gt;
+
+    (<span class="Statement">code</span> &gt;&gt;&gt; <span class="Constant">&quot;\n&quot;</span> . .) <span class="Type">each</span>
+
+    &lt;- <span class="Constant">&quot;( &quot;</span> -&gt; .
+    <span class="Constant">&quot;\n)&quot;</span> .
+
+    <span class="Identifier">dos_clean</span> !
+    <span class="Identifier">balanced_parse</span> !
+
+    <span class="Type">cdr</span>
+
+    (<span class="Statement">code</span>
+        <span class="Type">cdr</span>
+        (<span class="Statement">code</span>
+            <span class="Type">dup</span>
+            &lt;- <span class="Numeric">1</span> <span class="Type">ith</span> <span class="Type">detag</span> <span class="Constant">&quot;.parse_tree&quot;</span> . -&gt;
+            <span class="Numeric">2</span> <span class="Type">ith</span>
+            <span class="Identifier">set_sym</span> ! )
+        <span class="Type">each</span>)
+    <span class="Type">each</span>
+
+<span class="Comment">--    dump_symbols ! die</span>
+
+    <span class="Constant">&quot;nil.encoded&quot;</span>
+    <span class="Statement">nil</span>
+    <span class="Identifier">set_sym</span> !
+
+    (<span class="Statement">code</span> <span class="Constant">&quot;macros.parse_tree&quot;</span> <span class="Identifier">ex_sym</span> !)
+        (<span class="Statement">code</span> <span class="Identifier">encode_macros</span> !)
+        (<span class="Statement">code</span> <span class="Type">fnord</span>)
+    <span class="Type">ifte</span>
+
+    <span class="Constant">&quot;root&quot;</span> <span class="Identifier">encode_section</span> ! <span class="Type">zap</span>
+
+    (<span class="Statement">code</span> <span class="Constant">&quot;symbols.parse_tree&quot;</span> <span class="Identifier">ex_sym</span> !)
+        (<span class="Statement">code</span> <span class="Identifier">create_symbols</span> !)
+        (<span class="Statement">code</span> <span class="Type">fnord</span>)
+    <span class="Type">ifte</span>))
+
+(<span class="Identifier">run_bbc_file</span> (<span class="Statement">code</span>
+    <span class="Numeric">1</span> <span class="Type">ith</span>
+    <span class="Type">slurp</span>
+    <span class="Type">load</span>
+    &lt;- <span class="Statement">nil</span> -&gt;
+    <span class="Type">babel</span>))
+
+(<span class="Identifier">run_sym_bbc_file</span> (<span class="Statement">code</span>
+    <span class="Numeric">1</span> <span class="Type">ith</span>
+    <span class="Type">slurp</span>
+    <span class="Type">load</span>
+    &lt;- <span class="Statement">nil</span> -&gt;
+    <span class="Identifier">babel2</span>))
+
+(<span class="Identifier">hex08</span> (<span class="Statement">code</span>
+
+    %<span class="Identifier">x</span>
+    &lt;- <span class="Identifier">zero_pad</span> <span class="Type">cp</span> <span class="Type">dup</span> -&gt;
+
+    <span class="Type">dup</span>
+
+    <span class="Type">arlen8</span> <span class="Type">dup</span>
+
+    &lt;-
+        <span class="Numeric">8</span> <span class="Identifier">sw</span>- !
+        &lt;-&gt;
+        <span class="Numeric">0</span>
+    -&gt;
+
+    <span class="Type">move8</span>))
+
+(<span class="Identifier">sw</span>- (<span class="Statement">code</span> &lt;-&gt; -))
+(<span class="Identifier">zero_pad</span> (<span class="Statement">val</span> <span class="Constant">&quot;00000000&quot;</span>))
+
+(<span class="Identifier">quad_iter</span> (<span class="Statement">code</span> <span class="Type">iter</span> <span class="Numeric">4</span> * <span class="Identifier">hex08</span> ! &lt;&lt;))
+
+(<span class="Identifier">dump_bbc_file</span> (<span class="Statement">code</span>
+    <span class="Numeric">1</span> <span class="Type">ith</span>
+    <span class="Type">slurp</span>
+    <span class="Type">load</span>
+    <span class="Type">bs2gv</span>
+    &lt;&lt;))
+
+(<span class="Identifier">dump_bbc_file2</span> (<span class="Statement">code</span>
+    <span class="Numeric">1</span> <span class="Type">ith</span>
+    <span class="Type">slurp</span>
+    (<span class="Statement">code</span> <span class="Identifier">quad_iter</span> ! <span class="Constant">' '</span> &lt;&lt; <span class="Identifier">hex08</span> ! <span class="Type">nl</span> &lt;&lt;) <span class="Type">eachar</span>))
+
+(<span class="Identifier">dump_bbc_file3</span> (<span class="Statement">code</span>
+
+    <span class="Numeric">1</span> <span class="Type">ith</span>
+    <span class="Constant">&quot;// &quot;</span> &lt;&lt;
+    <span class="Type">dup</span> &lt;&lt; <span class="Constant">&quot;.c\n&quot;</span> &lt;&lt;
+    <span class="Type">slurp</span>
+
+    <span class="Constant">&quot;// &quot;</span> &lt;&lt;
+    <span class="Type">dup</span> <span class="PreProc">#</span> %<span class="Identifier">d</span> <span class="Type">nl</span>
+
+    (<span class="Statement">list</span>
+        <span class="Constant">&quot;\n#include &quot;</span> <span class="Constant">'&quot;'</span> <span class="Constant">&quot;construct.sp.h&quot;</span> <span class="Constant">'&quot;'</span> <span class="Constant">&quot;\n&quot;</span>
+        <span class="Constant">&quot;const mword bbl[] = {\n&quot;</span>)
+    (<span class="Statement">code</span> .)
+    <span class="Type">each</span>
+    &lt;&lt;
+
+    (<span class="Statement">code</span>
+        (<span class="Statement">code</span> <span class="Type">iter</span> <span class="Numeric">8</span> %)
+            (<span class="Statement">code</span> <span class="Type">fnord</span>)
+            (<span class="Statement">code</span> <span class="Constant">&quot;\n&quot;</span> &lt;&lt;)
+        <span class="Type">ifte</span>
+        <span class="Constant">'0x'</span> &lt;&lt;
+        <span class="Identifier">hex08</span> ! &lt;&lt;
+        <span class="Constant">', '</span> &lt;&lt;)
+    <span class="Type">eachar</span>
+
+    <span class="Constant">&quot;};\n\n&quot;</span> &lt;&lt;))
+
+(<span class="Identifier">run_sp_file</span> (<span class="Statement">code</span>
+
+<span class="Comment">--    &lt;- </span>
+<span class="Comment">--        ''</span>
+<span class="Comment">--        construct</span>
+<span class="Comment">--        (code .) each</span>
+<span class="Comment">--    -&gt;</span>
+<span class="Comment">--</span>
+<span class="Comment">--    car &gt;&gt;&gt; &quot;\n&quot; . .</span>
+
+    <span class="Type">zap</span>
+    <span class="Constant">'((root (&quot;&quot;)))'</span>
+<span class="Comment">--    &quot;((root {root 2 3}))&quot;</span>
+
+    &lt;- <span class="Constant">&quot;( &quot;</span> -&gt; .
+    <span class="Constant">&quot;\n)&quot;</span> .
+
+    <span class="Identifier">dos_clean</span> !
+    <span class="Identifier">balanced_parse</span> !
+
+    <span class="Type">cdr</span>
+
+    (<span class="Statement">code</span>
+        <span class="Type">cdr</span>
+        (<span class="Statement">code</span>
+            <span class="Type">dup</span>
+            &lt;- <span class="Numeric">1</span> <span class="Type">ith</span> <span class="Type">detag</span> <span class="Constant">&quot;.parse_tree&quot;</span> . -&gt;
+            <span class="Numeric">2</span> <span class="Type">ith</span>
+            <span class="Identifier">set_sym</span> ! )
+        <span class="Type">each</span>)
+    <span class="Type">each</span>
+
+    <span class="Constant">&quot;nil.encoded&quot;</span>
+    <span class="Statement">nil</span>
+    <span class="Identifier">set_sym</span> !
+
+    (<span class="Statement">code</span> <span class="Constant">&quot;macros.parse_tree&quot;</span> <span class="Identifier">ex_sym</span> !)
+        (<span class="Statement">code</span> <span class="Identifier">encode_macros</span> !)
+        (<span class="Statement">code</span> <span class="Type">fnord</span>)
+    <span class="Type">ifte</span>
+
+    <span class="Constant">&quot;root&quot;</span> <span class="Identifier">encode_section</span> ! <span class="Type">zap</span>
+
+    (<span class="Statement">code</span> <span class="Constant">&quot;symbols.parse_tree&quot;</span> <span class="Identifier">ex_sym</span> !)
+        (<span class="Statement">code</span> <span class="Identifier">create_symbols</span> !)
+        (<span class="Statement">code</span> <span class="Type">fnord</span>)
+    <span class="Type">ifte</span>
+
+<span class="Comment">--    self entsha</span>
+<span class="Comment">--    (code 1 ith nl &lt;&lt;) each</span>
+
+    <span class="Statement">nil</span>
+    <span class="Constant">&quot;root&quot;</span> <span class="Identifier">get_encoded</span> !
+
+<span class="Comment">--     bs2gv &lt;&lt; die</span>
+
+    <span class="Type">babel</span>))
+
+(<span class="Identifier">dump_symbols</span> (<span class="Statement">code</span>
+    <span class="Type">self</span> <span class="Type">entsha</span>
+    (<span class="Statement">code</span> <span class="Numeric">1</span> <span class="Type">ith</span> <span class="Type">nl</span> &lt;&lt;) <span class="Type">each</span>))
+
+(<span class="Identifier">get_bvm</span> (<span class="Statement">code</span> <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>))
+
+(<span class="Identifier">get_soft_root2</span> (<span class="Statement">code</span> <span class="Identifier">get_bvm</span> ! <span class="Constant">&quot;soft_root&quot;</span> <span class="Type">luha</span> <span class="Numeric">2</span> <span class="Type">ith</span>))
+
+(<span class="Identifier">create_symbols2</span> (<span class="Statement">code</span>
+    <span class="Constant">&quot;symbols&quot;</span> <span class="Identifier">get_parse_tree</span> !
+    <span class="Type">cdr</span>
+    (<span class="Statement">code</span>
+        &lt;- <span class="Identifier">get_soft_root2</span> ! -&gt;
+        <span class="Type">detag</span> <span class="Type">dup</span>
+
+        <span class="Identifier">get_encoded</span> !
+        <span class="Type">inskha</span>)
+    <span class="Type">each</span>))
+
+(<span class="Identifier">patch_bbc_file</span> (<span class="Statement">code</span>
+
+    <span class="Type">slurp</span>
+    <span class="Type">load</span>
+
+    &lt;- <span class="Constant">&quot;main&quot;</span> -&gt;
+    <span class="Identifier">set_encoded</span> !
+
+    <span class="Constant">&quot;nil.encoded&quot;</span>
+    <span class="Statement">nil</span>
+    <span class="Identifier">set_sym</span> !
+
+    <span class="Constant">&quot;bvm&quot;</span>
+        <span class="Constant">&quot;/babel/tag/sparse_bvm&quot;</span> <span class="Type">hash8</span>
+        <span class="Type">newha</span>
+        <span class="Type">newtptr</span>
+    <span class="Identifier">set_sym</span> !
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;code_ptr&quot;</span>
+        <span class="Constant">&quot;main&quot;</span> <span class="Identifier">get_encoded</span> ! <span class="Numeric">1</span> <span class="Type">take</span>
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;rstack_ptr&quot;</span>
+        (<span class="Statement">list</span> <span class="Statement">nil</span>)
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;dstack_ptr&quot;</span>
+        (<span class="Statement">list</span> <span class="Statement">nil</span>)
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;ustack_ptr&quot;</span>
+        (<span class="Statement">list</span> <span class="Statement">nil</span>)
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;soft_root&quot;</span>
+        <span class="Type">newha</span> <span class="Numeric">1</span> <span class="Type">take</span>
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;local_root&quot;</span>
+        (<span class="Statement">list</span> <span class="Statement">nil</span>)
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;advance_type&quot;</span>
+        <span class="Numeric">0</span>  <span class="Numeric">1</span> <span class="Type">take</span>     <span class="Comment">-- BVM_ADVANCE</span>
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;steps&quot;</span>
+        -<span class="Numeric">1</span> <span class="Numeric">1</span> <span class="Type">take</span>
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;thread_id&quot;</span>
+        <span class="Numeric">1</span> <span class="Numeric">1</span> <span class="Type">take</span>
+    <span class="Type">inskha</span>
+
+    (<span class="Statement">code</span> <span class="Constant">&quot;symbols.parse_tree&quot;</span> <span class="Identifier">ex_sym</span> !)
+        (<span class="Statement">code</span> <span class="Identifier">create_symbols</span> !)
+        (<span class="Statement">code</span> <span class="Type">fnord</span>)
+    <span class="Type">ifte</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> !
+    <span class="Type">unload</span>))
+
+(<span class="Identifier">create_bbc_file2</span> (<span class="Statement">code</span>
+
+<span class="Comment">--    &lt;- '((root (main)))' -&gt;</span>
+    &lt;- <span class="Constant">''</span> -&gt;
+    (<span class="Statement">code</span> &gt;&gt;&gt; <span class="Constant">&quot;\n&quot;</span> . .) <span class="Type">each</span>
+
+    &lt;- <span class="Constant">&quot;( &quot;</span> -&gt; .
+    <span class="Constant">&quot;\n)&quot;</span> .
+
+    <span class="Identifier">dos_clean</span> !
+    <span class="Identifier">balanced_parse</span> !
+
+    <span class="Type">cdr</span>
+
+    (<span class="Statement">code</span>
+        <span class="Type">cdr</span>
+        (<span class="Statement">code</span>
+            <span class="Type">dup</span>
+            &lt;- <span class="Numeric">1</span> <span class="Type">ith</span> <span class="Type">detag</span> <span class="Constant">&quot;.parse_tree&quot;</span> . -&gt;
+            <span class="Numeric">2</span> <span class="Type">ith</span>
+            <span class="Identifier">set_sym</span> ! )
+        <span class="Type">each</span>)
+    <span class="Type">each</span>
+
+    <span class="Constant">&quot;nil.encoded&quot;</span>
+    <span class="Statement">nil</span>
+    <span class="Identifier">set_sym</span> !
+
+    (<span class="Statement">code</span> <span class="Constant">&quot;macros.parse_tree&quot;</span> <span class="Identifier">ex_sym</span> !)
+        (<span class="Statement">code</span> <span class="Identifier">encode_macros</span> !)
+        (<span class="Statement">code</span> <span class="Type">fnord</span>)
+    <span class="Type">ifte</span>
+
+    <span class="Constant">&quot;main&quot;</span> <span class="Identifier">encode_section</span> ! <span class="Type">zap</span>
+
+    <span class="Constant">&quot;bvm&quot;</span>
+        <span class="Constant">&quot;/babel/tag/sparse_bvm&quot;</span> <span class="Type">hash8</span>
+        <span class="Type">newha</span>
+        <span class="Type">newtptr</span>
+    <span class="Identifier">set_sym</span> !
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;code_ptr&quot;</span>
+        <span class="Constant">&quot;main&quot;</span> <span class="Identifier">get_encoded</span> ! <span class="Numeric">1</span> <span class="Type">take</span>
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;rstack_ptr&quot;</span>
+        (<span class="Statement">list</span> <span class="Statement">nil</span>)
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;dstack_ptr&quot;</span>
+        (<span class="Statement">list</span> <span class="Statement">nil</span>)
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;ustack_ptr&quot;</span>
+        (<span class="Statement">list</span> <span class="Statement">nil</span>)
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;soft_root&quot;</span>
+        <span class="Type">newha</span> <span class="Numeric">1</span> <span class="Type">take</span>
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;local_root&quot;</span>
+        (<span class="Statement">list</span> <span class="Statement">nil</span>)
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;advance_type&quot;</span>
+        <span class="Numeric">0</span>  <span class="Numeric">1</span> <span class="Type">take</span>     <span class="Comment">-- BVM_ADVANCE</span>
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;steps&quot;</span>
+        -<span class="Numeric">1</span> <span class="Numeric">1</span> <span class="Type">take</span>
+    <span class="Type">inskha</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> ! <span class="Type">detag</span>
+        <span class="Constant">&quot;thread_id&quot;</span>
+        <span class="Numeric">1</span> <span class="Numeric">1</span> <span class="Type">take</span>
+    <span class="Type">inskha</span>
+
+    (<span class="Statement">code</span> <span class="Constant">&quot;symbols.parse_tree&quot;</span> <span class="Identifier">ex_sym</span> !)
+        (<span class="Statement">code</span> <span class="Identifier">create_symbols</span> !)
+        (<span class="Statement">code</span> <span class="Type">fnord</span>)
+    <span class="Type">ifte</span>
+
+    <span class="Constant">&quot;bvm&quot;</span> <span class="Identifier">get_sym</span> !
+    <span class="Type">unload</span>))
+
+(<span class="Identifier">load_file</span> (<span class="Statement">code</span> <span class="Numeric">1</span> <span class="Identifier">get_argv</span> ! &gt;&gt;&gt; ))
+(<span class="Identifier">get_argv</span>  (<span class="Statement">code</span> &lt;- <span class="Type">self</span> <span class="Constant">'argv'</span> <span class="Type">hash8</span> <span class="Type">luha</span> <span class="Numeric">2</span> <span class="Type">ith</span> -&gt; <span class="Type">ith</span>))
+
+(<span class="Identifier">set_sym</span>   (<span class="Statement">code</span> &lt;- &lt;- <span class="Type">self</span> -&gt; -&gt; <span class="Type">inskha</span>))
+(<span class="Identifier">get_sym</span>   (<span class="Statement">code</span> &lt;- <span class="Type">self</span> -&gt; <span class="Type">hash8</span> <span class="Type">luha</span> <span class="Numeric">2</span> <span class="Type">ith</span>))
+(<span class="Identifier">ex_sym</span>    (<span class="Statement">code</span> &lt;- <span class="Type">self</span> -&gt; <span class="Type">hash8</span> <span class="Type">exha</span>))
+
+(<span class="Identifier">bvm_sym_table</span>  (<span class="Statement">code</span> <span class="Type">cdr</span> <span class="Type">cdr</span> <span class="Type">cdr</span> <span class="Type">car</span> <span class="Type">detag</span>))
+
+(<span class="Identifier">create_soft_root</span> (<span class="Statement">code</span>
+    <span class="Constant">&quot;root&quot;</span> <span class="Identifier">get_encoded</span> !
+    <span class="Identifier">bvm_sym_table</span> !
+    <span class="Constant">&quot;soft_root&quot;</span>
+    <span class="Type">newha</span>
+    <span class="Type">inskha</span>))
+
+(<span class="Identifier">get_soft_root</span> (<span class="Statement">code</span>
+    <span class="Constant">&quot;root&quot;</span> <span class="Identifier">get_encoded</span> !
+    <span class="Identifier">bvm_sym_table</span> !
+    <span class="Constant">&quot;soft_root&quot;</span> <span class="Type">luha</span> <span class="Numeric">2</span> <span class="Type">ith</span>))
+
+(<span class="Identifier">create_symbols</span> (<span class="Statement">code</span>
+    <span class="Identifier">create_soft_root</span> !
+    <span class="Constant">&quot;symbols&quot;</span> <span class="Identifier">get_parse_tree</span> !
+    <span class="Type">cdr</span>
+    (<span class="Statement">code</span>
+        &lt;- <span class="Identifier">get_soft_root</span> ! -&gt;
+        <span class="Type">detag</span> <span class="Type">dup</span>
+
+        <span class="Identifier">get_encoded</span> !
+        <span class="Type">inskha</span>)
+    <span class="Type">each</span>))
+
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--                      BALANCED EXPRESSION PARSER                          --</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+
+(<span class="Identifier">balanced_parse</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span>
+        <span class="Identifier">give_str</span> !
+<span class="Comment">--        trim_leading_ws !</span>
+        <span class="Identifier">trim_comments_and_ws</span> !
+        (<span class="Statement">list</span>
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">lparen</span> =) (<span class="Statement">code</span> &lt;- <span class="Constant">&quot;list &quot;</span> <span class="Identifier">give_str</span> ! -&gt;)
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">lcurly</span> =) (<span class="Statement">code</span> &lt;- <span class="Constant">&quot;code &quot;</span> <span class="Identifier">give_str</span> ! -&gt;))
+        <span class="Type">cond</span>
+        <span class="Identifier">begin_balanced</span> !)
+    <span class="Type">nest</span>))
+
+(<span class="Identifier">give_str</span> (<span class="Statement">code</span> <span class="Type">str2ar</span> <span class="Type">ar2ls</span> <span class="Type">rev</span> <span class="Type">give</span> ))
+
+(<span class="Identifier">space</span>          (<span class="Statement">val</span> <span class="Numeric">0x20</span>))
+(<span class="Identifier">dquote</span>         (<span class="Statement">val</span> <span class="Numeric">0x22</span>))
+(<span class="Identifier">squote</span>         (<span class="Statement">val</span> <span class="Numeric">0x27</span>))
+(<span class="Identifier">lbracket</span>       (<span class="Statement">val</span> <span class="Numeric">0x5b</span>))
+(<span class="Identifier">rbracket</span>       (<span class="Statement">val</span> <span class="Numeric">0x5d</span>))
+(<span class="Identifier">lparen</span>         (<span class="Statement">val</span> <span class="Numeric">0x28</span>))
+(<span class="Identifier">rparen</span>         (<span class="Statement">val</span> <span class="Numeric">0x29</span>))
+(<span class="Identifier">lcurly</span>         (<span class="Statement">val</span> <span class="Numeric">0x7b</span>))
+(<span class="Identifier">rcurly</span>         (<span class="Statement">val</span> <span class="Numeric">0x7d</span>))
+(<span class="Identifier">dos_newline</span>    (<span class="Statement">val</span> <span class="Numeric">0x0d</span>))
+(<span class="Identifier">newline</span>        (<span class="Statement">val</span> <span class="Numeric">0x0a</span>))
+(<span class="Identifier">dash</span>           (<span class="Statement">val</span> <span class="Numeric">0x2d</span>))
+(<span class="Identifier">backslash</span>      (<span class="Statement">val</span> <span class="Numeric">0x5c</span>))
+(<span class="Identifier">slash</span>          (<span class="Statement">val</span> <span class="Numeric">0x2f</span>))
+(<span class="Identifier">lowercase_n</span>    (<span class="Statement">val</span> <span class="Numeric">0x6e</span>))
+(<span class="Identifier">lowercase_t</span>    (<span class="Statement">val</span> <span class="Numeric">0x74</span>))
+(<span class="Identifier">lowercase_x</span>    (<span class="Statement">val</span> <span class="Numeric">0x78</span>))
+
+(<span class="Identifier">is_close_bracket</span> (<span class="Statement">code</span>
+    <span class="Type">dup</span> <span class="Type">dup</span>
+    <span class="Identifier">rcurly</span>   = &lt;-
+    <span class="Identifier">rparen</span>   = &lt;-
+    <span class="Identifier">rbracket</span> = -&gt; -&gt;
+    <span class="Type">or</span> <span class="Type">or</span>))
+
+(<span class="Identifier">is_open_bracket</span> (<span class="Statement">code</span>
+    <span class="Type">dup</span> <span class="Type">dup</span>
+    <span class="Identifier">lbracket</span> = &lt;-
+    <span class="Identifier">lparen</span>   = &lt;-
+    <span class="Identifier">lcurly</span>   = -&gt; -&gt;
+<span class="Comment">-- dump_stack ! die</span>
+    <span class="Type">or</span> <span class="Type">or</span>))
+
+(<span class="Identifier">begin_balanced</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span> <span class="Identifier">is_open_bracket</span> !)
+        (<span class="Statement">code</span> <span class="Type">fnord</span>)
+        (<span class="Statement">code</span> <span class="Constant">&quot;blech\n&quot;</span> &lt;&lt; <span class="Type">die</span>)
+    <span class="Type">ifte</span>
+
+    <span class="Statement">nil</span> &lt;-
+
+    (<span class="Statement">code</span> <span class="Type">depth</span> <span class="Numeric">0</span> &gt;)
+    (<span class="Statement">code</span>
+<span class="Comment">--        trim_leading_ws !</span>
+        <span class="Identifier">trim_comments_and_ws</span> !
+        (<span class="Statement">list</span>
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">lbracket</span>          =) (<span class="Statement">code</span> <span class="Identifier">begin_balanced</span> !     -&gt; <span class="Type">cons</span> &lt;-)
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">lparen</span>            =) (<span class="Statement">code</span>
+                                                 &lt;- <span class="Constant">&quot;list &quot;</span> <span class="Identifier">give_str</span> ! -&gt;
+                                                 <span class="Identifier">begin_balanced</span> !     -&gt; <span class="Type">cons</span> &lt;-)
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">lcurly</span>            =) (<span class="Statement">code</span>
+                                                 &lt;- <span class="Constant">&quot;code &quot;</span> <span class="Identifier">give_str</span> ! -&gt;
+                                                 <span class="Identifier">begin_balanced</span> !     -&gt; <span class="Type">cons</span> &lt;-)
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">is_close_bracket</span>  !) (<span class="Statement">code</span> <span class="Type">zap</span>                        <span class="Type">last</span>)
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">dquote</span>            =) (<span class="Statement">code</span> <span class="Type">zap</span> <span class="Identifier">get_dquote</span> !     -&gt; <span class="Type">cons</span> &lt;-)
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">squote</span>            =) (<span class="Statement">code</span> <span class="Type">zap</span> <span class="Identifier">get_squote</span> !     -&gt; <span class="Type">cons</span> &lt;-)
+            (<span class="Statement">code</span> <span class="Numeric">1</span>                      ) (<span class="Statement">code</span> <span class="Identifier">get_non_quote</span>  !     -&gt; <span class="Type">cons</span> &lt;-))
+        <span class="Type">cond</span>)
+    <span class="Type">while</span>
+    -&gt; <span class="Type">rev</span> ))
+
+(<span class="Identifier">is_babel_whitespace</span> (<span class="Statement">code</span>
+    <span class="Type">dup</span>
+    <span class="Identifier">space</span>   = &lt;-
+    <span class="Identifier">newline</span> = -&gt;
+    <span class="Type">or</span>))
+
+(<span class="Identifier">is_babel_comment</span> (<span class="Statement">code</span>
+    <span class="Numeric">2</span> <span class="Type">take</span>
+    <span class="Type">dup</span>
+    &lt;- <span class="Type">give</span>   -&gt;
+       <span class="Type">give</span>
+    &lt;- <span class="Identifier">dash</span> = -&gt;
+       <span class="Identifier">dash</span> =
+    <span class="Type">and</span>))
+
+(<span class="Identifier">trim_comments_and_ws</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">is_babel_whitespace</span> !
+          &lt;-  <span class="Identifier">is_babel_comment</span>    ! -&gt;
+          <span class="Type">cor</span>)
+        (<span class="Statement">code</span>
+            <span class="Identifier">trim_leading_ws</span> !
+            <span class="Identifier">trim_comment</span>    !)
+    <span class="Type">while</span>))
+
+(<span class="Identifier">trim_comment</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span> <span class="Identifier">is_babel_comment</span> !)
+        (<span class="Statement">code</span>
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">newline</span> ~=)
+                (<span class="Statement">code</span> <span class="Type">zap</span>)
+            <span class="Type">while</span>)
+        (<span class="Statement">code</span> <span class="Type">fnord</span>)
+    <span class="Type">ifte</span>))
+
+(<span class="Identifier">trim_leading_ws</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">is_babel_whitespace</span> !)
+        (<span class="Statement">code</span> <span class="Type">zap</span>)
+    <span class="Type">while</span>))
+
+<span class="Comment">-- NOTE: This will cause problems when quoting </span>
+<span class="Comment">-- DOS newline characters</span>
+(<span class="Identifier">dos_clean</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span>
+        <span class="Identifier">give_str</span> !
+        (<span class="Statement">code</span>
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">dos_newline</span> =)
+                (<span class="Statement">code</span> <span class="Type">zap</span>)
+                (<span class="Statement">code</span> <span class="Type">down</span>)
+            <span class="Type">ifte</span>)
+        <span class="Type">depth</span> <span class="Numeric">1</span> -
+        <span class="Type">times</span>
+        <span class="Identifier">flip</span>
+        <span class="Identifier">collect</span> !
+        <span class="Type">ls2lf</span> <span class="Type">ar2str</span>)
+    <span class="Type">nest</span>))
+
+(<span class="Identifier">gather_non_squote</span> (<span class="Statement">code</span>
+    <span class="Statement">nil</span> &lt;-
+    (<span class="Statement">code</span> <span class="Type">depth</span> <span class="Numeric">0</span> &gt;) <span class="Comment">-- Potential bug as we lookahead two chars</span>
+        (<span class="Statement">code</span>
+        (<span class="Statement">code</span> &lt;- <span class="Type">dup</span> <span class="Identifier">squote</span>    = -&gt; &lt;-&gt;
+              &lt;- <span class="Type">dup</span> <span class="Identifier">slash</span>     = -&gt;
+              <span class="Type">and</span>)
+            (<span class="Statement">code</span> (<span class="Statement">code</span> -&gt; <span class="Type">cons</span> &lt;-) <span class="Numeric">2</span> <span class="Type">times</span>)
+            (<span class="Statement">code</span>
+                (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">squote</span> ~=)
+                    (<span class="Statement">code</span> -&gt; <span class="Type">cons</span> &lt;-)
+                    (<span class="Statement">code</span> <span class="Type">last</span>)
+                <span class="Type">ifte</span>)
+        <span class="Type">ifte</span>)
+    <span class="Type">while</span>
+    <span class="Type">zap</span>
+    -&gt; <span class="Type">rev</span>))
+
+(<span class="Identifier">gather_non_dquote</span> (<span class="Statement">code</span>
+    <span class="Statement">nil</span> &lt;-
+    (<span class="Statement">code</span> <span class="Type">depth</span> <span class="Numeric">0</span> &gt;) <span class="Comment">-- Potential bug as we lookahead two chars</span>
+        (<span class="Statement">code</span>
+        (<span class="Statement">code</span> &lt;- <span class="Type">dup</span> <span class="Identifier">dquote</span>    = -&gt; &lt;-&gt;
+              &lt;- <span class="Type">dup</span> <span class="Identifier">backslash</span> = -&gt;
+              <span class="Type">and</span>)
+            (<span class="Statement">code</span> (<span class="Statement">code</span> -&gt; <span class="Type">cons</span> &lt;-) <span class="Numeric">2</span> <span class="Type">times</span>)
+            (<span class="Statement">code</span>
+                (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">dquote</span> ~=)
+                    (<span class="Statement">code</span> -&gt; <span class="Type">cons</span> &lt;-)
+                    (<span class="Statement">code</span> <span class="Type">last</span>)
+                <span class="Type">ifte</span>)
+        <span class="Type">ifte</span>)
+    <span class="Type">while</span>
+    <span class="Type">zap</span>
+    -&gt;
+<span class="Type">die</span>
+    <span class="Type">rev</span>))
+
+(<span class="Identifier">gather_non_whitespace</span> (<span class="Statement">code</span>
+    <span class="Statement">nil</span> &lt;-
+    (<span class="Statement">code</span>
+        <span class="Type">dup</span> <span class="Type">dup</span> <span class="Type">dup</span> <span class="Type">dup</span> <span class="Type">dup</span> <span class="Type">dup</span>
+        <span class="Identifier">rcurly</span>     ~= &lt;-
+        <span class="Identifier">rparen</span>     ~= &lt;-
+        <span class="Identifier">space</span>      ~= &lt;-
+        <span class="Identifier">newline</span>    ~= &lt;-
+        <span class="Identifier">lbracket</span>   ~= &lt;-
+        <span class="Identifier">rbracket</span>   ~=
+        -&gt; -&gt; -&gt; -&gt; -&gt;
+        <span class="Type">and</span> <span class="Type">and</span> <span class="Type">and</span> <span class="Type">and</span> <span class="Type">and</span>)
+        (<span class="Statement">code</span> -&gt; <span class="Type">cons</span> &lt;-)
+    <span class="Type">while</span>
+    -&gt; <span class="Type">rev</span>))
+
+(<span class="Identifier">get_dquote</span> (<span class="Statement">code</span>
+
+    <span class="Identifier">gather_non_dquote</span> !
+
+<span class="Type">bbl2str</span> &lt;&lt; <span class="Type">die</span>
+
+    <span class="Identifier">ls2str</span> !
+    <span class="Identifier">unescape_dquote</span> !
+    &lt;- <span class="Constant">&quot;string&quot;</span> <span class="Type">hash8</span> -&gt; <span class="Type">newtptr</span> ))
+
+(<span class="Identifier">get_squote</span> (<span class="Statement">code</span>
+
+    <span class="Identifier">gather_non_squote</span> !
+
+    <span class="Identifier">ls2str</span> !
+    <span class="Identifier">unescape_squote</span> !
+    &lt;- <span class="Constant">&quot;string&quot;</span> <span class="Type">hash8</span> -&gt; <span class="Type">newtptr</span> ))
+
+(<span class="Identifier">ls2str</span> (<span class="Statement">code</span> <span class="Type">ls2lf</span> <span class="Type">ar2str</span>))
+
+(<span class="Identifier">get_non_quote</span> (<span class="Statement">code</span>
+
+    <span class="Identifier">gather_non_whitespace</span> !
+
+    <span class="Identifier">ls2str</span> !
+
+    (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Type">dup</span> <span class="Identifier">is_hex</span> !)
+        (<span class="Statement">code</span> $<span class="Identifier">x</span> &lt;- <span class="Constant">&quot;number&quot;</span> <span class="Type">hash8</span> -&gt; <span class="Type">newtptr</span>)
+        (<span class="Statement">code</span>
+        (<span class="Statement">code</span> <span class="Identifier">is_signed_numeric</span> !)
+            (<span class="Statement">code</span> $<span class="Identifier">d</span> &lt;- <span class="Constant">&quot;number&quot;</span> <span class="Type">hash8</span> -&gt; <span class="Type">newtptr</span>)
+            (<span class="Statement">code</span>    &lt;- <span class="Constant">&quot;ident&quot;</span>  <span class="Type">hash8</span> -&gt; <span class="Type">newtptr</span>)
+        <span class="Type">ifte</span>)
+    <span class="Type">ifte</span>))
+
+(<span class="Identifier">is_generic_non_whitespace</span> (<span class="Statement">code</span>
+    <span class="Numeric">0</span> &lt;-
+    (<span class="Statement">list</span> <span class="Identifier">rcurly</span> <span class="Identifier">rparen</span> <span class="Identifier">space</span> <span class="Identifier">lbracket</span> <span class="Identifier">rbracket</span>)
+    (<span class="Statement">code</span>
+        &lt;- <span class="Type">dup</span> -&gt;
+        =
+        -&gt; <span class="Type">cor</span> &lt;- )
+    <span class="Type">each</span>
+    <span class="Type">not</span>))
+
+(<span class="Identifier">is_ident_token</span>  (<span class="Statement">code</span> <span class="Constant">&quot;ident&quot;</span>  <span class="Type">hash8</span> <span class="Identifier">tageq</span>))
+(<span class="Identifier">is_number_token</span> (<span class="Statement">code</span> <span class="Constant">&quot;number&quot;</span> <span class="Type">hash8</span> <span class="Identifier">tageq</span>))
+(<span class="Identifier">is_string_token</span> (<span class="Statement">code</span> <span class="Constant">&quot;string&quot;</span> <span class="Type">hash8</span> <span class="Identifier">tageq</span>))
+
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--                               ENCODER                                    --</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+
+(<span class="Identifier">view_stack</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span> <span class="Type">depth</span>)
+        (<span class="Statement">code</span>
+            <span class="Identifier">collect</span> ! <span class="Type">dup</span>
+            &lt;- <span class="Type">give</span> -&gt;
+            <span class="Type">rev</span>
+            (<span class="Statement">code</span> <span class="Type">bbl2str</span> <span class="Type">nl</span> &lt;&lt;) <span class="Type">each</span>)
+        (<span class="Statement">code</span> <span class="Constant">&quot;nil\n&quot;</span> &lt;&lt;)
+    <span class="Type">ifte</span>))
+
+(<span class="Identifier">encode_section</span> (<span class="Statement">code</span>
+    <span class="Type">dup</span>
+    <span class="Identifier">get_parse_tree</span> !
+
+    <span class="Type">dup</span> <span class="Numeric">0</span> <span class="Type">ith</span> <span class="Type">detag</span>
+
+    (<span class="Statement">code</span>
+        <span class="Type">dup</span>
+        &lt;- <span class="Constant">&quot;list&quot;</span> <span class="Identifier">streq</span> ! -&gt;
+        <span class="Constant">&quot;code&quot;</span> <span class="Identifier">streq</span> !
+        <span class="Type">or</span>)
+        (<span class="Statement">code</span>
+
+            &lt;- <span class="Type">dup</span>
+            <span class="Statement">nil</span> <span class="Numeric">1</span> <span class="Type">take</span>
+            <span class="Identifier">set_encoded</span> ! -&gt;
+
+            <span class="Identifier">encode3</span>     !
+
+            <span class="Type">dup</span>
+            &lt;- <span class="Identifier">set_encoded</span> ! -&gt;)
+
+        (<span class="Statement">code</span>
+            <span class="Identifier">encode</span>  !
+            <span class="Type">dup</span>
+            &lt;- <span class="Identifier">set_encoded</span> ! -&gt;)
+    <span class="Type">ifte</span>))
+
+<span class="Comment">--(encode_section (code </span>
+<span class="Comment">--    (code dup is_encoded     !)</span>
+<span class="Comment">--        (code get_encoded    !)</span>
+<span class="Comment">--        (code </span>
+<span class="Comment">--            (code dup get_parse_tree !)</span>
+<span class="Comment">--                (code )</span>
+<span class="Comment">--                (code )</span>
+<span class="Comment">--            ifte</span>
+<span class="Comment">--            dup</span>
+<span class="Comment">--</span>
+<span class="Comment">--            dup nl &lt;&lt;</span>
+<span class="Comment">--</span>
+<span class="Comment">--            nil 1 take    </span>
+<span class="Comment">--            set_encoded !</span>
+<span class="Comment">--</span>
+<span class="Comment">--            get_parse_tree !</span>
+<span class="Comment">--            encode2        !</span>
+<span class="Comment">--         </span>
+<span class="Comment">--            set_encoded !)</span>
+<span class="Comment">--    ifte))</span>
+
+<span class="Comment">--(encode_section (code </span>
+<span class="Comment">--    dup dup</span>
+<span class="Comment">--</span>
+<span class="Comment">--    nil 1 take    </span>
+<span class="Comment">--    set_encoded !</span>
+<span class="Comment">--</span>
+<span class="Comment">--    get_parse_tree !</span>
+<span class="Comment">--    encode         !</span>
+<span class="Comment">--</span>
+<span class="Comment">--    -- dup</span>
+<span class="Comment">--    &lt;- get_encoded ! dup -&gt;</span>
+<span class="Comment">--    0 paste ))</span>
+
+(<span class="Identifier">fatal</span> (<span class="Statement">code</span> <span class="Constant">&quot;ERROR: &quot;</span> &lt;&lt; &lt;&lt; <span class="Constant">&quot;\n&quot;</span> &lt;&lt; <span class="Type">die</span>))
+
+(<span class="Identifier">vsd</span> (<span class="Statement">code</span> <span class="Identifier">view_stack</span> ! <span class="Type">die</span>))
+
+(<span class="Identifier">encode2</span> (<span class="Statement">code</span>
+    <span class="Type">pop</span>
+    (<span class="Statement">code</span> <span class="Type">car</span> <span class="Type">dup</span> <span class="Identifier">is_ident_token</span> !)
+        (<span class="Statement">code</span>
+            <span class="Type">detag</span>
+            (<span class="Statement">list</span>
+                (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Constant">&quot;list&quot;</span> <span class="Identifier">streq</span> !) (<span class="Statement">code</span> <span class="Type">zap</span> <span class="Identifier">encode_list</span>   !)
+                (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Constant">&quot;code&quot;</span> <span class="Identifier">streq</span> !) (<span class="Statement">code</span> <span class="Type">zap</span> <span class="Identifier">encode_code</span>   !)
+                (<span class="Statement">code</span> <span class="Numeric">1</span>                 ) (<span class="Statement">code</span> <span class="Constant">&quot;unrecognized sexpr&quot;</span> <span class="Identifier">fatal</span> !))
+            <span class="Type">cond</span>)
+        (<span class="Statement">code</span> <span class="Constant">&quot;expected an identifier&quot;</span> <span class="Identifier">fatal</span> !)
+    <span class="Type">ifte</span>))
+
+(<span class="Identifier">encode3</span> (<span class="Statement">code</span>
+    <span class="Type">pop</span>
+    (<span class="Statement">code</span> <span class="Type">car</span> <span class="Type">dup</span> <span class="Identifier">is_ident_token</span> !)
+        (<span class="Statement">code</span>
+            <span class="Type">detag</span>
+            (<span class="Statement">list</span>
+                (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Constant">&quot;list&quot;</span> <span class="Identifier">streq</span> !) (<span class="Statement">code</span> <span class="Type">zap</span> <span class="Identifier">encode_list2</span>   !)
+                (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Constant">&quot;code&quot;</span> <span class="Identifier">streq</span> !) (<span class="Statement">code</span> <span class="Type">zap</span> <span class="Identifier">encode_code2</span>   !)
+                (<span class="Statement">code</span> <span class="Numeric">1</span>                 ) (<span class="Statement">code</span> <span class="Constant">&quot;unrecognized sexpr&quot;</span> <span class="Identifier">fatal</span> !))
+            <span class="Type">cond</span>)
+        (<span class="Statement">code</span> <span class="Constant">&quot;expected an identifier&quot;</span> <span class="Identifier">fatal</span> !)
+    <span class="Type">ifte</span>))
+
+(<span class="Identifier">encode</span> (<span class="Statement">code</span>
+    <span class="Type">pop</span>
+    (<span class="Statement">code</span> <span class="Type">car</span> <span class="Type">dup</span> <span class="Identifier">is_ident_token</span> !)
+        (<span class="Statement">code</span>
+            <span class="Type">detag</span>
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">is_sexpr</span> !)
+                (<span class="Statement">code</span> <span class="Identifier">lookup_sexpr</span> ! <span class="Type">eval</span>)
+                (<span class="Statement">code</span> <span class="Constant">&quot;unrecognized sexpr&quot;</span> <span class="Identifier">fatal</span> !)
+            <span class="Type">ifte</span>)
+        (<span class="Statement">code</span> <span class="Constant">&quot;expected an identifier&quot;</span> <span class="Identifier">fatal</span> !)
+    <span class="Type">ifte</span>))
+
+<span class="Comment">-- FIXME: tag checking</span>
+(<span class="Identifier">encode_val</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span>
+        (<span class="Statement">code</span> <span class="Type">detag</span>) <span class="Type">each</span>
+        (<span class="Statement">code</span> <span class="Type">depth</span> <span class="Numeric">1</span> &gt;)
+            (<span class="Statement">code</span>
+                <span class="Type">depth</span> <span class="Numeric">1</span> - <span class="Type">take</span>
+                (<span class="Statement">code</span> <span class="Type">cat</span>) <span class="Type">each</span>) <span class="Comment">-- or ls2lf</span>
+            (<span class="Statement">code</span> <span class="Type">fnord</span>)
+        <span class="Type">ifte</span>)
+    <span class="Type">nest</span>))
+
+(<span class="Identifier">encode_list</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span>
+        <span class="Identifier">encode_block</span>
+        <span class="Type">each</span>
+        <span class="Identifier">collect</span> !)
+    <span class="Type">nest</span>))
+
+(<span class="Identifier">encode_list2</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span>
+        <span class="Identifier">encode_block</span>
+        <span class="Type">each</span>
+        <span class="Identifier">collect</span> !)
+    <span class="Type">nest</span>
+
+    &lt;- <span class="Type">dup</span> <span class="Identifier">get_encoded</span> ! <span class="Type">dup</span> -&gt;
+    <span class="Numeric">0</span> <span class="Type">paste</span>))
+
+<span class="Comment">--    &lt;- dup get_encoded ! -&gt;</span>
+<span class="Comment">--    0 paste))</span>
+
+(<span class="Identifier">encode_ptr</span> (<span class="Statement">code</span>
+    <span class="Identifier">encode_list</span> !
+    <span class="Type">bons</span>))
+
+(<span class="Identifier">encode_block</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Type">istptr</span>)
+        (<span class="Statement">code</span>
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">is_ident_token</span> ! )
+                (<span class="Statement">code</span>
+                    <span class="Type">detag</span>
+                    (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">is_encoded</span>     !)
+                        (<span class="Statement">code</span> <span class="Identifier">get_encoded</span>    !)
+                        (<span class="Statement">code</span> <span class="Identifier">encode_section</span> !)
+                    <span class="Type">ifte</span>)
+                (<span class="Statement">code</span> <span class="Type">detag</span>)
+            <span class="Type">ifte</span>)
+        (<span class="Statement">code</span> <span class="Identifier">encode</span> !)
+    <span class="Type">ifte</span>))
+
+(<span class="Identifier">encode_tag</span> (<span class="Statement">code</span>
+    <span class="Type">give</span>
+    (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Type">istptr</span>)
+        (<span class="Statement">code</span>
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">is_ident_token</span> ! )
+                (<span class="Statement">code</span>
+                    <span class="Type">detag</span>
+                    (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">is_encoded</span>     !)
+                        (<span class="Statement">code</span> <span class="Identifier">get_encoded</span>    !)
+                        (<span class="Statement">code</span> <span class="Identifier">encode_section</span> !)
+                    <span class="Type">ifte</span>)
+                (<span class="Statement">code</span> <span class="Type">detag</span>)
+            <span class="Type">ifte</span>)
+        (<span class="Statement">code</span> <span class="Identifier">encode</span> !)
+    <span class="Type">ifte</span>
+    &lt;- <span class="Type">detag</span> <span class="Type">hash8</span> -&gt;
+    <span class="Type">newtptr</span>))
+
+(<span class="Identifier">encode_code_block</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Type">istptr</span>)
+        (<span class="Statement">code</span>
+            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">is_ident_token</span>      !)
+                (<span class="Statement">code</span>
+                    (<span class="Statement">code</span> <span class="Type">detag</span> <span class="Type">dup</span> <span class="Identifier">is_opcode</span> !)
+                        (<span class="Statement">code</span> <span class="Identifier">lookup_opcode</span>   ! <span class="Type">cp</span>)
+                        (<span class="Statement">code</span>
+                            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">is_encoded</span>     !)
+                                (<span class="Statement">code</span> <span class="Identifier">get_encoded</span>    !)
+                                (<span class="Statement">code</span> <span class="Identifier">encode_section</span> !)
+                            <span class="Type">ifte</span>
+                            <span class="Numeric">1</span> <span class="Type">take</span> <span class="Type">bons</span>)
+                    <span class="Type">ifte</span>)
+                (<span class="Statement">code</span> <span class="Type">detag</span> <span class="Numeric">1</span> <span class="Type">take</span> <span class="Type">bons</span>)
+            <span class="Type">ifte</span>)
+        (<span class="Statement">code</span> <span class="Identifier">encode</span> ! <span class="Numeric">1</span> <span class="Type">take</span> <span class="Type">bons</span>)
+    <span class="Type">ifte</span>))
+
+(<span class="Identifier">encode_code</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span>
+        <span class="Identifier">encode_code_block</span>
+        <span class="Type">each</span>
+        <span class="Identifier">collect</span> !)
+    <span class="Type">nest</span>))
+<span class="Comment">--    view_stack ! die</span>
+
+(<span class="Identifier">encode_code2</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span>
+        <span class="Identifier">encode_code_block</span>
+        <span class="Type">each</span>
+        <span class="Identifier">collect</span> !)
+    <span class="Type">nest</span>
+
+    &lt;- <span class="Type">dup</span> <span class="Identifier">get_encoded</span> ! <span class="Type">dup</span> -&gt;
+    <span class="Numeric">0</span> <span class="Type">paste</span>))
+
+(<span class="Identifier">encode_hash</span> (<span class="Statement">code</span>
+    <span class="Type">car</span>
+    <span class="Type">detag</span>
+    <span class="Type">hash8</span> ))
+
+(<span class="Identifier">encode_ref</span>  (<span class="Statement">code</span> <span class="Type">die</span>))
+
+(<span class="Identifier">unescape_dquote</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span>
+        <span class="Identifier">give_str</span> !
+        (<span class="Statement">code</span> <span class="Type">depth</span> <span class="Numeric">0</span> &gt;)
+            (<span class="Statement">code</span>
+                (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">backslash</span> =)
+                    (<span class="Statement">code</span>
+                        <span class="Type">zap</span>
+                        (<span class="Statement">list</span>
+                            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">lowercase_n</span> =)(<span class="Statement">code</span> <span class="Type">zap</span> <span class="Constant">&quot;\n&quot;</span> <span class="Type">down</span>)
+                            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">lowercase_t</span> =)(<span class="Statement">code</span> <span class="Type">zap</span> <span class="Constant">&quot;\t&quot;</span> <span class="Type">down</span>)
+                            (<span class="Statement">code</span> <span class="Numeric">1</span>                )(<span class="Statement">code</span> <span class="Type">down</span>         ))
+                        <span class="Type">cond</span>)
+                    (<span class="Statement">code</span> <span class="Type">down</span>)
+                <span class="Type">ifte</span>)
+        <span class="Type">while</span>
+        <span class="Identifier">flip</span>
+        <span class="Identifier">collect</span> !
+        <span class="Type">ls2lf</span> <span class="Type">ar2str</span>)
+    <span class="Type">nest</span>))
+
+(<span class="Identifier">unescape_squote</span> (<span class="Statement">code</span>
+    (<span class="Statement">code</span>
+        <span class="Identifier">give_str</span> !
+        (<span class="Statement">code</span> <span class="Type">depth</span> <span class="Numeric">0</span> &gt;)
+            (<span class="Statement">code</span>
+                (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">slash</span> =)
+                    (<span class="Statement">code</span>
+                        <span class="Type">zap</span>
+                        (<span class="Statement">list</span>
+                            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">lowercase_n</span> =)(<span class="Statement">code</span> <span class="Type">zap</span> <span class="Constant">&quot;\n&quot;</span> <span class="Type">down</span>)
+                            (<span class="Statement">code</span> <span class="Type">dup</span> <span class="Identifier">lowercase_t</span> =)(<span class="Statement">code</span> <span class="Type">zap</span> <span class="Constant">&quot;\t&quot;</span> <span class="Type">down</span>)
+                            (<span class="Statement">code</span> <span class="Numeric">1</span>                )(<span class="Statement">code</span> <span class="Type">down</span>         ))
+                        <span class="Type">cond</span>)
+                    (<span class="Statement">code</span> <span class="Type">down</span>)
+                <span class="Type">ifte</span>)
+        <span class="Type">while</span>
+        <span class="Identifier">flip</span>
+        <span class="Identifier">collect</span> !
+        <span class="Type">ls2lf</span> <span class="Type">ar2str</span>)
+    <span class="Type">nest</span>))
+
+(<span class="Identifier">is_encoded</span> (<span class="Statement">code</span>
+    <span class="Constant">&quot;.encoded&quot;</span> .
+    <span class="Identifier">ex_sym</span> !))
+
+(<span class="Identifier">get_encoded</span> (<span class="Statement">code</span>
+    <span class="Constant">&quot;.encoded&quot;</span> .
+    <span class="Identifier">get_sym</span> !))
+
+(<span class="Identifier">set_encoded</span> (<span class="Statement">code</span>
+    &lt;- <span class="Constant">&quot;.encoded&quot;</span> . -&gt;
+    <span class="Identifier">set_sym</span> !))
+
+(<span class="Identifier">get_parse_tree</span> (<span class="Statement">code</span>
+    <span class="Constant">&quot;.parse_tree&quot;</span> .
+    <span class="Identifier">get_sym</span> !))
+
+(<span class="Identifier">set_parse_tree</span> (<span class="Statement">code</span>
+    &lt;- <span class="Constant">&quot;.parse_tree&quot;</span> . -&gt;
+    <span class="Identifier">set_sym</span> !))
+
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--                                MACROS                                    --</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+
+(<span class="Identifier">encode_macros</span> (<span class="Statement">code</span>
+    <span class="Constant">&quot;macros&quot;</span>
+    <span class="Identifier">get_parse_tree</span> !
+
+    <span class="Type">cdr</span>
+
+    (<span class="Statement">code</span>
+        <span class="Type">detag</span> <span class="Type">dup</span>
+        <span class="Identifier">get_parse_tree</span> !
+        <span class="Identifier">encode</span>         !
+        <span class="Identifier">new_sexpr</span>      !)
+    <span class="Type">each</span>))
+
+<span class="Comment">--    sexpr_table car</span>
+<span class="Comment">--    entsha</span>
+<span class="Comment">--    (code 1 ith nl &lt;&lt;) each die</span>
+
+
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--                              SEXPR  TABLE                                --</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+
+(<span class="Identifier">is_sexpr</span> (<span class="Statement">code</span>
+    <span class="Type">hash8</span>
+    &lt;- <span class="Identifier">sexpr_table</span> <span class="Type">car</span> -&gt;
+    <span class="Type">exha</span>))
+
+(<span class="Identifier">lookup_sexpr</span> (<span class="Statement">code</span>
+    <span class="Type">hash8</span>
+    &lt;- <span class="Identifier">sexpr_table</span> <span class="Type">car</span> -&gt;
+    <span class="Type">luha</span> <span class="Type">detag</span>
+    <span class="Numeric">2</span> <span class="Type">ith</span>))
+
+(<span class="Identifier">new_sexpr</span> (<span class="Statement">code</span>
+    &lt;-
+        &lt;- <span class="Identifier">sexpr_table</span> <span class="Type">car</span> -&gt;
+    -&gt;
+    <span class="Type">inskha</span>))
+
+(<span class="Identifier">create_sexpr_table</span> (<span class="Statement">code</span>
+    <span class="Identifier">sexpr_table</span>
+    <span class="Identifier">sexpr_list</span>
+    <span class="Identifier">mkhash</span> ! <span class="Numeric">1</span> <span class="Type">take</span>
+    <span class="Type">set</span> ))
+
+(<span class="Identifier">sexpr_list</span> (<span class="Statement">list</span>
+    (<span class="Statement">list</span> <span class="Constant">&quot;val&quot;</span>  <span class="Identifier">encode_val</span> )
+    (<span class="Statement">list</span> <span class="Constant">&quot;ptr&quot;</span>  <span class="Identifier">encode_ptr</span> )
+    (<span class="Statement">list</span> <span class="Constant">&quot;tag&quot;</span>  <span class="Identifier">encode_tag</span> )
+    (<span class="Statement">list</span> <span class="Constant">&quot;list&quot;</span> <span class="Identifier">encode_list</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;hash&quot;</span> <span class="Identifier">encode_hash</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;ref&quot;</span>  <span class="Identifier">encode_ref</span> )
+    (<span class="Statement">list</span> <span class="Constant">&quot;code&quot;</span> <span class="Identifier">encode_code</span>)))
+
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--                              OPCODE TABLE                                --</span>
+<span class="Comment">--                                                                          --</span>
+<span class="Comment">--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--==--</span>
+
+(<span class="Identifier">is_opcode</span> (<span class="Statement">code</span>
+    <span class="Type">hash8</span>
+    &lt;- <span class="Identifier">opcode_table</span> <span class="Type">car</span> -&gt;
+    <span class="Type">exha</span>))
+
+(<span class="Identifier">lookup_opcode</span> (<span class="Statement">code</span>
+    <span class="Type">hash8</span>
+    &lt;- <span class="Identifier">opcode_table</span> <span class="Type">car</span> -&gt;
+    <span class="Type">luha</span> <span class="Type">detag</span>
+    <span class="Numeric">2</span> <span class="Type">ith</span>))
+
+(<span class="Identifier">create_opcode_table</span> (<span class="Statement">code</span>
+    <span class="Identifier">opcode_table</span>
+    <span class="Identifier">opcode_list</span>
+    <span class="Identifier">mkhash</span> ! <span class="Numeric">1</span> <span class="Type">take</span>
+    <span class="Type">set</span> ))
+
+(<span class="Identifier">opcode_list</span> (<span class="Statement">list</span>
+    (<span class="Statement">list</span> <span class="Constant">&quot;cushl&quot;</span>          <span class="Numeric">0x001</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;cu2hex&quot;</span>         <span class="Numeric">0x185</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cushr&quot;</span>          <span class="Numeric">0x003</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;ci2dec&quot;</span>         <span class="Numeric">0x186</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;curol&quot;</span>          <span class="Numeric">0x005</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;len&quot;</span>            <span class="Numeric">0x188</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cashr&quot;</span>          <span class="Numeric">0x006</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;bbl2str&quot;</span>        <span class="Numeric">0x190</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;curor&quot;</span>          <span class="Numeric">0x007</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;hex2cu&quot;</span>         <span class="Numeric">0x195</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cashr&quot;</span>          <span class="Numeric">0x00b</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;dec2ci&quot;</span>         <span class="Numeric">0x196</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cnot&quot;</span>           <span class="Numeric">0x00c</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;uncons&quot;</span>         <span class="Numeric">0x198</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cne&quot;</span>            <span class="Numeric">0x010</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;cdr&quot;</span>            <span class="Numeric">0x199</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;ceq&quot;</span>            <span class="Numeric">0x011</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;pop&quot;</span>            <span class="Numeric">0x19a</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cult&quot;</span>           <span class="Numeric">0x012</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;zap&quot;</span>            <span class="Numeric">0x19b</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cule&quot;</span>           <span class="Numeric">0x013</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;swap&quot;</span>           <span class="Numeric">0x19e</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cugt&quot;</span>           <span class="Numeric">0x014</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;sel&quot;</span>            <span class="Numeric">0x19f</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cuge&quot;</span>           <span class="Numeric">0x015</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;cons&quot;</span>           <span class="Numeric">0x1a8</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cilt&quot;</span>           <span class="Numeric">0x01a</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;car&quot;</span>            <span class="Numeric">0x1a9</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cile&quot;</span>           <span class="Numeric">0x01b</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;push&quot;</span>           <span class="Numeric">0x1aa</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cigt&quot;</span>           <span class="Numeric">0x01c</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;dup&quot;</span>            <span class="Numeric">0x1ab</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cige&quot;</span>           <span class="Numeric">0x01d</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;shift&quot;</span>          <span class="Numeric">0x1ae</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicF0&quot;</span>        <span class="Numeric">0x020</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;unshift&quot;</span>        <span class="Numeric">0x1af</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicF1&quot;</span>        <span class="Numeric">0x021</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;slurp&quot;</span>          <span class="Numeric">0x1b0</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cand&quot;</span>           <span class="Numeric">0x021</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;spit&quot;</span>           <span class="Numeric">0x1b1</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicF2&quot;</span>        <span class="Numeric">0x022</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;ls2lf&quot;</span>          <span class="Numeric">0x1ba</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicF3&quot;</span>        <span class="Numeric">0x023</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;bons&quot;</span>           <span class="Numeric">0x1bb</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicF4&quot;</span>        <span class="Numeric">0x024</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;isnil&quot;</span>          <span class="Numeric">0x1bd</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicF5&quot;</span>        <span class="Numeric">0x025</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;slurp8&quot;</span>         <span class="Numeric">0x1c0</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicF6&quot;</span>        <span class="Numeric">0x026</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;spit8&quot;</span>          <span class="Numeric">0x1c1</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cxor&quot;</span>           <span class="Numeric">0x026</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;journal8&quot;</span>       <span class="Numeric">0x1c2</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicF7&quot;</span>        <span class="Numeric">0x027</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;stdout8&quot;</span>        <span class="Numeric">0x1e0</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cor&quot;</span>            <span class="Numeric">0x027</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;stdinln&quot;</span>        <span class="Numeric">0x1e3</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicF8&quot;</span>        <span class="Numeric">0x028</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;ntag&quot;</span>           <span class="Numeric">0x1e5</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cnor&quot;</span>           <span class="Numeric">0x028</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;and&quot;</span>            <span class="Numeric">0x1e6</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicF9&quot;</span>        <span class="Numeric">0x029</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;or&quot;</span>             <span class="Numeric">0x1e7</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cxnor&quot;</span>          <span class="Numeric">0x029</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;not&quot;</span>            <span class="Numeric">0x1e8</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicFa&quot;</span>        <span class="Numeric">0x02a</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;each&quot;</span>           <span class="Numeric">0x1ea</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicFb&quot;</span>        <span class="Numeric">0x02b</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;span&quot;</span>           <span class="Numeric">0x1ec</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicFc&quot;</span>        <span class="Numeric">0x02c</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;eachar&quot;</span>         <span class="Numeric">0x1ed</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicFd&quot;</span>        <span class="Numeric">0x02d</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;phash&quot;</span>          <span class="Numeric">0x1ee</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicFe&quot;</span>        <span class="Numeric">0x02e</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;phash8&quot;</span>         <span class="Numeric">0x1ef</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cnand&quot;</span>          <span class="Numeric">0x02e</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;down&quot;</span>           <span class="Numeric">0x1f0</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;logicFf&quot;</span>        <span class="Numeric">0x02f</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;up&quot;</span>             <span class="Numeric">0x1f1</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cuadd&quot;</span>          <span class="Numeric">0x030</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;take&quot;</span>           <span class="Numeric">0x1f2</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cusub&quot;</span>          <span class="Numeric">0x031</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;depth&quot;</span>          <span class="Numeric">0x1f3</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cumul&quot;</span>          <span class="Numeric">0x032</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;give&quot;</span>           <span class="Numeric">0x1f4</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cudiv&quot;</span>          <span class="Numeric">0x033</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;nest&quot;</span>           <span class="Numeric">0x1f5</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;curem&quot;</span>          <span class="Numeric">0x035</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;clear&quot;</span>          <span class="Numeric">0x1f6</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;ciadd&quot;</span>          <span class="Numeric">0x038</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;stdout&quot;</span>         <span class="Numeric">0x1f7</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cisub&quot;</span>          <span class="Numeric">0x039</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;trav&quot;</span>           <span class="Numeric">0x1f9</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cimul&quot;</span>          <span class="Numeric">0x03a</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;ith&quot;</span>            <span class="Numeric">0x1fa</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cidiv&quot;</span>          <span class="Numeric">0x03b</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;cr&quot;</span>             <span class="Numeric">0x1fb</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;ciabs&quot;</span>          <span class="Numeric">0x03c</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;nl&quot;</span>             <span class="Numeric">0x1fb</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cirem&quot;</span>          <span class="Numeric">0x03d</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;walk&quot;</span>           <span class="Numeric">0x1fe</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;catoi&quot;</span>          <span class="Numeric">0x0a0</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;set&quot;</span>            <span class="Numeric">0x1ff</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cprintf&quot;</span>        <span class="Numeric">0x0c0</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;perm&quot;</span>           <span class="Numeric">0x200</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cprints&quot;</span>        <span class="Numeric">0x0a8</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;add_assign&quot;</span>     <span class="Numeric">0x201</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;fnord&quot;</span>          <span class="Numeric">0x100</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;bvmstack&quot;</span>       <span class="Numeric">0x202</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;babel&quot;</span>          <span class="Numeric">0x102</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;stack&quot;</span>          <span class="Numeric">0x202</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;msize&quot;</span>          <span class="Numeric">0x107</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;bvmcode&quot;</span>        <span class="Numeric">0x203</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;arlen8&quot;</span>         <span class="Numeric">0x108</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;ifte&quot;</span>           <span class="Numeric">0x204</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;free&quot;</span>           <span class="Numeric">0x109</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;bvmustack&quot;</span>      <span class="Numeric">0x205</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;rmha&quot;</span>           <span class="Numeric">0x10a</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;rev&quot;</span>            <span class="Numeric">0x206</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;arlen&quot;</span>          <span class="Numeric">0x10b</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;boilerplate&quot;</span>    <span class="Numeric">0x207</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cat8&quot;</span>           <span class="Numeric">0x10c</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;paste8&quot;</span>         <span class="Numeric">0x208</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cat&quot;</span>            <span class="Numeric">0x10f</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;iter&quot;</span>           <span class="Numeric">0x209</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;mu&quot;</span>             <span class="Numeric">0x110</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;conjure&quot;</span>        <span class="Numeric">0x20b</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;nva&quot;</span>            <span class="Numeric">0x111</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;self&quot;</span>           <span class="Numeric">0x20c</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;npt&quot;</span>            <span class="Numeric">0x112</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;sub_assign&quot;</span>     <span class="Numeric">0x20d</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;nlf&quot;</span>            <span class="Numeric">0x113</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;endian&quot;</span>         <span class="Numeric">0x20f</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;nin&quot;</span>            <span class="Numeric">0x114</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;nhword&quot;</span>         <span class="Numeric">0x210</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;load&quot;</span>           <span class="Numeric">0x115</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;deref&quot;</span>          <span class="Numeric">0x211</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;unload&quot;</span>         <span class="Numeric">0x116</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;if&quot;</span>             <span class="Numeric">0x212</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;bs2gv&quot;</span>          <span class="Numeric">0x117</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;ord&quot;</span>            <span class="Numeric">0x213</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;show&quot;</span>           <span class="Numeric">0x117</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;let&quot;</span>            <span class="Numeric">0x214</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;slice8&quot;</span>         <span class="Numeric">0x118</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;split&quot;</span>          <span class="Numeric">0x215</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;slice&quot;</span>          <span class="Numeric">0x11b</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;lusym&quot;</span>          <span class="Numeric">0x216</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;arcmp&quot;</span>          <span class="Numeric">0x11f</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;th&quot;</span>             <span class="Numeric">0x217</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;sleep&quot;</span>          <span class="Numeric">0x120</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;move&quot;</span>           <span class="Numeric">0x218</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;die&quot;</span>            <span class="Numeric">0x121</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;move8&quot;</span>          <span class="Numeric">0x219</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;goto&quot;</span>           <span class="Numeric">0x122</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;ins&quot;</span>            <span class="Numeric">0x21a</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;loop&quot;</span>           <span class="Numeric">0x125</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;exec&quot;</span>           <span class="Numeric">0x21b</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;last&quot;</span>           <span class="Numeric">0x126</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;dev&quot;</span>            <span class="Numeric">0x21c</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;next&quot;</span>           <span class="Numeric">0x127</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;cond&quot;</span>           <span class="Numeric">0x21d</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cut&quot;</span>            <span class="Numeric">0x12b</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;append&quot;</span>         <span class="Numeric">0x21e</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;trunc&quot;</span>          <span class="Numeric">0x12c</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;newha&quot;</span>          <span class="Numeric">0x21f</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;eval&quot;</span>           <span class="Numeric">0x130</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;bvmrstack&quot;</span>      <span class="Numeric">0x220</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;while&quot;</span>          <span class="Numeric">0x135</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;bvmsym&quot;</span>         <span class="Numeric">0x221</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;times&quot;</span>          <span class="Numeric">0x136</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;hibernate&quot;</span>      <span class="Numeric">0x222</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;isinte&quot;</span>         <span class="Numeric">0x138</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;bvm_step&quot;</span>       <span class="Numeric">0x223</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;newin&quot;</span>          <span class="Numeric">0x13a</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;rawmem&quot;</span>         <span class="Numeric">0x224</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;ar2ls&quot;</span>          <span class="Numeric">0x13b</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;set_ith&quot;</span>        <span class="Numeric">0x225</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;isleaf&quot;</span>         <span class="Numeric">0x13c</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;set_car&quot;</span>        <span class="Numeric">0x226</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;del&quot;</span>            <span class="Numeric">0x13d</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;set_cdr&quot;</span>        <span class="Numeric">0x227</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;newlf&quot;</span>          <span class="Numeric">0x13e</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;detag&quot;</span>          <span class="Numeric">0x228</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;sfield&quot;</span>         <span class="Numeric">0x13f</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;flush_cache&quot;</span>    <span class="Numeric">0x229</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;hash8&quot;</span>          <span class="Numeric">0x140</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;update_cache&quot;</span>   <span class="Numeric">0x22a</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;rand&quot;</span>           <span class="Numeric">0x141</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;copy_collect&quot;</span>   <span class="Numeric">0x22b</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;argv&quot;</span>           <span class="Numeric">0x143</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;bvm_root&quot;</span>       <span class="Numeric">0x22c</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cp&quot;</span>             <span class="Numeric">0x148</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;dump_cache&quot;</span>     <span class="Numeric">0x22d</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;paste&quot;</span>          <span class="Numeric">0x149</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;sortlf&quot;</span>         <span class="Numeric">0x22e</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;hash&quot;</span>           <span class="Numeric">0x150</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;shuf&quot;</span>           <span class="Numeric">0x22f</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;luha&quot;</span>           <span class="Numeric">0x151</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;pass&quot;</span>           <span class="Numeric">0x230</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;insha&quot;</span>          <span class="Numeric">0x152</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;fail&quot;</span>           <span class="Numeric">0x231</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;exha&quot;</span>           <span class="Numeric">0x154</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;newtptr&quot;</span>        <span class="Numeric">0x232</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;keysha&quot;</span>         <span class="Numeric">0x156</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;istptr&quot;</span>         <span class="Numeric">0x233</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;entsha&quot;</span>         <span class="Numeric">0x156</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;get_tag&quot;</span>        <span class="Numeric">0x234</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;inskha&quot;</span>         <span class="Numeric">0x162</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;seq&quot;</span>            <span class="Numeric">0x235</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;ar2str&quot;</span>         <span class="Numeric">0x180</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;alt&quot;</span>            <span class="Numeric">0x236</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;str2ar&quot;</span>         <span class="Numeric">0x181</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;tageq&quot;</span>          <span class="Numeric">0x237</span>)
+    (<span class="Statement">list</span> <span class="Constant">&quot;cu2dec&quot;</span>         <span class="Numeric">0x184</span>)        (<span class="Statement">list</span> <span class="Constant">&quot;exit&quot;</span>           <span class="Numeric">0x238</span>)
+                                         (<span class="Statement">list</span> <span class="Constant">&quot;reset&quot;</span>          <span class="Numeric">0x239</span>)
+                                         (<span class="Statement">list</span> <span class="Constant">&quot;flip&quot;</span>           <span class="Numeric">0x23a</span>)
+                                         (<span class="Statement">list</span> <span class="Constant">&quot;babel2&quot;</span>         <span class="Numeric">0x23b</span>)
+
+<span class="Comment">-- non-alpha synonyms:</span>
+
+    (<span class="Statement">list</span> <span class="Constant">'~'</span>              <span class="Numeric">0x00c</span>)        (<span class="Statement">list</span> <span class="Constant">'%'</span>              <span class="Numeric">0x035</span>)
+    (<span class="Statement">list</span> <span class="Constant">'~='</span>             <span class="Numeric">0x010</span>)        (<span class="Statement">list</span> <span class="Constant">'+'</span>              <span class="Numeric">0x038</span>)
+    (<span class="Statement">list</span> <span class="Constant">'&amp;'</span>              <span class="Numeric">0x021</span>)        (<span class="Statement">list</span> <span class="Constant">'-'</span>              <span class="Numeric">0x039</span>)
+    (<span class="Statement">list</span> <span class="Constant">'^'</span>              <span class="Numeric">0x026</span>)        (<span class="Statement">list</span> <span class="Constant">'*'</span>              <span class="Numeric">0x03a</span>)
+    (<span class="Statement">list</span> <span class="Constant">'|'</span>              <span class="Numeric">0x027</span>)        (<span class="Statement">list</span> <span class="Constant">'/'</span>              <span class="Numeric">0x03b</span>)
+    (<span class="Statement">list</span> <span class="Constant">'~|'</span>             <span class="Numeric">0x028</span>)        (<span class="Statement">list</span> <span class="Constant">'&lt;&lt;'</span>             <span class="Numeric">0x1e0</span>)
+    (<span class="Statement">list</span> <span class="Constant">'~^'</span>             <span class="Numeric">0x029</span>)        (<span class="Statement">list</span> <span class="Constant">'&gt;&gt;'</span>             <span class="Numeric">0x1e3</span>)
+    (<span class="Statement">list</span> <span class="Constant">'~&amp;'</span>             <span class="Numeric">0x02e</span>)        (<span class="Statement">list</span> <span class="Constant">'%%'</span>             <span class="Numeric">0x140</span>)
+    (<span class="Statement">list</span> <span class="Constant">'&amp;&amp;'</span>             <span class="Numeric">0x1e6</span>)        (<span class="Statement">list</span> <span class="Constant">'#8'</span>             <span class="Numeric">0x108</span>)
+    (<span class="Statement">list</span> <span class="Constant">'||'</span>             <span class="Numeric">0x1e7</span>)        (<span class="Statement">list</span> <span class="Constant">'#'</span>              <span class="Numeric">0x10b</span>)
+    (<span class="Statement">list</span> <span class="Constant">'~~'</span>             <span class="Numeric">0x1e8</span>)        (<span class="Statement">list</span> <span class="Constant">'##'</span>             <span class="Numeric">0x188</span>)
+    (<span class="Statement">list</span> <span class="Constant">'=='</span>             <span class="Numeric">0x11f</span>)        (<span class="Statement">list</span> <span class="Constant">'!'</span>              <span class="Numeric">0x130</span>)
+    (<span class="Statement">list</span> <span class="Constant">'%u'</span>             <span class="Numeric">0x184</span>)        (<span class="Statement">list</span> <span class="Constant">'&lt;&lt;&lt;'</span>            <span class="Numeric">0x1c0</span>)
+    (<span class="Statement">list</span> <span class="Constant">'%x'</span>             <span class="Numeric">0x185</span>)        (<span class="Statement">list</span> <span class="Constant">'&gt;&gt;&gt;'</span>            <span class="Numeric">0x1c1</span>)
+    (<span class="Statement">list</span> <span class="Constant">'%d'</span>             <span class="Numeric">0x186</span>)        (<span class="Statement">list</span> <span class="Constant">'&lt;-&gt;'</span>            <span class="Numeric">0x19e</span>)
+    (<span class="Statement">list</span> <span class="Constant">'$x'</span>             <span class="Numeric">0x195</span>)        (<span class="Statement">list</span> <span class="Constant">'&lt;-'</span>             <span class="Numeric">0x1f0</span>)
+    (<span class="Statement">list</span> <span class="Constant">'$d'</span>             <span class="Numeric">0x196</span>)        (<span class="Statement">list</span> <span class="Constant">'-&gt;'</span>             <span class="Numeric">0x1f1</span>)
+    (<span class="Statement">list</span> <span class="Constant">'.'</span>              <span class="Numeric">0x10c</span>)        (<span class="Statement">list</span> <span class="Constant">'='</span>              <span class="Numeric">0x011</span>)
+    (<span class="Statement">list</span> <span class="Constant">'u+'</span>             <span class="Numeric">0x030</span>)        (<span class="Statement">list</span> <span class="Constant">'shl'</span>            <span class="Numeric">0x001</span>)
+    (<span class="Statement">list</span> <span class="Constant">'u-'</span>             <span class="Numeric">0x031</span>)        (<span class="Statement">list</span> <span class="Constant">'rol'</span>            <span class="Numeric">0x005</span>)
+    (<span class="Statement">list</span> <span class="Constant">'u*'</span>             <span class="Numeric">0x032</span>)        (<span class="Statement">list</span> <span class="Constant">'ror'</span>            <span class="Numeric">0x007</span>)
+    (<span class="Statement">list</span> <span class="Constant">'u/'</span>             <span class="Numeric">0x033</span>)        (<span class="Statement">list</span> <span class="Constant">'shr'</span>            <span class="Numeric">0x006</span>)))
+
+<span class="Comment">--    &lt;           cilt            same as C</span>
+<span class="Comment">--    &gt;           cigt            same as C</span>
+
+<span class="Comment">--    &gt;=          cige            same as C</span>
+<span class="Comment">--    &lt;=          cile            same as C</span>
+
+
+(<span class="Identifier">construct</span> (<span class="Statement">list</span>
+<span class="Constant">'((root      [tag &quot;/babel/tag/sparse_bvm&quot; '</span>
+<span class="Constant">'(bvm_code bvm_stack jump_table sym_table) ])'</span>
+
+<span class="Constant">'(bvm_code [tag &quot;/babel/tag/bvm_code&quot; ((main) nil)])'</span>
+
+<span class="Constant">'(bvm_stack [tag &quot;/babel/tag/bvm_stack&quot; (dstack ustack)])'</span>
+
+<span class="Constant">'(dstack     [ptr nil nil])'</span>
+<span class="Constant">'(ustack     [ptr nil nil])'</span>
+
+<span class="Constant">'(jump_table [tag &quot;/babel/tag/jump_table&quot; nil])'</span>
+
+<span class="Constant">'(sym_table [tag &quot;/babel/tag/sym_table&quot; sym_table_hash_table])'</span>
+
+<span class="Constant">'(sym_table_hash_table [tag &quot;/babel/tag/hash_table&quot; symbol ])'</span>
+
+ <span class="Constant">'(symbol [ptr nil nil]))'</span>)))
+
+
+
+</pre>
+</body>
+</html>

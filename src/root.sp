@@ -176,16 +176,16 @@
 
 (run_sp_file (code
 
-    <- 
-        ''
-        construct
-        (code .) each
-    ->
+--    <- 
+--        ''
+--        construct
+--        (code .) each
+--    ->
+--
+--    car >>> "\n" . .
 
-    car >>> "\n" . .
-
---    zap
---    "((root (1 2 3)))"
+    zap
+    '((root ("")))'
 --    "((root {root 2 3}))"
 
     <- "( " -> .
@@ -619,7 +619,9 @@
         ifte)
     while
     zap
-    -> rev))
+    -> 
+die
+    rev))
 
 (gather_non_whitespace (code
     nil <-
@@ -640,6 +642,8 @@
 (get_dquote (code
 
     gather_non_dquote !
+
+bbl2str << die
 
     ls2str !
     unescape_dquote !
