@@ -59,6 +59,8 @@ inline mword *_shift(bvm_cache *this_bvm, mword *list){ // _shift#
 
     if(is_nil(list)) return nil;
 
+    if(_len(this_bvm,list) < 2) return list;
+
     mword *endls = _list_next_to_end(this_bvm, list);
 
     if(is_nil(endls)) return nil;
@@ -345,7 +347,27 @@ bvm_cache *push(bvm_cache *this_bvm){ // push#
 */
 bvm_cache *shift(bvm_cache *this_bvm){ // shift#
 
-    mword *list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 0);
+//    mword *list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 0);
+//    mword *endls = _list_next_to_end(this_bvm, list);
+//
+//    mword *shifted = (mword*)c(endls,1);
+//    (mword*)c(endls,1) = nil;
+//
+//    pushd(this_bvm, shifted, IMMORTAL);
+//
+//    return this_bvm;
+
+    mword *list = dstack_get(this_bvm,0);
+
+    if(is_nil(list)){
+        return this_bvm;
+    }
+
+    if(_len(this_bvm,list)){
+        pushd(this_bvm, nil, IMMORTAL);
+        return this_bvm;
+    }
+
     mword *endls = _list_next_to_end(this_bvm, list);
 
     mword *shifted = (mword*)c(endls,1);

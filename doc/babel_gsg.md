@@ -2,24 +2,22 @@
 Getting Started
 ===============
 
-To get started using Babel, you will need the following prerequisites:
+Babel is written in C and will compile on any C99-compliant compiler. During development, I am using the following setup:
 
-- Windows machine
 - <a href="http://www.cygwin.com/install.html" target="_blank">Cygwin</a>
 - <a href="http://www.activestate.com/activeperl/downloads" target="_blank">ActivePerl</a>
 - Babel repo cloned from <a href="https://github.com/claytonkb/Babel" target="_blank">github</a>
 
-To make Babel, run the following command from the Cygwin prompt:
+To make Babel using the scripts in the repo, I run the following command from the prompt:
 
-> `perl make.pl`
+> `% perl make.pl`
 
-To run Babel code in a file named foo.sp (from the make directory), run the 
-following command from the Cygwin prompt:
+To run Babel code in a file named foo.sp (from the make directory), I run the 
+following command from the prompt:
 
-> `bin/babel.exe foo.sp`
+> `% bin/babel.exe foo.sp`
 
-To begin writing your own Babel program, see the section below on <a href="#bipedal">Bipedal</a>.
-The legacy Sparse syntax is going to be phased out as soon as Bipedal support is fully implemented.
+To begin writing your own Babel program, see the section below on <a href="#bipedal">Bipedal</a>. The legacy Sparse syntax is going to be phased out as soon as Bipedal support is fully implemented.
 
 <a name="overview"></a>
 Overview

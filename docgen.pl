@@ -168,6 +168,7 @@ my @files = qw{
     babel_guts
     babel_contact
     babel_example
+    babel_home
     README };
 
 for(@files){
@@ -199,6 +200,13 @@ push @file_lines, <<BLOCK1;
 <div id="leftnav">
 <p>
 BLOCK1
+
+if($_ eq "babel_home"){
+    push @file_lines, "<span class=\"current_page\">Home</span> <br />";
+}
+else{
+    push @file_lines, "<a href=\"babel_home.html\">Home</a><br />";
+}
 
 if($_ eq "babel_gsg"){
     push @file_lines, "<span class=\"current_page\">Getting Started</span> <br />";

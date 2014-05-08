@@ -14,7 +14,8 @@
 .gen_stamp { color: #808080; }
 
 a:link, a:visited, a:active {
-    color: #003368;
+    color: #104378;
+    /*color: #003368;*/
     text-decoration:none;
 }
 
@@ -84,11 +85,12 @@ h2{
     background-color: #e0e0e0;
     position: fixed;
     font-family:Georgia;
+    /*background-image: url(images/sidebar.jpg);*/
     /*border-right: 2px solid #000000;*/
     margin-top:30px;
     float: left;
     width: 200px;
-    height: 200px;
+    height: 250px;
 }
 
 #rightnav{

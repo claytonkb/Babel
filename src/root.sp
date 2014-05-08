@@ -176,16 +176,16 @@
 
 (run_sp_file (code
 
---    <- 
---        ''
---        construct
---        (code .) each
---    ->
---
---    car >>> "\n" . .
+    <- 
+        ''
+        construct
+        (code .) each
+    ->
 
-    zap
-    '((root ("")))'
+    car >>> "\n" . .
+
+--    zap
+--    '((root ("")))'
 --    "((root {root 2 3}))"
 
     <- "( " -> .
@@ -620,8 +620,10 @@
     while
     zap
     -> 
-die
-    rev))
+    (code dup isnil)
+        (code fnord)
+        (code rev)
+    ifte))
 
 (gather_non_whitespace (code
     nil <-
@@ -643,10 +645,13 @@ die
 
     gather_non_dquote !
 
-bbl2str << die
+    (code dup isnil)
+        (code zap 0)
+        (code 
+            ls2str !
+            unescape_dquote !)
+    ifte
 
-    ls2str !
-    unescape_dquote !
     <- "string" hash8 -> newtptr ))
 
 (get_squote (code
