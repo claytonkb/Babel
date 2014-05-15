@@ -742,6 +742,9 @@ babel_op interp_fixed_opcodes[NUM_INTERP_OPCODES] = {
     interp_reset,
     flip,
     babelop2,
+    sexpr,
+    bin2cu,
+    oct2cu,
 
 };
 

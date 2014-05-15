@@ -1,6 +1,7 @@
 // tptr.c
 //
 
+#include "babel.h"
 #include "tptr.h"
 #include "alloc.h"
 #include "pearson16.h"

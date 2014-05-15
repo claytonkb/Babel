@@ -4,7 +4,7 @@
 #ifndef TPTR_H
 #define TPTR_H
 
-#include "babel.h"
+//#include "babel.h"
 
 #define TPTR_PTR      (HASH_SIZE+1)
 #define get_tptr(x)   (mword*)c((mword*)x,TPTR_PTR)

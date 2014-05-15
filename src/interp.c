@@ -326,6 +326,9 @@ void interp_init_symbolic_constants(bvm_cache *this_bvm){ //interp_init_symbolic
     BABEL_SYM_JUMP_TABLE    = _hash8(this_bvm, C2B("jump_table"));
     BABEL_SYM_PARENT_BVM    = _hash8(this_bvm, C2B("parent_bvm"));
 
+    SEXPR_LIST_SYMBOL     = mklf( this_bvm, 4, 0x6c, 0x69, 0x73, 0x74 );
+    SEXPR_CODE_SYMBOL     = mklf( this_bvm, 4, 0x63, 0x6f, 0x64, 0x65 );
+
 }
 
 

@@ -34,31 +34,10 @@ h2{
 }
 
 #container{
-    width: 1200px;
+    width: 1600px;
     margin-left: auto;
     margin-right: auto;
 }
-
-/*#header{
-    font-family:Georgia;
-    width: 1200px;
-    height:     165px;
-    line-height:165px;
-    background-image: url(images/sacred_scarab.jpg);
-    text-align:left;
-    font-size:400%;
-    color: rgba(255,255,255,0.8);
-    top: 0;
-    position: fixed;
-}
- 
-#header2{
-    width: 1200px;
-    height:     165px;
-    line-height:165px;
-    top: 0;
-}
-*/
 
 #header{
     font-family:Georgia;
@@ -90,13 +69,13 @@ h2{
     margin-top:30px;
     float: left;
     width: 200px;
-    height: 250px;
+    height: 300px;
 }
 
 #rightnav{
     margin-top:30px;
     float: right;
-    width: 300px;
+    width: 200px;
     height: 4000px;
 }
 

@@ -296,5 +296,6 @@
     (exit           (oper 0x238))
     (reset          (oper 0x239))
     (flip           (oper 0x23a))
-    (babel2         (oper 0x23b)))
+    (babel2         (oper 0x23b))
+    (sexpr          (oper 0x23b)))
 

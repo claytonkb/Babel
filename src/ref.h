@@ -4,7 +4,7 @@
 #ifndef REF_H
 #define REF_H
 
-#include "babel.h"
+//#include "babel.h"
 
 //mword *_deref(mword *bs, mword *ref_list);
 mword *_deref(bvm_cache *this_bvm, mword *ref_list);

@@ -347,7 +347,8 @@ bvm_cache *push(bvm_cache *this_bvm){ // push#
 */
 bvm_cache *shift(bvm_cache *this_bvm){ // shift#
 
-//    mword *list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 0);
+//   mword *list = get_from_udr_stack(this_bvm, this_bvm->dstack_ptr, 0);
+//
 //    mword *endls = _list_next_to_end(this_bvm, list);
 //
 //    mword *shifted = (mword*)c(endls,1);
@@ -363,7 +364,7 @@ bvm_cache *shift(bvm_cache *this_bvm){ // shift#
         return this_bvm;
     }
 
-    if(_len(this_bvm,list)){
+    if(_len(this_bvm,list) < 2){
         pushd(this_bvm, nil, IMMORTAL);
         return this_bvm;
     }
@@ -435,12 +436,20 @@ bvm_cache *bons(bvm_cache *this_bvm){ // bons#
 //
 mword *_bons(bvm_cache *this_bvm, mword *list){ // _bons#
 
+    mword *head = list;
     mword *arr = _newin(this_bvm, _len(this_bvm, list));
+    mword *curr_node;
 
     int i=0;
 
     while(!is_nil(list)){
-        c(arr,i) = car(list);
+        curr_node = (mword*)car(list);
+        if(curr_node == head){
+            (mword*)c(arr,i) = arr;
+        }
+        else{
+            (mword*)c(arr,i) = curr_node;
+        }        
         i++;
         list = (mword*)cdr(list);
     }

@@ -35,6 +35,7 @@ implementation is bug-free. Gradually, the GC will be made more
 
 */
 
+#include "babel.h"
 #include "mem.h"
 #include "load.h"
 #include "tptr.h"

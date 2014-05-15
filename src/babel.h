@@ -13,6 +13,7 @@
 #include <stddef.h>
 #include <assert.h>
 #include <setjmp.h>
+#include <stdarg.h>
 
 // CONSTANTS
 #define MWORD_SIZE sizeof(mword) // MWORD_SIZE#
@@ -45,7 +46,7 @@
 #define ROOT_INTERP_THREAD 0
 
 // This includes many reserved opcodes
-#define NUM_INTERP_OPCODES 574
+#define NUM_INTERP_OPCODES 577
 
 #define FLAG_IGN    ((mword)-1)
 #define FLAG_SET    1
@@ -176,6 +177,9 @@ void temp_rbs2gv(mword *bs);
 mword *nil; // nil#
 mword *empty_string;
 mword null_hash[HASH_SIZE];// = { 0x88e9045b, 0x0b7c30af, 0x831422c3, 0x01ab0dc1, };
+
+mword *SEXPR_LIST_SYMBOL;
+mword *SEXPR_CODE_SYMBOL;
 
 // Operating-system compatibility
 #define WINDOWS

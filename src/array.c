@@ -156,6 +156,27 @@ mword *_newlfi(bvm_cache *this_bvm, mword size, mword init){ // _newlfi#
 }
 
 
+// Creates a new array-8
+//
+mword *_newlf8(bvm_cache *this_bvm, mword size8){ // _newlf8#
+
+    mword arlength = (size8 / MWORD_SIZE) + 1;
+
+    if(size8 % MWORD_SIZE){
+        arlength++;
+    }
+
+    mword *result = _newlfi(this_bvm, arlength,0);
+
+    //memcpy(dest, src, size8);
+
+    c(result,arlength-1) = alignment_word8(this_bvm, size8);
+
+    return result;
+
+}
+
+
 // Accepts a data value and returns a leaf-array
 // of size 1 containing that data value
 //
@@ -222,7 +243,7 @@ inline mword* val(bvm_cache *this_bvm, mword *leaf, mword index){ // val#
 }
 
 
-/* > array operator
+/* array operator
 **slice**
 > Puts a slice of an array on TOS  
 > `{X} {a} {b}| -> {X[a..b]}|`    
@@ -237,11 +258,50 @@ bvm_cache *slice(bvm_cache *this_bvm){ // *slice#
     mword start  = icar(dstack_get(this_bvm,1));
     mword end    = icar(dstack_get(this_bvm,0));
     mword *array = dstack_get(this_bvm,2);
-    mword *result;
 
     popd(this_bvm);
     popd(this_bvm);
     popd(this_bvm);
+
+    mword *result = _slice(this_bvm, array, start, end);
+
+//    end = (end > size(array)) ? size(array) : end;
+//
+//    if(end<=start){
+//        result = nil;
+//    }
+//    else{
+//
+//        if(is_leaf(array)){
+//            result = _newlfi(this_bvm, (mword)(end-start), 0);
+//        }
+//        else{
+//            result = _newin(this_bvm, end-start);
+//        }
+//
+//        mword i,j;
+//        for(    i=start, j=0;
+//                i<end;
+//                i++,j++
+//            ){
+//
+//            c(result,j) = c(array,i);
+//
+//        }    
+//    }
+
+    pushd(this_bvm, result, IMMORTAL);
+
+    return this_bvm;
+
+}
+
+
+//
+//
+mword *_slice(bvm_cache *this_bvm, mword *array, mword start, mword end){
+
+    mword *result;
 
     end = (end > size(array)) ? size(array) : end;
 
@@ -268,9 +328,7 @@ bvm_cache *slice(bvm_cache *this_bvm){ // *slice#
         }    
     }
 
-    pushd(this_bvm, result, IMMORTAL);
-
-    return this_bvm;
+    return result;
 
 }
 
@@ -325,7 +383,7 @@ mword *_th(bvm_cache *this_bvm, mword *bs, mword entry){ // _th#
 
 /* array operator
 **cut**  
-> Cuts an array - opposite of cat  
+> Cuts an array - opposite of cat TEST 
 >
 > The cut operator only cuts in one place. If you want more complex
 > behavior, convert the array to a list, then use append/part  
@@ -867,9 +925,57 @@ void _perm(bvm_cache *this_bvm, mword *src, mword *dest, mword *perm_matrix){ //
 }
 
 
+//
+//
+mword *mklf(bvm_cache *this_bvm, mword array_size, ...){
+
+    mword *leaf = _newlf(this_bvm, array_size);
+
+    va_list vl;
+    va_start(vl,array_size);
+
+    int i;
+
+    for(i=0;i<array_size;i++){
+        c(leaf,i) = va_arg(vl,mword);
+    }
+
+    va_end(vl);
+
+    return leaf;
+
+}
+
+
+//
+//
+mword *mkin(bvm_cache *this_bvm, mword array_size, ...){
+
+    va_list vl;
+    va_start(vl,array_size);
+
+    mword *inte = _newin(this_bvm, array_size);
+
+    int i;
+
+    for(i=0;i<array_size;i++){
+        c(inte,i) = va_arg(vl,mword);
+    }
+
+    va_end(vl);
+
+    return inte;
+
+}
+
+
 /* array operator
 **shuf**  
 > Shuffles an array  
+> To shuffle an array a of n elements (indices 0..n-1):
+>   for i from n − 1 downto 1 do
+>        j <- random integer with 0 ≤ j ≤ i
+>        exchange a[j] and a[i]
 */
 bvm_cache *shuf(bvm_cache *this_bvm){ // shuf#
 
@@ -890,7 +996,7 @@ void _shuf(bvm_cache *this_bvm, mword *src){ // _shuf#
 
 //To shuffle an array a of n elements (indices 0..n-1):
 //  for i from n − 1 downto 1 do
-//       j ← random integer with 0 ≤ j ≤ i
+//       j <- random integer with 0 ≤ j ≤ i
 //       exchange a[j] and a[i]
 
     mword array_size = size(src);
@@ -911,7 +1017,6 @@ void _shuf(bvm_cache *this_bvm, mword *src){ // _shuf#
     }
 
 }
-
 
 
 #define RAND_MAX 0xffffffff

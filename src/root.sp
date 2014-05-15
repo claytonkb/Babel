@@ -53,7 +53,7 @@
     cond))
 
 (create_bbc_file (code 
-    <- 
+   <- 
         ''
         construct
         (code .) each
@@ -513,13 +513,14 @@
     (code depth 0 >)
     (code
 --        trim_leading_ws !
+
         trim_comments_and_ws !
         (list 
             (code dup lbracket          =) (code begin_balanced !     -> cons <-)
-            (code dup lparen            =) (code 
+            (code dup lparen            =) (code  
                                                  <- "list " give_str ! ->
                                                  begin_balanced !     -> cons <-)
-            (code dup lcurly            =) (code 
+            (code dup lcurly            =) (code  
                                                  <- "code " give_str ! ->
                                                  begin_balanced !     -> cons <-)
             (code dup is_close_bracket  !) (code zap                        last)
@@ -1184,6 +1185,9 @@
                                          (list "reset"          0x239)
                                          (list "flip"           0x23a)
                                          (list "babel2"         0x23b)
+                                         (list "sexpr"          0x23c)
+                                         (list "bin2cu"         0x23d)
+                                         (list "oct2cu"         0x23e)
 
 -- non-alpha synonyms:
 
@@ -1199,8 +1203,8 @@
     (list '||'             0x1e7)        (list '#'              0x10b)
     (list '~~'             0x1e8)        (list '##'             0x188)
     (list '=='             0x11f)        (list '!'              0x130)
-    (list '%u'             0x184)        (list '<<<'            0x1c0)
-    (list '%x'             0x185)        (list '>>>'            0x1c1)
+    (list '%u'             0x184)        (list '<<<'            0x1c1)
+    (list '%x'             0x185)        (list '>>>'            0x1c0)
     (list '%d'             0x186)        (list '<->'            0x19e)
     (list '$x'             0x195)        (list '<-'             0x1f0)
     (list '$d'             0x196)        (list '->'             0x1f1)
@@ -1208,7 +1212,9 @@
     (list 'u+'             0x030)        (list 'shl'            0x001)
     (list 'u-'             0x031)        (list 'rol'            0x005)
     (list 'u*'             0x032)        (list 'ror'            0x007)
-    (list 'u/'             0x033)        (list 'shr'            0x006)))
+    (list 'u/'             0x033)        (list 'shr'            0x006)
+    (list '$b'             0x23d)
+    (list '$o'             0x23e)))
 
 --    <           cilt            same as C
 --    >           cigt            same as C

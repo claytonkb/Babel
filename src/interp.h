@@ -1,11 +1,10 @@
 // interp.h
 //
 
-#include "hash.h"
+//#include "hash.h"
 
 #ifndef INTERP_H
 #define INTERP_H
-
 
 #define OI_MASK_NONE (1<<0)
 #define OI_MASK_LEAF (1<<1)

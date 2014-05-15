@@ -4,7 +4,7 @@
 #ifndef MEM_H
 #define MEM_H
 
-#include "babel.h"
+//#include "babel.h"
 
 #define MEM_REDLINE     ( 0.9 *(MEM_SIZE>>1))
 #define MEM_HIGHWATER   ((int)((float)(0.67)*(float)(MEM_SIZE>>1)))

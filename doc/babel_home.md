@@ -17,7 +17,7 @@ Babel is a general-purpose programming language that has been designed from the 
 
 * **Resource-Conscious** - We have reached [the end of the famed "Moore's Law"](http://www.cnet.com/news/end-of-moores-law-its-not-just-about-physics/). Time, power (battery life) and memory are increasingly dominant constraints on computing. Users' concerns about everything from air pollution to battery life means that they require software that runs quietly and efficiently. Every Babel program runs in a Babel Virtual Machine which has finite, adjustable time and memory constraints. This enables computing even in highly resource constrained environments like embedded systems and mobile platforms.  
 
-* **Garbage-Collected** - Babel uses a stop-and-copy garbage-collector. This relieves the programmer of having to worry about which of his objects are currently live. Thanks to the uniform data-structure used in Babel, the garbage-collector is extremely fast and lightweight.  
+* **Garbage-Collected** - Babel uses a [stop-and-copy garbage-collector](http://www.memorymanagement.org/glossary/c.html#copying.garbage.collection). This relieves the programmer of having to worry about which of his objects are currently live. Thanks to the uniform data-structure used in Babel, the garbage-collector is extremely fast and lightweight.  
 
 * **Rapidly-Prototyped** - Babel provides a fully integrated REPL debugging interface, as well as built-in support for "quick-and-dirty" I/O to get your project moving as quickly as possible.  
 

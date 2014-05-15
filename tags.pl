@@ -76,8 +76,6 @@ print H_FILE <<END_QUOTE;
 #ifndef TAGS_H
 #define TAGS_H
 
-#include "babel.h"
-
 END_QUOTE
 
 for my $tag (keys %{$tags}){
@@ -109,6 +107,7 @@ print C_FILE <<END_QUOTE;
 // tags.c
 //
 
+#include "babel.h"
 #include "tags.h"
 
 END_QUOTE

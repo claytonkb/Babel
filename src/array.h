@@ -35,6 +35,10 @@ void _mergear(bvm_cache *this_bvm, mword *array, mword left_start, mword left_en
 bvm_cache *shuf(bvm_cache *this_bvm);
 void _shuf(bvm_cache *this_bvm, mword *src);
 mword rand_range(mword min, mword max);
+mword *_newlf8(bvm_cache *this_bvm, mword size8);
+mword *_slice(bvm_cache *this_bvm, mword *array, mword start, mword end);
+mword *mklf(bvm_cache *this_bvm, mword array_size, ...);
+mword *mkin(bvm_cache *this_bvm, mword array_size, ...);
 
 //mword *_th(mword *bs, mword entry);
 mword *_th(bvm_cache *this_bvm, mword *bs, mword entry);

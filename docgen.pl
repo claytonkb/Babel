@@ -190,11 +190,13 @@ for(@files){
     @file_lines = ();
 
 push @file_lines, <<BLOCK1;
+<html>
 <p><head>
 <title>Babel Programming Language</title>
 <link href="style.css" rel="stylesheet" type="text/css">
 </head></p>
 
+<div id="container">
 <div id="header2"></div>
 <div id="header">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Babel</div>
 <div id="leftnav">
@@ -237,7 +239,7 @@ else{
 }
 
 push @file_lines, <<BLOCK2;
-</p>
+<a href="http://babelscript.net/blog/" target="_blank">The Babel Blog</a> <br /></p>
 <p><a href="babel_contact.html"><strong>Contact Us</strong></a> <br /></p>
 <p><a href="https://github.com/claytonkb/Babel" target="_blank">Babel on github</a> <br />
 <a href="http://rosettacode.org/wiki/Category:Babel" target="_blank">Babel at RosettaCode</a> <br />
@@ -252,7 +254,7 @@ BLOCK2
     push @file_lines, <FILE>;
     close FILE;
 
-    push @file_lines, "</div>";
+    push @file_lines, "</div>\n</div>\n</html>\n";
 
     open FILE, ">html/$_.html";
     print FILE join('', @file_lines);
