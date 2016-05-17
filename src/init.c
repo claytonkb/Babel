@@ -354,6 +354,9 @@ _trace;
 BABEL_TAGS    
 #undef X
 
+
+//fprintf(stderr, "%s\n", global_opcode_names[0x10]);
+
 #define X(a, b, c) c = _sys_cp( this_bvm, HASH8(this_bvm, b) );
 CACHED_FIELDS
 #undef X

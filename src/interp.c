@@ -23,6 +23,13 @@
 #include "bpdl.h"
 #include "pearson16.h"
 
+#define X(a, b, c, d) b,
+static char **interp_opcode_names = (char *[]){
+OPCODE_LIST
+""
+};
+#undef X
+
 //#define INTERP_CORE_TRACE 
 
 //
@@ -158,7 +165,23 @@ _memi(rci(next_entry,0));
 #endif
 
             if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
-                _memi(rci(next_entry,0));
+//                fprintf(stderr, " --> %08x     push\n", this_bvm->interp->global_tick_count);
+//                _memi(rci(next_entry,0));
+                mword *operand = rci(next_entry,0);
+                fprintf(stderr, "%08x     push ", this_bvm->interp->global_tick_count);
+                if(is_leaf(operand)){
+                    fprintf(stderr, "%x", rcl(operand,0));
+                    if(size(operand)>1){
+                        fprintf(stderr, " ...");
+                    }
+                    fprintf(stderr, "\n");
+                }
+                else if(is_inte(rci(next_entry,0))){
+                    fprintf(stderr, "[]\n");
+                }
+                else{
+                    fprintf(stderr, "tag\n");
+                }
             }
 
             interp_push_operand(this_bvm, rci(next_entry,0));
@@ -171,7 +194,7 @@ _d(rcl(next_entry,0))
 #endif
 
             if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){ // FIXME: Block this out with #ifdef DEV_MODE
-                _d(rcl(next_entry,0))
+                _opcode_trace(rcl(next_entry,0));
             }
 
 #ifdef INTERP_CORE_TRACE
@@ -240,6 +263,9 @@ _trace;
 #ifdef INTERP_CORE_TRACE
 _trace;
 #endif
+            if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
+                fprintf(stderr, " --> BVM_RETURN\n");
+            }
 
             break;
 
@@ -348,8 +374,14 @@ mword interp_update_steps(bvm_cache *this_bvm){ // interp_update_steps#
 //
 bvm_cache *interp_push_operand(bvm_cache *this_bvm, mword *operand){ // interp_push_operand#
 
-    stack_push(this_bvm,
-            rci(this_bvm->dstack_ptr,0),
+//    stack_push(this_bvm,
+//            rci(this_bvm->dstack_ptr,0),
+//            stack_new_entry(
+//                this_bvm,
+//                operand,
+//                nil));
+
+    dstack_push(this_bvm,
             stack_new_entry(
                 this_bvm,
                 operand,
@@ -374,6 +406,10 @@ bvm_cache *rsvd(bvm_cache *this_bvm){ // rsvd#
 // XXX This is a DEBUG FUNCTION... DO NOT USE XXX 
 //
 bvm_cache *_pre_interp(bvm_cache *this_bvm){ // _pre_interp#
+
+//    char **values = (char *[]){"abc", "def", "ghi"};
+//
+//    fprintf(stderr, "%s\n", values[1]);
 
 //    mword i=0;
 //

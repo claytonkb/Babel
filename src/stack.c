@@ -89,11 +89,16 @@ void stack_give(bvm_cache *this_bvm, mword *list){ // stack_give#
     if(is_nil(list))
         return;
 
-    stack_push(this_bvm, 
-            rci(this_bvm->dstack_ptr,0), 
+    dstack_push(this_bvm, 
             stack_new_entry(this_bvm,
                 (mword*)icar(list),
                 nil));
+
+//    stack_push(this_bvm, 
+//            rci(this_bvm->dstack_ptr,0), 
+//            stack_new_entry(this_bvm,
+//                (mword*)icar(list),
+//                nil));
 
     stack_give(this_bvm, (mword*)icdr(list));
 

@@ -174,9 +174,14 @@ _die;
     else if(rcl(oi.data,0) == 2){
 //        _dumpf(this_bvm->self);
         stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
-//        cache_update(this_bvm);
-        stack_push(this_bvm,
-                rci(this_bvm->dstack_ptr,0),
+        cache_flush(this_bvm);
+//        stack_push(this_bvm,
+//                rci(this_bvm->dstack_ptr,0),
+//                stack_new_entry(
+//                    this_bvm,
+//                    this_bvm->self,
+//                    nil));
+        dstack_push(this_bvm,
                 stack_new_entry(
                     this_bvm,
                     this_bvm->self,
@@ -202,8 +207,13 @@ _die;
     else if(rcl(oi.data,0) == 7){ 
         stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
         cache_flush(this_bvm);
-        stack_push(this_bvm,
-                rci(this_bvm->dstack_ptr,0),
+//        stack_push(this_bvm,
+//                rci(this_bvm->dstack_ptr,0),
+//                stack_new_entry(
+//                    this_bvm,
+//                    bvm_sym(this_bvm, BABEL_SYM_SOFT_ROOT),
+//                    nil));
+        dstack_push(this_bvm,
                 stack_new_entry(
                     this_bvm,
                     bvm_sym(this_bvm, BABEL_SYM_SOFT_ROOT),
@@ -237,8 +247,13 @@ _die;
         stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
         cache_flush(this_bvm);
         get_operands(this_bvm,1,&oi);
-        stack_push(this_bvm,
-                rci(this_bvm->dstack_ptr,0),
+//        stack_push(this_bvm,
+//                rci(this_bvm->dstack_ptr,0),
+//                stack_new_entry(
+//                    this_bvm,
+//                    _ptr(this_bvm, (mword*)rcl(oi.data,0)),
+//                    nil));
+        dstack_push(this_bvm,
                 stack_new_entry(
                     this_bvm,
                     _ptr(this_bvm, (mword*)rcl(oi.data,0)),
@@ -256,8 +271,13 @@ _die;
     else if(rcl(oi.data,0) == 15){ 
         stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
         cache_flush(this_bvm);
-        stack_push(this_bvm,
-                rci(this_bvm->dstack_ptr,0),
+//        stack_push(this_bvm,
+//                rci(this_bvm->dstack_ptr,0),
+//                stack_new_entry(
+//                    this_bvm,
+//                    bpdl_opcode_table,
+//                    nil));
+        dstack_push(this_bvm,
                 stack_new_entry(
                     this_bvm,
                     bpdl_opcode_table,
@@ -280,8 +300,13 @@ _die;
     else if(rcl(oi.data,0) == 18){ 
         stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
         cache_flush(this_bvm);
-        stack_push(this_bvm,
-                rci(this_bvm->dstack_ptr,0),
+//        stack_push(this_bvm,
+//                rci(this_bvm->dstack_ptr,0),
+//                stack_new_entry(
+//                    this_bvm,
+//                    this_bvm->self,
+//                    nil));
+        dstack_push(this_bvm,
                 stack_new_entry(
                     this_bvm,
                     this_bvm->self,
@@ -290,8 +315,13 @@ _die;
     else if(rcl(oi.data,0) == 19){ 
         stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
         cache_flush(this_bvm);
-        stack_push(this_bvm,
-                rci(this_bvm->dstack_ptr,0),
+//        stack_push(this_bvm,
+//                rci(this_bvm->dstack_ptr,0),
+//                stack_new_entry(
+//                    this_bvm,
+//                    this_bvm->rstack_ptr,
+//                    nil));
+        dstack_push(this_bvm,
                 stack_new_entry(
                     this_bvm,
                     this_bvm->rstack_ptr,
@@ -315,8 +345,14 @@ _die;
 
         temp = mem_stats_array(this_bvm);
 
-        stack_push(this_bvm,
-                rci(this_bvm->dstack_ptr,0),
+//        stack_push(this_bvm,
+//                rci(this_bvm->dstack_ptr,0),
+//                stack_new_entry(
+//                    this_bvm,
+//                    temp,
+//                    nil));
+
+        dstack_push(this_bvm,
                 stack_new_entry(
                     this_bvm,
                     temp,
@@ -345,12 +381,18 @@ _die;
 
         temp = cache_stats_array(this_bvm);
 
-        stack_push(this_bvm,
-                rci(this_bvm->dstack_ptr,0),
+        dstack_push(this_bvm,
                 stack_new_entry(
                     this_bvm,
                     temp,
                     nil));
+
+//        stack_push(this_bvm,
+//                rci(this_bvm->dstack_ptr,0),
+//                stack_new_entry(
+//                    this_bvm,
+//                    temp,
+//                    nil));
 
     }
     else{

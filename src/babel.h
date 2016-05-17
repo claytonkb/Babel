@@ -586,6 +586,8 @@ int dev_i;  // dev_i#
 #define _enhance(x)     fprintf(stderr, "ENHANCEMENT: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // enhance#
 #define _mema(x)        int _i; printf("%08x %08x\n", (mword)(x-1), s(x)); for(_i=0; _i<alloc_size(x)-1; _i++){ printf("%08x %08x\n", (mword)(x+_i), c(x,_i)); } // _mema#
 
+#define _opcode_trace(x) fprintf(stderr, "%08x %03x %s\n", this_bvm->interp->global_tick_count, x, interp_opcode_names[x]);
+
 // _dumpf#
 #define _dumpf(x)       \
     dev_dump_file = fopen("test.dot", "w"); \

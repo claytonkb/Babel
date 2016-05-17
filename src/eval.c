@@ -142,8 +142,14 @@ void _each(bvm_cache *this_bvm, mword *eval_body, mword *eval_return, mword *lis
     if(is_nil(list))
         return;
 
-    stack_push(this_bvm,
-            rci(this_bvm->dstack_ptr,0),
+//    stack_push(this_bvm,
+//            rci(this_bvm->dstack_ptr,0),
+//            stack_new_entry(
+//                this_bvm,
+//                rci(list,0),
+//                nil));
+
+    dstack_push(this_bvm,
             stack_new_entry(
                 this_bvm,
                 rci(list,0),
@@ -183,8 +189,14 @@ void _eachar(bvm_cache *this_bvm, mword *eval_body, mword *eval_return, mword *a
         entry = rci(array,0);
     }
 
-    stack_push(this_bvm,
-            rci(this_bvm->dstack_ptr,0),
+//    stack_push(this_bvm,
+//            rci(this_bvm->dstack_ptr,0),
+//            stack_new_entry(
+//                this_bvm,
+//                entry,
+//                nil));
+
+    dstack_push(this_bvm,
             stack_new_entry(
                 this_bvm,
                 entry,
@@ -377,6 +389,10 @@ mword *_iter(bvm_cache *this_bvm, mword *rstack_entry){ // _iter#
 //
 bvm_cache *_next_eval(bvm_cache *this_bvm){ // _next_eval#
 
+    if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
+        fprintf(stderr, "%08x     _next_eval\n", this_bvm->interp->global_tick_count);
+    }
+
     mword *eval_return = 
         get_rstack_entry_eval_return(this_bvm,
                 rstack_ith(this_bvm,0));
@@ -393,6 +409,10 @@ bvm_cache *_next_eval(bvm_cache *this_bvm){ // _next_eval#
 //
 //
 bvm_cache *_next_times(bvm_cache *this_bvm){ // _next_times#
+
+    if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
+        fprintf(stderr, "%08x     _next_times\n", this_bvm->interp->global_tick_count);
+    }
 
     mword *eval_return;
 
@@ -432,6 +452,10 @@ bvm_cache *_next_times(bvm_cache *this_bvm){ // _next_times#
 //
 bvm_cache *_next_loop(bvm_cache *this_bvm){ // _next_loop#
 
+    if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
+        fprintf(stderr, "%08x     _next_loop\n", this_bvm->interp->global_tick_count);
+    }
+
     mword *eval_return = 
         get_rstack_entry_eval_body(this_bvm,
                 rstack_ith(this_bvm,0));
@@ -448,6 +472,10 @@ bvm_cache *_next_loop(bvm_cache *this_bvm){ // _next_loop#
 //
 //
 bvm_cache *_next_each(bvm_cache *this_bvm){ // _next_each#
+
+    if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
+        fprintf(stderr, "%08x     _next_each\n", this_bvm->interp->global_tick_count);
+    }
 
     mword *eval_return;
 
@@ -467,21 +495,20 @@ bvm_cache *_next_each(bvm_cache *this_bvm){ // _next_each#
     }
     else{
 
-        stack_push(this_bvm,
-                rci(this_bvm->dstack_ptr,0),
+//        stack_push(this_bvm,
+//                rci(this_bvm->dstack_ptr,0),
+//                stack_new_entry(
+//                    this_bvm,
+//                    rci(list,0),
+//                    nil));
+
+        dstack_push(this_bvm,
                 stack_new_entry(
                     this_bvm,
                     rci(list,0),
                     nil));
 
         list = rci(list,1);
-
-//    rstack_push(this_bvm, 
-//            mk_rstack_entry_each(this_bvm, 
-//                BABEL_TAG_EACH, 
-//                eval_return,
-//                eval_body,
-//                list));
 
         eval_return = 
             get_rstack_entry_eval_body(this_bvm,
@@ -503,6 +530,10 @@ bvm_cache *_next_each(bvm_cache *this_bvm){ // _next_each#
 //
 //
 bvm_cache *_next_eachar(bvm_cache *this_bvm){ // _next_eachar#
+
+    if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
+        fprintf(stderr, "%08x     _next_eachar\n", this_bvm->interp->global_tick_count);
+    }
 
     mword *eval_return;
 
@@ -531,8 +562,14 @@ bvm_cache *_next_eachar(bvm_cache *this_bvm){ // _next_eachar#
             entry = rci(array,counter+1);
         }
 
-        stack_push(this_bvm,
-            rci(this_bvm->dstack_ptr,0),
+//        stack_push(this_bvm,
+//            rci(this_bvm->dstack_ptr,0),
+//            stack_new_entry(
+//                this_bvm,
+//                entry,
+//                nil));
+
+        dstack_push(this_bvm,
             stack_new_entry(
                 this_bvm,
                 entry,
@@ -563,6 +600,10 @@ bvm_cache *_next_while(bvm_cache *this_bvm){ // _next_while#
 //
 //
 bvm_cache *_next_nest(bvm_cache *this_bvm){ // _next_nest#
+
+    if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
+        fprintf(stderr, "%08x     _next_nest\n", this_bvm->interp->global_tick_count);
+    }
 
     mword *eval_return = 
         get_rstack_entry_eval_return(this_bvm,

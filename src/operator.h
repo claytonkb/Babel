@@ -160,8 +160,7 @@
         OPERATOR_REMOVE1_OPERANDS
 
 #define OPERATOR_PUSH_RESULT(num)                                           \
-    stack_push(this_bvm, \
-            rci(this_bvm->dstack_ptr,0),                                    \
+    dstack_push(this_bvm, \
             stack_new_entry(                                                \
                 this_bvm,                                                   \
                 result##num,                                                \
@@ -174,10 +173,7 @@
 //                result##num,                                                
 //                nil));
 
-#define OPERATORA_PUSH_RESULT(num)                                          \
-    stack_push(this_bvm, \
-            rci(this_bvm->dstack_ptr,0),                                    \
-            stack_result##num);
+#define OPERATORA_PUSH_RESULT(num) dstack_push(this_bvm, stack_result##num);
 
 
 #define OPERATOR_ALLOC0_RESULTS
