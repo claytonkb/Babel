@@ -365,6 +365,13 @@ mword interp_update_steps(bvm_cache *this_bvm){ // interp_update_steps#
         return_val = 0;
     }
 
+#ifdef PROF_MODE
+    if((this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET)
+            && ((return_val % 1024) == 0)){
+        fprintf(stderr, "%d time (ms)\n", (time_ms() - this_bvm->interp->epoch_ms));
+    }
+#endif
+
     return return_val;
 
 }

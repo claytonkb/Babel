@@ -76,6 +76,7 @@ void   stack_ins(bvm_cache *this_bvm, mword *stack_prev, mword *stack_entry);
 mword  stack_diameter(bvm_cache *this_bvm, mword *stack);
 mword *stack_take(bvm_cache *this_bvm, mword *stack, mword count);
 void dstack_push(bvm_cache *this_bvm, mword *stack_entry);
+mword *stack_plumb(bvm_cache *this_bvm);
 
 void stack_give(bvm_cache *this_bvm, mword *list);
 void stack_restore(bvm_cache *this_bvm, mword *tag);

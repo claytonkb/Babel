@@ -1304,10 +1304,10 @@ man_pages
         ""
         "See also: 'bstruct', 'val', 'ptr', 's-field'"))
     ("stack"
-        "Babel is a stack-based language. The stack is the single most important structure"
+        ("Babel is a stack-based language. The stack is the single most important structure"
         "in Babel. Every operand is placed on the stack before it is operated on. To"
         "manipulate the stack, use one of Babel's stack operators. For more information"
-        "about the stack operators, enter: 'toc' man !"
+        "about the stack operators, enter: 'toc' man !"))
     ("map"
         ("Babel supports associative-arrays - in Babel, they are referred to as maps. The"
         "root symbol-table is implemented as a map, so you can use any of the built-in"

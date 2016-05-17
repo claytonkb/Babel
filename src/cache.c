@@ -51,6 +51,7 @@ CACHED_FIELDS
 
 //    this_bvm->dstack_depth    = stack_depth(this_bvm, this_bvm->dstack_ptr);
 //    this_bvm->dstack_diameter = stack_diameter(this_bvm, this_bvm->dstack_ptr);
+
     this_bvm->dstack_depth    = 0;
     this_bvm->dstack_diameter = 0;
 

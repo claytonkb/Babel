@@ -22,6 +22,7 @@
 #include "bpdl.h"
 #include "bpdl2.h"
 #include "xoroshiro128.h"
+#include "misc.h"
 
 
 // Initializes the root Babel Virtual Machine (BVM) and interpreter-only state...
@@ -286,6 +287,8 @@ _trace;
     bvm_utc_epoch->tm_yday = utc_epoch->tm_yday;
 
     this_bvm->interp->utc_epoch = bvm_utc_epoch;
+
+    this_bvm->interp->epoch_ms = time_ms();
 
     return this_bvm;
 

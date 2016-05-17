@@ -256,6 +256,7 @@ typedef struct { // interp_state#
     mword           *warm_null_BVM;
 
     struct tm       *utc_epoch;
+    mword            epoch_ms;
     mword           *srand;
 
     mword            null_hash[HASH_SIZE];

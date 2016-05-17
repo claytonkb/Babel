@@ -142,6 +142,19 @@ void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, m
         - Try to eliminate memset from newlfi
         - Set mem_alloc bactrack point per opcode in case of MC_GC_OP_RESTART
 
+        strsplit perf-notes:
+        13872 ops in 516 ms
+            26883 ops/s
+            37 us/op
+
+        14563 ops in 140ms
+            140021 ops/s
+            7 us/op
+
+        14203 ops in 125 ms
+            113624 ops/s
+            9 us/op
+
     - Memory-page-size management
 
         Allocating very large single-page sizes increases the likelihood that
@@ -163,6 +176,29 @@ void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, m
           and allocation should cycle through the available banks.
 
     - Stack-operand salvaging
+
+        - Overview:
+
+            2 2 +
+
+            +-----+-----+-----+-----+-----+
+            |  2  |  2  |     |     |     |
+            +-----+-----+-----+-----+-----+
+                        ^
+                        |
+                        alloc pointer
+
+
+            +-----+-----+-----+-----+-----+
+            |  4  |     |     |     |     |
+            +-----+-----+-----+-----+-----+
+                  ^
+                  |
+                  alloc pointer
+
+            both operands are contiguous on the stack
+            operand itself may be out of scope - only allocations occurring since last
+                alloc checkpoint (define)
 
         Implement a mem_salvage() function which is called by the dstack_pop()
         function - note that current implementation directly calls stack_pop()

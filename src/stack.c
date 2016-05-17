@@ -254,6 +254,44 @@ mword stack_diameter(bvm_cache *this_bvm, mword *stack){ // stack_diameter#
 
 //
 //
+mword *stack_plumb(bvm_cache *this_bvm){ // stack_plumb#
+
+    mword *stack = rci(this_bvm->dstack_ptr,0);    
+    mword stack_direction = stack_dir(this_bvm, stack);
+
+    mword *curr_entry = rci(stack_TOS(this_bvm, stack), stack_direction);
+    mword diameter=0;
+
+    mword *result = _newlfi(this_bvm, 2, 0);
+
+    if(is_stack_sentinel(this_bvm, curr_entry)){
+        return result;
+    }
+
+    while(!is_stack_sentinel(this_bvm, curr_entry)){
+        diameter++;
+        curr_entry = rci(curr_entry, stack_direction);
+    }
+
+    lcl(result,0) = diameter;
+
+    stack_direction = stack_dir_rev(this_bvm, stack);
+    curr_entry = rci(stack_TOS(this_bvm, stack), stack_direction);
+
+    while(!is_stack_sentinel(this_bvm, curr_entry)){
+        diameter++;
+        curr_entry = rci(curr_entry, stack_direction);
+    }
+
+    lcl(result,1) = diameter;
+
+    return result;
+
+}
+
+
+//
+//
 mword stack_dia(bvm_cache *this_bvm, mword *stack){ // stack_dia#
 
     mword *TOS = stack_TOS(this_bvm, stack);
