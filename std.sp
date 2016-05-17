@@ -434,6 +434,14 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- Slices a string into a list of strings
 -- <string> <index-list> strslice ! --> <list-of-strings>
 'strslice'
+    { dup cp <- shift zap -> pop zap lspair !
+--    lsdup ! 
+--    pop zap shift zap
+--    2 group !
+    2 take
+    { give { <- dup -> give slice8 <- } each flip collect ! } nest }
+
+'strslice_BAD'
     { lsdup ! 
     pop zap shift zap
     2 group !

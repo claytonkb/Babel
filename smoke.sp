@@ -275,8 +275,20 @@ optest
     { 0x91c81eed last 1 + } 2 times 0x91c81eed cmp
     pass_fail !
 
-    -- NOT COVERED --
     -- loop operators
+    "each:" <<
+    0 (1 2 3) {+} each 6 cmp
+    pass_fail !
+
+    "eachar:" <<
+    0 [1 2 3] {+} eachar 6 cmp
+    pass_fail !
+
+    "times:" <<
+    0 1 2 3 {+} 3 times 6 cmp
+    pass_fail !
+
+    -- NOT COVERED --
     -- I/O operators
 
     "\nTOTAL FAILURES: "     <<
