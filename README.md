@@ -1,69 +1,44 @@
-_If you are looking for an overview of Babel, see the "Documentation" 
-section below._
+Babel
+===========
 
-Compiling Babel 
-===============
+Tutorial
+--------
 
-My scripts are set up using Cygwin and I'm currently compiling for a Win32 
-target using the tcc C compiler (I have the compiler in the repo because I 
-eventually plan to link to it). Babel might actually compile to *nix but I 
-haven't tried it yet. Eventually, Babel will be cross-compiled on both
-Windows and *nix. To compile Babel, just run:
+To run the tutorial in Windows:  
+    - Open a command window (Win+R, cmd, OK)  
+    - Change to the directory where you cloned the Babel repo  
+    - bin\babel.exe  
+    - At the prompt, enter: quick\_start !
+    - Follow the on-screen directions  
 
->       perl make.pl
+License
+-------
 
-This will build babel.exe in the bin directory. You are now ready to run 
-Babel. 
+Babel is licensed under [Creative Commons Attribution 4.0 License](https://creativecommons.org/licenses/by/4.0/legalcode).
 
->       bin/babel.exe
+You are free to:  
 
-Installing Cygwin
------------------
+Share — copy and redistribute the material in any medium or format  
+Adapt — remix, transform, and build upon the material for any purpose, even
+commercially.  
 
-[Go here](http://www.cygwin.com/install.html)
+The licensor cannot revoke these freedoms as long as you follow the license 
+terms.  
 
-Installing Graphviz on Windows
-------------------------------
+Under the following terms:  
 
-If you want to use the dump (Babel-to-Graphviz) operator to provide 
-visualization of the Babel data-structure, you will need to install 
-Graphviz dot (on Windows; it's installed by default in any Linux 
-distro I'm aware of). In order to view the output, you will need to 
-redirect it to a file:
+Attribution — You must give appropriate credit, provide a link to the license,
+and indicate if changes were made. You may do so in any reasonable manner, but
+not in any way that suggests the licensor endorses you or your use.  
 
->       perl babel eg/bbl2gv.sp > eg/bbl2gv.dot
+No additional restrictions — You may not apply legal terms or technological
+measures that legally restrict others from doing anything the license permits.  
 
-Download the Graphviz software for your version of Windows and install it. 
-Then, run the following command:
+Notices:  
 
->       dot -Tsvg eg/bbl2gv.dot > eg/bbl2gv.svg
-
-Now, open the eg/bbl2gv.svg file in any web browser (Chrome and Firefox 
-both work well for me).
-
-Note that when you run the interpreter in debug mode, it automatically 
-generates a "snapshot.dot" file, which is a visual snapshot of your entire 
-Babel program.
-
-Documentation
--------------
-
-_doc/babel\_gsg.md_  
-
-Getting Started Guide
-
-_doc/babel\_phil.md_
-
-Documents the "Philosophy of Babel"
-
-_doc/babel\_op.md_
-
-Documents the built-in Babel operators. This file is generated when you 
-build Babel using the make.pl script.
-
-_doc/babel\_guts.md_
-
-Documents the internals of the Babel interpreter, as it is.
-
-
+You do not have to comply with the license for elements of the material in the
+public domain or where your use is permitted by an applicable exception or
+limitation. No warranties are given. The license may not give you all of the
+permissions necessary for your intended use. For example, other rights such as
+publicity, privacy, or moral rights may limit how you use the material.
 

@@ -1,0 +1,52 @@
+babel_clean(){
+    rm -f bin/babel.exe
+}
+
+babel_build(){
+    gcc src/babel.c src/mem.c src/bstruct.c src/init.c src/list.c src/stack.c src/introspect.c src/array.c src/tptr.c src/construct.sp.c src/interp.c src/opcode.c src/pearson16.c src/string.c src/utf8.c src/hash.c src/cache.c src/bvm.c src/mt19937ar.c src/io.c src/operand.c src/arith.c src/eval.c src/rstack.c src/misc.c src/trie.c src/access.c src/pbp.c src/sexpr.c src/logic.c src/bpdl.c src/lib_babel.c src/null.sp.c src/bpdl2.c src/xoroshiro128.c -Wall -o bin/babel;
+}
+
+babel_macro(){
+    bin/babel.exe mktable.sp macro_table.sp macro_table.bbl
+}
+
+babel_opcode(){
+    bin/babel.exe mktable.sp opcode_table.sp opcode_table.bbl
+}
+
+babel_sparse(){
+    perl sparse.pl "$1" src/construct.sp src/opcodes.sp;
+}
+
+babel_construct(){
+    perl sparse.pl src/construct.sp src/root.sp src/opcodes.sp;
+}
+
+babel_compile(){
+    babel_clean;
+    babel_build;
+}
+
+babel_full(){
+    babel_construct;
+    babel_compile;
+}
+
+babel_run(){
+    babel_clean;
+    babel_build;
+    bin/babel.exe;
+}
+
+babel_exec(){
+    bin/babel.exe
+}
+
+babel_capture(){
+    bin/babel.exe > test.dot
+}
+
+babel_convert(){
+    dot -Tsvg test.dot > test.svg;
+}
+
