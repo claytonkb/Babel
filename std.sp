@@ -226,18 +226,20 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 
 'cache_stats_labels'
     ("self" "code_ptr" "rstack_ptr" "dstack_ptr" "ustack_ptr" "sym_table"
-    "soft_root" "thread_id" "thread_id value" "steps" "steps value" "advance_type"
-    "advance_type value" "mask_table" "flags" "MC_ALLOC_BLOCKING" "MC_GC_BLOCKING"
-    "MC_GC_PENDING" "MC_GC_CONVERT_PENDING_TO_OP_RESTART" "MC_GC_PNR"
-    "MC_GC_OP_RESTART" "INTERP_BOOT_IN_PROGRESS" "BVM_INSTR_IN_PROGRESS"
-    "BVM_INCOHERENT" "BVM_SYMBOLS_DEFINED" "BVM_CLEAN" "BVM_INTERP_OP_TRACE"
-    "BVM_CODE_LIST_EMPTY" "BVM_RETURN_TOS_ON_EXIT" "BVM_CACHE_INVALID"
-    "BVM_CACHE_DIRTY" "BVM_CACHE_ONLY" "BVM_CACHE_BLOCKING" "NO_ASYNC" "NO_EXCEPT"
-    "MC_USE_MALLOC" "interp" "cat_ex" "argc" "argv" "envp" "interp_argv" "mem"
-    "nil" "jump_table" "empty_string" "utc_epoch" "srand" "null_hash"
-    "thread_counter" "global_tick_count" "primary->base_ptr" "primary->alloc_ptr"
-    "primary->size" "secondary->base_ptr" "secondary->alloc_ptr" "secondary->size"
-    "GC_count" "op_restart_alloc_size" "last_GC_tick_count")
+    "soft_root" "local_root" "local_path" "local_pwd" "thread_id" "thread_id value"
+    "steps" "steps value" "advance_type" "advance_type value"  "bvm_initd"
+    "dstack_depth" "dstack_diameter" "mask_table" "flags" "MC_ALLOC_BLOCKING"
+    "MC_GC_BLOCKING" "MC_GC_PENDING" "MC_GC_CONVERT_PENDING_TO_OP_RESTART"
+    "MC_GC_PNR" "MC_GC_OP_RESTART" "INTERP_BOOT_IN_PROGRESS"
+    "BVM_INSTR_IN_PROGRESS" "BVM_INCOHERENT" "BVM_SYMBOLS_DEFINED" "BVM_CLEAN"
+    "BVM_INTERP_OP_TRACE" "BVM_CODE_LIST_EMPTY" "BVM_RETURN_TOS_ON_EXIT"
+    "BVM_CACHE_INVALID" "BVM_CACHE_DIRTY" "BVM_CACHE_ONLY" "BVM_CACHE_BLOCKING"
+    "NO_ASYNC" "NO_EXCEPT" "MC_USE_MALLOC" "interp" "cat_ex" "argc" "argv" "envp"
+    "interp_argv" "mem" "nil" "jump_table" "empty_string" "utc_epoch" "srand"
+    "null_hash" "thread_counter" "global_tick_count" "primary->base_ptr"
+    "primary->alloc_ptr" "primary->size" "secondary->base_ptr"
+    "secondary->alloc_ptr" "secondary->size" "GC_count" "op_restart_alloc_size"
+    "last_GC_tick_count")
 
 'cache_dump'
     { 23 dev ar2ls
@@ -435,9 +437,6 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- <string> <index-list> strslice ! --> <list-of-strings>
 'strslice'
     { dup cp <- shift zap -> pop zap lspair !
---    lsdup ! 
---    pop zap shift zap
---    2 group !
     2 take
     { give { <- dup -> give slice8 <- } each flip collect ! } nest }
 
@@ -500,6 +499,14 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
     shift zap (0) cp push
     swap lspair !
     { <- dup -> give dup arlen8 0 swap move8 } each }
+
+-- Joins a list of strings into a single string
+-- <list-of-strings> strjoin ! --> <string>
+'lsstrlen'
+    { <- 0 -> {arlen8 +} each }
+
+'lsstrlen2'
+    { {arlen8} over ! sum ! }
 
 -- General-purpose list-sort; "do what I mean" for most numeric object types 
 --   (val-arrays, lists of arrays, lists of lists of arrays, etc.)

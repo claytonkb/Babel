@@ -72,6 +72,25 @@ _d(MEM_DEFAULT_MIN_ALLOC);
     init_interp_privileges(this_bvm);
     init_global_consts(this_bvm);
     init_nil(this_bvm);
+
+    this_bvm->self          = nil;
+    this_bvm->code_ptr      = nil;
+    this_bvm->rstack_ptr    = nil;
+    this_bvm->dstack_ptr    = nil;
+    this_bvm->ustack_ptr    = nil;
+    this_bvm->sym_table     = nil;
+    this_bvm->soft_root     = nil;
+    this_bvm->local_root    = nil;
+    this_bvm->local_path    = nil;
+    this_bvm->local_pwd     = nil;
+    this_bvm->thread_id     = nil;
+    this_bvm->steps         = nil;    
+    this_bvm->advance_type  = nil;
+    this_bvm->bvm_initd     = nil;
+    this_bvm->dstack_depth  = 0;
+    this_bvm->dstack_diameter = 0;
+    this_bvm->mask_table    = nil;
+
     init_interp_consts(this_bvm);
     init_jump_table(this_bvm);
     init_new_epoch(this_bvm);

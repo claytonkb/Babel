@@ -109,6 +109,8 @@ void stack_give(bvm_cache *this_bvm, mword *list){ // stack_give#
 //
 void stack_save(bvm_cache *this_bvm, mword *tag){ // stack_save#
 
+//FIXME(stack_depth)
+
     stack_pop( this_bvm, rci(this_bvm->dstack_ptr,0) ); // Manually remove operand
 
     insym(this_bvm, 
@@ -123,6 +125,8 @@ void stack_save(bvm_cache *this_bvm, mword *tag){ // stack_save#
 //
 //
 void stack_restore(bvm_cache *this_bvm, mword *tag){ // stack_restore#
+
+//FIXME(stack_depth)
 
     mword *new_stack = lusym(this_bvm, tag);
 
@@ -139,6 +143,8 @@ mword *stack_take(bvm_cache *this_bvm, mword *stack, mword count){ // stack_take
 
     mword stack_direction = stack_dir(this_bvm, stack);
     mword depth           = stack_depth(this_bvm, stack);
+
+    dstack_depth_adj(this_bvm,(-1*MIN(count,depth)));
 
     mword *result = nil;
     mword *cut_point = nil;
@@ -408,6 +414,9 @@ void stack_default(bvm_cache *this_bvm, mword *stack){ // stack_default#
 void stack_clear(bvm_cache *this_bvm, mword *stack){ // stack_clear#
 
     *(mword**)stack = stack_new(this_bvm);
+
+    dstack_depth_zero(this_bvm);
+
     cache_flush(this_bvm);
 
 }
@@ -430,6 +439,8 @@ void stack_push(bvm_cache *this_bvm, mword *stack, mword *stack_entry){ // stack
 //
 //
 mword *stack_pop(bvm_cache *this_bvm, mword *stack){ // stack_pop#
+
+    dstack_dec(this_bvm);
 
     if(is_stack_empty(this_bvm, stack)){
         return nil;
@@ -527,6 +538,8 @@ mword is_stack_sentinel(bvm_cache *this_bvm, mword *stack_entry){ // is_stack_se
 //
 void dstack_push(bvm_cache *this_bvm, mword *stack_entry){ // dstack_push#
 
+    dstack_inc(this_bvm);
+
     mword *stack = rci(this_bvm->dstack_ptr, 0);
 
     if(stack_get_dir(this_bvm, stack)){ //prev
@@ -540,9 +553,6 @@ void dstack_push(bvm_cache *this_bvm, mword *stack_entry){ // dstack_push#
 
 
 
-
-
-
 /*****************************************************************************
  *                                                                           *
  *                             STACK OPERATORS                               *
@@ -550,15 +560,11 @@ void dstack_push(bvm_cache *this_bvm, mword *stack_entry){ // dstack_push#
  ****************************************************************************/
 
 
-#define ZAP_OPERATIONS 
+#define ZAP_OPERATIONS \
 
 OPERATORA_R1_W0_D(
-        zap, 
-        ZAP_OPERATIONS, 
-        nil, 
-        OI_MASK_LEAF|OI_MASK_INTE|OI_MASK_TPTR, 
-        0, 
-        0)
+        zap, ZAP_OPERATIONS, 
+        nil, OI_MASK_LEAF|OI_MASK_INTE|OI_MASK_TPTR, 0, 0)
 
 
 #define DUP_OPERATIONS \
@@ -574,6 +580,7 @@ OPERATORA_R1_W1_P(
 
 
 #define DOWN_OPERATIONS \
+    dstack_dec_down(this_bvm); \
     stack_down(this_bvm, rci(this_bvm->dstack_ptr,0));
 
 OPERATORS_R0_W0( // XXX WAIVER(OPERATOR) XXX
@@ -582,6 +589,7 @@ OPERATORS_R0_W0( // XXX WAIVER(OPERATOR) XXX
 
 
 #define UP_OPERATIONS \
+    dstack_inc_up(this_bvm); \
     stack_up(this_bvm, rci(this_bvm->dstack_ptr,0));
 
 OPERATORS_R0_W0( // XXX WAIVER(OPERATOR) XXX
@@ -600,6 +608,7 @@ OPERATORA_R2_W2_D(swap,SWAP_OPERATIONS,
 
 // flip toggles the stack direction
 #define FLIP_OPERATIONS \
+    dstack_depth_swap(this_bvm); \
     stack_flip(this_bvm, rci(this_bvm->dstack_ptr,0)); \
     cache_flush(this_bvm);
 
@@ -610,6 +619,7 @@ OPERATORS_R0_W0(
 
 // rot toggles the stack orientation
 #define ROT_OPERATIONS \
+    dstack_depth_swap(this_bvm); \
     stack_rot(this_bvm, rci(this_bvm->dstack_ptr,0)); \
     cache_flush(this_bvm);
 

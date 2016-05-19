@@ -180,7 +180,11 @@ _memi(rci(next_entry,0));
                     fprintf(stderr, "[]\n");
                 }
                 else{
-                    fprintf(stderr, "tag\n");
+                    fprintf(stderr, "tag %08x%08x%08x%08x\n", 
+                            rcl(rci(next_entry,0),3), 
+                            rcl(rci(next_entry,0),2), 
+                            rcl(rci(next_entry,0),1), 
+                            rcl(rci(next_entry,0),0));
                 }
             }
 
@@ -295,6 +299,9 @@ _trace;
 _trace;
 #endif
 
+_d(this_bvm->dstack_depth);
+_d(this_bvm->dstack_diameter);
+
     return this_bvm;
 
 }
@@ -365,11 +372,23 @@ mword interp_update_steps(bvm_cache *this_bvm){ // interp_update_steps#
         return_val = 0;
     }
 
+//    if(this_bvm->dstack_depth != 
+//        stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0))){
+//        _d(this_bvm->dstack_depth);
+//        _d(stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0)));
+//        _die;
+//    }
+
 #ifdef PROF_MODE
     if((this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET)
             && ((return_val % 1024) == 0)){
         fprintf(stderr, "%d time (ms)\n", (time_ms() - this_bvm->interp->epoch_ms));
     }
+
+//    if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){ // FIXME: Block this out with #ifdef DEV_MODE
+//        _d(this_bvm->dstack_depth);
+//        _d(stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0)));
+//    }
 #endif
 
     return return_val;

@@ -11,6 +11,7 @@
 #include "bstruct.h"
 #include "operator.h"
 #include "logic.h"
+#include "stack.h"
 
 ////
 ////
@@ -632,6 +633,7 @@ bvm_cache *_next_nest(bvm_cache *this_bvm){ // _next_nest#
     }
 
     cache_flush(this_bvm);
+    dstack_depth_update(this_bvm);
 
     rstack_pop(this_bvm);
 

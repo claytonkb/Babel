@@ -50,9 +50,41 @@
 
 #define is_stack_empty(bvm, stack) (stack_depth(bvm,stack)==0) // is_stack_empty#
 
+#define dstack_inc(x) \
+    x->dstack_depth++; \
+    x->dstack_diameter++; \
+
+#define dstack_dec(x) \
+    x->dstack_depth--; \
+    x->dstack_diameter--; \
+
+#define dstack_dec_down(x) \
+    x->dstack_depth--; \
+    x->dstack_diameter++; \
+
+#define dstack_inc_up(x) \
+    x->dstack_depth++; \
+    x->dstack_diameter--; \
+
+#define dstack_depth_swap(x) \
+    mword _dstack_depth_swap_temp = x->dstack_depth; \
+    x->dstack_depth = x->dstack_diameter; \
+    x->dstack_diameter = _dstack_depth_swap_temp;
+
+#define dstack_depth_zero(x) \
+    x->dstack_depth = 0; \
+    x->dstack_diameter = 0;
+
+#define dstack_depth_adj(x,y) \
+    x->dstack_depth += (y); \
+    x->dstack_diameter += (y);
+
+#define dstack_depth_update(x) \
+    x->dstack_depth = stack_depth(x, rci(x->dstack_ptr,0)); \
+    x->dstack_diameter = stack_diameter(x, rci(x->dstack_ptr,0));
+
 mword is_ustack_empty2(bvm_cache *this_bvm, mword *stack);
 mword is_stack_empty2(bvm_cache *this_bvm, mword *stack);
-
 
 //mword *stack_list_to_list(bvm_cache *this_bvm, mword *stack_list, mword direction);
 mword *stack_list_to_list(bvm_cache *this_bvm, mword *stack_list, mword *tail_list, mword direction);

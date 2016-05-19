@@ -17,46 +17,79 @@ man
     selr ! }
     <
 
+--"toc"
+--    "-- Logic & Arithmetic ---------------- | -- I/O -------------------------------"
+--    "- & * / | ^ ~ ~& ~^ ~| + abs add and   | << <<< >> >>> journal slurp slurpm "
+--    "ashr cand cnand cnor cnot cor cxnor    | spit spitm stdinln8 stdout stdoutm "
+--    "cxor div eq? false ge? gt? le?         | include loadfs savefs say pr prs prn "
+--    "logicF0_od logicF1_od logicF2_od       | "
+--    "logicF3_od logicF4_od logicF5_od       | -- List ------------------------------"
+--    "logicF6_od logicF7_od logicF8_od       | append bons car cdr cons ins ith len "
+--    "logicF9_od logicFa_od logicFb_od       | ls2lf rev shift split uncons unshift "
+--    "logicFc_od logicFd_od logicFe_od       | fold compose lsbyn lspair lsrol lsror "
+--    "logicFf_od lt? mul ne? not or rem rol  | lsunpair lsrotn cart "
+--    "rot shl shr sub true xor any? all?     | "
+--    "sum prod lsand lsor lsxor              | -- Array -----------------------------"
+--    "                                       | ar2ls arcmp arlen arlen8 cat cat8 cut "
+--    "-- Stack ----------------------------- | cut8 move move8 randlf shuf slice "
+--    "-> <- bottom clear depth dia dup flip  | slice8 sortlf th th8"
+--    "give pop push swap take top twist up   | "
+--    "zap collect takeptr takeval            | -- Bstruct ---------------------------"
+--    "                                       | bpdli cmp cp detag get_tag load mu "
+--    "-- Eval ------------------------------ | nil? nin nlf npt ntag nva ptr? sfield "
+--    "! ? alt babel cond accept? die exec    | span tag? tageq? unload val?"
+--    "exit fail fnord fork goto hibernate    | "
+--    "if ifte last let nest next pass? pass  | -- Hash-Table ------------------------"
+--    "reject? reset sel selr seq sleep       | entsha exha hash hashm insha inskha "
+--    "                                       | luha newha newptr newtag newval phash "
+--    "-- Loop ------------------------------ | rmha lumap insmap exmap rmmap valmap "
+--    "... eachar iter loop while times       | keymap tagmap map2ls dirmap ls2map "
+--    "                                       | "
+--    "-- String ---------------------------- | -- Matrix ----------------------------"
+--    ".+ ar2str atoi btoi char dtoi htoi     | matcol matrow matdiag mattrans mateach "
+--    "itoa itob itod itoh itoo otoi sexpr    | matover matij matpair matwise matrotn "
+--    "str2ar lscat                           | matmix matcolmix matcolcat matrowcat "
+--    "                                       | matshow "
+--    "-- Introspection --------------------- | "
+--    "; bs2gv bs2str show sd                 | -- BVM -------------------------------"
+--    "                                       | mkbvm stepbvm stepnbvm cibvm stackbvm "
+--    "-- Symbols --------------------------- |"
+--    "< > get get2 insym lusym root self set |"
+--    "set2 import                            |"
+
 man_pages 
 (("toc"
-    ("-- Logic & Arithmetic ---------------- | -- I/O -------------------------------"
-    "- & * / | ^ ~ ~& ~^ ~| + abs add and   | << <<< >> >>> journal slurp slurpm "
-    "ashr cand cnand cnor cnot cor cxnor    | spit spitm stdinln8 stdout stdoutm "
-    "cxor div eq? false ge? gt? le?         | include loadfs savefs say pr prs prn "
-    "logicF0_od logicF1_od logicF2_od       | "
-    "logicF3_od logicF4_od logicF5_od       | -- List ------------------------------"
-    "logicF6_od logicF7_od logicF8_od       | append bons car cdr cons ins ith len "
-    "logicF9_od logicFa_od logicFb_od       | ls2lf rev shift split uncons unshift "
-    "logicFc_od logicFd_od logicFe_od       | fold compose lsbyn lspair lsrol lsror "
-    "logicFf_od lt? mul ne? not or rem rol  | lsunpair lsrotn cart "
-    "rot shl shr sub true xor any? all?     | "
-    "sum prod lsand lsor lsxor              | -- Array -----------------------------"
-    "                                       | ar2ls arcmp arlen arlen8 cat cat8 cut "
-    "-- Stack ----------------------------- | cut8 move move8 randlf shuf slice "
-    "-> <- bottom clear depth dia dup flip  | slice8 sortlf th th8"
-    "give pop push swap take top twist up   | "
-    "zap collect takeptr takeval            | -- Bstruct ---------------------------"
-    "                                       | bpdli cmp cp detag get_tag load mu "
-    "-- Eval ------------------------------ | nil? nin nlf npt ntag nva ptr? sfield "
-    "! ? alt babel cond accept? die exec    | span tag? tageq? unload val?"
-    "exit fail fnord fork goto hibernate    | "
-    "if ifte last let nest next pass? pass  | -- Hash-Table ------------------------"
-    "reject? reset sel selr seq sleep       | entsha exha hash hashm insha inskha "
-    "                                       | luha newha newptr newtag newval phash "
-    "-- Loop ------------------------------ | rmha lumap insmap exmap rmmap valmap "
-    "... eachar iter loop while times       | keymap tagmap map2ls dirmap ls2map "
-    "                                       | "
-    "-- String ---------------------------- | -- Matrix ----------------------------"
-    ".+ ar2str atoi btoi char dtoi htoi     | matcol matrow matdiag mattrans mateach "
-    "itoa itob itod itoh itoo otoi sexpr    | matover matij matpair matwise matrotn "
-    "str2ar lscat                           | matmix matcolmix matcolcat matrowcat "
-    "                                       | matshow "
-    "-- Introspection --------------------- | "
-    "; bs2gv bs2str show sd                 | -- BVM -------------------------------"
-    "                                       | mkbvm stepbvm stepnbvm cibvm stackbvm "
-    "-- Symbols --------------------------- |"
-    "< > get get2 insym lusym root self set |"
-    "set2 import                            |"))
+   ("Topic                   'key' man !"
+    "-----------------------------------"
+    "Logic/Arithmetic ...... toc_logic"
+    "I/O ................... toc_io"
+    "List .................. toc_list"
+    "Array ................. toc_array"
+    "Stack ................. toc_stack"
+    "Bstruct ............... toc_bstruct"
+    "Eval .................. toc_eval"
+    "Map ................... toc_map"
+    "Loop .................. toc_loop"
+    "String ................ toc_string"
+    "Matrix ................ toc_matrix"
+    "Introspection ......... toc_introspect"
+    "BVM ................... toc_bvm"
+    "Symbols ............... toc_symbols"))
+
+("toc_logic"
+    ("---------------------- Logic & Arithmetic Topics ------------------------"
+    ""
+    "- & * / | ^ ~ ~& ~^ ~| + abs add and "  
+    "ashr cand cnand cnor cnot cor cxnor  " 
+    "cxor div eq? false ge? gt? le?       "
+    "logicF0_od logicF1_od logicF2_od     "
+    "logicF3_od logicF4_od logicF5_od     "
+    "logicF6_od logicF7_od logicF8_od     "
+    "logicF9_od logicFa_od logicFb_od     "
+    "logicFc_od logicFd_od logicFe_od     "
+    "logicFf_od lt? mul ne? not or rem rol"
+    "rot shl shr sub true xor any? all?   "
+    "sum prod lsand lsor lsxor            " ))
 
 -----------------------------------------------------------------------------
 --                                                                         --
@@ -68,12 +101,12 @@ man_pages
         ""
         "Subtracts two numeric values. Numeric result."
         ""
-        "See also: 'sub'"))
+        "See also: sub"))
     ("->"
         ("Also 'up'. The up operator moves a value from the ustack to the"
         "dstack. The down or <- operator does the opposite."
         ""
-        "See also: '<-', 'stack'"))
+        "See also: <-, stack"))
     ("!"
         ("{A} ! ==> result of evaluating A"
         ""
@@ -293,7 +326,7 @@ man_pages
         ("'S' btoi ==> n"
         ""
         "Converts string S containing a binary numeric representation to"
-        "value n. See also: 'itob'"))
+        "value n. See also: itob"))
     ("cabs_iod"
         ("See abs"))
     ("cadd_iod"
@@ -441,7 +474,7 @@ man_pages
     ("detag"
         ("tptr detag ==> ptr"
         ""
-        "Returns the pointer in a tagged-pointer. See also: 'newtag', 'get_tag'"))
+        "Returns the pointer in a tagged-pointer. See also: newtag, get_tag"))
     ("detag_d"
         ("See detag"))
     ("dev"
@@ -470,7 +503,7 @@ man_pages
         ""
         "Duplicates the reference on top-of-stack. This is a 'shallow-copy',"
         "so altering A through one reference alters it through both. See also:"
-        "'cp'"))
+        "cp"))
     ("each"
         ("See '...'"))
     ("eachar"
@@ -544,7 +577,7 @@ man_pages
     ("get_tag"
         ("tptr get_tag ==> tag"
         ""
-        "Returns the tag in a tagged-pointer. See also: 'newtag', 'detag'"))
+        "Returns the tag in a tagged-pointer. See also: newtag, detag"))
     ("get_tag_d"
         ("See get_tag"))
     ("get2"
@@ -552,7 +585,7 @@ man_pages
     ("give"
         ("(A B ...) give ==> A B ..."
         ""
-        "Gives the elements of a list onto the stack. See also: 'take'"))
+        "Gives the elements of a list onto the stack. See also: take"))
     ("goto"
         ("..."))
     ("gt?"
@@ -646,22 +679,22 @@ man_pages
         ("n itob ==> 'S'"
         ""
         "Converts numeric value to numeric string S containing a binary numeric"
-        "representation of n. See also: 'btoi'"))
+        "representation of n. See also: btoi"))
     ("itod"
         ("n itod ==> 'S'"
         ""
         "Converts numeric value to numeric string S containing a decimal numeric"
-        "representation of n. See also: 'dtoi'"))
+        "representation of n. See also: dtoi"))
     ("itoh"
         ("n itoh ==> 'S'"
         ""
         "Converts numeric value to numeric string S containing a hexadecimal"
-        "numeric representation of n. See also: 'htoi'"))
+        "numeric representation of n. See also: htoi"))
     ("itoo"
         ("n itoo ==> 'S'"
         ""
         "Converts numeric value to numeric string S containing a octal numeric"
-        "representation of n. See also: 'otoi'"))
+        "representation of n. See also: otoi"))
     ("journal"
         ("..."))
     ("journal_md"
@@ -744,7 +777,7 @@ man_pages
         "hash-table corresponding to hash-key. Otherwise, returns the"
         "corresponding entry."
         ""
-        "See also: 'lumap'"))
+        "See also: lumap"))
     ("luha_d"
         ("See luha"))
     ("lusym"
@@ -991,7 +1024,7 @@ man_pages
     ("sfield"
         ("x sfield ==> n"
         ""
-        "Retrieves the sfield of array x. Numeric result. See also: 's-field'"))
+        "Retrieves the sfield of array x. Numeric result. See also: s-field"))
     ("sfield_d"
         ("See sfield"))
     ("shift"
@@ -1150,7 +1183,7 @@ man_pages
     ("take"
         ("A B ... n take ==> (A B ...)"
         ""
-        "Takes n elements off the stack and returns them as a lis. See also: 'give'"))
+        "Takes n elements off the stack and returns them as a lis. See also: give"))
     ("th"
         ("[val A B ...] n th ==> nth element of array"
         "[ptr A B ...] n th ==> nth element of array"
@@ -1175,7 +1208,7 @@ man_pages
         "not a high-resolution timer, so there is no realism guarantee. The system"
         "timer continues counting even when the current application is not in focus, so"
         "code-profiling measurements do not necessarily reflect performance of the code"
-        "in isolation. See also 'timed'."))
+        "in isolation. See also timed"))
     ("top"
         ("..."))
     ("true"
@@ -1195,7 +1228,7 @@ man_pages
     ("unload"
         ("bstruct unload ==> val-array"
         ""
-        "Unloads a bstruct. Result is val-array. See also: 'load'"))
+        "Unloads a bstruct. Result is val-array. See also: load"))
     ("unload_d"
         ("See unload"))
     ("unshift"
@@ -1253,7 +1286,7 @@ man_pages
         "example, a large bitmap can be stored as a leaf-array by simply prepending"
         "it with the appropriate s-field in memory."
         ""
-        "See also: 'val', 'ptr', 'tptr', 's-field'"))
+        "See also: val, ptr, tptr, s-field"))
     ("s-field"
         ("To tell apart the three types of array, each array has an s-field."
         "The s-field is a single mword at position 0 in the allocated array."
@@ -1289,7 +1322,7 @@ man_pages
         '    ["hello, world"]'))
     ("array8"
         ("An array8 is a value-array with an added alignment-word at the end of the value-"
-        "array. See also: 'string'"))
+        "array. See also: string"))
     ("ptr"
         ("A pointer-array (ptr) contains one or more pointers, each mword-sized. "
         ""
@@ -1302,7 +1335,7 @@ man_pages
         "recognized by the interpreter but there are automatic mechanisms for"
         "specifying how user-tags are to be handled."
         ""
-        "See also: 'bstruct', 'val', 'ptr', 's-field'"))
+        "See also: bstruct, val, ptr, s-field"))
     ("stack"
         ("Babel is a stack-based language. The stack is the single most important structure"
         "in Babel. Every operand is placed on the stack before it is operated on. To"
@@ -1317,7 +1350,7 @@ man_pages
         ""
         "    lumap, lumapls, insmap, insmapls, exmap, rmmap, valmap, tagmap, overmap,"
         "    eachmap, dirmap, showmap, map2ls, mergemap, tmergemap, sizemap, emptymap,"
-        "    mkmap, keymap, ls2map, group"))
+        "    mkmap, keymap, ls2map, root"))
     ("list"
         ("Babel has support for lists. To create a list lexically, use the parentheses."
         "For example, to create a list of numbers:"
@@ -1393,7 +1426,7 @@ man_pages
     ("compose" 
         ("(A B ...) (C D ...) compose ! ==> (A B ... C D ...)"
         ""
-        "Directly joins two lists. See also: 'append'"
+        "Directly joins two lists. See also: append"
         ""
         "Defined in std.sp."))
     ("ls2map" 
@@ -1414,19 +1447,19 @@ man_pages
         ("(A B ...) (C D ...) lspair ! ==> ( (A C) (B D) ... )"
         ""
         "Pairs elements of two lists. Same as 'map' in some other programming"
-        "languages. See also: 'lsunpair'"
+        "languages. See also: lsunpair"
         ""
         "Defined in std.sp."))
     ("lsrol" 
         ("(A B ...) N lsrol ! ==> (B ... A)"
         ""
-        "Rotates input list to the left. See also: 'lsror', 'lsrotn'"
+        "Rotates input list to the left. See also: lsror, lsrotn"
         ""
         "Defined in std.sp."))
     ("lsror" 
         ("(A ... Z) N lsrol ! ==> (Z A ...)"
         ""
-        "Rotates input list to the left. See also: 'lsror', 'lsrotn'"
+        "Rotates input list to the left. See also: lsror, lsrotn"
         ""
         "Defined in std.sp."))
     ("collect" 
@@ -1491,7 +1524,7 @@ man_pages
     ("lsunpair" 
         ("( (A C) (B D) ... ) lsunpair ! ==> (A B ...) (C D ...) "
         ""
-        "Un-pairs elements of a list of paired lists. See also: 'lspair'"
+        "Un-pairs elements of a list of paired lists. See also: lspair"
         ""
         "Defined in std.sp."))
     ("matcol" 
@@ -1668,7 +1701,7 @@ man_pages
         "corresponding to a key does not exist in the map, nil is added to the val-list"
         "for that entry. The resulting val-list is in the same order as key-list."
         ""
-        "Defined in std.sp. See also: 'lumap', 'luha'"))
+        "Defined in std.sp. See also: lumap, luha"))
     ("insmap" 
         ("map 'foo' A insmap !"
         ""
@@ -1680,7 +1713,7 @@ man_pages
         ""
         "Inserts a list of key-value pairs into map."
         ""
-        "Defined in std.sp. See also: 'insmap', 'insha'"))
+        "Defined in std.sp. See also: insmap, insha"))
     ("exmap" 
         ("map 'foo' exmap ! ==> 0|1"
         ""
@@ -1780,21 +1813,21 @@ man_pages
         ("('A' 'B' ...) pr !"
         ""
         "Prints a list of strings. Does not print a newline between list items."
-        "See also: 'prs', 'prn', 'say'"
+        "See also: prs, prn, say"
         ""
         "Defined in std.sp."))
     ("prs" 
         ("('A' 'B' ...) prs !"
         ""
         "Prints a list of strings. Prints a space between list items. See also:"
-        "'pr', 'prn', 'say'"
+        "pr, prn, say"
         ""
         "Defined in std.sp."))
     ("prn" 
         ("('A' 'B' ...) prs !"
         ""
         "Prints a list of strings. Prints a newline between list items. See also:"
-        "'pr', 'prs', 'say'"
+        "pr, prs, say"
         ""
         "Defined in std.sp."))
     ("sum" 

@@ -12,6 +12,9 @@ base64e working
 Implement inte-substitutions:
 void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, mword *sub_bs){ // bstruct_substitute#
 
+    - Add interp_checker to interp_update_steps() and #ifdef CHK_MODE
+        Use for op-boundary checking
+
     - binary heaps ... implement now?
         http://www.cs.ucf.edu/~dmarino/ucf/cop3502/sampleprogs/heap.c
         http://courses.csail.mit.edu/6.006/fall10/handouts/recitation10-8.pdf
