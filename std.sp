@@ -192,6 +192,9 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 'nest0'
     { <- nil {zap} cp -> compose ! nest }
 
+'carray'
+    { unload unload {"0x" << hex08 ! << ", " <<} eachar "\n" << }
+
 -----------------------------------------------------------------------------
 --                                                                         --
 --                           dev utilities                                 --

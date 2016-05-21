@@ -49,9 +49,6 @@ bvm_cache *cache_update(bvm_cache *this_bvm){ // cache_update#
 CACHED_FIELDS
 #undef X    
 
-//    this_bvm->dstack_depth    = stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0));
-//    this_bvm->dstack_diameter = stack_diameter(this_bvm, rci(this_bvm->dstack_ptr,0));
-
     dstack_depth_update(this_bvm);
 
     this_bvm->flags->MC_GC_BLOCKING     = save_GC_BLOCKING;

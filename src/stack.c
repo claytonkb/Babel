@@ -12,6 +12,12 @@
 #include "trie.h"
 
 
+// FIXME: 32-bit only
+static mword *stack_template_stack_entry = (mword []){ // stack_template_stack_entry#
+    0x00000044, 0xfffffff4, 0x00000014, 0x00000020, 0x00000020, 0xfffffff8, 0x00000020, 0x0000003c, 
+    0x00000000, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, 0xfffffffc, 0x00000020, 0xfffffff8, 
+    0x00000020, 0x00000020 };
+
 // stack cell:
 // [ptr stack_entry [ptr stack_prev stack_next]]
 //
@@ -30,6 +36,44 @@ mword *stack_new(bvm_cache *this_bvm){ // stack_new#
     mword *new_stack = _mkls(this_bvm, 3, _val(this_bvm, 0), _val(this_bvm, 0), stack_cons);
 
     return new_stack;
+
+}
+
+
+//
+//
+mword *stack_new_entry(bvm_cache *this_bvm, mword *data, mword *type){ // stack_new_entry#
+
+//    //Original:
+//    mword *entry = _new_dcons(this_bvm);
+//    lci(entry,0) = _mkls(this_bvm, 2, data, type);
+//    return entry;
+
+    mword entry_size = size(stack_template_stack_entry+1);
+    mword *entry     = _newlfcp(this_bvm, stack_template_stack_entry+1, entry_size);
+
+    mword *result = bstruct_load_fast(this_bvm, entry, entry_size);
+
+    // 6, 16
+    lci(entry, 5)  = type;
+    lci(entry, 15) = data;
+
+    return result;
+
+//    //Demonstrates how to use bstruct_load_template
+//    mword *rel_offsets = (mword []){ 8, 5, 15 };
+//    mword *abs_offsets = (mword []){ 8, 0, 0  };
+//
+//    rel_offsets++;
+//    abs_offsets++;
+//
+//    // 6, 16
+//    lcl(abs_offsets, 0) = (mword)type;
+//    lcl(abs_offsets, 1) = (mword)data;
+//
+//    bstruct_load_template(this_bvm, entry, rel_offsets, abs_offsets);
+//
+//    return result;
 
 }
 
@@ -142,7 +186,8 @@ void stack_restore(bvm_cache *this_bvm, mword *tag){ // stack_restore#
 mword *stack_take(bvm_cache *this_bvm, mword *stack, mword count){ // stack_take#
 
     mword stack_direction = stack_dir(this_bvm, stack);
-    mword depth           = stack_depth(this_bvm, stack);
+//    mword depth           = stack_depth(this_bvm, stack);
+    mword depth           = this_bvm->dstack_depth;
 
     dstack_depth_adj(this_bvm,(-1*MIN(count,depth)));
 
@@ -313,18 +358,23 @@ void stack_move_needle(bvm_cache *this_bvm, mword *stack, mword direction){ // s
     mword *TOS_1;
     mword *TOS       = stack_TOS(this_bvm, stack);
 
+//_d(this_bvm->dstack_depth);
+//_d(stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0)));
+//_d(this_bvm->dstack_diameter);
+//_d(stack_diameter(this_bvm, rci(this_bvm->dstack_ptr,0)));
+
     if(direction == DOWN_DIRECTION){
         if(is_stack_empty(this_bvm, stack))
             return;
         TOS_1 = rci(TOS, 1+stack_get_dir(this_bvm,stack));
-//        TOS_1 = rci(TOS, stack_dir(this_bvm,stack));
+        dstack_dec_down(this_bvm);
     }
     else{ // UP_DIRECTION
 //        if(is_ustack_empty(this_bvm, stack))
         if(is_ustack_empty2(this_bvm, stack))
             return;
         TOS_1 = rci(TOS, 2-stack_get_dir(this_bvm,stack));
-//        TOS_1 = rci(TOS, stack_dir_rev(this_bvm,stack));
+        dstack_inc_up(this_bvm);
     }
 
     mword *stack_dls = stack_get_dls(this_bvm, stack);
@@ -336,6 +386,15 @@ void stack_move_needle(bvm_cache *this_bvm, mword *stack, mword direction){ // s
 
     // patch up the stack_dls
     lci(stack_dls, stack_get_orient(this_bvm,stack)) = TOS_1;
+
+//_msg("-----------------------");
+//_dumpf(this_bvm->dstack_ptr);
+//_msg("_dumpf(this_bvm->dstack_ptr);");
+//_d(this_bvm->dstack_depth);
+//_d(stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0)));
+//_d(this_bvm->dstack_diameter);
+//_d(stack_diameter(this_bvm, rci(this_bvm->dstack_ptr,0)));
+//_d(stack_dia(this_bvm, rci(this_bvm->dstack_ptr,0)));
 
 }
 
@@ -475,21 +534,6 @@ mword *stack_pop(bvm_cache *this_bvm, mword *stack){ // stack_pop#
 
 //
 //
-mword *stack_new_entry(bvm_cache *this_bvm, mword *data, mword *type){ // stack_new_entry#
-
-//    if(this_bvm->flags->MC_GC_PNR == FLAG_SET){
-//        _warn("MC_GC_PNR set");
-//    }
-
-    mword *entry = _new_dcons(this_bvm);
-    lci(entry,0) = _mkls(this_bvm, 2, data, type);
-    return entry;
-
-}
-
-
-//
-//
 mword is_ustack_empty(bvm_cache *this_bvm, mword *stack){ // is_ustack_empty#
 
 //#define stack_next(bvm,stack,entry) rci(entry, stack_dir(bvm, stack))
@@ -580,7 +624,6 @@ OPERATORA_R1_W1_P(
 
 
 #define DOWN_OPERATIONS \
-    dstack_dec_down(this_bvm); \
     stack_down(this_bvm, rci(this_bvm->dstack_ptr,0));
 
 OPERATORS_R0_W0( // XXX WAIVER(OPERATOR) XXX
@@ -589,7 +632,6 @@ OPERATORS_R0_W0( // XXX WAIVER(OPERATOR) XXX
 
 
 #define UP_OPERATIONS \
-    dstack_inc_up(this_bvm); \
     stack_up(this_bvm, rci(this_bvm->dstack_ptr,0));
 
 OPERATORS_R0_W0( // XXX WAIVER(OPERATOR) XXX

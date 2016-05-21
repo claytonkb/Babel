@@ -426,7 +426,9 @@ mword time_ms(void){
 //mword *_deva(bvm_cache *this_bvm, mword *op0, mword *op1){
 mword *_deva(bvm_cache *this_bvm, mword *op0){ // _deva#
 
-    return bstruct_load_fast(this_bvm, op0, size(op0));
+    return mem_bulk_alloc(this_bvm, 0xfffffff4, 5);
+
+//    return bstruct_load_fast(this_bvm, op0, size(op0));
 
 //    mword *result0 = string_base64e_encode(this_bvm, op0, BYTE_SIZE(size(op0)));
 ////    mword *result0 = string_base64e_encode(this_bvm, op0, _arlen8(this_bvm, op0));

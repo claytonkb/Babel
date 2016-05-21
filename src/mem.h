@@ -32,6 +32,8 @@
 
 #define MEM_ALLOC_AVAIL(x) ( x->interp->mem->primary->size - mem_bank_in_use(x->interp->mem->primary) )
 
+mword *mem_bulk_alloc(bvm_cache *this_bvm, mword sfield, mword count);
+
 void *mem_sys_alloc(int size);
 void mem_new(bvm_cache *this_bvm);
 void mem_destroy(bvm_cache *this_bvm);

@@ -38,12 +38,12 @@ void get_operands(bvm_cache *this_bvm, int num_operands, ...){ // get_operands#
 
         current_operand = va_arg(vl,oinfo*);
 
-        if(is_stack_sentinel(this_bvm, current_stack_entry)){
-            if(!(current_operand->mask && OI_MASK_NONE)){
-                _fatal("operand required"); // FIXME: EXCEPTION
-            }
-            break;
-        }
+//        if(is_stack_sentinel(this_bvm, current_stack_entry)){
+//            if(!(current_operand->mask && OI_MASK_NONE)){
+//                _fatal("operand required"); // FIXME: EXCEPTION
+//            }
+//            break;
+//        }
 
         current_operand->data = rci(rci(rci(current_stack_entry,0),1),0);
 

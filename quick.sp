@@ -249,7 +249,7 @@ tut_pages
     ""
     "There are many other advanced topics related to lists. To learn more about"
     "lists in Babel, go through the advanced tutorial (tut.sp) or load the manual"
-    "(man.sp) and read about the list operators and utilities. Type 'help !' (no"
+    "(man.sp) and read about the list operators and utilities. Enter 'help !' (no"
     "quotes) for more information on loading the tutorial or the manual.")
     ("    (1 2 3) (4 5 6) compose ! lsnum !"))
 
@@ -278,7 +278,7 @@ tut_pages
     ""
     "There are many other advanced topics related to maps. To learn more about"
     "maps in Babel, go through the advanced tutorial (tut.sp) or load the manual"
-    "(man.sp) and read about the map operators and utilities. Type 'help !' (no"
+    "(man.sp) and read about the map operators and utilities. Enter 'help !' (no"
     "quotes) for more information on loading the tutorial or the manual.")
     ('    foo keymap ! lsstr !'
     '    foo valmap ! lsnum !'
@@ -330,7 +330,7 @@ tut_pages
     (("The Stack cont'd")
     ("There are many other advanced topics related to the stack. To learn more about"
     "the stack in Babel, go through the advanced tutorial (tut.sp) or load the manual"
-    "(man.sp) and read about the stack operators and utilities. Type 'help !' (no"
+    "(man.sp) and read about the stack operators and utilities. Enter 'help !' (no"
     "quotes) for more information on loading the tutorial or the manual.")
     nil)
 
@@ -382,9 +382,8 @@ tut_pages
     '    ("Fourscore" "and" "seven" "years" "ago\n") wordcat ! <<'
     '    (1 2 3) (4 5 6) {+} lswise ! lsnum !'))
 
-
     (("Useful Utilities cont'd")
-    ("Here are some more examples of useful utilities from std.sp:")
+    ("More examples of useful utilities from std.sp:")
     ('    10 lsrange ! lsnum !'
     '    (1 2 3 4 5) {+} fold ! itod say !'
     '    (1 1 1 1) {+} sigma ! lsnum !'
@@ -393,6 +392,14 @@ tut_pages
     '    "a" ("b" "c" "d" "\n") {.+} reduce ! <<'
     '    (1 2 1 3 1 4 5 1 4 2 2 3 1) uniq ! lsnum !'))
 
+    (("Useful Utilities cont'd")
+    ("More examples of useful utilities from std.sp:")
+    ('    ( 8 5 1 6 7 4 10 9 3 2 ) {lt?} lssort ! lsnum !'
+    '    ( 8 5 1 6 7 4 10 9 3 2 ) {gt?} lssort ! lsnum !'
+    '    ( "576" "7230" "5495" "6609" "2052" "778" "5224" "6309" "658" "3361" ) strsort ! lsstr !'
+    '    ( "576" "7230" "5495" "6609" "2052" "778" "5224" "6309" "658" "3361" ) lexsort ! lsstr !'
+    '    "Twas brillig, and the slithy toves did gyre and gimble in the wabe" " " strsplit ! lsstr !'
+    '    ("To " "da " "choppa!") strjoin ! say !'))
 
     (("Further Directions")
     ("The Babel Quick Start Guide is intended to help you get a feel for Babel within"

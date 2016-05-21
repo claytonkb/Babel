@@ -20,6 +20,8 @@ bvm_cache *_pre_interp(bvm_cache *this_bvm);
 bvm_cache *_post_interp(bvm_cache *this_bvm);
 void _interp_exit(bvm_cache *this_bvm);
 bvm_cache *interp_exit(bvm_cache *this_bvm);
+void interp_opcode_boundary_checks(bvm_cache *this_bvm);
+void interp_check_dstack_depth_diameter(bvm_cache *this_bvm);
 
 #endif //INTERP_H
 

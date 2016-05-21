@@ -47,13 +47,14 @@ void *_sys_cp(bvm_cache *this_bvm, mword *bs){ // WAIVER_REQUIRED _sys_cp#
 
 //
 //
-void *_newlfi(bvm_cache *this_bvm, mword size, mword init){ // _newlfi#
+inline void *_newlfi(bvm_cache *this_bvm, mword size, mword init){ // _newlfi#
 
-    void *ptr = (void*)_newlf(this_bvm, size); // XXX WAIVER(_newlf) XXX //
+    mword local_size = BYTE_SIZE(size);
+    void *ptr = (void*)mem_alloc(this_bvm, local_size);
 
-    memset((char*)ptr,init,BYTE_SIZE(size));
+    memset((char*)ptr,init,local_size);
 
-// XXX PERF: Doesn't seem to help ...
+//// XXX PERF: Doesn't seem to help ...
 //    if(!init){
 //        if(size == 1){
 //            lcl(ptr,0) = 0;
@@ -74,17 +75,12 @@ void *_newlfi(bvm_cache *this_bvm, mword size, mword init){ // _newlfi#
 
 // copies a new leaf-array from an initial C-array
 //
-mword *_newlfcp(bvm_cache *this_bvm, const mword *array, mword size){ // _newlfcp#
+inline mword *_newlfcp(bvm_cache *this_bvm, const mword *array, mword size){ // _newlfcp#
 
-    mword *ptr = (void*)mem_alloc(this_bvm, BYTE_SIZE(size));
-//    mword *ptr = (void*)mem_alloc(this_bvm, size+1);
+    mword local_size = BYTE_SIZE(size);
+    mword *ptr = (void*)mem_alloc(this_bvm, local_size);
 
-//    int i;
-//    for(i=0;i<size;i++){
-//        lcl(ptr,i) = array[i];
-//    }
-
-    memcpy(ptr, array, (size_t)BYTE_SIZE(size));
+    memcpy(ptr, array, (size_t)local_size);
 
     return ptr;
 
@@ -137,7 +133,7 @@ void *_mkin(bvm_cache *this_bvm, mword array_size, ...){ // _mkin#
 
 //
 //
-void *_newin(bvm_cache *this_bvm, mword size){ // _newin#
+inline void *_newin(bvm_cache *this_bvm, mword size){ // _newin#
 
     void *ptr = (void*)mem_alloc(this_bvm, -1*BYTE_SIZE(size)); // FIXME: Bare constant should be macro
 
@@ -154,7 +150,7 @@ void *_newin(bvm_cache *this_bvm, mword size){ // _newin#
 // Accepts a data value and returns a leaf-array of size 1 containing that 
 // data value
 //
-void *_val(bvm_cache *this_bvm, mword value){ // _val#
+inline void *_val(bvm_cache *this_bvm, mword value){ // _val#
 
     void *ptr = _newlfi(this_bvm,1,0);
 
@@ -168,7 +164,7 @@ void *_val(bvm_cache *this_bvm, mword value){ // _val#
 // Accepts a single unsafe pointer and returns a safe interior-array of size
 // 1 containing the contents of the unsafe pointer
 //
-void *_ptr(bvm_cache *this_bvm, mword *unsafe_ptr){ // _ptr#
+inline void *_ptr(bvm_cache *this_bvm, mword *unsafe_ptr){ // _ptr#
 
     void *ptr = _newin(this_bvm,1);
 
@@ -923,8 +919,9 @@ void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, m
     else if(is_leaf(find_bs)){
         sub_list = array_find_val(this_bvm, target_bs, find_bs);
     }
-    //else{ // is_inte(find_bs)
-    //}
+    else{ // is_inte(find_bs)
+        _die;
+    }
     
 // Inte substitutes every pointer that points AT find_bs from within target_bs
 
@@ -963,18 +960,16 @@ mword *bstruct_find(bvm_cache *this_bvm, mword *target_bs, mword *find_bs){ // b
 
 //
 //
-mword *bstruct_load_template(bvm_cache *this_bvm, mword *template_bs, mword *rel_offsets, mword *abs_offsets){ // bstruct_load_template#
-
-    mword *result = _cp(this_bvm, template_bs);
+inline mword *bstruct_load_template(bvm_cache *this_bvm, mword *bs, mword *rel_offsets, mword *abs_offsets){ // bstruct_load_template#
 
     int i;
     int num_offsets = size(rel_offsets);
 
     for(i=0;i<num_offsets;i++){
-        lcl(result, rcl(rel_offsets,i)) = rcl(abs_offsets,i);
+        lcl(bs, rcl(rel_offsets,i)) = rcl(abs_offsets,i);
     }
 
-    return result;
+    return bs;
 
 }
 

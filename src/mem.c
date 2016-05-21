@@ -9,7 +9,7 @@
 #include "pearson16.h"
 #include "array.h"
 
-//#define GC_TRACE
+#define GC_TRACE
 
 // ideally, this is the ONLY function that calls malloc()
 //
@@ -72,6 +72,43 @@ void mem_destroy(bvm_cache *this_bvm){ // mem_destroy#
     free(m->secondary);
 
     free(m);
+
+}
+
+// result points at the first element of the allocated array - the other elements
+// are implicit
+//
+mword *mem_bulk_alloc(bvm_cache *this_bvm, mword sfield, mword count){ // mem_bulk_alloc#
+
+    mword generic_sfield   = abs(sfield);
+    mword array_alloc_size = MWORDS(generic_sfield) + 1; // +1 for sfield
+    mword alloc_size       = count * array_alloc_size;
+    mword alloc_sfield     = count * (generic_sfield + BYTE_SIZE(1));
+
+    void *result = (void*)mem_alloc(this_bvm, alloc_sfield);
+    int i;
+
+    if((int)sfield > 0){ // leaf
+
+        memset((char*)result,0,alloc_sfield);
+
+    }
+    else if((int)sfield < 0){ // inte
+
+        for(i=0; i<alloc_size; i++){
+            lci((mword*)result,i) = (void*)nil;
+        }
+
+    }
+    else{ // tptr
+        _fatal("cannot bulk allocate tptrs");
+    }
+
+    for(i=0; i<count; i++){
+        lcl((mword*)result,(i*array_alloc_size)) = sfield;
+    }
+
+    return (mword*)result;
 
 }
 
@@ -237,7 +274,8 @@ if(bs_byte_size > mem->primary->size){
                 mem_increment_alloc(this_bvm, mem, memory_demand_load);
             }
             else if(memory_demand_load < MEM_LOWWATER(mem->primary)){
-                mem_decrement_alloc(this_bvm, mem, memory_demand_load);
+//                mem_decrement_alloc(this_bvm, mem, memory_demand_load);
+                mem_isometric_alloc(this_bvm, mem);
             }
             else{
                 mem_isometric_alloc(this_bvm, mem);

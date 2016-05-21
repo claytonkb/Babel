@@ -17,46 +17,6 @@ man
     selr ! }
     <
 
---"toc"
---    "-- Logic & Arithmetic ---------------- | -- I/O -------------------------------"
---    "- & * / | ^ ~ ~& ~^ ~| + abs add and   | << <<< >> >>> journal slurp slurpm "
---    "ashr cand cnand cnor cnot cor cxnor    | spit spitm stdinln8 stdout stdoutm "
---    "cxor div eq? false ge? gt? le?         | include loadfs savefs say pr prs prn "
---    "logicF0_od logicF1_od logicF2_od       | "
---    "logicF3_od logicF4_od logicF5_od       | -- List ------------------------------"
---    "logicF6_od logicF7_od logicF8_od       | append bons car cdr cons ins ith len "
---    "logicF9_od logicFa_od logicFb_od       | ls2lf rev shift split uncons unshift "
---    "logicFc_od logicFd_od logicFe_od       | fold compose lsbyn lspair lsrol lsror "
---    "logicFf_od lt? mul ne? not or rem rol  | lsunpair lsrotn cart "
---    "rot shl shr sub true xor any? all?     | "
---    "sum prod lsand lsor lsxor              | -- Array -----------------------------"
---    "                                       | ar2ls arcmp arlen arlen8 cat cat8 cut "
---    "-- Stack ----------------------------- | cut8 move move8 randlf shuf slice "
---    "-> <- bottom clear depth dia dup flip  | slice8 sortlf th th8"
---    "give pop push swap take top twist up   | "
---    "zap collect takeptr takeval            | -- Bstruct ---------------------------"
---    "                                       | bpdli cmp cp detag get_tag load mu "
---    "-- Eval ------------------------------ | nil? nin nlf npt ntag nva ptr? sfield "
---    "! ? alt babel cond accept? die exec    | span tag? tageq? unload val?"
---    "exit fail fnord fork goto hibernate    | "
---    "if ifte last let nest next pass? pass  | -- Hash-Table ------------------------"
---    "reject? reset sel selr seq sleep       | entsha exha hash hashm insha inskha "
---    "                                       | luha newha newptr newtag newval phash "
---    "-- Loop ------------------------------ | rmha lumap insmap exmap rmmap valmap "
---    "... eachar iter loop while times       | keymap tagmap map2ls dirmap ls2map "
---    "                                       | "
---    "-- String ---------------------------- | -- Matrix ----------------------------"
---    ".+ ar2str atoi btoi char dtoi htoi     | matcol matrow matdiag mattrans mateach "
---    "itoa itob itod itoh itoo otoi sexpr    | matover matij matpair matwise matrotn "
---    "str2ar lscat                           | matmix matcolmix matcolcat matrowcat "
---    "                                       | matshow "
---    "-- Introspection --------------------- | "
---    "; bs2gv bs2str show sd                 | -- BVM -------------------------------"
---    "                                       | mkbvm stepbvm stepnbvm cibvm stackbvm "
---    "-- Symbols --------------------------- |"
---    "< > get get2 insym lusym root self set |"
---    "set2 import                            |"
-
 man_pages 
 (("toc"
    ("Topic                   'key' man !"
@@ -74,22 +34,94 @@ man_pages
     "Matrix ................ toc_matrix"
     "Introspection ......... toc_introspect"
     "BVM ................... toc_bvm"
-    "Symbols ............... toc_symbols"))
+    "Symbol ................ toc_symbol"))
 
 ("toc_logic"
     ("---------------------- Logic & Arithmetic Topics ------------------------"
     ""
-    "- & * / | ^ ~ ~& ~^ ~| + abs add and "  
-    "ashr cand cnand cnor cnot cor cxnor  " 
-    "cxor div eq? false ge? gt? le?       "
-    "logicF0_od logicF1_od logicF2_od     "
-    "logicF3_od logicF4_od logicF5_od     "
-    "logicF6_od logicF7_od logicF8_od     "
-    "logicF9_od logicFa_od logicFb_od     "
-    "logicFc_od logicFd_od logicFe_od     "
-    "logicFf_od lt? mul ne? not or rem rol"
-    "rot shl shr sub true xor any? all?   "
-    "sum prod lsand lsor lsxor            " ))
+    "- & * / | ^ ~ ~& ~^ ~| + abs add and ashr cand cnand cnor cnot cor cxnor"
+    "cxor div eq? false ge? gt? le? logicF0_od logicF1_od logicF2_od"
+    "logicF3_od logicF4_od logicF5_od logicF6_od logicF7_od logicF8_od"
+    "logicF9_od logicFa_od logicFb_od logicFc_od logicFd_od logicFe_od"
+    "logicFf_od lt? mul ne? not or rem rol rot shl shr sub true xor any? all? sum"
+    "prod lsand lsor lsxor"))
+
+("toc_io"
+    ("----------------------------- I/O Topics --------------------------------"
+    ""
+    "<< <<< >> >>> journal slurp slurpm spit spitm stdinln8 stdout stdoutm "
+    "include loadfs savefs say pr prs prn "))
+
+("toc_list"
+    ("----------------------------- List Topics -------------------------------"
+    ""
+    "append bons car cdr cons ins ith len ls2lf rev shift split uncons unshift "
+    "fold compose lsbyn lspair lsrol lsror lsunpair lsrotn cart                "))
+
+("toc_stack"
+    ("----------------------------- Stack Topics -------------------------------"
+    ""
+    "-> <- bottom clear depth dia dup flip give pop push swap take top twist up"
+    "zap collect takeptr takeval           "))
+
+("toc_eval"
+    ("----------------------------- Eval Topics -------------------------------"
+    ""
+    "! ? alt babel cond accept? die exec exit fail fnord fork goto hibernate   "
+    "if ifte last let nest next pass? pass reject? reset sel selr seq sleep    "))
+
+("toc_loop"
+    ("----------------------------- Loop Topics -------------------------------"
+    ""
+    "... eachar iter loop while times      "))
+
+("toc_string"
+    ("----------------------------- String Topics -------------------------------"
+    ""
+    ".+ ar2str atoi btoi char dtoi htoi itoa itob itod itoh itoo otoi sexpr   "
+    "str2ar lscat                          "))
+
+("toc_introspect"
+    ("------------------------ Introspection Topics ---------------------------"
+    ""
+    "; bs2gv bs2str show sd                "))
+
+
+("toc_symbol"
+    ("----------------------------- Symbol Topics -------------------------------"
+    ""
+    "< > get get2 insym lusym root self set set2 import                          "))
+
+("toc_array"
+    ("----------------------------- Array Topics -------------------------------"
+    ""
+    "ar2ls arcmp arlen arlen8 cat cat8 cut cut8 move move8 randlf shuf slice "
+    "slice8 sortlf th th8"))
+
+
+("toc_bstruct"
+    ("----------------------------- Bstruct Topics -------------------------------"
+    ""
+    "bpdli cmp cp detag get_tag load mu nil? nin nlf npt ntag nva ptr? sfield "
+    "span tag? tageq? unload val?"))
+
+("toc_map"
+    ("----------------------------- Map Topics -------------------------------"
+    ""
+    "entsha exha hash hashm insha inskha luha newha newptr newtag newval phash "
+    "rmha lumap insmap exmap rmmap valmap keymap tagmap map2ls dirmap ls2map "))
+
+("toc_matrix"
+    ("----------------------------- Matrix Topics -------------------------------"
+    ""
+    "matcol matrow matdiag mattrans mateach matover matij matpair matwise matrotn"
+    "matmix matcolmix matcolcat matrowcat matshow "))
+
+("toc_bvm"
+    ("----------------------------- BVM Topics -------------------------------"
+    ""
+    "mkbvm stepbvm stepnbvm cibvm stackbvm "))
+
 
 -----------------------------------------------------------------------------
 --                                                                         --
@@ -961,6 +993,10 @@ man_pages
         ("A B rem ==> (A modulo B)"
         ""
         "Modulo division of two unsigned numeric values. Unsigned numeric result."))
+    ("replace"
+        ("A B C replace ==> A with all B replaced by C"
+        ""
+        "    '(foo bar)' sexpr bpdl dup nil 'foo' newtag 17 replace"))
     ("reset"
         ("..."))
     ("rev"

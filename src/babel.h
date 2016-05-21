@@ -8,6 +8,7 @@
 #define MEM_DEBUG
 #define DEV_MODE
 //#define PROF_MODE
+//#define CHK_MODE
 
 //#define LINUX_TARGET
 #define WINDOWS_TARGET
@@ -40,9 +41,10 @@
 
 #define BITS_PER_BYTE 8 // BITS_PER_BYTE#
 
-#define MWORD_SIZE sizeof(mword)            // MWORD_SIZE#
-#define MWORD_BIT_SIZE (MWORD_SIZE * BITS_PER_BYTE)    // MWORD_BIT_SIZE#
-#define BYTE_SIZE(x) ((x)*MWORD_SIZE)          // BYTE_SIZE#
+#define MWORD_SIZE sizeof(mword)                        // MWORD_SIZE#
+#define MWORD_BIT_SIZE (MWORD_SIZE * BITS_PER_BYTE)     // MWORD_BIT_SIZE#
+#define BYTE_SIZE(x) ((x)*MWORD_SIZE)                   // BYTE_SIZE#
+#define MWORDS(x) ((x)/MWORD_SIZE)                      // MWORDS#
 
 #define FLOAT_SIZE       (sizeof(float)       / MWORD_SIZE)
 #define LONG_SIZE        (sizeof(long)        / MWORD_SIZE)

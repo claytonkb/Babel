@@ -7,7 +7,8 @@ BUGS at EOF
 
 TODO
 
-base64e working
+bulk-allocation
+template-load (speed up stack allocations)
 
 Implement inte-substitutions:
 void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, mword *sub_bs){ // bstruct_substitute#
@@ -6722,6 +6723,10 @@ DONE-ISH
 
 
 BUGS
+
+    - preemptive_op_restart fails silently (probably a cache issue)
+        nil { zap {1000 randlf ar2ls} 100 times collect ! } nest
+        16 dev { {lt?} lssort ! } each
 
     - collect on an empty stack causes segfault
 

@@ -59,17 +59,13 @@
     x->dstack_diameter--; \
 
 #define dstack_dec_down(x) \
-    x->dstack_depth--; \
-    x->dstack_diameter++; \
+    x->dstack_depth--;
 
 #define dstack_inc_up(x) \
-    x->dstack_depth++; \
-    x->dstack_diameter--; \
+    x->dstack_depth++;
 
 #define dstack_depth_swap(x) \
-    mword _dstack_depth_swap_temp = x->dstack_depth; \
-    x->dstack_depth = x->dstack_diameter; \
-    x->dstack_diameter = _dstack_depth_swap_temp;
+    x->dstack_depth = (x->dstack_diameter - x->dstack_depth);
 
 #define dstack_depth_zero(x) \
     x->dstack_depth = 0; \
@@ -81,7 +77,7 @@
 
 #define dstack_depth_update(x) \
     x->dstack_depth = stack_depth(x, rci(x->dstack_ptr,0)); \
-    x->dstack_diameter = stack_diameter(x, rci(x->dstack_ptr,0));
+    x->dstack_diameter = stack_dia(x, rci(x->dstack_ptr,0));
 
 mword is_ustack_empty2(bvm_cache *this_bvm, mword *stack);
 mword is_stack_empty2(bvm_cache *this_bvm, mword *stack);

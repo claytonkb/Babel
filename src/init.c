@@ -46,6 +46,10 @@ _msg("DEV_MODE defined");
 _msg("PROF_MODE defined");
 #endif
 
+#ifdef CHK_MODE
+_msg("CHK_MODE defined");
+#endif
+
 #ifdef MEM_DEBUG
 _d(MEM_DEFAULT_MIN_ALLOC);
 #endif

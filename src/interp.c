@@ -299,8 +299,8 @@ _trace;
 _trace;
 #endif
 
-_d(this_bvm->dstack_depth);
-_d(this_bvm->dstack_diameter);
+//_d(this_bvm->dstack_depth);
+//_d(this_bvm->dstack_diameter);
 
     return this_bvm;
 
@@ -372,12 +372,10 @@ mword interp_update_steps(bvm_cache *this_bvm){ // interp_update_steps#
         return_val = 0;
     }
 
-//    if(this_bvm->dstack_depth != 
-//        stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0))){
-//        _d(this_bvm->dstack_depth);
-//        _d(stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0)));
-//        _die;
-//    }
+
+#ifdef CHK_MODE
+    interp_opcode_boundary_checks(this_bvm);
+#endif
 
 #ifdef PROF_MODE
     if((this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET)
@@ -385,13 +383,41 @@ mword interp_update_steps(bvm_cache *this_bvm){ // interp_update_steps#
         fprintf(stderr, "%d time (ms)\n", (time_ms() - this_bvm->interp->epoch_ms));
     }
 
-//    if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){ // FIXME: Block this out with #ifdef DEV_MODE
-//        _d(this_bvm->dstack_depth);
-//        _d(stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0)));
-//    }
 #endif
 
     return return_val;
+
+}
+
+
+//
+//
+void interp_opcode_boundary_checks(bvm_cache *this_bvm){ // interp_opcode_boundary_checks#
+
+#if 1
+    interp_check_dstack_depth_diameter(this_bvm);
+#endif
+
+}
+
+
+//
+//
+void interp_check_dstack_depth_diameter(bvm_cache *this_bvm){ // interp_opcode_boundary_checks#
+
+    if(this_bvm->dstack_depth != 
+        stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0))){
+        _d(this_bvm->dstack_depth);
+        _d(stack_depth(this_bvm, rci(this_bvm->dstack_ptr,0)));
+        _fatal("failed dstack_depth check");
+    }
+
+    if(this_bvm->dstack_diameter != 
+        stack_dia(this_bvm, rci(this_bvm->dstack_ptr,0))){
+        _d(this_bvm->dstack_diameter);
+        _d(stack_dia(this_bvm, rci(this_bvm->dstack_ptr,0)));
+        _fatal("failed dstack_diameter check");
+    }
 
 }
 
