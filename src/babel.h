@@ -181,6 +181,7 @@ typedef struct { // interp_flags#
     mword MC_GC_CONVERT_PENDING_TO_OP_RESTART;
     mword MC_GC_PNR;
     mword MC_GC_OP_RESTART;
+    mword MC_GC_INTERP_BLOCKING;
 
     mword INTERP_BOOT_IN_PROGRESS;
 

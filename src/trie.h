@@ -19,6 +19,7 @@
 mword *trie_new(bvm_cache *this_bvm);
 
 mword *trie_new_cell(bvm_cache *this_bvm, mword *key, mword *secondary_key, mword *payload);
+mword *trie_new_cell2(bvm_cache *this_bvm, mword *key, mword *secondary_key, mword *payload);
 
 void trie_insert(bvm_cache *this_bvm, mword *trie, mword *key, mword *secondary_key, mword *payload);
 void rtrie_insert(bvm_cache *this_bvm, mword *trie, mword *key, mword *entry, mword level);

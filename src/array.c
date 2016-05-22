@@ -626,7 +626,9 @@ void array_ptr_sort_merge(bvm_cache *this_bvm, mword *array, mword left_start, m
         for( i = left_start, r = 0, l = 0; l < left_length && r < right_length; i++){
 
             arg_list = _mkls(this_bvm, 2, left_half[l], right_half[r]);
+            this_bvm->flags->MC_GC_INTERP_BLOCKING = FLAG_SET;
             comparison_result = lib_babelr(this_bvm, comparator, arg_list);
+            this_bvm->flags->MC_GC_INTERP_BLOCKING = FLAG_CLR;
 
             if( is_false(comparison_result) ){
                 array[i] = left_half[l++];
@@ -638,15 +640,6 @@ void array_ptr_sort_merge(bvm_cache *this_bvm, mword *array, mword left_start, m
         }
 
     }
-
-    // copy over leftovers of whichever temporary array hasn't finished
-//    for ( ; l < left_length; i++, l++){
-//        array[i] = left_half[l];
-//    }
-//
-//    for ( ; r < right_length; i++, r++){
-//        array[i] = right_half[r];
-//    }
 
     if(l<left_length){
         memcpy((array+i), (left_half+l), BYTE_SIZE(left_length-l));   // XXX WAIVER(memcpy) XXX //

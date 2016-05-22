@@ -167,6 +167,10 @@ _msg("MC_GC_PENDING");
 _msg("MC_GC_OP_RESTART");
 #endif
 
+            if(this_bvm->flags->MC_GC_INTERP_BLOCKING == FLAG_SET){
+                _fatal("this_bvm->flags->MC_GC_INTERP_BLOCKING == FLAG_SET");
+            }
+
             if(this_bvm->flags->INTERP_BOOT_IN_PROGRESS == FLAG_SET){
                 _msg("MC_GC_OP_RESTART while INTERP_BOOT_IN_PROGRESS");
                 _cat_except(this_bvm);
@@ -202,24 +206,26 @@ _msg("MC_GC_OP_RESTART");
 
 //
 //
-void mem_preemptive_op_restart(bvm_cache *this_bvm){
+void mem_preemptive_op_restart(bvm_cache *this_bvm){ // mem_preemptive_op_restart#
 
-    alloc_bank *b = this_bvm->interp->mem->primary;
-    mword mbu = mem_bank_in_use(b);
+// Refactor-in-progress; see arch_notes.txt
 
-    if(mbu > (0.9*b->size)){ // What if we use more than the 10% before GC runs?
-
-#ifdef GC_TRACE
-_trace;
-#endif
-
-        mem_swap_banks(this_bvm);
-        b = this_bvm->interp->mem->primary;
-        this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
-        this_bvm->interp->mem->op_restart_alloc_size = 0;
-        _op_restart(this_bvm);
-
-    }
+//    alloc_bank *b = this_bvm->interp->mem->primary;
+//    mword mbu = mem_bank_in_use(b);
+//
+//    if(mbu > (0.9*b->size)){ // What if we use more than the 10% before GC runs?
+//
+//#ifdef GC_TRACE
+//_trace;
+//#endif
+//
+//        mem_swap_banks(this_bvm);
+//        b = this_bvm->interp->mem->primary;
+//        this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
+//        this_bvm->interp->mem->op_restart_alloc_size = 0;
+//        _op_restart(this_bvm);
+//
+//    }
 
 }
 
@@ -250,8 +256,11 @@ _trace;
 
     cache_flush(this_bvm);
 
-    mword bs_byte_size = BYTE_SIZE( _mu(this_bvm, this_bvm->self) );
+//    mword bs_byte_size = BYTE_SIZE( _mu(this_bvm, this_bvm->self) );
+    mword bs_byte_size = _mu(this_bvm, this_bvm->self);
     mword memory_demand_load = bs_byte_size;
+
+_d(bs_byte_size);
 
 #if 0
 if(bs_byte_size > mem->primary->size){
@@ -289,6 +298,10 @@ if(bs_byte_size > mem->primary->size){
     }
 
     cache_update(this_bvm);
+
+    if(mem->last_GC_tick_count == this_bvm->interp->global_tick_count){
+        _msg("no progress");
+    }
 
     mem->last_GC_tick_count = this_bvm->interp->global_tick_count;
 

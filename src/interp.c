@@ -246,8 +246,9 @@ _trace;
 #ifdef INTERP_CORE_TRACE
 _trace;
 #endif
-
-            mem_copy_collect(this_bvm);
+            if( this_bvm->flags->MC_GC_INTERP_BLOCKING == FLAG_CLR ){ // see lib_babelr() in array_ptr_sort() for use-case
+                mem_copy_collect(this_bvm);
+            }
 
         }
 

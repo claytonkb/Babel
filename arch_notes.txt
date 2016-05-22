@@ -7,11 +7,13 @@ BUGS at EOF
 
 TODO
 
-bulk-allocation
-template-load (speed up stack allocations)
-
 Implement inte-substitutions:
 void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, mword *sub_bs){ // bstruct_substitute#
+
+    - Make mem_preemptive_op_restart parametric
+        -- specify amount of required headroom; if this amount of headroom
+           is not available, triggers op_restart; only single comparison - very 
+           fast!
 
     - Add interp_checker to interp_update_steps() and #ifdef CHK_MODE
         Use for op-boundary checking

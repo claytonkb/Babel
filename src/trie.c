@@ -10,9 +10,43 @@
 #include "list.h"
 #include "array.h"
 #include "introspect.h"
-
 #include "mem.h"
 #include "cache.h"
+
+
+// FIXME: 32-bit only
+static mword *trie_template_trie_entry = (mword []){ // trie_template_trie_entry#
+    0x0000005c, 0x00000000, 0x591589e0, 0x1a9ec87a, 0x078adc82, 0xdbae9012, 0xfffffffc, 0x00000020, 
+    0xfffffff8, 0x0000002c, 0x00000048, 0x00000000, 0x3023f4e7, 0x8c2f644d, 0x71cf647b, 0xe974b23a, 
+    0xfffffffc, 0x0000002c, 0xfffffff8, 0x0000002c, 0x00000054, 0xfffffff8, 0x0000002c, 0x0000002c};
+
+//
+//
+mword *trie_new_cell(bvm_cache *this_bvm, mword *key, mword *secondary_key, mword *payload){  // trie_new_cell#
+
+    // XXX PERF shows 20+% improvement over old trie_new_cell XXX
+    mword entry_size = size(trie_template_trie_entry+1);
+    mword *entry     = _newlfcp(this_bvm, trie_template_trie_entry+1, entry_size);
+
+    mword *result = bstruct_load_fast(this_bvm, entry, entry_size);
+
+    mword *rel_offsets = (mword []){ 0x0c, 0x08, 0x12, 0x15 };
+    mword *abs_offsets = (mword []){ 0x0c, 0x00, 0x00, 0x00 };
+
+    rel_offsets++;
+    abs_offsets++;
+
+    // 8, 18, 21
+    lcl(abs_offsets, 0) = (mword)key;
+    lcl(abs_offsets, 1) = (mword)secondary_key;
+    lcl(abs_offsets, 2) = (mword)payload;
+
+    bstruct_load_template(this_bvm, entry, rel_offsets, abs_offsets);
+
+    return result;
+
+}
+
 
 //
 //
@@ -25,23 +59,9 @@ mword *trie_new(bvm_cache *this_bvm){ // trie_new#
 }
 
 
-//
-//
-mword *trie_new_cell(bvm_cache *this_bvm, mword *key, mword *secondary_key, mword *payload){  // trie_new_cell#
-
-    //FIXME: BAD TEMPS
-    mword *temp0 = trie_new_entry(this_bvm, payload, secondary_key, key);
-    mword *temp1 = tptr_new(this_bvm, BABEL_TAG_TRIE_ENTRY, temp0);
-
-    return temp1;
-//    return tptr_new(this_bvm, BABEL_TAG_TRIE_ENTRY, trie_new_entry(this_bvm, payload, secondary_key, key));
-
-}
-
-
 ////
 ////
-//void trie_insert(bvm_cache *this_bvm, mword *trie, mword *key, mword *secondary_key, mword *payload){ // trie_insert#
+//void trie_insert(bvm_cache *this_bvm, mword *trie, mword *key, mword *secondary_key, mword *payload){
 //
 //    if(is_tptr(trie)){ 
 //        trie = get_tptr(trie);  // XXX We don't check the tag
