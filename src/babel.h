@@ -218,16 +218,25 @@ typedef struct { // interp_flags#
 
 #ifdef PROF_MODE
 typedef struct {
+
     mword BVM_PROFILE_ENABLE;   // enable/disable profiling
     mword operator_ms;          // milliseconds spent executing operators
+
     mword GC_ms;                // milliseconds spent in GC
+    mword GC_overshoot;         // amount of memory allocated after signalling MC_GC_PENDING
+
     mword cache_flush_count;    // number of cache flushes
     mword cache_update_count;   // number of cache updates
+
     mword mem_alloc_count;      // number of mem_alloc calls
+    mword mem_alloc_total;
+    mword mem_alloc_largest;
+
     mword stack_pops;           // number of dstack pops
     mword stack_pushes;         // number of dstack pushes
-    mword GC_overshoot;         // amount of memory allocated after signalling MC_GC_PENDING
+
     mword interp_boot_time;     // time from interp_init to user-code (use dev-code to signal finish)
+
 } bvm_profile;
 #endif
 
@@ -583,7 +592,8 @@ int dev_i;  // dev_i#
 
 #define QUOTEME(x)      #x
 #define _d(x)           fprintf(stderr, "%s %08x\n", QUOTEME(x), x);  // d#
-#define _dw(x)          fprintf(stderr, "%s %08x ", QUOTEME(x), x);  // dw#
+#define _dd(x)          fprintf(stderr, "%s %d\n", QUOTEME(x), x);    // dd#
+#define _ds(x)          fprintf(stderr, "%s %08x ", QUOTEME(x), x);   // ds#
 #define _mem(x)         int _i; printf("%08x\n", s(x)); for(_i=0; _i<alloc_size(x)-1; _i++){ printf("%08x\n", c(x,_i)); } // _mem#
 #define _memi(x)        fprintf(stderr, "---- %08x\n", s(x)); for(dev_i=0; dev_i<alloc_size(x)-1; dev_i++){ if(dev_i>=0){fprintf(stderr, "%04x ", (unsigned)dev_i*MWORD_SIZE);} fprintf(stderr, "%08x\n", (unsigned)rci(x,dev_i)); } // _memi#
 #define _meml(x)        int _i; fprintf(stderr, "%08x\n", s(x)); for(_i=0; _i<alloc_size(x)-1; _i++){ fprintf(stderr, "%08x\n", (unsigned)rcl(x,_i)); } // _meml#
@@ -598,8 +608,10 @@ int dev_i;  // dev_i#
 #define _trace          fprintf(stderr, "%s() in %s line %d\n", __func__, __FILE__, __LINE__);   // _trace#
 #define _msg(x)         fprintf(stderr, "%s in %s(), %s line %d\n", x, __func__, __FILE__, __LINE__);   // _msg#
 #define _say(x)         fprintf(stderr, "%s\n", x);   // _say#
+#define _prn(x)         fprintf(stderr, "%s", x); // _prn#
 #define _enhance(x)     fprintf(stderr, "ENHANCEMENT: %s in %s at %s line %d\n", x, __func__, __FILE__, __LINE__); // enhance#
 #define _mema(x)        int _i; printf("%08x %08x\n", (mword)(x-1), s(x)); for(_i=0; _i<alloc_size(x)-1; _i++){ printf("%08x %08x\n", (mword)(x+_i), c(x,_i)); } // _mema#
+#define _timestamp(x)   (time_ms(void) - x->interp->epoch_ms)
 
 #define _opcode_trace(x) fprintf(stderr, "%08x %03x %s\n", this_bvm->interp->global_tick_count, x, interp_opcode_names[x]);
 

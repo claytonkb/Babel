@@ -35,24 +35,28 @@ _trace;
 
 // XXX //SECURITY// **DO NOT REMOVE** FOLLOWING LINES //SECURITY// XXX //
 #ifdef MEM_DEBUG
-_msg("MEM_DEBUG defined");
+_prn(" >>MEM_DEBUG<< ");
 #endif
 
 #ifdef DEV_MODE
-_msg("DEV_MODE defined");
+_prn(" >>DEV_MODE<< ");
 #endif
 
 #ifdef PROF_MODE
-_msg("PROF_MODE defined");
+_prn(" >>PROF_MODE<< ");
 #endif
 
 #ifdef CHK_MODE
-_msg("CHK_MODE defined");
+_prn(" >>CHK_MODE<< ");
 #endif
+
+_prn("\n");
 
 // XXX //SECURITY// **DO NOT REMOVE** ABOVE LINES     //SECURITY// XXX //
 
+#ifdef DEV_MODE
     init_dev_overrides(this_bvm);
+#endif
 
     this_bvm->interp             = mem_sys_alloc(sizeof(interp_state));      // XXX WAIVER(mem_sys_alloc) XXX //
 
@@ -107,7 +111,7 @@ _msg("CHK_MODE defined");
 
 //    bpdl_new(this_bvm);
     bpdl_init_opcode_table(this_bvm); // XXX MOVE to bpdl_new()
-    bpdl_init_macro_table(this_bvm); // XXX MOVE to bpdl_new()
+    bpdl_init_macro_table(this_bvm);  // XXX MOVE to bpdl_new()
 
     this_bvm->interp->thread_counter=0;
     this_bvm->interp->global_tick_count=0;

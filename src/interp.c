@@ -768,6 +768,24 @@ void _interp_exit(bvm_cache *this_bvm){ // interp_exit#
 //
 bvm_cache *_post_interp(bvm_cache *this_bvm){ // _post_interp#
 
+#if( defined BABEL_RESET_TRACE && defined MEM_DEBUG )
+    _d(mem_sys_alloc_count);
+    _d(mem_sys_alloc_total);
+#endif
+
+// FIXME dump to file for automated profiling
+#ifdef PROF_MODE
+    _d(this_bvm->interp->profile->operator_ms);
+    _d(this_bvm->interp->profile->GC_ms);
+    _d(this_bvm->interp->profile->cache_flush_count);
+    _d(this_bvm->interp->profile->cache_update_count);
+    _d(this_bvm->interp->profile->mem_alloc_count);
+    _d(this_bvm->interp->profile->stack_pops);
+    _d(this_bvm->interp->profile->stack_pushes);
+    _d(this_bvm->interp->profile->GC_overshoot);
+    _d(this_bvm->interp->profile->interp_boot_time);
+#endif
+
 //_d(this_bvm->interp->profile->mem_alloc_count);
 
 //_d(PROFILE_ALLOC_SIZE_8);

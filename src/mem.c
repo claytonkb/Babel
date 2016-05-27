@@ -9,7 +9,7 @@
 #include "pearson16.h"
 #include "array.h"
 
-#define GC_TRACE
+//#define GC_TRACE
 
 // ideally, this is the ONLY function that calls malloc()
 //
@@ -238,7 +238,7 @@ if(bs_byte_size > mem->primary->size){
     }
     else{
 
-        if(mem->last_GC_tick_count < this_bvm->interp->global_tick_count){
+//        if(mem->last_GC_tick_count < this_bvm->interp->global_tick_count){
 
             if(memory_demand_load > MEM_HIGHWATER(mem->primary)){
                 mem_increment_alloc(this_bvm, mem, memory_demand_load);
@@ -251,10 +251,10 @@ if(bs_byte_size > mem->primary->size){
                 mem_isometric_alloc(this_bvm, mem);
             }
 
-        }
-        else{
-            mem_increment_alloc(this_bvm, mem, memory_demand_load);
-        }
+//        }
+//        else{
+//            mem_increment_alloc(this_bvm, mem, memory_demand_load);
+//        }
 
     }
 

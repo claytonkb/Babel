@@ -10,6 +10,14 @@ TODO
 Implement inte-substitutions:
 void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, mword *sub_bs){ // bstruct_substitute#
 
+    - Torture test
+        - sort huge matrix (1000 x 1000)
+        - 1 randlf 100 rem bvmnstep !
+        - GC_ON_EVERY_OP
+
+        --> GC needs to be so clean it can run on every cycle and handle
+            arbitrary-sized allocations, etc.
+
     - GC rework
 
         |______________________|_________-------------| <-- mem_primary
