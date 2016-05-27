@@ -48,6 +48,7 @@ courtesy_msg "For help, enter 'help !', without quotes; enter 'exit' to quit\n" 
 
 std {'std.sp' >>> sexpr bpdli ! 'std.sp loaded /n' <<} <
 quick_start {'quick.sp' include ! !} <
+man_start   {'man.sp'   include ! !} <
 
 --get_argv { root detag "/babel/sym/argv" hash luha 2 ith } <
 get_argv { 2 dev detag "/babel/sym/argv" hash luha 2 ith } <

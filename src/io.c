@@ -83,9 +83,9 @@ FILE *io_open_file(bvm_cache *this_bvm, mword *filename){ // io_open_file#
 
     FILE*  file;
 
-    char *bfilename = (char*)string_b2c(this_bvm, filename);
+//    char *bfilename = (char*)string_b2c(this_bvm, filename);
 
-    file = fopen( bfilename, "rb" );
+    file = fopen( (char*)filename, "rb" );
 
     // FIXME: set a flag instead? cat_ex is overkill...
     if(file==NULL){ 

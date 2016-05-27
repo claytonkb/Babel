@@ -50,6 +50,7 @@ void *_sys_cp(bvm_cache *this_bvm, mword *bs){ // WAIVER_REQUIRED _sys_cp#
 inline void *_newlfi(bvm_cache *this_bvm, mword size, mword init){ // _newlfi#
 
     mword local_size = BYTE_SIZE(size);
+
     void *ptr = (void*)mem_alloc(this_bvm, local_size);
 
     memset((char*)ptr,init,local_size);

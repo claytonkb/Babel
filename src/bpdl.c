@@ -1205,7 +1205,7 @@ _trace;
 this_bvm->flags->MC_USE_MALLOC = FLAG_SET;
 
     mword *opcode_table = _slurp(this_bvm, C2B("src/opcode_table.bbl"));
-    bpdl_opcode_table   = _load(this_bvm, opcode_table, size(opcode_table)); // FIXME trashed after GC !!!!
+    bpdl_opcode_table   = _load(this_bvm, opcode_table, size(opcode_table));
 
 this_bvm->flags->MC_USE_MALLOC = FLAG_CLR;
 

@@ -100,6 +100,8 @@ _trace;
 #endif
 
         val = setjmp(op_restart);
+        this_bvm->interp->mem->op_restart_alloc_ptr = 
+            this_bvm->interp->mem->primary->alloc_ptr;
 
         if(val==OP_RESTART){
             if(this_bvm->flags->MC_GC_OP_RESTART == FLAG_SET){ // non-reentrant
@@ -121,6 +123,21 @@ _trace;
 _trace;
 #endif
             }
+        }
+
+        if(this_bvm->flags->MC_GC_ON_EVERY_OP == FLAG_SET){
+            mem_copy_collect(this_bvm);
+        }
+        else if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
+
+#ifdef INTERP_CORE_TRACE
+_trace;
+#endif
+
+            if( this_bvm->flags->MC_GC_INTERP_BLOCKING == FLAG_CLR ){ // see lib_babelr() in array_ptr_sort() for use-case
+                mem_copy_collect(this_bvm);
+            }
+
         }
 
 #ifdef INTERP_CORE_TRACE
@@ -165,8 +182,6 @@ _memi(rci(next_entry,0));
 #endif
 
             if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
-//                fprintf(stderr, " --> %08x     push\n", this_bvm->interp->global_tick_count);
-//                _memi(rci(next_entry,0));
                 mword *operand = rci(next_entry,0);
                 fprintf(stderr, "%08x     push ", this_bvm->interp->global_tick_count);
                 if(is_leaf(operand)){
@@ -176,15 +191,17 @@ _memi(rci(next_entry,0));
                     }
                     fprintf(stderr, "\n");
                 }
-                else if(is_inte(rci(next_entry,0))){
-                    fprintf(stderr, "[]\n");
+                else if(is_inte(operand)){
+                    fprintf(stderr, "[%d]\n", size(operand));
+//                    fprintf(stderr, (char*)_bs2str(this_bvm, operand));
+//                    fprintf(stderr, "\n");
                 }
                 else{
                     fprintf(stderr, "tag %08x%08x%08x%08x\n", 
-                            rcl(rci(next_entry,0),3), 
-                            rcl(rci(next_entry,0),2), 
-                            rcl(rci(next_entry,0),1), 
-                            rcl(rci(next_entry,0),0));
+                            rcl(operand,3), 
+                            rcl(operand,2), 
+                            rcl(operand,1), 
+                            rcl(operand,0));
                 }
             }
 
@@ -224,6 +241,16 @@ _trace;
             //  soft exceptions
             //lusym
 
+            if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
+                fprintf(stderr, "%08x     push ", this_bvm->interp->global_tick_count);
+                fprintf(stderr, "tag %08x%08x%08x%08x\n", 
+                        rcl(next_entry,3), 
+                        rcl(next_entry,2), 
+                        rcl(next_entry,1), 
+                        rcl(next_entry,0));
+            }
+
+
             interp_push_operand(this_bvm, tptr_new(this_bvm, BABEL_TAG_REF_SYM_LOCAL, next_entry));
 
 //            if(exsym(this_bvm, next_entry)){
@@ -240,17 +267,6 @@ _trace;
 #ifdef INTERP_CORE_TRACE
 _trace;
 #endif
-
-        if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
-
-#ifdef INTERP_CORE_TRACE
-_trace;
-#endif
-            if( this_bvm->flags->MC_GC_INTERP_BLOCKING == FLAG_CLR ){ // see lib_babelr() in array_ptr_sort() for use-case
-                mem_copy_collect(this_bvm);
-            }
-
-        }
 
         mword advance_type = get_advance_type(this_bvm);
 

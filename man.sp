@@ -50,72 +50,72 @@ man_pages
     ("----------------------------- I/O Topics --------------------------------"
     ""
     "<< <<< >> >>> journal slurp slurpm spit spitm stdinln8 stdout stdoutm "
-    "include loadfs savefs say pr prs prn "))
+    "include loadfs savefs say pr prs prn"))
 
 ("toc_list"
     ("----------------------------- List Topics -------------------------------"
     ""
     "append bons car cdr cons ins ith len ls2lf rev shift split uncons unshift "
-    "fold compose lsbyn lspair lsrol lsror lsunpair lsrotn cart                "))
+    "fold compose lsbyn lspair lsrol lsror lsunpair lsrotn cart"))
 
 ("toc_stack"
     ("----------------------------- Stack Topics -------------------------------"
     ""
     "-> <- bottom clear depth dia dup flip give pop push swap take top twist up"
-    "zap collect takeptr takeval           "))
+    "zap collect takeptr takeval"))
 
 ("toc_eval"
     ("----------------------------- Eval Topics -------------------------------"
     ""
     "! ? alt babel cond accept? die exec exit fail fnord fork goto hibernate   "
-    "if ifte last let nest next pass? pass reject? reset sel selr seq sleep    "))
+    "if ifte last let nest next pass? pass reject? reset sel selr seq sleep"))
 
 ("toc_loop"
     ("----------------------------- Loop Topics -------------------------------"
     ""
-    "... eachar iter loop while times      "))
+    "... eachar iter loop while times"))
 
 ("toc_string"
     ("----------------------------- String Topics -------------------------------"
     ""
     ".+ ar2str atoi btoi char dtoi htoi itoa itob itod itoh itoo otoi sexpr   "
-    "str2ar lscat                          "))
+    "str2ar lscat"))
 
 ("toc_introspect"
     ("------------------------ Introspection Topics ---------------------------"
     ""
-    "; bs2gv bs2str show sd                "))
+    "; bs2gv bs2str show sd"))
 
 
 ("toc_symbol"
     ("----------------------------- Symbol Topics -------------------------------"
     ""
-    "< > get get2 insym lusym root self set set2 import                          "))
+    "< > get get2 insym lusym root self set set2 import"))
 
 ("toc_array"
     ("----------------------------- Array Topics -------------------------------"
     ""
-    "ar2ls arcmp arlen arlen8 cat cat8 cut cut8 move move8 randlf shuf slice "
+    "ar2ls arcmp arlen arlen8 cat cat8 cut cut8 move move8 randlf shuf slice"
     "slice8 sortlf th th8"))
 
 
 ("toc_bstruct"
     ("----------------------------- Bstruct Topics -------------------------------"
     ""
-    "bpdli cmp cp detag get_tag load mu nil? nin nlf npt ntag nva ptr? sfield "
+    "bpdli cmp cp detag get_tag load mu nil? nin nlf npt ntag nva ptr? sfield"
     "span tag? tageq? unload val?"))
 
 ("toc_map"
     ("----------------------------- Map Topics -------------------------------"
     ""
-    "entsha exha hash hashm insha inskha luha newha newptr newtag newval phash "
-    "rmha lumap insmap exmap rmmap valmap keymap tagmap map2ls dirmap ls2map "))
+    "entsha exha hash hashm insha inskha luha newha newptr newtag newval phash"
+    "rmha lumap insmap exmap rmmap valmap keymap tagmap map2ls dirmap ls2map"))
 
 ("toc_matrix"
     ("----------------------------- Matrix Topics -------------------------------"
     ""
     "matcol matrow matdiag mattrans mateach matover matij matpair matwise matrotn"
-    "matmix matcolmix matcolcat matrowcat matshow "))
+    "matmix matcolmix matcolcat matrowcat matshow"))
 
 ("toc_bvm"
     ("----------------------------- BVM Topics -------------------------------"

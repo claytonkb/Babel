@@ -141,9 +141,14 @@ typedef struct { // mem_context#
 
     alloc_bank *primary;
     alloc_bank *secondary;
-    mword GC_count;
-    mword op_restart_alloc_size;
-    mword last_GC_tick_count;
+
+    mword  mem_sys_alloc_count;
+    mword  mem_sys_alloc_total;
+
+    mword  GC_count;
+    mword  op_restart_alloc_size;
+    mword *op_restart_alloc_ptr;
+    mword  last_GC_tick_count;
 
 } mem_context;
 
@@ -182,6 +187,8 @@ typedef struct { // interp_flags#
     mword MC_GC_PNR;
     mword MC_GC_OP_RESTART;
     mword MC_GC_INTERP_BLOCKING;
+    mword MC_GC_SECONDARY_BANK_ALLOC;
+    mword MC_GC_ON_EVERY_OP;
 
     mword INTERP_BOOT_IN_PROGRESS;
 
@@ -318,6 +325,10 @@ typedef bvm_cache *(*babel_op)(bvm_cache *); // babel_op#
 
 // XXX WAIVER(globals) XXX //
 mword *nil;                 // nil#
+
+mword mem_sys_alloc_count; // mem_sys_alloc_count#
+mword mem_sys_alloc_total; // mem_sys_alloc_total#
+mword *global_dev_overrides; // global_dev_overrides#
 
 mword GLOBAL_BVM_INSTRUMENT_TRIGGER; // For use with instrument.pl
 

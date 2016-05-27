@@ -28,15 +28,15 @@
 #define MEM_ALLOC_REDLINE (0.01 * MEM_DEFAULT_MAX) // MEM_ALLOC_REDLINE#
 
 #define TOP_OF_ALLOC_BANK(x) (x->base_ptr+(x->size-1)) // TOP_OF_ALLOC_BANK#
+#define TOP_OF_ALLOC_BANK2(x) ((char*)(x->base_ptr)+(x->size-1)) // TOP_OF_ALLOC_BANK#
+
+// Return value is in bytes
 #define mem_bank_in_use(x) ((mword)TOP_OF_ALLOC_BANK(x) - (mword)x->alloc_ptr) // mem_bank_in_use#
 
 #define MEM_ALLOC_AVAIL(x) ( x->interp->mem->primary->size - mem_bank_in_use(x->interp->mem->primary) )
 
-mword *mem_bulk_alloc(bvm_cache *this_bvm, mword sfield, mword count);
-
 void *mem_sys_alloc(int size);
-void mem_new(bvm_cache *this_bvm);
-void mem_destroy(bvm_cache *this_bvm);
+void mem_new(bvm_cache *this_bvm, mword init_mem_size);
 
 mword *mem_alloc(bvm_cache *this_bvm, mword sfield);
 void *mem_alloc_non_babel(bvm_cache *this_bvm, mword size8);

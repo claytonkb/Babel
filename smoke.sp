@@ -262,10 +262,10 @@ optest
     flip -1 take {and} fold !
     pass_fail !
 
-    -- misc tests
-    "blns.txt:" <<
-    'blns.txt' >>> dup str2ar ar2str cmp
-    pass_fail !
+--    -- misc tests
+--    "blns.txt:" <<
+--    'blns.txt' >>> dup str2ar ar2str cmp
+--    pass_fail !
 
     "return:" <<
     (1 2 3) {return} mkbvm2 ! babel 3 cmp
@@ -290,6 +290,7 @@ optest
 
     -- NOT COVERED --
     -- I/O operators
+
 
     "\nTOTAL FAILURES: "     <<
     global_fail itod << "\n" <<

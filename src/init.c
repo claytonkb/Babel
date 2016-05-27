@@ -50,12 +50,11 @@ _msg("PROF_MODE defined");
 _msg("CHK_MODE defined");
 #endif
 
-#ifdef MEM_DEBUG
-_d(MEM_DEFAULT_MIN_ALLOC);
-#endif
 // XXX //SECURITY// **DO NOT REMOVE** ABOVE LINES     //SECURITY// XXX //
 
-    this_bvm->interp     = mem_sys_alloc(sizeof(interp_state));      // XXX WAIVER(mem_sys_alloc) XXX //
+    init_dev_overrides(this_bvm);
+
+    this_bvm->interp             = mem_sys_alloc(sizeof(interp_state));      // XXX WAIVER(mem_sys_alloc) XXX //
 
     this_bvm->interp->cat_ex     = cat_ex;
     this_bvm->interp->op_restart = NULL;
@@ -69,7 +68,11 @@ _d(MEM_DEFAULT_MIN_ALLOC);
     this_bvm->interp->profile    = mem_sys_alloc(sizeof(bvm_profile));       // XXX WAIVER(mem_sys_alloc) XXX //
 #endif
 
-    mem_new(this_bvm);
+//    mem_new(this_bvm, MEM_DEFAULT_MIN_ALLOC);
+    mem_new(this_bvm, rcl(global_dev_overrides,0));
+
+    mem_sys_alloc_count = 0;
+    mem_sys_alloc_total = 0;
 
     init_interp_flags(this_bvm);
     init_interp_limits(this_bvm);
@@ -77,23 +80,23 @@ _d(MEM_DEFAULT_MIN_ALLOC);
     init_global_consts(this_bvm);
     init_nil(this_bvm);
 
-    this_bvm->self          = nil;
-    this_bvm->code_ptr      = nil;
-    this_bvm->rstack_ptr    = nil;
-    this_bvm->dstack_ptr    = nil;
-    this_bvm->ustack_ptr    = nil;
-    this_bvm->sym_table     = nil;
-    this_bvm->soft_root     = nil;
-    this_bvm->local_root    = nil;
-    this_bvm->local_path    = nil;
-    this_bvm->local_pwd     = nil;
-    this_bvm->thread_id     = nil;
-    this_bvm->steps         = nil;    
-    this_bvm->advance_type  = nil;
-    this_bvm->bvm_initd     = nil;
-    this_bvm->dstack_depth  = 0;
-    this_bvm->dstack_diameter = 0;
-    this_bvm->mask_table    = nil;
+    this_bvm->self              = nil;
+    this_bvm->code_ptr          = nil;
+    this_bvm->rstack_ptr        = nil;
+    this_bvm->dstack_ptr        = nil;
+    this_bvm->ustack_ptr        = nil;
+    this_bvm->sym_table         = nil;
+    this_bvm->soft_root         = nil;
+    this_bvm->local_root        = nil;
+    this_bvm->local_path        = nil;
+    this_bvm->local_pwd         = nil;
+    this_bvm->thread_id         = nil;
+    this_bvm->steps             = nil;    
+    this_bvm->advance_type      = nil;
+    this_bvm->bvm_initd         = nil;
+    this_bvm->dstack_depth      = 0;
+    this_bvm->dstack_diameter   = 0;
+    this_bvm->mask_table        = nil;
 
     init_interp_consts(this_bvm);
     init_jump_table(this_bvm);
@@ -118,6 +121,11 @@ _d(MEM_DEFAULT_MIN_ALLOC);
 #endif
 
     this_bvm->flags->INTERP_BOOT_IN_PROGRESS = FLAG_CLR;
+
+#if( defined BABEL_RESET_TRACE && defined MEM_DEBUG )
+    _d(mem_sys_alloc_count);
+    _d(mem_sys_alloc_total);
+#endif
 
 #ifdef BABEL_RESET_TRACE
 _msg("RESET TRACE COMPLETE");
@@ -172,6 +180,8 @@ _trace;
     f->MC_GC_PNR             = FLAG_CLR;
     f->MC_GC_OP_RESTART      = FLAG_CLR;
     f->MC_GC_INTERP_BLOCKING = FLAG_CLR;
+    f->MC_GC_SECONDARY_BANK_ALLOC = FLAG_CLR;
+    f->MC_GC_ON_EVERY_OP     = FLAG_CLR;
 
     f->INTERP_BOOT_IN_PROGRESS = FLAG_SET;
 
@@ -381,7 +391,6 @@ _trace;
 BABEL_TAGS    
 #undef X
 
-
 //fprintf(stderr, "%s\n", global_opcode_names[0x10]);
 
 #define X(a, b, c) c = _sys_cp( this_bvm, HASH8(this_bvm, b) );
@@ -533,6 +542,29 @@ void init_bvm_profile(bvm_cache *this_bvm){
 
 }
 #endif
+
+
+//
+//
+void init_dev_overrides(bvm_cache *this_bvm){ // init_dev_override#
+
+#ifdef BABEL_RESET_TRACE
+_trace;
+#endif
+
+    FILE *f = io_open_file(this_bvm, (mword*)"init_dev_overrides.bbl");
+    mword file_size = io_file_size(this_bvm, f);
+
+    global_dev_overrides = mem_sys_alloc(file_size);
+
+    fread( (char*)global_dev_overrides, 1, file_size, f );
+
+    io_close_file(this_bvm, f);
+
+    global_dev_overrides++;
+
+}
+
 
 // Clayton Bauman 2014
 

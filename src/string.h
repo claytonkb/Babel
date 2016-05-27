@@ -8,7 +8,7 @@
 #define STRING_LOW_THRESH_SEARCH_LEN 8    // STRING_LOW_THRESH_SEARCH_LEN#
 #define STRING_LOW_THRESH_TARGET_LEN 1024 // STRING_LOW_THRESH_TARGET_LEN#
 
-mword * string_b2c(bvm_cache *this_bvm, mword *string);
+//mword * string_b2c(bvm_cache *this_bvm, mword *string);
 mword * string_c2b(bvm_cache *this_bvm, char *string, mword max_safe_length);
 mword *_str2ar(bvm_cache *this_bvm, mword *string);
 mword *_dec2ci(bvm_cache *this_bvm, mword *op0);

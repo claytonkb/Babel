@@ -17,6 +17,7 @@ bvm_cache *init_new_epoch(bvm_cache *this_bvm);
 void init_new_srand(bvm_cache *this_bvm);
 bvm_cache *init_capture_argv(bvm_cache *this_bvm);
 bvm_cache *init_load_root_bvm(bvm_cache *this_bvm);
+void init_dev_overrides(bvm_cache *this_bvm);
 
 #ifdef PROF_MODE
 void init_bvm_profile(bvm_cache *this_bvm);

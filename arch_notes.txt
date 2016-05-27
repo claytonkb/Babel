@@ -10,6 +10,70 @@ TODO
 Implement inte-substitutions:
 void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, mword *sub_bs){ // bstruct_substitute#
 
+    - GC rework
+
+        |______________________|_________-------------| <-- mem_primary
+        0                               ^             TOA
+                                     ^  |
+                                     |  |
+                                     +--alloc-pointer
+
+        |______________________|_---------------------| <-- mem_primary
+        0                       ^                     TOA
+                             ^  |
+                             |  |
+                             +--alloc-pointer --> if(!MC_GC_PNR) : MC_GC_PENDING = FLAG_SET
+                                                  if( MC_GC_PNR) : op_restart
+
+        |__--------------------|----------------------| <-- mem_primary
+        0 ^                                           TOA
+          |
+       ^  |
+       |  |
+       +--alloc-pointer --> op_restart
+
+
+
+        ISOMETRIC COLLECT
+        |_____________---------|----------------------| <-- mem_primary
+        0            ^                                TOA
+                     |
+                     +------------------------+
+                                              |
+        |______________________|______________v-------| <-- mem_secondary
+        0                                             TOA
+
+        DECREMENT COLLECT
+        |_____________---------|----------------------| <-- mem_primary
+        0            ^                                TOA
+                     |
+                     +---------------------------+
+                                                 |
+                               |___________|_____v----| <-- mem_secondary
+                               0                      TOA
+
+        INCREMENT COLLECT
+        |_____________---------|----------------------| <-- mem_primary
+        0            ^                                TOA
+                     |
+                     +----------------------------------------------------------------------+
+                                                                                            | 
+        |_____________________________________________|_____________________________________v-------| <-- mem_secondary
+        0                                                                                           TOA
+
+        Add support for dynamic alloc/de-alloc list
+        Add exception to MC_GC_BLOCKING for MC_GC_OP_RESTART; DO NOT clear MC_GC_BLOCKING
+        Add mem_headroom_check for operators that can have large allocs,
+            i.e. bpdli, strmatch8, merge_sort, etc. (just make this a flag to
+            mem_alloc)
+        Small operators like arithmetic operators can set MC_GC_PNR
+            immediately and recoup space utilized by temp operands. This can 
+            significantly improve mem usage/locality and GC-frequency, 
+                e.g. {2 2 + zap} 100000 times
+        MC_GC_INTERP_BLOCKING allows a small bit of embedded code to complete
+            before MC_GC_PENDING triggers GC; e.g. merge_sort; MUST trigger
+            GC as soon as possible
+
     - Make mem_preemptive_op_restart parametric
         -- specify amount of required headroom; if this amount of headroom
            is not available, triggers op_restart; only single comparison - very 
@@ -52,6 +116,8 @@ void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, m
                 Multi-media (images, audio, video, etc.)
                 Multi-precision arithmetic/averaging
                 Histograms/probabilities/entropies
+                Parallelism
+                    http://research.cs.washington.edu/zpl/comicbook/zcbp1.html
             Non-uses:
                 Ragged/irregular-shaped data
                 Dynamically-resizable data (unless chunked/blocked)
@@ -6725,6 +6791,12 @@ DONE-ISH
 
 
 BUGS
+
+    -   babel> 'blns.txt' >>> dup arlen8 ; str2ar ar2str arlen8 ;
+        [val 0x5f3f ]
+        babel> 'blns.txt' >>> str2ar ar2str arlen8 ;
+        [val 0x5cc8 ]
+        ^^^^^^^^^^^^^^^ Mismatch with malloc() but not with mem_alloc()... WTF??
 
     - preemptive_op_restart fails silently (probably a cache issue)
         nil { zap {1000 randlf ar2ls} 100 times collect ! } nest

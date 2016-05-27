@@ -9,40 +9,40 @@
 #include "operator.h"
 #include "mem.h"
 
-// FIXME: This function is probably unnecessary - just do a leaf-copy,
-// since every Babel string is already a valid C-string
+//// FIXME: This function is probably unnecessary - just do a leaf-copy,
+//// since every Babel string is already a valid C-string
+////
+//mword *string_b2c(bvm_cache *this_bvm, mword *string){ // string_b2c#
 //
-mword *string_b2c(bvm_cache *this_bvm, mword *string){ // string_b2c#
-
-    mword strsize = size(string);
-    mword last_mword = rcl(string, strsize-1);
-    mword char_length = _arlen8(this_bvm, string);
-
-    last_mword = _alignment_word8(this_bvm, _dec_alignment_word8(this_bvm, last_mword)+1);
-
-    //Just allocate an extra space in case we need it...
-    mword *cstr = _newlfi(this_bvm, strsize+1,0);
-
-//mword cstr_bounds = mem_bounds_check(this_bvm, cstr);
-//mword string_bounds = mem_bounds_check(this_bvm, string);
-//_d(cstr_bounds);
-//_d(string_bounds); // fails bounds-check
-//_d(char_length); //absurd value
-
-    memcpy(cstr, string, char_length); // XXX WAIVER(memcpy) XXX //
-
-    *((char*)cstr+char_length) = (char)0;
-
-    if(~last_mword){ // IOW: last_mword != (mword)-1
-        lcl(cstr, strsize) = last_mword;
-    }
-    else{
-        lcl(cstr, strsize-1) = last_mword;
-    }
-
-    return cstr;
-    
-}
+//    mword strsize = size(string);
+//    mword last_mword = rcl(string, strsize-1);
+//    mword char_length = _arlen8(this_bvm, string);
+//
+//    last_mword = _alignment_word8(this_bvm, _dec_alignment_word8(this_bvm, last_mword)+1);
+//
+//    //Just allocate an extra space in case we need it...
+//    mword *cstr = _newlfi(this_bvm, strsize+1,0);
+//
+////mword cstr_bounds = mem_bounds_check(this_bvm, cstr);
+////mword string_bounds = mem_bounds_check(this_bvm, string);
+////_d(cstr_bounds);
+////_d(string_bounds); // fails bounds-check
+////_d(char_length); //absurd value
+//
+//    memcpy(cstr, string, char_length); // XXX WAIVER(memcpy) XXX //
+//
+//    *((char*)cstr+char_length) = (char)0;
+//
+//    if(~last_mword){ // IOW: last_mword != (mword)-1
+//        lcl(cstr, strsize) = last_mword;
+//    }
+//    else{
+//        lcl(cstr, strsize-1) = last_mword;
+//    }
+//
+//    return cstr;
+//    
+//}
 
 
 //
@@ -70,40 +70,25 @@ mword *string_c2b(bvm_cache *this_bvm, char *string, mword max_safe_length){ // 
 }
 
 
+//// Segfaults malloc() when used on blns.txt ... hrmm
 ////
-////
-//mword *string_c2b(bvm_cache *this_bvm, char *string, mword max_safe_length){ // string_c2b#
+//mword *_ar2str(bvm_cache *this_bvm, mword *array){ // _ar2str#
 //
-//    mword length, char_length, last_mword;
-//
-//    //strlen is unsafe, use memchr instead:
-//    void *null_term = memchr(string, 0, (size_t)max_safe_length);
-//
-//    if(null_term == NULL){
-//        char_length = max_safe_length;
-//    }
-//    else{
-//        char_length = (mword)((char*)null_term - string);
+//    if(is_nil(array)){
+//        return _newlfi(this_bvm, 1, 0);
 //    }
 //
-//    last_mword = _alignment_word8(this_bvm, char_length);
+//    mword arr_size = size(array);
 //
-//    length = (char_length / MWORD_SIZE) + 1;
+//    char *temp_buffer = (char*)mem_alloc(this_bvm, arr_size);
 //
-//    if(char_length % MWORD_SIZE != 0){
-//        length++;
-//    }
+//    mword utf8_length = (mword)u8_toutf8(temp_buffer, BYTE_SIZE(arr_size), (uint32_t *)array, arr_size) - 1;
 //
-////    d(char_length)
-////    d(length)
+//    char *result = (char*)_newstr(this_bvm, utf8_length, ' ');
 //
-//    mword *result = _newlfi(this_bvm, length,0);
+//    memcpy(result, temp_buffer, utf8_length);
 //
-//    memcpy(result, string, char_length); // XXX WAIVER(memcpy) XXX //
-//
-//    lcl(result,length-1) = last_mword;
-//
-//    return result;
+//    return (mword*)result;
 //
 //}
 
@@ -187,9 +172,12 @@ mword *_str2ar(bvm_cache *this_bvm, mword *string){ // _str2ar#
 //
 mword *_dec2ci(bvm_cache *this_bvm, mword *op0){ // _dec2ci#
 
-    mword *cstr = string_b2c(this_bvm, op0);
+//    mword *cstr = string_b2c(this_bvm, op0);
+//    mword *result = _newlfi(this_bvm, 1, 0);
+//    *result = (mword)atoi((char*)cstr);
+
     mword *result = _newlfi(this_bvm, 1, 0);
-    *result = (mword)atoi((char*)cstr);
+    *result = (mword)atoi((char*)op0);
 
     return result;
 
@@ -239,7 +227,18 @@ mword *_cf2str(bvm_cache *this_bvm, mword *fp_val){
 //
 mword *_radix2cu(bvm_cache *this_bvm, mword *string, mword radix){ // _radix2cu#
 
-    mword *cstr = string_b2c(this_bvm, string);
+//    mword *cstr = string_b2c(this_bvm, string);
+//
+//    unsigned long *result = 
+//        (unsigned long *)
+//            _newlfi(
+//                    this_bvm, 
+//                    (sizeof(unsigned long) / sizeof(mword)),
+//                    0);
+//
+//    *result = strtoul((char*)cstr,NULL,radix);
+//
+//    return (mword*)result;
 
     unsigned long *result = 
         (unsigned long *)
@@ -248,7 +247,7 @@ mword *_radix2cu(bvm_cache *this_bvm, mword *string, mword radix){ // _radix2cu#
                     (sizeof(unsigned long) / sizeof(mword)),
                     0);
 
-    *result = strtoul((char*)cstr,NULL,radix);
+    *result = strtoul((char*)string,NULL,radix);
 
     return (mword*)result;
 
@@ -274,7 +273,7 @@ mword *_str2cf(bvm_cache *this_bvm, mword *string){ // _str2cf#
 //
 mword *_bin2cu(bvm_cache *this_bvm, mword *op0){ // _bin2cu#
 
-    mword *cstr = string_b2c(this_bvm, op0);
+//    mword *cstr = string_b2c(this_bvm, op0);
 
     unsigned long *result = 
         (unsigned long *)
@@ -282,7 +281,7 @@ mword *_bin2cu(bvm_cache *this_bvm, mword *op0){ // _bin2cu#
                     this_bvm, 
                     (sizeof(unsigned long) / sizeof(mword)),
                     0);
-    *result = strtoul ((char*)cstr,NULL,2);
+    *result = strtoul ((char*)op0,NULL,2);
 
     return (mword*)result;
 
@@ -293,7 +292,7 @@ mword *_bin2cu(bvm_cache *this_bvm, mword *op0){ // _bin2cu#
 //
 mword *_oct2cu(bvm_cache *this_bvm, mword *op0){ // _oct2cu#
 
-    mword *cstr = string_b2c(this_bvm, op0);
+//    mword *cstr = string_b2c(this_bvm, op0);
 
     unsigned long *result = 
         (unsigned long *)
@@ -301,7 +300,7 @@ mword *_oct2cu(bvm_cache *this_bvm, mword *op0){ // _oct2cu#
                     this_bvm, 
                     (sizeof(unsigned long) / sizeof(mword)),
                     0);
-    *result = strtoul ((char*)cstr,NULL,8);
+    *result = strtoul ((char*)op0,NULL,8);
 
     return (mword*)result;
 

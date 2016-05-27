@@ -690,12 +690,16 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 
 -- Takes the cartesian product of a matrix
 'cart' 
-        { 2 take 
-            { give 
-            wrap ! wrap ! { {<- dup -> 2 take swap} each zap } compose !
-            each
-        collect ! } 
-        nest } 
+    { 2 take dup
+        {nil?} over ! lsfalse ! not
+            {{ give 
+                    wrap ! wrap ! { {<- dup -> 2 take swap} each zap } compose !
+                    each
+                collect ! } 
+                nest }
+            {zap nil}
+        selr !
+ } 
 
 -- same as cart but deep-copies
 -- { cartd

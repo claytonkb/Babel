@@ -15,6 +15,11 @@
 //
 void *mem_sys_alloc(int size){ // mem_sys_alloc#
 
+#ifdef MEM_DEBUG
+    mem_sys_alloc_count++;
+    mem_sys_alloc_total += size;
+#endif
+
     void *alloc_attempt = malloc(size);
 
     if(alloc_attempt == NULL){ // malloc failed
@@ -28,15 +33,19 @@ void *mem_sys_alloc(int size){ // mem_sys_alloc#
 
 // mem_new
 //
-void mem_new(bvm_cache *this_bvm){ // mem_new#
+void mem_new(bvm_cache *this_bvm, mword init_mem_size){ // mem_new#
 
 #ifdef BABEL_RESET_TRACE
 _trace;
 #endif
 
+#ifdef MEM_DEBUG
+_d(init_mem_size);
+#endif
+
     mem_context *m = mem_sys_alloc(sizeof(mem_context)); // XXX WAIVER(mem_sys_alloc) XXX //
 
-    mword init_mem_size = MEM_DEFAULT_MIN_ALLOC;
+//    mword init_mem_size = MEM_DEFAULT_MIN_ALLOC;
 
     m->primary   = mem_sys_alloc(sizeof(alloc_bank)); // XXX WAIVER(mem_sys_alloc) XXX //
     m->secondary = mem_sys_alloc(sizeof(alloc_bank)); // XXX WAIVER(mem_sys_alloc) XXX //
@@ -45,8 +54,8 @@ _trace;
     m->op_restart_alloc_size = 0;
     m->last_GC_tick_count = 0;
 
-    m->primary->base_ptr   = mem_sys_alloc(BYTE_SIZE(init_mem_size)); // XXX WAIVER(mem_sys_alloc) XXX //
-    m->secondary->base_ptr = mem_sys_alloc(BYTE_SIZE(init_mem_size)); // XXX WAIVER(mem_sys_alloc) XXX //
+    m->primary->base_ptr   = mem_sys_alloc(init_mem_size); // XXX WAIVER(mem_sys_alloc) XXX //
+    m->secondary->base_ptr = mem_sys_alloc(init_mem_size); // XXX WAIVER(mem_sys_alloc) XXX //
 
     m->primary->size   = init_mem_size;
     m->secondary->size = init_mem_size;
@@ -55,60 +64,6 @@ _trace;
     mem_reset_bank(this_bvm, m->secondary);
 
     this_bvm->interp->mem = m; // Sets the global memory context
-
-}
-
-
-// mem_destroy
-//
-void mem_destroy(bvm_cache *this_bvm){ // mem_destroy#
-
-    mem_context *m = this_bvm->interp->mem;
-
-    free(m->primary->base_ptr);
-    free(m->secondary->base_ptr);
-
-    free(m->primary);
-    free(m->secondary);
-
-    free(m);
-
-}
-
-// result points at the first element of the allocated array - the other elements
-// are implicit
-//
-mword *mem_bulk_alloc(bvm_cache *this_bvm, mword sfield, mword count){ // mem_bulk_alloc#
-
-    mword generic_sfield   = abs(sfield);
-    mword array_alloc_size = MWORDS(generic_sfield) + 1; // +1 for sfield
-    mword alloc_size       = count * array_alloc_size;
-    mword alloc_sfield     = count * (generic_sfield + BYTE_SIZE(1));
-
-    void *result = (void*)mem_alloc(this_bvm, alloc_sfield);
-    int i;
-
-    if((int)sfield > 0){ // leaf
-
-        memset((char*)result,0,alloc_sfield);
-
-    }
-    else if((int)sfield < 0){ // inte
-
-        for(i=0; i<alloc_size; i++){
-            lci((mword*)result,i) = (void*)nil;
-        }
-
-    }
-    else{ // tptr
-        _fatal("cannot bulk allocate tptrs");
-    }
-
-    for(i=0; i<count; i++){
-        lcl((mword*)result,(i*array_alloc_size)) = sfield;
-    }
-
-    return (mword*)result;
 
 }
 
@@ -122,14 +77,10 @@ mword *mem_alloc(bvm_cache *this_bvm, mword sfield){ // *mem_alloc#
         this_bvm->interp->profile->mem_alloc_count++;
 #endif
 
-    mword *return_ptr;
-
     // mem_alloc is non-reentrant... this is enforced with the MC_ALLOC_BLOCKING flag
     if(this_bvm->flags->MC_ALLOC_BLOCKING == FLAG_SET){
-        _cat_except(this_bvm);
+        _fatal("this_bvm->flags->MC_ALLOC_BLOCKING == FLAG_SET");
     }
-
-    alloc_bank *b = this_bvm->interp->mem->primary;
 
     mword alloc_request_size = mem_alloc_size(sfield)+1; // +1 is for s-field
 
@@ -137,9 +88,11 @@ mword *mem_alloc(bvm_cache *this_bvm, mword sfield){ // *mem_alloc#
         _fatal("alloc failed: alloc_request_size >= MAX_ARRAY_SIZE");
     }
 
+    mword *return_ptr;
+
 #ifdef MEM_DEBUG
     if(this_bvm->flags->MC_USE_MALLOC == FLAG_SET){
-        return_ptr = (void*)mem_sys_alloc(BYTE_SIZE(alloc_request_size));
+        return_ptr = (void*)mem_sys_alloc(BYTE_SIZE(alloc_request_size));  // XXX WAIVER(mem_sys_alloc) XXX //
         s(return_ptr) = sfield;
         return return_ptr;
     }
@@ -147,9 +100,12 @@ mword *mem_alloc(bvm_cache *this_bvm, mword sfield){ // *mem_alloc#
 
     this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_SET;
 
+    alloc_bank *b = this_bvm->interp->mem->primary;
+
+#if 0
     mword mbu = mem_bank_in_use(b);
 
-    if(mbu+alloc_request_size >= b->size){
+    if( (mbu+alloc_request_size) >= b->size ){
 
         if(this_bvm->flags->MC_GC_PENDING == FLAG_CLR){
 
@@ -157,7 +113,7 @@ mword *mem_alloc(bvm_cache *this_bvm, mword sfield){ // *mem_alloc#
 _msg("MC_GC_PENDING");
 #endif
             mem_swap_banks(this_bvm);
-            b = this_bvm->interp->mem->primary;
+            b = this_bvm->interp->mem->primary; // update local copy
             this_bvm->flags->MC_GC_PENDING = FLAG_SET;
 
         }
@@ -187,6 +143,7 @@ _msg("MC_GC_OP_RESTART");
         }
 
     }
+#endif
 
     b->alloc_ptr -= alloc_request_size;
 
@@ -235,7 +192,11 @@ void mem_preemptive_op_restart(bvm_cache *this_bvm){ // mem_preemptive_op_restar
 bvm_cache *mem_copy_collect(bvm_cache *this_bvm){ // mem_copy_collect#
 
 #ifdef GC_TRACE
-_trace;
+_d(this_bvm->flags->MC_GC_PENDING);
+_d(this_bvm->flags->MC_GC_BLOCKING);
+_d(this_bvm->flags->MC_GC_OP_RESTART);
+_d(this_bvm->flags->MC_GC_PNR);
+_d(this_bvm->flags->MC_GC_ON_EVERY_OP);
 #endif
 
     // mem_copy_collect is non-reentrant... this is enforced with the MC_GC_BLOCKING flag
@@ -305,6 +266,7 @@ if(bs_byte_size > mem->primary->size){
 
     mem->last_GC_tick_count = this_bvm->interp->global_tick_count;
 
+    this_bvm->flags->MC_GC_SECONDARY_BANK_ALLOC = FLAG_CLR;
     this_bvm->flags->MC_GC_BLOCKING = FLAG_CLR;
     this_bvm->flags->MC_GC_PENDING  = FLAG_CLR;
 
@@ -362,8 +324,14 @@ _trace;
 #endif
 
     if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
-        _fatal("garbage collection failed: attempted swap while MC_GC_PENDING");
+        _fatal("mem_swap_banks while MC_GC_PENDING");
     }
+
+    if(this_bvm->flags->MC_GC_SECONDARY_BANK_ALLOC == FLAG_SET){
+        _fatal("mem_swap_banks while MC_GC_SECONDARY_BANK_ALLOC");
+    }
+
+    this_bvm->flags->MC_GC_SECONDARY_BANK_ALLOC = FLAG_SET;
 
     mem_reset_bank(this_bvm, this_bvm->interp->mem->secondary);
 
@@ -373,6 +341,9 @@ _trace;
     alloc_bank *temp                    = this_bvm->interp->mem->primary;
     this_bvm->interp->mem->primary      = this_bvm->interp->mem->secondary;
     this_bvm->interp->mem->secondary    = temp;
+
+    this_bvm->flags->MC_GC_SECONDARY_BANK_ALLOC = FLAG_SET;
+
 
 //_d((mword)this_bvm->interp->mem->primary->base_ptr);
 //_d((mword)this_bvm->interp->mem->secondary->base_ptr);
@@ -388,7 +359,7 @@ void mem_reset_bank(bvm_cache *this_bvm, alloc_bank *b){ // mem_reset_bank#
 _trace;
 #endif
 
-    b->alloc_ptr  = TOP_OF_ALLOC_BANK(b);
+    b->alloc_ptr  = (mword*)TOP_OF_ALLOC_BANK2(b);
 
 }
 
@@ -426,6 +397,10 @@ _trace;
     mword *old_primary   = mem->primary->base_ptr;
     mword *old_secondary = mem->secondary->base_ptr;
 
+    if(mem->primary->size >= MEM_DEFAULT_MAX_ALLOC){
+        _fatal("mem->primary->size >= MEM_DEFAULT_MAX_ALLOC");
+    }
+
     do{
 //        mem->primary->size   = mem->primary->size   * 4;
 //        mem->secondary->size = mem->secondary->size * 4;
@@ -438,8 +413,8 @@ _trace;
         _fatal("ran out of memory"); //FIXME: hibernate and notify the user gracefully
     }
 
-    mem->primary->base_ptr   = mem_sys_alloc(BYTE_SIZE(mem->primary->size));
-    mem->secondary->base_ptr = mem_sys_alloc(BYTE_SIZE(mem->secondary->size));
+    mem->primary->base_ptr   = mem_sys_alloc(mem->primary->size);
+    mem->secondary->base_ptr = mem_sys_alloc(mem->secondary->size);
 
     mem_reset_bank(this_bvm, mem->primary);
     mem_reset_bank(this_bvm, mem->secondary);
@@ -466,8 +441,8 @@ _trace;
     mem->primary->size   = mem->primary->size   / 2;
     mem->secondary->size = mem->secondary->size / 2;
 
-    mem->primary->base_ptr   = mem_sys_alloc(BYTE_SIZE(mem->primary->size));
-    mem->secondary->base_ptr = mem_sys_alloc(BYTE_SIZE(mem->secondary->size));
+    mem->primary->base_ptr   = mem_sys_alloc(mem->primary->size);
+    mem->secondary->base_ptr = mem_sys_alloc(mem->secondary->size);
 
     mem_reset_bank(this_bvm, mem->primary);
     mem_reset_bank(this_bvm, mem->secondary);
@@ -540,7 +515,7 @@ mword mem_secondary_bounds_check(bvm_cache *this_bvm, mword *ptr){
 bvm_cache *mem_dump_stats(bvm_cache *this_bvm){ // mem_dump_stats#
 
     _d((mword)this_bvm->self);
-    _d(rcl(rci(this_bvm->thread_id,0),0));
+//    _d(rcl(rci(this_bvm->thread_id,0),0));
     _d((mword)this_bvm->flags->MC_ALLOC_BLOCKING);
     _d((mword)this_bvm->flags->MC_GC_BLOCKING);
     _d((mword)this_bvm->flags->MC_GC_PENDING);

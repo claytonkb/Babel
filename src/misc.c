@@ -98,9 +98,14 @@ bvm_cache *dev(bvm_cache *this_bvm){
     }
     else if(rcl(oi.data,0) == 1){//developer one-off
 
-_dumpf(this_bvm->rstack_ptr);
-_msg("_dumpf(this_bvm->rstack_ptr);");
-_die;
+        stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
+        cache_flush(this_bvm);
+
+        this_bvm->flags->MC_GC_ON_EVERY_OP = FLAG_SET;
+
+//_dumpf(this_bvm->rstack_ptr);
+//_msg("_dumpf(this_bvm->rstack_ptr);");
+//_die;
 
 //        stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
 //        cache_update(this_bvm);
@@ -426,7 +431,9 @@ mword time_ms(void){
 //mword *_deva(bvm_cache *this_bvm, mword *op0, mword *op1){
 mword *_deva(bvm_cache *this_bvm, mword *op0){ // _deva#
 
-    return mem_bulk_alloc(this_bvm, 0xfffffff4, 5);
+    return nil;
+
+//    return mem_bulk_alloc(this_bvm, 0xfffffff4, 5);
 
 //    return bstruct_load_fast(this_bvm, op0, size(op0));
 
