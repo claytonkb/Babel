@@ -20,6 +20,8 @@ void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, m
 
     - GC rework
 
+        - next mem target: boot with std.sp on 0x20000
+
         |______________________|_________-------------| <-- mem_primary
         0                               ^             TOA
                                      ^  |

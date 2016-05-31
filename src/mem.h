@@ -32,6 +32,7 @@
 
 // Return value is in bytes
 #define mem_bank_in_use(x) ((mword)TOP_OF_ALLOC_BANK(x) - (mword)x->alloc_ptr) // mem_bank_in_use#
+#define mem_bank_free(x)   ((mword)x->alloc_ptr - (mword)x->base_ptr) // mem_bank_free#
 
 #define MEM_ALLOC_AVAIL(x) ( x->interp->mem->primary->size - mem_bank_in_use(x->interp->mem->primary) )
 

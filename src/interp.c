@@ -105,12 +105,17 @@ _trace;
 
         if(val==OP_RESTART){
             if(this_bvm->flags->MC_GC_OP_RESTART == FLAG_SET){ // non-reentrant
-                _cat_except(this_bvm);
+                mem_dump_stats(this_bvm);
+                _fatal("op_restart while MC_GC_OP_RESTART == FLAG_SET");
             }
             else{
 
                 if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
                     _msg("MC_GC_OP_RESTART");
+                }
+
+                if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
+                    fprintf(stderr, "MC_GC_OP_RESTART ");
                 }
 
                 // FIXME Add livelock detect FIXME
@@ -389,6 +394,10 @@ mword interp_update_steps(bvm_cache *this_bvm){ // interp_update_steps#
         return_val = 0;
     }
 
+//Trigger on a cycle number
+if(this_bvm->interp->global_tick_count == 0xe72){
+    GLOBAL_BVM_INSTRUMENT_TRIGGER = FLAG_SET;
+}
 
 #ifdef CHK_MODE
     interp_opcode_boundary_checks(this_bvm);

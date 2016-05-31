@@ -102,6 +102,42 @@ mword *mem_alloc(bvm_cache *this_bvm, mword sfield){ // *mem_alloc#
 
     alloc_bank *b = this_bvm->interp->mem->primary;
 
+    if((b->alloc_ptr - alloc_request_size) <= b->base_ptr){ // swap banks and set MC_GC_PENDING
+
+        if(this_bvm->flags->MC_GC_PENDING == FLAG_CLR){
+
+#ifdef GC_TRACE
+_msg("MC_GC_PENDING");
+#endif
+
+            mem_swap_banks(this_bvm);
+            b = this_bvm->interp->mem->primary; // update local copy
+            this_bvm->flags->MC_GC_PENDING = FLAG_SET;
+
+        }
+        else{
+
+#ifdef GC_TRACE
+_msg("MC_GC_OP_RESTART");
+#endif
+
+            if(this_bvm->flags->MC_GC_INTERP_BLOCKING == FLAG_SET){
+                _fatal("this_bvm->flags->MC_GC_INTERP_BLOCKING == FLAG_SET");
+            }
+
+            if(this_bvm->flags->INTERP_BOOT_IN_PROGRESS == FLAG_SET){
+                _fatal("MC_GC_OP_RESTART while INTERP_BOOT_IN_PROGRESS");
+            }
+
+            this_bvm->flags->MC_GC_BLOCKING = FLAG_CLR;
+            this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
+            this_bvm->interp->mem->op_restart_alloc_size = alloc_request_size;
+            _op_restart(this_bvm);
+
+        }
+
+    }
+
 #if 0
     mword mbu = mem_bank_in_use(b);
 
@@ -147,11 +183,20 @@ _msg("MC_GC_OP_RESTART");
 
     b->alloc_ptr -= alloc_request_size;
 
+#if 0
+if(b->alloc_ptr <= b->base_ptr){
+    _d((mword)b->alloc_ptr);
+    _d((mword)b->base_ptr);
+    _die;
+}
+#endif
+
     return_ptr = b->alloc_ptr+1;
 
     s(return_ptr) = sfield;
 
     this_bvm->flags->MC_ALLOC_BLOCKING = FLAG_CLR;
+    this_bvm->flags->MC_GC_OP_RESTART  = FLAG_CLR;
 
 //mword bounds_check = mem_bounds_check(this_bvm, return_ptr);
 //_d(bounds_check);
@@ -192,12 +237,17 @@ void mem_preemptive_op_restart(bvm_cache *this_bvm){ // mem_preemptive_op_restar
 bvm_cache *mem_copy_collect(bvm_cache *this_bvm){ // mem_copy_collect#
 
 #ifdef GC_TRACE
+_trace;
 _d(this_bvm->flags->MC_GC_PENDING);
 _d(this_bvm->flags->MC_GC_BLOCKING);
 _d(this_bvm->flags->MC_GC_OP_RESTART);
 _d(this_bvm->flags->MC_GC_PNR);
 _d(this_bvm->flags->MC_GC_ON_EVERY_OP);
 #endif
+
+if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
+    _say(" --> mem_copy_collect()");
+}
 
     // mem_copy_collect is non-reentrant... this is enforced with the MC_GC_BLOCKING flag
     if(this_bvm->flags->MC_GC_BLOCKING == FLAG_SET){
@@ -217,11 +267,12 @@ _d(this_bvm->flags->MC_GC_ON_EVERY_OP);
 
     cache_flush(this_bvm);
 
-//    mword bs_byte_size = BYTE_SIZE( _mu(this_bvm, this_bvm->self) );
     mword bs_byte_size = _mu(this_bvm, this_bvm->self);
     mword memory_demand_load = bs_byte_size;
 
-_d(bs_byte_size);
+#ifdef GC_TRACE
+    _d(bs_byte_size);
+#endif
 
 #if 0
 if(bs_byte_size > mem->primary->size){
@@ -233,6 +284,11 @@ if(bs_byte_size > mem->primary->size){
     if(this_bvm->flags->MC_GC_OP_RESTART == FLAG_SET){
 
         memory_demand_load += mem->op_restart_alloc_size;
+
+#ifdef GC_TRACE
+    _d(memory_demand_load);
+#endif
+
         mem_increment_alloc(this_bvm, mem, memory_demand_load);
 
     }
@@ -323,9 +379,9 @@ void mem_swap_banks(bvm_cache *this_bvm){ // mem_swap_banks#
 _trace;
 #endif
 
-    if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
-        _fatal("mem_swap_banks while MC_GC_PENDING");
-    }
+//    if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
+//        _fatal("mem_swap_banks while MC_GC_PENDING");
+//    }
 
     if(this_bvm->flags->MC_GC_SECONDARY_BANK_ALLOC == FLAG_SET){
         _fatal("mem_swap_banks while MC_GC_SECONDARY_BANK_ALLOC");
@@ -342,7 +398,7 @@ _trace;
     this_bvm->interp->mem->primary      = this_bvm->interp->mem->secondary;
     this_bvm->interp->mem->secondary    = temp;
 
-    this_bvm->flags->MC_GC_SECONDARY_BANK_ALLOC = FLAG_SET;
+//    this_bvm->flags->MC_GC_SECONDARY_BANK_ALLOC = FLAG_SET;
 
 
 //_d((mword)this_bvm->interp->mem->primary->base_ptr);
