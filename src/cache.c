@@ -282,9 +282,9 @@ mword *cache_stats_array(bvm_cache *this_bvm){
 //    mword *local_root;
 //    mword *local_path;
 //    mword *local_pwd;
-    lcl(result, 7) = (mword)this_bvm->soft_root;
-    lcl(result, 8) = (mword)this_bvm->soft_root;
-    lcl(result, 9) = (mword)this_bvm->soft_root;
+    lcl(result, 7) = (mword)this_bvm->local_root;
+    lcl(result, 8) = (mword)this_bvm->local_path;
+    lcl(result, 9) = (mword)this_bvm->local_pwd;
 
     lcl(result,10) = (mword)this_bvm->thread_id;
     lcl(result,11) = rcl(rci(this_bvm->thread_id,0),0);
@@ -296,9 +296,9 @@ mword *cache_stats_array(bvm_cache *this_bvm){
 //    mword *bvm_initd;
 //    mword dstack_depth;
 //    mword dstack_diameter;
-    lcl(result,16) = (mword)this_bvm->soft_root;
-    lcl(result,17) = (mword)this_bvm->soft_root;
-    lcl(result,18) = (mword)this_bvm->soft_root;
+    lcl(result,16) = (mword)this_bvm->bvm_initd;
+    lcl(result,17) = (mword)this_bvm->dstack_depth;
+    lcl(result,18) = (mword)this_bvm->dstack_diameter;
 
     lcl(result,19) = (mword)this_bvm->mask_table;
     lcl(result,20) = (mword)this_bvm->flags;

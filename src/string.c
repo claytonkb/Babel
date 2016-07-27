@@ -865,8 +865,6 @@ OPERATORA_R2_W1_D(strmatch_8d,
         0, OI_MASK_LEAF, 0, 0)
 
 
-//mword *_newstr(bvm_cache *this_bvm, mword size8, char set_char){ // _newstr#
-
 #define NEWSTR_D_OPERATIONS \
     result0 = _newstr( this_bvm, *oi1.data, *(char*)oi0.data);
 

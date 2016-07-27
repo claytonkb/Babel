@@ -81,7 +81,7 @@ bvm_cache *interp_core(bvm_cache *this_bvm){ // interp_core#
     // FIXME: Each fresh instance of interp_core must have its own op_restart
     this_bvm->interp->op_restart = &op_restart;
 
-#if(defined INTERP_CORE_TRACE || defined BABEL_RESET_TRACE)
+#ifdef BABEL_RESET_TRACE
 _trace;
 #endif
 
@@ -90,13 +90,13 @@ _trace;
     }
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
     while( interp_update_steps(this_bvm) ){
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
         val = setjmp(op_restart);
@@ -125,7 +125,7 @@ _trace;
                 this_bvm->flags->MC_GC_OP_RESTART = FLAG_CLR;
                 val = 0;
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
             }
         }
@@ -136,7 +136,7 @@ _trace;
         else if(this_bvm->flags->MC_GC_PENDING == FLAG_SET){
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
             if( this_bvm->flags->MC_GC_INTERP_BLOCKING == FLAG_CLR ){ // see lib_babelr() in array_ptr_sort() for use-case
@@ -146,18 +146,18 @@ _trace;
         }
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
         this_bvm->flags->BVM_INSTR_IN_PROGRESS = FLAG_SET;
 
         if(code_empty(this_bvm)){
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
             if(!rstack_empty(this_bvm)){
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
 //static mword count=0;
@@ -183,7 +183,7 @@ _trace;
         if( is_inte(next_entry) ){
 
 #ifdef INTERP_CORE_TRACE
-_memi(rci(next_entry,0));
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
             if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
@@ -216,7 +216,7 @@ _memi(rci(next_entry,0));
         else if( is_leaf(next_entry) ){
 
 #ifdef INTERP_CORE_TRACE
-_d(rcl(next_entry,0))
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
             if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){ // FIXME: Block this out with #ifdef DEV_MODE
@@ -224,16 +224,20 @@ _d(rcl(next_entry,0))
             }
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _msg("C"); } // INSTRUMENT
 #endif
 
             interp_op_exec(this_bvm, rcl(next_entry,0));
+
+#ifdef INTERP_CORE_TRACE
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _msg("D"); } // INSTRUMENT
+#endif
 
         }
         else{ // is_tptr(next_entry)
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
             //built-ins
@@ -267,10 +271,14 @@ _trace;
 
         }
 
+#ifdef INTERP_CORE_TRACE
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
+#endif
+
         this_bvm->flags->BVM_INSTR_IN_PROGRESS = FLAG_CLR;
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
         mword advance_type = get_advance_type(this_bvm);
@@ -278,7 +286,7 @@ _trace;
         if(advance_type == BVM_ADVANCE){
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
             interp_advance(this_bvm);
@@ -287,7 +295,7 @@ _trace;
         else if(advance_type == BVM_RETURN){
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
             if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
                 fprintf(stderr, " --> BVM_RETURN\n");
@@ -299,7 +307,7 @@ _trace;
         else{
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
             // do nothing...
@@ -308,7 +316,7 @@ _trace;
         }
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
         this_bvm->interp->global_tick_count++;
         this_bvm->flags->MC_GC_PNR = FLAG_CLR;
@@ -318,7 +326,7 @@ _trace;
     cache_flush(this_bvm);
 
 #ifdef INTERP_CORE_TRACE
-_trace;
+if(GLOBAL_BVM_INSTRUMENT_TRIGGER == FLAG_SET){ _trace; } // INSTRUMENT
 #endif
 
 //_d(this_bvm->dstack_depth);
@@ -372,7 +380,6 @@ bvm_cache *interp_op_exec(bvm_cache *this_bvm, mword opcode){ // interp_op_exec#
     op_ptr = (babel_op)this_bvm->interp->jump_table[ opcode % NUM_INTERP_OPCODES ];
 
     discard = op_ptr(this_bvm);
-
     discard = discard; // suppress compiler warning, gets optimized away
 
     return this_bvm;
@@ -394,10 +401,12 @@ mword interp_update_steps(bvm_cache *this_bvm){ // interp_update_steps#
         return_val = 0;
     }
 
+#if 0
 //Trigger on a cycle number
 if(this_bvm->interp->global_tick_count == 0xe72){
     GLOBAL_BVM_INSTRUMENT_TRIGGER = FLAG_SET;
 }
+#endif
 
 #ifdef CHK_MODE
     interp_opcode_boundary_checks(this_bvm);

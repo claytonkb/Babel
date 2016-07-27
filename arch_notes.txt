@@ -92,112 +92,7 @@ void bstruct_substitute(bvm_cache *this_bvm, mword *target_bs, mword *find_bs, m
     - Add interp_checker to interp_update_steps() and #ifdef CHK_MODE
         Use for op-boundary checking
 
-    - binary heaps ... implement now?
-        http://www.cs.ucf.edu/~dmarino/ucf/cop3502/sampleprogs/heap.c
-        http://courses.csail.mit.edu/6.006/fall10/handouts/recitation10-8.pdf
-        http://www.personal.kent.edu/~rmuhamma/Algorithms/MyAlgorithms/Sorting/heapSort.htm
-
-    - Byte-Pair Encoding
-        This may be a good candidate if it can be implemented with reliably 
-            fast compression time.
-        http://www.csse.monash.edu.au/cluster/RJK/Compress/problem.html
-        Paper: "Byte pair encoding: a text compression scheme that accelerates pattern matching"
-
-    - String-matching
-
-        string_ascii_char_match (fast scan for a character)
-        string_ascii_char_match_all (fast-scan for all chars, e.g. "/", " ", "\n", etc.)
-        string_ascii_str_match (first match only; returns offset)
-        string_ascii_str_match_all (returns list of offsets)
-        array_match      --> general-purpose matching, i.e. UTF8 strings; also rooted sub-graphs
-        array_match_all
-
-        http://igm.univ-mlv.fr/~lecroq/string/index.html
-
-        Current favorite: Boyer-Moore Horspool
-            Very fast + simple + good worst-case
-
-    - Vector/tensor processing
-
-        Why vectors/tensors:
-            Very fast in CPU/GPU
-            Eliminate pointer-manipulation - O(1) lookup for every access
-            Uses:
-                Multi-media (images, audio, video, etc.)
-                Multi-precision arithmetic/averaging
-                Histograms/probabilities/entropies
-                Parallelism
-                    http://research.cs.washington.edu/zpl/comicbook/zcbp1.html
-            Non-uses:
-                Ragged/irregular-shaped data
-                Dynamically-resizable data (unless chunked/blocked)
-                Very small data objects in isolation, such as characters or bits
-
-        Implement after support for large pages + GC-max-alloc-page-size
-        https://gcc.gnu.org/onlinedocs/gcc-4.2.4/gcc/X86-Built_002din-Functions.html
-        https://www.youtube.com/watch?v=6Q8_kYbTqhY&list=PLLcTTp6EQ_egylIerYEjCBbEVhnPzSdXP
-        https://software.intel.com/sites/landingpage/IntrinsicsGuide/#
-
-        Sub-language
-            Vector-processing programs run in separate interp-loop
-            Programs are themselves packed into vectors
-            Overall architecture?
-
-        Key interface between vector and normal modes: scatter and gather
-
-            rows --> matrix
-            [a a a] [b b b] [c c c] [d d d] --> [a a a b b b c c c d d d]
-            matrix --> rows
-            [a a a b b b c c c d d d] --> [a a a] [b b b] [c c c] [d d d]
-
-            matrix(interleaved) --> rows
-            [a b c d a b c d a b c d] --> [a a a] [b b b] [c c c] [d d d]
-            rows --> matrix(interleaved) 
-            [a a a] [b b b] [c c c] [d d d] --> [a b c d a b c d a b c d]
-
-            rows(interleaved) --> matrix
-            [a b c d] [a b c d] [a b c d] --> [a a a b b b c c c d d d]
-            matrix --> rows(interleaved) 
-            [a b c d] [a b c d] [a b c d] --> [a a a b b b c c c d d d]
-
-            Transpose orientation as interleaving:
-
-            1  2  3      1  4  7  10
-            4  5  6  ==> 2  5  8  11
-            7  8  9      3  6  9  12
-            10 11 12 
-
-            4,3   col-size,row-size
-            [a a a b b b c c c d d d]    [1 2 3 4 5 6 7 8 9 10 11 12]
-                                          ^ ^ ^
-            3,4
-            [a a a a b b b b c c c c]
-
-            3,4 T
-            [a b c d a b c d a b c d]
-
-            4,3 T
-            [a b c a b c a b c a b c]    [1 2 3 4 5 6 7 8 9 10 11 12]
-                                          ^     ^     ^     ^
-            2,4,3
-            [a a a b b b c c c d d d e e e f f f g g g h h h]
-                multi-dim transpose?
-
-    - Variadic tensors (pyramids)
-
-        Vector/tensor data type cannot be resized (without a new allocation)
-        Variadics allow "growable/shrinkable" vector/tensors
-        For example, instead of {256 newval}, we use {256 newptr} and then 
-            set each element of this array to point to a 1 element val-array,
-            as each element comes available.
-        Variadics are either packed or sparse; a packed-variadic is expected
-            to be filled "left-to-right"; a sparse-variadic can be arbitrarily
-            indexed
-        Variadics can be nested according to any regular dimensional geometry
-            but the leaves are always a value-array, that is, a standard 
-            vector/tensor
-
-    - SCRATCH BPDL2
+d    - SCRATCH BPDL2
         
         Copy from bpdl.c, then:
 
@@ -6801,6 +6696,10 @@ DONE-ISH
 
 
 BUGS
+
+    - HUGE bug located:
+        op_restart() conflicts with babel operator because op_restart trashes
+        the stack.
 
     -   babel> 'blns.txt' >>> dup arlen8 ; str2ar ar2str arlen8 ;
         [val 0x5f3f ]

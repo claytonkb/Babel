@@ -505,7 +505,14 @@ mword *_bs2str2(bvm_cache *this_bvm, mword *bs){
 
             // print inte ptr
             bsprintf(this_bvm, result, &str_offset, "[ptr ");
-            bsprintf(this_bvm, result, &str_offset, offset_format, (unsigned)(rcl(bs_base,HASH_SIZE+1) >> LOG_MWORD_SIZE)); 
+
+            if(is_nil_leaf_based((mword*)(bs+bs_offset))){
+                bsprintf(this_bvm, result, &str_offset, "nil "); 
+            }
+            else{
+                bsprintf(this_bvm, result, &str_offset, offset_format, (unsigned)(rcl(bs_base,HASH_SIZE+1) >> LOG_MWORD_SIZE));
+            }
+
             bsprintf(this_bvm, result, &str_offset, "] ");
 
         }

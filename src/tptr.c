@@ -83,7 +83,7 @@ mword *tptr_detag(bvm_cache *this_bvm, mword *tptr){ // tptr_detag#
     if(is_nil(tptr)){
         return nil;
     }
-    
+
     if(is_tptr(tptr)){
         if(livelock_detect++ > MAX_DETAG_DEPTH){
             //cat_except(this_bvm);

@@ -28,7 +28,7 @@
 #define MEM_ALLOC_REDLINE (0.01 * MEM_DEFAULT_MAX) // MEM_ALLOC_REDLINE#
 
 #define TOP_OF_ALLOC_BANK(x) (x->base_ptr+(x->size-1)) // TOP_OF_ALLOC_BANK#
-#define TOP_OF_ALLOC_BANK2(x) ((char*)(x->base_ptr)+(x->size-1)) // TOP_OF_ALLOC_BANK#
+#define TOP_OF_ALLOC_BANK2(x) ((char*)(x->base_ptr)+(x->size-1)) // TOP_OF_ALLOC_BANK2#
 
 // Return value is in bytes
 #define mem_bank_in_use(x) ((mword)TOP_OF_ALLOC_BANK(x) - (mword)x->alloc_ptr) // mem_bank_in_use#

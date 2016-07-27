@@ -59,12 +59,12 @@ log_history {"\n\n" .+ "babel_history" journal} <
 
 std !
 
+
 -----------------------------------------------------------------------------
 -- BVM construction begins
 -----------------------------------------------------------------------------
 
     (("ustack_ptr"  (nil))
-    ("soft_root"    [ptr nil nil])
     ("soft_root"    [tag "/babel/tag/trie" ptr () ()])
     ("rstack_ptr"   (nil))
     ("thread_id"    (1))
@@ -74,12 +74,15 @@ std !
     ("local_root"   (nil))
     ("steps"        (-1)))
 
+    cp
      <- newha ->
     {<- dup   ->
         dup  1 ith
         <-   0 ith ->
         inskha}
     each
+
+    "/babel/tag/sparse_bvm" newtag
 
 -----------------------------------------------------------------------------
 -- BVM construction finished

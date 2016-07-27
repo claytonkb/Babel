@@ -374,7 +374,7 @@ tut_pages
     (("Useful Utilities")
     ("The std.sp file contains many useful utilities. You can open the file and read"
     "about the utilities and try them out, or you can read the manual. Here is a"
-    "    '    'gselection of a few of some of the available utilities to illustrate the power"
+    "selection of a few of some of the available utilities to illustrate the power"
     "of Babel's built-in operators and standard utilities.")
     ('    ("foo" "bar" "baz") prs ! "\n" <<'
     '    ("foo" "bar" "baz") prn !'

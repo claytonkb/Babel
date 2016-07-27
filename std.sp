@@ -8,8 +8,8 @@
 -- Loads a .sp file
 -- "foo.sp" include !
 -- Creates a map (hash-table) from a list: ((key1 val1) (key2 val2) ...)
-{ls2map 
-    { cp 
+{ls2map
+    { cp
     <- newha ->
     { <- dup   ->
         dup  1 ith
@@ -20,7 +20,7 @@
 
 -- Takes a list 2 elements at a time and returns a list-of-lists
 -- (1 2 3 4 5 6) lsby2 !  -->  ((1 2) (3 4) (5 6))
-lsby2 
+lsby2
         { { { iter 1 + 2 rem
             { 2 take }
             { fnord  }
@@ -74,17 +74,17 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 --                                                                         --
 -----------------------------------------------------------------------------
 -- Includes a bpdl file and loads it as a bstruct
-('include' 
+('include'
     { >>> sexpr bpdli }
 
 -- Loads a .bbl file
 -- > 'foo.bbl' loadfs !
-'loadfs' 
+'loadfs'
     { slurpm load }
 
 -- Saves a bstruct to .bbl file
 -- > (1 2 3) 'foo.bbl' savefs !
-'savefs' 
+'savefs'
     { <- unload -> spitm }
 
 -- Compiles a .sp file to a .bbl BVM (run with -b switch)
@@ -106,44 +106,44 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- Applies code to a list, differentiating a sequence-of-terms list as a result
 -- (1 2 3 4) {-} delta !   --> (1 1 1)
 'delta'
-    { 2 take { give 
-        <- pop car swap {dup <- swap} cp -> 
+    { 2 take { give
+        <- pop car swap {dup <- swap} cp ->
         {->} cp
-        compose ! 
-        compose ! 
-        each zap 
-        collect !} 
+        compose !
+        compose !
+        each zap
+        collect !}
     nest }
 
 -- Collects entire dstack into a list
-'collect' 
+'collect'
     {-1 take}
 
 -- Take n items as a ptr-array
-'takeptr' 
+'takeptr'
     {take bons}
 
 -- Take n items as a val-array
-'takeval' 
+'takeval'
     {take ls2lf}
 
 -- Wrap TOS in parentheses
 -- X wrap ! --> (X)
-'wrap' 
+'wrap'
     {1 take}
 
 -- Wrap TOS in ptr-array
 -- X wrapptr ! --> [ptr X]
-'wrapptr' 
+'wrapptr'
     {1 take bons}
 
 -- Note: internal utility, not intended for end-use
-'wrapcode' 
+'wrapcode'
     { wrap ! wrap ! }
 
 -- Evaluate code over a list and collect the results back into a list
 -- (1 2 3) {1 +} over !  --> (2 3 4)
-'over'   
+'over'
     { 2 take { give each collect ! } nest }
 
 -- Similar to each but copies a single object for repeated use
@@ -153,33 +153,33 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 
 -- Filter a list based on truth-value returned by code evaluated on each
 -- element of the list
-'filter'   
+'filter'
     { <- {dup} cp -> {true? {zap} {fnord} selr !} cp compose ! compose ! over ! }
 
 -- Perform an operation over an array and collect the results as a ptr-array
 -- [ptr 1 2 3] {1 +} overptr !  --> [ptr 2 3 4]
-'overptr' 
+'overptr'
     { 2 take { give eachar -1 takeptr ! } nest }
 
 -- Perform an operation over an array and collect the results as a val-array
 -- [1 2 3] {1 +} overval !  --> [2 3 4]
-'overval' 
+'overval'
     { 2 take { give eachar -1 takeval ! } nest }
 
 -- Returns true if any code-list returns true; otherwise, returns false
 -- X ({Y} {Z}) any?
 -- NOTE: does not short-circuit
-'any?'   
+'any?'
     { 2 take { give {<- dup -> ! <-} each flip collect ! {or} fold ! } nest }
 
 -- Returns true if all code-lists return true; otherwise, returns false
 -- X ({Y} {Z}) all?
 -- NOTE: does not short-circuit
-'all?'   
+'all?'
     { 2 take { give {<- dup -> ! <-} each flip collect ! {and} fold ! } nest }
 
 -- Generates a bstruct-signature
-'bsig' 
+'bsig'
     { unload hashm }
 
 -- Duplicate the two top items on the stack
@@ -202,22 +202,22 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -----------------------------------------------------------------------------
 
 -- Evals a code-list and prints the elapsed time (in milliseconds)
-'timed' 
+'timed'
     { timems <- ! -> timems swap - itod say ! }
 
 -- Total mem usage
-'tmu' 
+'tmu'
     { 2 dev mu }
 
 -- Measures in-use memory-usage
-'delta_tmu' 
+'delta_tmu'
     { tmu ! <- ! -> tmu ! swap - itod say ! }
 
 -- Total mem-alloc'd (in-use or not)
 'tma'
     { 23 dev dup <-
     51 th
-    -> dup <- 53 th + 
+    -> dup <- 53 th +
     -> 52 th - }
 
 'spaced'
@@ -247,13 +247,13 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 'cache_dump'
     { 23 dev ar2ls
     cache_stats_labels
-    lspair ! 
+    lspair !
     { give << " : " << show << "\n" << } each }
 
 'cache_table'
     { cache_stats_labels
     23 dev ar2ls
-    lspair ! 
+    lspair !
     ls2map ! }
 
 -----------------------------------------------------------------------------
@@ -263,13 +263,13 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -----------------------------------------------------------------------------
 
 -- Joins/appends two lists; works on code-lists as well as ordinary lists
--- {2 3} {+} compose !  --> {2 3 +} 
+-- {2 3} {+} compose !  --> {2 3 +}
 'compose'
     { 2 take append }
 
 -- Joins two code-lists, where the first code-list is to be eval'd and the
 --   second code-list is to perform the eval
--- {+} {over !} compose_eval !  --> { {+} over ! } 
+-- {+} {over !} compose_eval !  --> { {+} over ! }
 'compose_eval'
     { <- cp wrapcode ! -> cp compose ! }
 
@@ -284,13 +284,13 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
     { '( ' << {show <<} each ' )/n' << }
 
 -- Prints each element of a list of strings (all elements must be strings)
--- ("foo" "bar" "baz") lsstr ! 
---    ( "foo" "bar" "baz" ) 
+-- ("foo" "bar" "baz") lsstr !
+--    ( "foo" "bar" "baz" )
 'lsstr'
     { '( ' << prq ! ')/n' << }
 
 -- Prints each element of a list of numbers (all elements must be values)
--- (1 2 3) lsnum !  
+-- (1 2 3) lsnum !
 --    ( 1 2 3 )
 'lsnum'
     { '( ' << prd ! ')/n' << }
@@ -317,16 +317,16 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- Equivalent to 'map' operator in some other languages
 -- (1 2 3) (4 5 6) lspair !  --> ((1 4) (2 5) (3 6))
 'lspair'
-        { <- cp -> cp 
-        2 take 
+        { <- cp -> cp
+        2 take
         { give { <- dup iter ith -> 2 take <- } each zap flip collect ! }
-    nest } 
+    nest }
 
 -- Unpairs a list-of-lists into two lists
 -- Equivalent to 'unmap' operator in some other languages
--- ((1 4) (2 5) (3 6)) lsunpair !  --> (1 2 3) (4 5 6) 
+-- ((1 4) (2 5) (3 6)) lsunpair !  --> (1 2 3) (4 5 6)
 'lsunpair'
-    { dup 
+    { dup
         <- {0 ith} over ! ->
         {1 ith} over !}
 
@@ -376,10 +376,10 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- (6 7 8 9 10) 1 3 lsswap ! --> (6 9 8 7 10)
 'lsswap'
     { 3 take dup dup dup
-    
+
     give
     swap zap
-    ith 
+    ith
 
     <-
     give
@@ -398,7 +398,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 'lstrue'
     { <- 1 -> {true? {zap 0 last} {fnord} selr !} each }
 
--- Returns true if all elements of list are false - short-circuits 
+-- Returns true if all elements of list are false - short-circuits
 -- (0 0 0) lsfalse ! --> 1
 -- (0 1 0) lsfalse ! --> 0
 'lsfalse'
@@ -431,7 +431,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 'lexsort'
     { { arcmp8 0 lt? } lssort ! }
 
--- Sorts a list of strings alphabetically 
+-- Sorts a list of strings alphabetically
 -- <list-of-strings> strsort ! --> <sorted-string-list>
 'strsort'
     { { strcmp8 0 lt? } lssort ! }
@@ -444,7 +444,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
     { give { <- dup -> give slice8 <- } each flip collect ! } nest }
 
 'strslice_BAD'
-    { lsdup ! 
+    { lsdup !
     pop zap shift zap
     2 group !
     2 take
@@ -467,7 +467,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
         dup <-
         cmp
             {-> wrap ! unshift}
-            {-> zap} 
+            {-> zap}
         selr ! }
     nest
 
@@ -478,10 +478,10 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
     {(0) cp push} {fnord}
     selr !
 
-    strslice ! 
+    strslice !
 
     dup <- 0 ith
-    cmp    
+    cmp
         {-> lseven !}
         {-> lsodd  !}
     selr ! }
@@ -511,14 +511,14 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 'lsstrlen2'
     { {arlen8} over ! sum ! }
 
--- General-purpose list-sort; "do what I mean" for most numeric object types 
+-- General-purpose list-sort; "do what I mean" for most numeric object types
 --   (val-arrays, lists of arrays, lists of lists of arrays, etc.)
 -- <list> sort ! --> <sorted-list>
 'gpsort'
     { bons dup { <- unload -> unload arcmp 0 lt? } merge_sort ar2ls }
 
 -- Poor man's macro; a generic each macro
-'eachify' 
+'eachify'
     { wrapcode ! {...} cp compose ! }
 
 -- Poor man's macro; a generic fold macro
@@ -544,7 +544,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 
 -- Returns the ith row in a matrix
 -- ((1 2) (3 4) (5 6)) 1 matrow !  -->  (3 4)
-'matrow' 
+'matrow'
     {ith}
 
 -- Returns the diagonal of a matrix
@@ -561,7 +561,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
         <- { dup iter matcol ! swap } ->
     times
     zap
-    collect ! 
+    collect !
     rev }
     nest }
 -- flip collect ! is faster than collect ! rev
@@ -574,10 +574,10 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 
 -- Applies an operation to each element of a matrix and collects the results back into a matrix
 -- ((1 2 3) (4 5 6)) {1 +} matover !  --> (( 2 3 4 ) ( 5 6 7 ))
-'matover' 
+'matover'
     { cp
-      <- dup car len -> swap 
-      <- 2 take { give mateach ! collect ! } nest -> 
+      <- dup car len -> swap
+      <- 2 take { give mateach ! collect ! } nest ->
       group ! }
 
 -- Selects a particular element from a matrix
@@ -591,12 +591,12 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 --    (((1 5) (2 6))
 --     ((3 7) (4 8)))
 'matpair'
-    { 2 take 
+    { 2 take
         { give
-        { <- dup iter ith -> lspair ! <- } 
-        each 
-        zap 
-        flip collect ! } 
+        { <- dup iter ith -> lspair ! <- }
+        each
+        zap
+        flip collect ! }
     nest }
 
 -- Evaluates code on two matrices, element-wise
@@ -608,7 +608,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 'matadd'
     { {+} matwise ! }
 
--- Matrix subtraction 
+-- Matrix subtraction
 'matsub'
     { {-} matwise ! }
 
@@ -640,14 +640,14 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- Arranges the terms of two matrices as a matrix-of-lists in the order
 -- required for matrix-multiplication
 'matapp'
-    { 2 take cp 
-        { give 
-        dup 0 ith len 
-        <- 
-            <- mattrans ! -> cart ! {give lspair !} each collect ! 
-        -> 
-        group ! } 
-    nest 
+    { 2 take cp
+        { give
+        dup 0 ith len
+        <-
+            <- mattrans ! -> cart ! {give lspair !} each collect !
+        ->
+        group ! }
+    nest
     mattrans ! }
 
 -- Multiplies two square matrices of same dimension, order 2 or greater
@@ -670,12 +670,12 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 --    vectors: 1xn * nx1  --> rowvecmul
 --    vectors: nx1 * 1xn  --> colvecmul
 --    matrix*vector: nxn * nx1 --> matvecmul
-'rowvecmul' 
+'rowvecmul'
     { mattrans ! <- car -> car lspair ! { {*} fold ! } over ! {+} fold ! }
 
-'colvecmul' 
-    { car swap 
-        2 take { give {<- dup cp -> cart ! <-} each flip collect ! } nest 
+'colvecmul'
+    { car swap
+        2 take { give {<- dup cp -> cart ! <-} each flip collect ! } nest
     { {*} fold ! } matover ! }
 
 -- matwin --> Selects a "window" out of a matrix
@@ -685,30 +685,30 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
     { { { show << " " << } each "\n" << } each }
 
 -- Sums the matrix diagonal
-'trace' 
+'trace'
     { matdiag ! sum ! }
 
 -- Takes the cartesian product of a matrix
-'cart' 
+'cart'
     { 2 take dup
         {nil?} over ! lsfalse ! not
-            {{ give 
+            {{ give
                     wrap ! wrap ! { {<- dup -> 2 take swap} each zap } compose !
                     each
-                collect ! } 
+                collect ! }
                 nest }
             {zap nil}
         selr !
- } 
+ }
 
 -- same as cart but deep-copies
 -- { cartd
---        { 2 take 
---            { give 
+--        { 2 take
+--            { give
 --            wrap ! wrap ! { {<- dup -> 2 take swap} each zap } lsjoin !
 --            each
---        collect ! } 
---        nest } 
+--        collect ! }
+--        nest }
 --    < }
 
 
@@ -780,28 +780,28 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
     { entsha 0 matcol ! }
 
 -- Performs an operation over every entry in a map; compare to over
-'overmap' 
+'overmap'
     { <- dup map2tls ! dup <- 0 matcol ! -> 1 matcol ! -> over ! lspair ! -> insmaptls ! }
 
 -- Performs an operation on each value in a map; compare to each, eachar, etc.
-'eachmap' 
+'eachmap'
     { <- valmap ! -> each }
 
 -- Prints the list returned by keymap
-'dirmap' 
+'dirmap'
     { keymap ! prs ! }
 
 -- Prints the list returned by keymap
-'showmap' 
-    { entsha 
-        { dup 1 ith 
-        dup nil? 
+'showmap'
+    { entsha
+        { dup 1 ith
+        dup nil?
             { << }
             { zap dup 0 ith show << }
         selr !
         " : " <<
         2 ith show <<
-        "\n" << } 
+        "\n" << }
     each }
 
 -- Undoes ls2map
@@ -853,8 +853,8 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- "contents". Among other things, you can take the union, intersection,
 -- subtraction, and Venn difference of two enums. Since enums are maps, you can
 -- use any of the map utilities to operate on them but an enum is not the
--- right abstraction if you find yourself needing to use a map operator. 
--- 
+-- right abstraction if you find yourself needing to use a map operator.
+--
 -- Because an enum has a "contents", you can use an enum as a container for Babel
 -- objects but the concept of "lookup" does not make sense for an enum (just use a
 -- map if you want to perform by-name lookups). Instead, you should use the enum
@@ -864,9 +864,9 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- Construct an enum from a list of (arbitrary) objects
 'ls2enum'
     { dup nil?
-        { dup 
-            { bsig ! } over ! 
-            swap 
+        { dup
+            { bsig ! } over !
+            swap
             lspair !
             <- newha ->
             insmaptls ! }
@@ -883,7 +883,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 
 -- Check set membership
 'enumelem?'
-    { bsig ! luha nil? not } 
+    { bsig ! luha nil? not }
 
 -- Join two enums
 'enumunion'
@@ -891,15 +891,15 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 
 -- Enum cardinality
 'enumcard'
-    { sizemap ! } 
+    { sizemap ! }
 
 -- Test if enum empty
 'enumempty?'
-    { sizemap ! 0 eq? } 
+    { sizemap ! 0 eq? }
 
 -- Test if two enums are equal
 'enumeq?'
-    { cmp } 
+    { cmp }
 
 -- Test the subset relation between two enums
 'enumsubset'
@@ -907,16 +907,16 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 
 -- Take the intersection of two enums
 'enumintersect'
-    { <- dup -> 
-        2 take { give 
-        tagmap ! 
-            { <- dup -> 
-            dup 
-            <- exha -> 
-            swap 
-            {zap} {<-} selr ! } 
-        each 
-        flip collect ! } 
+    { <- dup ->
+        2 take { give
+        tagmap !
+            { <- dup ->
+            dup
+            <- exha ->
+            swap
+            {zap} {<-} selr ! }
+        each
+        flip collect ! }
     nest
     dup nil?
         { tlumapls ! ls2enum ! }
@@ -926,15 +926,15 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- Set left-difference
 -- <enum1> <enum2> enumleft ! --> <enum1-only>
 'enumleft'
-    { <- dup -> 
+    { <- dup ->
     enumintersect !
-    tagmap ! 
+    tagmap !
     { <- dup -> rmha zap } each }
 
 -- Enum Venn difference
 -- <enum1> <enum2> enumdiff ! --> (<enum1-only> <enum1-enum2-intersection> <enum2-only>)
 'enumdiff'
-    { <- > -> > 
+    { <- > -> >
     2 take dup cp dup cp
     <- <- give enumleft !      ->
           give enumintersect ! ->
@@ -959,10 +959,10 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
             { swap 2 take -> swap <- 1 swap }
             { <- 1 + -> -> zap }
         selr ! }
-        each 
+        each
         swap 2 take <-
-        flip collect ! } 
-    nest } 
+        flip collect ! }
+    nest }
 
 -- Run-length decode a list-of-pairs of form ((object1 count1) (object2 count2) ...)
 'rldecode'
@@ -991,7 +991,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- Insert or increment an element in a histogram
 --      <hist> ex? <bsig>
 'inchist'
-    { bsig ! dup2 ! <- exlut ! 
+    { bsig ! dup2 ! <- exlut !
         { -> 1 cp inslut ! }
         { dup -> dup <- lulut ! -> swap 1 + inslut ! }
     selr ! }
@@ -1002,7 +1002,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 
 -- Decrement an element in a histogram
 'dechist'
-    { bsig ! dup2 ! <- exlut ! 
+    { bsig ! dup2 ! <- exlut !
         { -> 0 cp inslut ! }
         { dup -> dup <- lulut ! -> swap 1 - inslut ! }
     selr ! }
@@ -1018,14 +1018,14 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 --                                                                         --
 -----------------------------------------------------------------------------
 
--- A look-up table (LUT) is a map constructed in such a way that any given object 
+-- A look-up table (LUT) is a map constructed in such a way that any given object
 -- can be used to index into the map (not just strings). Unlike an enum, a LUT
 -- can map one object to another. For example, a LUT might be used to map tags
 -- to code-lists.
 
 -- Construct a lookup-table from a list
 'ls2lut'
-    { cp 
+    { cp
     <- newha ->
     { <- dup   ->
         dup  1 ith
@@ -1160,7 +1160,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 -- Re-execute a BVM
 'rebabel'
     { dup detag "/babel/sym/code_restart_point" lumap !
-    cibvm ! 
+    cibvm !
     babel }
 
 -- Read-Eval-Print-Loop
@@ -1185,7 +1185,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
     { detag "dstack_ptr" lumap ! [0 0 0] get car }
 
 -- Returns the dstack of a BVM in list form
--- <bvm> stackbvm ! --> ( TOS TOS-1 ... ) 
+-- <bvm> stackbvm ! --> ( TOS TOS-1 ... )
 'stackbvm'
     { dstackbvm !
         { dup
@@ -1203,7 +1203,7 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
     { << "\n" << }
 
 -- Applies say on each element of a list
-'speak' 
+'speak'
     { {say !} ... } -- same as prn ... deprecate
 
 -- Stack Display
@@ -1238,8 +1238,8 @@ mkbvm2_soft_root [tag "/babel/tag/trie" ptr () ()] <
 'lsopcodes' -- Dump the keys in the opcode_table file
     { 'opcode_table.bbl' loadfs ! keymap ! {<< ' ' <<} ... })
 
-mkmap ! 
-import ! 
+mkmap !
+import !
 
 -- Prints a list of strings, without spaces
 pr  {<<}                eachify ! <
@@ -1259,7 +1259,7 @@ prh {itoh << " " <<}    eachify ! <
 -- Prints a list of strings, with newlines
 prn {<< "\n" <<}        eachify ! <
 
--- Sums a list of integers 
+-- Sums a list of integers
 sum   {+}   foldify ! <
 
 -- Takes the product of a list of integers

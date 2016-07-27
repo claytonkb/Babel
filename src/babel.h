@@ -501,7 +501,8 @@ mword *BABEL_TAG_ZERO_HASH; // BABEL_TAG_ZERO_HASH#
 #define mem_alloc_size(x) (x == 0 ? TPTR_SIZE : (abs(x)/MWORD_SIZE)) // mem_alloc_size#
 
 //RHS C-dereference for interior array (rci):
-#define rci(x,y) (*((void**)x+y))  // rci#
+//#define rci(x,y) (*((void**)x+y))  // rci#
+#define rci(x,y) (*((mword**)x+y))  // rci#
 
 //RHS C-dereference for leaf array (rcl):
 #define rcl(x,y) (*((mword*)x+y))  // rcl#

@@ -252,44 +252,6 @@ mword _fn_recurse(bvm_cache *this_bvm, mword *bs, bstruct_op_fn_ptr bfn, void *v
 }
 
 
-
-
-////
-////
-//mword _fn_recurse(bvm_cache *this_bvm, mword *bs, bstruct_op_fn_ptr bfn, void *v){ // _fn_recurse#
-//
-//    int i;
-//
-//    if( TRAVERSED(bs) ){
-//        return 1;
-//    }
-//
-//    if( !bfn(this_bvm, bs,v) ){
-//        return 0;
-//    }
-//
-//    if( is_inte(bs) ){
-//        int num_elem = size(bs);
-//        MARK_TRAVERSED(bs);
-//        for(i=0; i<num_elem; i++){
-//            if(!_fn_recurse(this_bvm, (mword *)*(bs+i),bfn,v)){
-//                return 0;
-//            }
-//        }
-//        return 1;
-//    }
-//    else if( is_tptr(bs) ){
-//        MARK_TRAVERSED(bs);
-//        _fn_recurse(this_bvm, bs+HASH_SIZE+1,bfn,v);
-//    }
-//    else{
-//        MARK_TRAVERSED(bs);
-//    }
-//    return 1;
-//
-//}
-//
-
 // _mu -> memory usage (mnemonic: *nix du)
 // _mu(this_bvm, x) = 
 //      + _nlf(this_bvm, x) 
@@ -308,25 +270,6 @@ mword _mu(bvm_cache *this_bvm, mword *bs){ // _mu#
 
 }
 
-
-////
-////
-//mword _rmu(bvm_cache *this_bvm, mword *bs, void *v){ // _rmu#
-//
-//    if( is_tptr(bs) ){
-//        *(mword*)v += HASH_SIZE+1;
-//    }
-//    else if( is_leaf(bs) ){
-//        *(mword*)v += size(bs)+1;
-//    }
-//    else{
-//        *(mword*)v += size(bs)+1;
-//    }
-//
-//    return 1;
-//
-//}
-//
 
 //
 //

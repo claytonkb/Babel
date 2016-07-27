@@ -101,14 +101,24 @@ bvm_cache *dev(bvm_cache *this_bvm){
         stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
         cache_flush(this_bvm);
 
-        this_bvm->flags->MC_GC_ON_EVERY_OP = FLAG_SET;
+        oi.mask = OI_MASK_ANY;
+        get_operands(this_bvm,1,&oi);
+
+        stack_push(this_bvm,
+                rci(this_bvm->dstack_ptr,0),
+                stack_new_entry(
+                    this_bvm,
+                    _pearson_marsaglia(this_bvm, BABEL_TAG_ZERO_HASH, oi.data, _arlen8(this_bvm, oi.data)),
+                    nil));
+
+//        this_bvm->flags->MC_GC_ON_EVERY_OP = FLAG_SET;
 
 //_dumpf(this_bvm->rstack_ptr);
 //_msg("_dumpf(this_bvm->rstack_ptr);");
 //_die;
 
 //        stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
-//        cache_update(this_bvm);
+//        cache_flush(this_bvm);
 //
 //        oi.mask = OI_MASK_ANY;
 //        get_operands(this_bvm,1,&oi);
@@ -124,7 +134,7 @@ bvm_cache *dev(bvm_cache *this_bvm){
 //_d((mword)nil);
 
 //        stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
-//        cache_update(this_bvm);
+//        cache_flush(this_bvm);
 //
 //        oi.mask = OI_MASK_INTE;
 //        get_operands(this_bvm,1,&oi);
@@ -149,7 +159,7 @@ bvm_cache *dev(bvm_cache *this_bvm){
 //        _dumpf(this_bvm->soft_root);
 
 //        stack_pop(this_bvm,rci(this_bvm->dstack_ptr,0));
-//        cache_update(this_bvm);
+//        cache_flush(this_bvm);
 //        stack_push(this_bvm,
 //                rci(this_bvm->dstack_ptr,0),
 //                stack_new_entry(
@@ -430,6 +440,8 @@ mword time_ms(void){
 //mword *_deva(bvm_cache *this_bvm, mword *op0, mword *op1, mword *op2){
 //mword *_deva(bvm_cache *this_bvm, mword *op0, mword *op1){
 mword *_deva(bvm_cache *this_bvm, mword *op0){ // _deva#
+
+    GLOBAL_BVM_INSTRUMENT_TRIGGER = FLAG_SET;
 
     return nil;
 

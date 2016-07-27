@@ -291,9 +291,21 @@ optest
     -- NOT COVERED --
     -- I/O operators
 
-
     "\nTOTAL FAILURES: "     <<
     global_fail itod << "\n" <<
+
+--22 dev
+--
+-- dup 57 th show say !
+-- dup 58 th show say !
+-- dup 59 th show say !
+--
+-- dup 60 th show say !
+-- dup 61 th show say !
+--     62 th show say !
+--
+--16 dev
+
     clear }
 
 

@@ -65,6 +65,14 @@ _d(init_mem_size);
 
     this_bvm->interp->mem = m; // Sets the global memory context
 
+#ifdef GC_TRACE
+_trace;
+_d(this_bvm->interp->mem->primary->size);
+_d((mword)this_bvm->interp->mem->primary->base_ptr);
+_d((mword)this_bvm->interp->mem->secondary->base_ptr);
+#endif
+
+
 }
 
 
@@ -238,11 +246,17 @@ bvm_cache *mem_copy_collect(bvm_cache *this_bvm){ // mem_copy_collect#
 
 #ifdef GC_TRACE
 _trace;
-_d(this_bvm->flags->MC_GC_PENDING);
-_d(this_bvm->flags->MC_GC_BLOCKING);
-_d(this_bvm->flags->MC_GC_OP_RESTART);
-_d(this_bvm->flags->MC_GC_PNR);
-_d(this_bvm->flags->MC_GC_ON_EVERY_OP);
+//_d(this_bvm->flags->MC_GC_PENDING);
+//_d(this_bvm->flags->MC_GC_BLOCKING);
+//_d(this_bvm->flags->MC_GC_OP_RESTART);
+//_d(this_bvm->flags->MC_GC_PNR);
+//_d(this_bvm->flags->MC_GC_ON_EVERY_OP);
+_d((mword)this_bvm->interp->mem->primary->base_ptr);
+_d((mword)this_bvm->interp->mem->primary->alloc_ptr);
+_d((mword)this_bvm->interp->mem->primary->size);
+_d((mword)this_bvm->interp->mem->secondary->base_ptr);
+_d((mword)this_bvm->interp->mem->secondary->alloc_ptr);
+_d((mword)this_bvm->interp->mem->secondary->size);
 #endif
 
 if(this_bvm->flags->BVM_INTERP_OP_TRACE == FLAG_SET){
@@ -329,6 +343,17 @@ if(bs_byte_size > mem->primary->size){
 #ifdef GC_TRACE
 _msg("this_bvm->flags->MC_GC_PENDING = FLAG_CLR");
 #endif
+
+#ifdef GC_TRACE
+_msg("Leaving mem_copy_collect");
+_d((mword)this_bvm->interp->mem->primary->base_ptr);
+_d((mword)this_bvm->interp->mem->primary->alloc_ptr);
+_d((mword)this_bvm->interp->mem->primary->size);
+_d((mword)this_bvm->interp->mem->secondary->base_ptr);
+_d((mword)this_bvm->interp->mem->secondary->alloc_ptr);
+_d((mword)this_bvm->interp->mem->secondary->size);
+#endif
+
 
     return this_bvm;
 
@@ -448,6 +473,9 @@ void mem_increment_alloc(bvm_cache *this_bvm, mem_context *mem, mword memory_dem
 
 #ifdef GC_TRACE
 _trace;
+_d(mem->primary->size);
+_d((mword)this_bvm->interp->mem->primary->base_ptr);
+_d((mword)this_bvm->interp->mem->secondary->base_ptr);
 #endif
 
     mword *old_primary   = mem->primary->base_ptr;
@@ -479,6 +507,12 @@ _trace;
 
     free(old_primary);
     free(old_secondary);
+
+#ifdef GC_TRACE
+_d(mem->primary->size);
+_d((mword)this_bvm->interp->mem->primary->base_ptr);
+_d((mword)this_bvm->interp->mem->secondary->base_ptr);
+#endif
 
 }
 
